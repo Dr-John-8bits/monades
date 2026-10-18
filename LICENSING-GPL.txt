@@ -1,0 +1,42 @@
+MUTABLE DREAMS 1.0 — ADDITIONAL GPL DISTRIBUTION
+
+Copyright (c) 2026 Mutable Dreams contributors.
+The Mutable Dreams application and integration are additionally offered under
+GNU GPL version 3 only (GPL-3.0-only). This combined software distribution is
+provided under GPL-3.0-only, without warranty. The full terms are in LICENSE.
+The earlier MIT grant remains available and is not revoked.
+
+The MIT notices of Mutable Instruments / Emilie Gillet (Plaits, Rings, stmlib)
+and other permissive components remain intact. These components retain their
+original licences; inclusion in the GPL combined program does not erase them.
+
+fm1-base, felucca-bsp and derivative platform files remain available under
+MPL-2.0. For this Larger Work, they are additionally distributed under GPL-3.0
+pursuant to MPL-2.0 section 3.3, in combination with the GPL-licensed Mutable
+Dreams application. All existing MPL notices and rights are retained, including
+for modified platform files. No GPL-incompatible secondary-licence notice was
+found in the included code. Exhibit B inside the licence text itself is not an
+applied incompatibility notice.
+
+Fonts retain SIL OFL 1.1. Apache-2.0 notices remain attached to SDK-derived
+sources. No Bluetooth or Wi-Fi libraries are linked by this configuration:
+ble=false and Wi-Fi is disabled. The GPL grant covers the combined application
+and open update-loader code, not ownership of third-party fonts or separately
+packaged vendor boot/configuration materials. The unchanged vendor packaging
+files retain their Apache-2.0 terms as documented in base/LICENSING.md. Compiler
+and AC79 SDK are external build dependencies, not included in the source ZIP.
+
+This is an additional licensing/source distribution of firmware 1.0, not a
+sound-engine update. The existing .fwsc remains byte-for-byte unchanged:
+SHA256 75008881683cbeb3515e24cfd7830136b90eb293f0752dc66b203b7f2ee7cd9f
+Identity FM-1_710010000. Existing release downloads and their hashes remain valid.
+
+Complete corresponding source: Mutable-Dreams-1.0-GPL-Source.zip.
+The named archive contains app/, base/ (including bsp/), build tools, tests,
+credits and source fingerprints. Unzip it and follow README.md to build.
+No source-code behaviour has changed; only licensing metadata and documentation.
+
+References consulted 18 October 2026:
+https://www.mozilla.org/en-US/MPL/2.0/#distribution-of-a-larger-work
+https://www.mozilla.org/en-US/MPL/2.0/FAQ/#q14-may-i-combine-mpl-licensed-code-and-lgpl-licensed-code-in-the-same-executable-program
+https://www.mozilla.org/en-US/MPL/2.0/combining-mpl-and-gpl/
