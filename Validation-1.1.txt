@@ -1,5 +1,5 @@
 MUTABLE DREAMS 1.1 — RELEASE BUILD QUALIFICATION
-25 October 2026. Locally staged; no public 1.1 publication yet.
+25 October 2026. Qualification record; publication receipts are tracked separately.
 
 Firmware: Mutable-Dreams-1.1.0.fwsc
 SHA256: 8e039bb0e9681fbbb0504e9b7d251895958fd88ae97f11ff0342b4aef38143d2
@@ -93,10 +93,10 @@ request. The physical TRS connection remains untested. USB success does not
 certify TRS wiring. End-to-end latency/all possible patch combinations unmeasured.
 
 RELEASE / MEDIA
-This is private release staging; published 1.0 and developer handoff unchanged.
+Published 1.0 and the developer handoff remain unchanged.
 The completed English 1.1 product film uses calm male narration, seven real-device
-audio recordings, a credited manufacturer photograph and separately labeled
-native firmware views. It is not a camera recording of device operation. The
+audio recordings and clearly labeled native Mutable Dreams 1.1
+firmware views rendered from source. No stock-firmware photograph is shown. It is not a camera recording of device operation. The
 film is embedded in the staged release page. A portrait Instagram reel is
 packaged separately. Published URLs are recorded separately after deployment.
 

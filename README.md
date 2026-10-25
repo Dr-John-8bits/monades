@@ -4,7 +4,7 @@ Six voices. Small worlds, endlessly unfolding.
 
 Thank you for the music, questions and community feedback that shaped this update. **Mutable Dreams**, by **Kid Bunka / Christoph Link**, is a free, independent instrument for the **M-VAVE FM-1**, with deep gratitude to **Émilie Gillet and Mutable Instruments**.
 
-[Play & edit in your browser](https://mutable-dreams.sugarypixie10.chatgpt.site/#editor) · [Download 1.1](https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v1.1) · [Watch the update](https://www.youtube.com/watch?v=b2jFymQYfFc) · [Install / update / return](https://mutable-dreams.sugarypixie10.chatgpt.site/Mutable-Dreams-1.1-Install.html)
+[Play & edit in your browser](https://mutable-dreams.sugarypixie10.chatgpt.site/#editor) · [Download 1.1](https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v1.1) · [Watch the update](https://www.youtube.com/watch?v=RCgs8t8fXvM) · [Install / update / return](https://mutable-dreams.sugarypixie10.chatgpt.site/Mutable-Dreams-1.1-Install.html)
 
 ![Native Mutable Dreams 1.1 display](Screen-1.1-Live.png)
 
