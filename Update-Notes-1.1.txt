@@ -1,0 +1,60 @@
+MUTABLE DREAMS 1.1 — WARMER WORLDS, YOUR OWN BIOMES
+25 October 2026
+
+Thank you for the recordings, questions and generous feedback that shaped this
+update. Mutable Dreams remains a free, independent community instrument for
+the M-VAVE FM-1, with deep gratitude to Émilie Gillet and Mutable Instruments.
+
+WHAT'S NEW SINCE 1.0
+- Twelve engines across six freely assignable tracks. New Round Bass,
+  Elements Strike, Mellow Drift and Satin Morph expand the original palette.
+- 224 factory tones and 76 musical Biomes plus Blank. New soft, warm starting
+  points include Mellow Canopy, Satin River and Velour Dawn.
+- Global mixer with levels and granular, delay and room sends. Shared effects
+  bring melodic voices, bass and percussion into the same space.
+- Bassline modes, glide and editable 16-step phrases with notes, rests,
+  accents and probability. Independent STEP mode does not use Euclidean gates.
+- Sixteen named User Biomes and sixty-four User Sound slots, with overwrite
+  confirmation. Save while stopped and using the internal clock.
+- Original Marbles-inspired remembered variation, Tides-inspired cyclic
+  modulation and Warps-inspired ring blending. These are not full module ports.
+- USB and TRS MIDI input and external clock support. USB was tested; the
+  physical TRS connector still needs a cable test. No MPE, MIDI output or
+  live MIDI recording is claimed.
+- Live bidirectional browser editor, live-patch JSON import/export and complete
+  .mddb saved-bank backup/restore. Full bank restore requires physical SEL.
+- Nineteen device pages, organic animated backgrounds, leaf-shaped controls,
+  clearer headings and contextual held-button help.
+- Audio scheduling and DSP block optimizations, storage/transfer safeguards,
+  granular checks across Grain Size 19/20/21 and higher values, and the Density
+  slider synchronization fix.
+
+UPDATE AND RECOVERY
+Direct update from the published Mutable Dreams 1.0 is supported and tested
+on the exact 1.1 release file. You do not need to visit Stock V15 first.
+Original Stock V15 installation and return are documented. Read Recovery-1.1.txt
+and use the backup procedure for your current version: 1.0 does not have the
+new full-bank .mddb protocol. Returning to V15 erases 1.1 User Banks/preferences.
+On 1.1 keep BOTH .mddb for saved data and JSON for any unsaved live edits.
+The published v1.0 release, firmware files and tag remain unchanged.
+
+QUALIFICATION AND LIMITS
+Exact final file: 8e039bb0e9681fbbb0504e9b7d251895958fd88ae97f11ff0342b4aef38143d2
+USB identity: FM-1_710010100. Firmware size: 610136 bytes.
+Measured final-build dense playback tests peaked at 84.67% and 79.60% of the
+callback budget, with zero NEW audio faults in those windows. A stopped flash
+restoration produced one separately recorded timing event; saving is not an
+uninterrupted playback operation. Full V15 roundtrip/cold-start/longer stress
+evidence belongs to the functional predecessor with identical DSP, platform
+and update loader. See DEVICE-TEST-REPORT.txt for exact scope. The owner's
+visible browser tests include import and restore; no automated browser GUI
+test is claimed. Not every possible six-track patch has been exhaustively
+tested. The second CPU core stays disabled; no unlimited polyphony claim.
+
+SOURCE AND CREDITS
+Complete corresponding source, build instructions, tests and component notices
+are supplied in Mutable-Dreams-1.1-Source.zip. The combined distribution is
+GPL-3.0-only; original MIT/MPL-2.0 and font notices remain intact. Selected
+original Plaits, Rings and Elements algorithms are used. Custom granular,
+Choir, Round Bass and Satin designs belong to Mutable Dreams. Independent and
+unaffiliated with Mutable Instruments or M-VAVE; no official endorsement.

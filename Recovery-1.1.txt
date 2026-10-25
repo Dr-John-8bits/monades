@@ -1,0 +1,100 @@
+MUTABLE DREAMS 1.1 — UPDATE, BACKUP AND RETURN
+Version 1.1, prepared 25 October 2026. The published 1.0 remains available.
+The matching qualification report is authoritative for the exact tested package.
+
+BEFORE CHANGING FIRMWARE — ALREADY ON 1.1
+1. Export the live Biome if it contains edits you have not saved. In the editor,
+   select the FM-1 and use Export patch. Keep this .json separately.
+2. Back up all device banks to a .mddb file. It contains the SAVED startup project,
+   saved motion/startup-sound preferences, 16 User Biomes and 64 User Sounds.
+   It does not automatically save the live edit. SAVE explicitly first if wanted.
+3. Keep the current firmware package, its source and checksums with your backup.
+   Backups are private. Do not attach them to public release/source bundles.
+
+IMPORTANT FINDING FROM THE DEVICE TEST
+Returning to Stock V15 erased the 1.1 User Banks and saved preferences on our
+FM-1. The saved startup project alone survived that test. Do not rely on any
+settings surviving: the complete .mddb backup is what makes return/reinstallation
+recoverable. A firmware package does not contain your personal banks.
+
+UPDATE DIRECTLY FROM MUTABLE DREAMS 1.0
+You do not need to return to Stock V15 first. The published 1.0 package
+(FM-1_710010000) was installed on the actual FM-1, a custom Biome was saved,
+and the final release-labeled 1.1 package was installed directly. Every original parameter
+was preserved on first boot; the 1.0 patch format was migrated from v4 to v6.
+The unchanged saved preferences also survived. This is a checked path for these
+tested versions, not a guarantee for every third-party firmware or power fault.
+
+1. Stop playback on 1.0 and press SAVE to retain the current Biome and preferences.
+   Only the saved Biome survives a restart. Unsaved changes need their own export.
+2. Recommended extra backup, using the source bundle's read-only tool:
+     python3 tools/project_backup.py --port 'X0X FM-1' my-1.0-backup
+   Dependencies for this older tool: mido, python-rtmidi, numpy, sounddevice.
+   Keep Mutable-Dreams-Live.json and Mutable-Dreams-Saved.json (if a saved Biome
+   exists), the raw files and the status report. Do not use --user-banks on 1.0.
+3. Close the backup tool and other MIDI clients. Install 1.1 using the installer
+   below. Keep USB connected until restart and identity confirmation complete.
+4. Check the migrated Biome. The new effects/modulation start with compatible
+   defaults rather than being added to your old sound. The new engines and
+   library are available when you choose them; they do not replace saved tracks.
+5. Once on 1.1, use its live editor and make a complete .mddb bank backup.
+
+1.0 has one saved personal Biome, not the sixteen named Biome/sixty-four sound
+banks introduced in 1.1. Its firmware does not support the 1.1 live editor or
+.mddb bank-transfer protocol. Do not ask a 1.0 user to use those before updating.
+If a legacy JSON is needed later, import it into the stopped browser instrument,
+export the converted JSON, then import that current-format JSON into the 1.1
+live editor. Save explicitly. Appearance and synthesis refinements in 1.1 may
+change the sound even when the original parameter values are preserved.
+
+INSTALL 1.1 FROM STOCK V15
+Use the matching 1.1 browser installer (Chrome/Edge + Web MIDI SysEx),
+or the Python installer included in the source/installer kit:
+  python3 base/tools/fm1_install.py --info
+  python3 base/tools/fm1_install.py --yes Mutable-Dreams-1.1.0.fwsc
+The device restarts as FM-1_710010100; its USB-MIDI port is X0X FM-1.
+Keep USB connected until the installer confirms the restarted identity.
+Supported baseline for this qualification: original M-VAVE FM-1 V15 (FM-1_015).
+A direct update from every other custom firmware has NOT been qualified.
+
+RETURN TO ORIGINAL V15
+The manufacturer reference used in this test:
+  https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc
+Expected size: 699956 bytes. Expected identity: FM-1_015.
+SHA-256:
+  db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a
+The server may replace a download in future: check the hash, not the filename.
+The browser installer validates the known V15 hash before enabling its button.
+For the CLI, after verifying that exact file:
+  python3 base/tools/fm1_install.py --force --yes FM-1-V15.fwsc
+The --force flag is only for this verified manufacturer package without the
+custom loader marker; it is not needed for Mutable Dreams packages.
+V15 restarts with USB-MIDI port FM-1, rather than X0X FM-1.
+
+RETURN TO YOUR MUTABLE DREAMS BANKS
+1. Install the same qualified 1.1 package again.
+2. Select internal clock and stop playback. Connect the live editor.
+3. Restore your .mddb file. It replaces every saved object listed above, including
+   clearing slots that were empty in that backup. The editor shows the scope.
+4. When the FM-1 displays RESTORE FROM USB?, press SEL physically on the device.
+   HOME or timeout cancels. The browser cannot supply this confirmation for you.
+5. The saved project/preferences reload. Compare the banks with the backup.
+6. If you exported a separate unsaved live .json, import it last. This changes
+   only the live patch; SAVE or save to a User Biome explicitly to keep it.
+
+CLI alternative, from the complete source:
+  python3 tools/dreams_backup.py backup my-banks.mddb --port 'X0X FM-1'
+  python3 tools/dreams_backup.py info my-banks.mddb
+  python3 tools/dreams_backup.py restore my-banks.mddb --port 'X0X FM-1'
+  python3 tools/device_editor.py export my-live-biome.json
+  python3 tools/device_editor.py import my-live-biome.json
+Dependencies: Python 3, mido, python-rtmidi. The transfer tools do not require
+numpy or sounddevice; those are only used by the separate audio test harness.
+
+If a connection is lost after confirmation, reconnect and read the device before
+retrying: a committed restore may have completed even if its reply was lost.
+The journal recovers interrupted commits; simulated power-cut tests are not a
+claim that every physical power fault has been tested. Calibration and the live
+granular recording are excluded from .mddb. This is not a full-flash dump.
+Do not deliberately interrupt a firmware update. The older ROM rescue guide is
+retained separately; this work does not claim a newly tested emergency ROM rescue.
