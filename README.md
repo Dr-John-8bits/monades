@@ -8,11 +8,19 @@ Thank you for the music, questions and community feedback that shaped this updat
 
 ![Native Mutable Dreams 1.1 display](Screen-1.1-Live.png)
 
+## Illustrated English user guide
+
+[Read the 23-page PDF](https://mutable-dreams.sugarypixie10.chatgpt.site/Mutable-Dreams-1.1-User-Guide.pdf) · [Manual on the website](https://mutable-dreams.sugarypixie10.chatgpt.site/#guide)
+
+Step-by-step instructions for FM-1 and browser use, real browser screenshots, labelled native display renders, all 19 pages and knob mappings, warmer sound design, rhythms and phrases, named User Biomes, MIDI, live editing, backup/restore and the checked update routes. Includes clickable contents and PDF bookmarks.
+
+**Browser packaging addendum, 25 October 2026:** the current website and [supplemental standalone browser HTML](https://mutable-dreams.sugarypixie10.chatgpt.site/Mutable-Dreams-1.1-Browser.html) correctly embed the existing 1.1 engine/support scripts. Use these instead of the HTML in the original offline release ZIP, which contained unexpanded template markers. The device firmware, source archive, existing release archives and v1.0 are unchanged. [Details and download fingerprints](https://mutable-dreams.sugarypixie10.chatgpt.site/Documentation-Update.txt).
+
 ## Warmer worlds, your own Biomes
 
 - Six freely assignable tracks and **12 engines**. New Round Bass, Elements Strike, Mellow Drift and Satin Morph complement selected original Plaits/Rings voices and custom engines.
 - **224 factory tones**, **76 musical Biomes + Blank**, **16 named User Biomes** and **64 User Sound slots**.
-- Global mixer with level and granular/delay/room sends. Shared effects, bassline modes, glide and editable **16-step phrases** with notes, rests, accents and probability.
+- Global mixer with level and granular/delay/room sends. Shared effects, bassline modes, glide and editable **16-step phrases** with notes/rests and track-level accent/probability.
 - Original Marbles-inspired remembered variation, Tides-inspired cyclic modulation and Warps-inspired ring blending. Selected functions, not complete module ports.
 - Live bidirectional browser editor, JSON live-patch transfer and complete `.mddb` saved-bank backup/restore. The standalone browser instrument runs the same application/DSP source, with separate local storage.
 - USB and TRS MIDI input, external clock, nineteen organic animated pages and held-button help. **USB tested; physical TRS cable test outstanding.** No MPE, MIDI output or live MIDI recording.
