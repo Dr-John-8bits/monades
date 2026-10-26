@@ -21,7 +21,9 @@ typedef struct {
  int32_t biome_id,tone_preset[6]; uint32_t edited_mask;
  md_extension ext[6]; int32_t delay_ms,delay_fb,reverb_time,fx_level;
 } md_patch;
-typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; float peak; uint32_t grain_writes,voice_quanta,skipped_quanta; int32_t last_note[6]; uint32_t quality_reductions,element_modes; float track_peak[6]; } md_stats;
+typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; float peak; uint32_t grain_writes,voice_quanta,skipped_quanta; int32_t last_note[6]; uint32_t quality_reductions,element_modes; float track_peak[6];
+ /* Monades meters, output-referred like the final mix: grain/delay/room returns, master L/R, pre-limiter peak. */
+ float fx_peak[3],out_peak[2],limit_peak; } md_stats;
 void md_init(void);
 int md_command(int command,int track,int value);
 unsigned md_command_space(void);

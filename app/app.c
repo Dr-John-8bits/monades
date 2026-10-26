@@ -118,15 +118,21 @@ static void md_value_span(int x,int y,const char *label,int value,int lo,int hi,
 }
 static void md_value(int x,int y,const char *label,int value,uint16_t c){md_value_span(x,y,label,value,0,100,c);}
 static void md_named(int x,int y,const char *label,const char *value,uint16_t c){md_glass_leaf(x,y,c);md_text(x+6,y+2,label,MD_DIM);cv_text(x+7,y+15,text_w(&FONT_B,value)>96?&FONT_XS:&FONT_B,value,MD_BG);cv_text(x+6,y+14,text_w(&FONT_B,value)>96?&FONT_XS:&FONT_B,value,c);}
-static void md_mixer_leaf(int x,int level,uint16_t c){
- // A slim leaf reservoir. Height still represents the exact configured level.
- for(int row=0;row<75;row++){
-  int inset=row<12?(12-row)*(12-row)/16:row>58?(row-58)*(row-58)/25:0;
-  if(inset>11)inset=11;
-  uint16_t ink=row>=75-level?c:MD_CARD;
-  cv_rect(x+inset,55+row,24-2*inset,1,ink);
+// Segmented 2 dB meters, -48..0 dBFS at the output: what is heard, not the knob position.
+static const float meter_db[24]={0.00398107f,0.00501187f,0.00630957f,0.00794328f,0.01f,0.0125893f,0.0158489f,0.0199526f,0.0251189f,0.0316228f,0.0398107f,0.0501187f,0.0630957f,0.0794328f,0.1f,0.125893f,0.158489f,0.199526f,0.251189f,0.316228f,0.398107f,0.501187f,0.630957f,0.794328f};
+#define MD_HOT RGB(236,92,82)
+static float meter_hold[11];static uint32_t meter_hold_until[11];
+static int md_segments(float peak){int s=0;while(s<24&&peak>=meter_db[s])s++;return s;}
+static void md_meter(int id,int x,int w,float peak,uint16_t c,int muted){
+ uint32_t now=plat_ms();
+ if(peak>=meter_hold[id]){meter_hold[id]=peak;meter_hold_until[id]=now+1200;}else if(now>meter_hold_until[id])meter_hold[id]*=.85f;
+ int lit=md_segments(peak),hold=md_segments(meter_hold[id]);
+ for(int s=0;s<24;s++){
+  uint16_t ink=MD_CARD;
+  if(s<lit)ink=muted?MD_EDGE:s>=23?MD_HOT:s>=20?MD_INK:c;
+  else if(s==hold-1&&hold>0)ink=s>=23?MD_HOT:MD_DIM;
+  cv_rect(x,119-s*3,w,2,ink);
  }
- cv_rect(x+11,64,1,57,md_tint(MD_CARD,c,9));
 }
 
 // Cached organic contours: generate only when changing page, never in audio.
@@ -235,7 +241,22 @@ static void md_draw_all(void) {
    md_text(12,66,"KEEP YOUR OWN SMALL WORLDS",MD_INK);md_text(12,96,bank_name,col);char prefix[24];memcpy(prefix,bank_name,bank_char);prefix[bank_char]=0;cv_rect(12+text_w(&FONT_XS,prefix),113,5,1,col);md_text(12,121,"STOP FIRST / INTERNAL CLOCK",MD_DIM);
    md_value_span(8,158,"K1 USER SLOT",bank_slot+1,1,bank_kind?64:16,col);md_named(124,158,"K2 BANK",bank_kind?"SOUNDS":"BIOMES",col);md_named(8,194,"K3 TURN RIGHT","LOAD",col);md_value_span(124,194,"K4 NAME CURSOR",bank_char+1,1,23,col);
   }else if(dream_ui.page==MIXER){
-   for(i=0;i<6;i++){int x=12+i*38,h=p->track[i].level*65/1000;md_mixer_leaf(x,h,p->track[i].mute?MD_DIM:dream_colors[i]);md_num(i+1,s);md_text(x+8,134,s,i==dream_ui.track?MD_INK:MD_DIM);int meter=clamp((int)(md_status()->track_peak[i]*260),0,65);cv_rect(x+26,130-meter,2,meter,MD_INK);if(i==dream_ui.track)cv_rect(x,148,24,2,col);}
+   const md_stats *ms=md_status();cv_rect(4,46,232,108,MD_BG); // a quiet plate: meters must read cleanly
+   for(i=0;i<6;i++){
+    // Per track: output meter, fader position on its rail, then grain / delay / reverb sends.
+    int x=8+i*28,muted=p->track[i].mute;uint16_t c=muted?MD_EDGE:dream_colors[i];const md_extension *te=&p->ext[i];
+    md_meter(i,x,10,ms->track_peak[i]*1.9f,dream_colors[i],muted);
+    cv_rect(x+14,50,1,72,MD_EDGE);cv_rect(x+12,119-p->track[i].level*69/1000,5,3,c);
+    const int sends[3]={p->track[i].send,te->delay_send,te->reverb_send};
+    for(int j=0;j<3;j++){cv_rect(x,126+j*4,18,1,MD_EDGE);cv_rect(x,126+j*4,sends[j]*18/1000,2,c);}
+    md_num(i+1,s);md_text(x+5,139,s,i==dream_ui.track||plat_ms()<pulse_until[i]?MD_INK:muted?MD_EDGE:MD_DIM);
+    if(i==dream_ui.track)cv_rect(x,153,18,2,col);
+   }
+   // Returns and master, in the same G / D / R order as the send bars.
+   static const char *fx_names[3]={"G","D","R"};
+   for(i=0;i<3;i++){md_meter(6+i,178+i*12,8,ms->fx_peak[i],MD_DIM,0);md_text(179+i*12,139,fx_names[i],MD_DIM);}
+   md_meter(9,216,8,ms->out_peak[0],MD_INK,0);md_meter(10,226,8,ms->out_peak[1],MD_INK,0);md_text(222,139,"M",MD_INK);
+   md_text(203,124,"LIM",ms->limit_peak>.8f?MD_HOT:MD_EDGE);
    md_value(8,158,"K1 LEVEL",t->level/10,col);md_value(124,158,"K2 GRAIN",t->send/10,col);md_value(8,194,"K3 DELAY",e->delay_send/10,col);md_value(124,194,"K4 REVERB",e->reverb_send/10,col);
   }else if(dream_ui.page==BASSLINE){
    md_text(12,62,"ROOTED PHRASES / ROUND LOW END",MD_INK);

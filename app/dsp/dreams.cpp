@@ -246,6 +246,7 @@ static void quantum(float *lr,unsigned n) {
  const float slew40=n>32?.04f*block_ratio*(1-.02f*(block_ratio-1)):.04f;
  const float slew35=n>32?.035f*block_ratio*(1-.0175f*(block_ratio-1)):.035f;
  for(unsigned i=0;i<6;i++)stats.track_peak[i]*=n>32?.984064f:.992f;
+ {const float meter_decay=n>32?.984064f:.992f;for(unsigned j=0;j<3;j++)stats.fx_peak[j]*=meter_decay;stats.out_peak[0]*=meter_decay;stats.out_peak[1]*=meter_decay;stats.limit_peak*=meter_decay;}
  for(unsigned j=0;j<4;j++)smooth[j]+=(unit(patch.macro[j])-smooth[j])*slew25;
  float delay_send[Q]={},room_send[Q]={};
  float send[Q]={},out[Q],aux[Q],tmp[Q],exc[Q],duck[Q];memset(lr,0,n*2*sizeof(float));
@@ -397,6 +398,7 @@ static void quantum(float *lr,unsigned n) {
  }
  const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=patch.delay_ms*44.1f;
  unsigned maxgrains=patch.quality?4:2;
+ float fx_peak[3]={stats.fx_peak[0],stats.fx_peak[1],stats.fx_peak[2]},out_peak[2]={stats.out_peak[0],stats.out_peak[1]},limit_peak=stats.limit_peak;
  for(unsigned k=0;k<n;k++) {
   float wet[2]={};
   if(!grainclock){
@@ -448,14 +450,21 @@ static void quantum(float *lr,unsigned n) {
   for(unsigned j=0;j<4;j++){float value=hp*.3f+(sum*.5f-room_lp[j])*room_decay;room[j][room_head[j]]=int16_t(clip(value)*32767);if(++room_head[j]>=lens[j])room_head[j]=0;}
   fx_smooth+=(effect_return-fx_smooth)*.002f;
   effect[0]=fx_smooth*(delayed*.5f+(rv[0]+rv[2])*.35f);effect[1]=fx_smooth*(delayed*.5f+(rv[1]+rv[3])*.35f);
+  // Meters only: the returns as they reach the final 1.9x mix stage.
+  fx_peak[1]=fmaxf(fx_peak[1],fabsf(fx_smooth*delayed)*.95f);fx_peak[2]=fmaxf(fx_peak[2],fx_smooth*fmaxf(fabsf(rv[0]+rv[2]),fabsf(rv[1]+rv[3]))*.665f);
   }
+  fx_peak[0]=fmaxf(fx_peak[0],fmaxf(fabsf(wet[0]),fabsf(wet[1]))*smooth[3]*3.23f*duck[k]);
   for(unsigned c=0;c<2;c++) {
    float x=effect[c]+lr[2*k+c]+wet[c]*smooth[3]*1.7f*duck[k];
    float y=x-dcx[c]+.9997f*dcy[c];dcx[c]=x;dcy[c]=y;
+   limit_peak=fmaxf(limit_peak,fabsf(y*1.9f));
    x=clip(y*1.9f);lr[2*k+c]=x;
    if(fabsf(x)>stats.peak)stats.peak=fabsf(x);
+   out_peak[c]=fmaxf(out_peak[c],fabsf(x));
   }
  }
+ for(unsigned j=0;j<3;j++)stats.fx_peak[j]=fx_peak[j];
+ stats.out_peak[0]=out_peak[0];stats.out_peak[1]=out_peak[1];stats.limit_peak=limit_peak;
  stats.frames+=n;
 }
 }
