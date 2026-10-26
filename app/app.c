@@ -267,7 +267,7 @@ static void md_draw_all(void) {
    {"K1 high-pass on echo + room sends","K2 echo tone / K3 room tone","K4 room diffusion: softer onset","Curves: what reaches the effects.","Strip: the room onset, smeared."},
    {"K1 echo synced to the tempo","Slow tempo: half the division.","K2 echo feedback","K3 chorus mix / K4 sweep depth","Chorus acts on the dry tracks."},
    {"K1 off / random / Markov / motif","K2 deja vu: 0 new, 100 frozen","K3 loop / K4 spread or variation","KEYS write the motif, REC clears","Markov and MOTIF read the phrase."},
-   {"K1 form depth; 0 is off","K2 section length in bars","K3 tracks resting when calm","K4 density macro","Calm, build, peak, release."},
+   {"K1 form depth; 0 is off","K2 section length in bars","K3 tracks resting when calm","K4 Motion: new every N steps","Calm, build, peak, release."},
    {"K1 vadi / K2 samvadi: pivots","Pivots attract notes, accented.","K3 gamaka of this track","K4 gamaka amount","Kan, meend, andolan or mix."}};
   if(md_context_help())lines=newhelp[dream_ui.page-MIXER];
   for(i=0;i<5;i++)md_text(14,80+i*22,lines[i],MD_INK);
@@ -428,7 +428,10 @@ static void md_draw_all(void) {
    {char lab[28];md_num(md_form_bars(),lab);char *q=lab;while(*q)q++;const char *a=" BARS EACH";while(*a)*q++=*a++;*q=0;
     md_text(x0,48,!p->form?"FORM OFF: SONG STAYS FLAT":lab,!p->form?MD_HOT:MD_DIM);}
    md_value(8,158,"K1 DEPTH",p->form/10,col);{char b[12];md_num(md_form_bars(),b);char *q=b;while(*q)q++;*q++=' ';*q++='B';*q++='A';*q++='R';*q++='S';*q=0;md_named(124,158,"K2 SECTION",b,col);}
-   md_value_span(8,194,"K3 RESTING",p->form_drops,0,3,col);md_value(124,194,"K4 DENSITY",p->macro[0]/10,col);
+   md_value_span(8,194,"K3 RESTING",p->form_drops,0,3,col);
+   // One bar of steps at top right: tall ticks = where Motion may pick a new variation.
+   {int n=1<<p->motion_every;for(int k=0;k<16;k++){int x=150+k*5,on=k%n==0;cv_rect(x,on?48:52,2,on?8:4,on?(p->macro[1]?col:MD_DIM):MD_EDGE);}}
+   {static const char *every[5]={"EVERY STEP","2 STEPS","4 STEPS","8 STEPS","16 STEPS"};md_named(124,194,"K4 MOTION",every[p->motion_every],col);}
   }else if(dream_ui.page==RAGA){
    // Left: the scale with the vadi (thick ring) and samvadi (thin ring). Right: this track's gamaka as the engine
    // shapes it over 600 ms (semitones up / down), and the live dot when one of its notes is sounding.
@@ -837,7 +840,7 @@ void app_input_only(void) {
    else if(dream_ui.page==RAGA){const int cs[]={MD_VADI,MD_SAMVADI,MD_GAMAKA,MD_GAMAKA_AMOUNT},vs[]={p->vadi,p->samvadi,p->gamaka[tr],p->gamaka_amount[tr]};c=cs[b];v=vs[b]+d*(b==3?20:1);
     if(b<2){unsigned mask=md_scale_mask(p->scale);v=vs[b];int step=d>0?1:-1;for(int n=d>0?d:-d;n>0;n--){do v+=step;while(v>=0&&v<=11&&!((mask>>v)&1));if(v<-1)v=-1;if(v>11){v=vs[b];break;}}}} /* pivots are scale notes */
    else if(dream_ui.page==GENERATOR){const md_gen *g=&p->gen[tr];const int cs[]={MD_GEN_SOURCE,MD_GEN_DEJAVU,MD_GEN_LOOP,MD_GEN_SPREAD},vs[]={g->source,g->dejavu,g->loop,g->spread};c=cs[b];v=vs[b]+d*(b==1?20:1);}
-   else if(dream_ui.page==FORM){const int cs[]={MD_FORM,MD_FORM_BARS,MD_FORM_DROPS,MD_MACRO},vs[]={p->form,p->form_bars,p->form_drops,p->macro[0]};c=cs[b];v=vs[b]+d*(b==0||b==3?20:1);if(b==3)tr=0;}
+   else if(dream_ui.page==FORM){const int cs[]={MD_FORM,MD_FORM_BARS,MD_FORM_DROPS,MD_MOTION_EVERY},vs[]={p->form,p->form_bars,p->form_drops,p->motion_every};c=cs[b];v=vs[b]+d*(b==0?20:1);}
    else if(dream_ui.page==SPACE_TONE){const int cs[]={MD_SEND_HP,MD_ECHO_TONE,MD_ROOM_TONE,MD_ROOM_DIFFUSION},vs[]={p->send_hp,p->echo_tone,p->room_tone,p->room_diffusion};c=cs[b];v=vs[b]+d*20;}
    else if(dream_ui.page==ECHO_CHORUS){const int cs[]={MD_ECHO_SYNC,MD_DELAY_FB,MD_CHORUS,MD_CHORUS_DEPTH},vs[]={p->echo_sync,p->delay_fb,p->chorus,p->chorus_depth};c=cs[b];v=vs[b]+d*(b==0?1:20);}
    else{const int cs[]={MD_BASS_STEP,MD_BASS_VALUE,MD_ACCENT,MD_PROB},vs[]={e->edit_step,e->notes[e->edit_step],t->accent,t->prob};c=cs[b];v=vs[b]+d*(b<2?1:20);}

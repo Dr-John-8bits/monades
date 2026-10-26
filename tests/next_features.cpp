@@ -11,9 +11,9 @@ static void cmd(int c,int t,int v){assert(md_command(c,t,v));run(1);}
 static md_patch blank(int model){md_init();cmd(MD_SCENE,0,64);md_patch p=*md_state();p.track[0].mute=0;p.track[0].model=model;p.track[0].note=36;p.track[0].level=650;p.track[0].decay=200;p.track[0].attack=0;p.track[0].hits=16;p.track[0].length=16;p.track[0].prob=1000;p.macro[0]=500;p.macro[1]=0;p.macro[2]=500;p.macro[3]=0;return p;}
 static uint64_t hash(const md_patch &p){md_init();assert(md_load(&p));cmd(MD_PLAY,0,1);uint64_t h=1469598103934665603ull;for(int b=0;b<2200;b++){md_render(audio,128);for(float x:audio){uint32_t u;memcpy(&u,&x,4);h=(h^u)*1099511628211ull;}}return h;}
 int main(){
- static_assert(sizeof(md_patch)==1676,"Browser patch size must match");
+ static_assert(sizeof(md_patch)==1680,"Browser patch size must match");
  auto p=blank(MD_BASS);assert(md_load(&p));cmd(MD_TRIGGER,0,36);assert(run(300)>1);puts("PASS round bass audible");
- uint8_t legacy[652];memcpy(legacy,&p,652);uint32_t v=4;memcpy(legacy+4,&v,4);assert(md_import(legacy,sizeof legacy));assert(md_state()->version==9&&md_state()->fx_level==0);puts("PASS 1.0 migration retains old fields and disables additions");
+ uint8_t legacy[652];memcpy(legacy,&p,652);uint32_t v=4;memcpy(legacy+4,&v,4);assert(md_import(legacy,sizeof legacy));assert(md_state()->version==10&&md_state()->fx_level==0);puts("PASS 1.0 migration retains old fields and disables additions");
  p=*md_state();p.fx_level=1001;assert(!md_load(&p));p=*md_state();p.ext[0].notes[15]=25;assert(!md_load(&p));
  p=blank(MD_BASS);p.ext[0].bass_mode=1;for(int &n:p.ext[0].notes)n=-1;assert(md_load(&p));cmd(MD_PLAY,0,1);assert(run(3000)==0&&md_status()->events[0]==0);puts("PASS phrase rests do not trigger");
  p=blank(MD_BASS);p.ext[0].bass_mode=1;p.ext[0].marbles=1000;p.locked=1;assert(hash(p)==hash(p));auto a=hash(p);p.ext[0].marbles=0;assert(a!=hash(p));puts("PASS Marbles remembered variation deterministic and audible");
@@ -95,7 +95,7 @@ int main(){
  {
   // Patch v7: a Mutable Dreams 1.1 patch (v6, 1292 bytes) loads with every Monades addition neutral.
   md_patch q=blank(MD_VA);uint8_t old[1292];memcpy(old,&q,1292);uint32_t v6=6;memcpy(old+4,&v6,4);
-  assert(md_import(old,sizeof old));const md_patch *s=md_state();assert(s->version==9&&s->send_hp==0&&s->echo_tone==500&&s->room_tone==500);
+  assert(md_import(old,sizeof old));const md_patch *s=md_state();assert(s->version==10&&s->send_hp==0&&s->echo_tone==500&&s->room_tone==500);
   for(int i=0;i<6;i++)for(int k=0;k<2;k++)assert(s->lfo[i][k].depth==0);
   uint32_t v7=7;memcpy(old+4,&v7,4);assert(!md_import(old,sizeof old));
   q=blank(MD_VA);q.lfo[2][1].rate=MD_LFO_RATES;assert(!md_validate(&q));q=blank(MD_VA);q.lfo[0][0].depth=1001;assert(!md_validate(&q));q=blank(MD_VA);q.track[0].filter=MD_FILTER_MODES;assert(!md_validate(&q));
@@ -147,7 +147,7 @@ int main(){
  {
   // Patch v8: a Monades v7 patch (1512 bytes) loads with generators and form off.
   md_patch q=blank(MD_VA);uint8_t v7[1512];memcpy(v7,&q,1512);uint32_t ver=7;memcpy(v7+4,&ver,4);
-  assert(md_import(v7,sizeof v7));assert(md_state()->version==9&&md_state()->form==0);for(int i=0;i<6;i++)assert(md_state()->gen[i].source==MD_GEN_OFF&&md_state()->gen[i].loop==8);
+  assert(md_import(v7,sizeof v7));assert(md_state()->version==10&&md_state()->form==0);for(int i=0;i<6;i++)assert(md_state()->gen[i].source==MD_GEN_OFF&&md_state()->gen[i].loop==8);
   q=blank(MD_VA);q.gen[0].loop=0;assert(!md_validate(&q));q=blank(MD_VA);q.form_bars=4;assert(!md_validate(&q));
   // Generated notes of track 1, one per event.
   auto notes=[&](md_patch r,int count,int *out){assert(md_load(&r));cmd(MD_PLAY,0,1);unsigned last=md_status()->events[0];int n=0;
@@ -181,7 +181,7 @@ int main(){
  {
   // Patch v9: a v8 patch (1620 bytes) loads with no gamaka and no pivot notes.
   md_patch q=blank(MD_VA);uint8_t v8[1620];memcpy(v8,&q,1620);uint32_t ver=8;memcpy(v8+4,&ver,4);
-  assert(md_import(v8,sizeof v8));assert(md_state()->version==9&&md_state()->vadi==-1&&md_state()->samvadi==-1);for(int i=0;i<6;i++)assert(md_state()->gamaka[i]==MD_GAMAKA_OFF);
+  assert(md_import(v8,sizeof v8));assert(md_state()->version==10&&md_state()->vadi==-1&&md_state()->samvadi==-1);for(int i=0;i<6;i++)assert(md_state()->gamaka[i]==MD_GAMAKA_OFF);
   q=blank(MD_VA);q.vadi=12;assert(!md_validate(&q));q=blank(MD_VA);q.gamaka[3]=MD_GAMAKAS;assert(!md_validate(&q));
   // Kan: the note starts on the scale note above (C major-ish scale 1, from C the next note is D, +2), then lands.
   auto ornament=[&](int style,int samples){md_patch r=blank(MD_VA);r.scale=1;r.root=0;r.track[0].note=60;r.track[0].hits=0;r.gamaka[0]=style;r.gamaka_amount[0]=500;assert(md_load(&r));
@@ -204,6 +204,16 @@ int main(){
    for(int b=0;b<30000&&n<9;b++){md_render(audio,64);if(md_status()->events[0]!=last){last=md_status()->events[0];seq[n++]=md_status()->last_note[0];}}cmd(MD_PLAY,0,0);
    for(int k=1;k<9;k++){int a=seq[k-1],b=seq[k];assert((a==60&&b==67)||(a==67&&b==63)||(a==63&&b==60));}} /* in order, from wherever the capture starts */
   puts("PASS raga: vadi attracts generated notes, MOTIF source walks the motif");
+ }
+ {
+  // Patch v10: a v9 patch (1676 bytes) keeps Motion on every step.
+  md_patch q=blank(MD_VA);uint8_t v9[1676];memcpy(v9,&q,1676);uint32_t ver=9;memcpy(v9+4,&ver,4);
+  assert(md_import(v9,sizeof v9));assert(md_state()->version==10&&md_state()->motion_every==0);q.motion_every=5;assert(!md_validate(&q));
+  // Motion every 4 steps: the variation only changes on the beat.
+  q=blank(MD_VA);q.scale=1;q.track[0].note=60;q.macro[1]=1000;q.motion_every=2;assert(md_load(&q));cmd(MD_PLAY,0,1);
+  int notes[64]={},seen=0;unsigned last_step=md_status()->step;for(int b=0;b<40000&&seen<64;b++){md_render(audio,64);if(md_status()->step!=last_step){last_step=md_status()->step;notes[last_step&63]=md_status()->last_note[0];seen++;}}
+  cmd(MD_PLAY,0,0);int changes_off=0,changes_on=0;for(int k=1;k<63;k++)if(notes[k]&&notes[k-1]&&notes[k]!=notes[k-1])(k%4?changes_off:changes_on)++;assert(changes_off==0&&changes_on>3);
+  puts("PASS Motion every N steps: held between beats, v9 migrates");
  }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

@@ -21,6 +21,10 @@ Les recherches de départ (matériel, autres firmwares, code Mutable Instruments
 ## Compiler
 Comme pour Mutable Dreams : voir [BUILDING.md](BUILDING.md). Le build Mac (`python tools/build_local.py host`) ne demande pas de FM-1.
 
+## Audio USB
+- **Enregistrer le FM-1 dans l'ordinateur par le câble USB** : activé (`usb_audio_in = true` dans `app/fm1.toml`), 44,1 kHz stéréo. Mutable Dreams 1.1 l'a vérifié sur un FM-1.
+- **Faire jouer l'ordinateur à travers le FM-1** (le FM-1 comme carte son) : désactivé, comme dans Mutable Dreams (`usb_audio_out = false`). La plateforme sait le faire : il suffit de passer cette ligne à `true` et de recompiler. Cela prend de la mémoire et du calcul à un moteur déjà chargé ; à essayer seulement sur l'appareil, en surveillant la page SYSTEM.
+
 ## Identité
 - Identité du firmware : préfixe `FM-1_714` (distinct de Mutable Dreams `FM-1_710`).
 - USB : « Monades Project » / « Monades FM-1 ».

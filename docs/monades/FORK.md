@@ -156,6 +156,10 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
 17. **Sortie audio USB** (aujourd'hui `usb_audio_out = false`, entrée seulement), si le budget CPU le permet.
 18. Option : un K2 Motion à vitesse liée au tempo (variation tous les N pas plutôt qu'à chaque pas).
 19. Refactorisation progressive de `dreams.cpp` (580 lignes très denses) en modules : séquenceur, gammes, MIDI, effets.
+   **Fait (branche `monades/divers`)** :
+   - 17 : l'enregistrement du FM-1 par USB fonctionne déjà ; la sortie vers le FM-1 reste coupée, documentée dans le README, à essayer sur l'appareil ;
+   - 18 : **K4 MOTION** sur la page FORM. La variation de Motion change tous les 1, 2, 4, 8 ou 16 pas et tient entre deux. Patch v10 (1680 octets) ;
+   - 19 : les parties Monades du moteur sortent de `dreams.cpp` : `midi_out.inc`, `lfo.inc`, `generative.inc`. Même unité de compilation, son identique au bit près. Le cœur Mutable Dreams (voix, séquenceur, effets) reste en place.
 
 ## Ordre conseillé
 D'abord **tester** : V15 d'origine → Felucca → Mutable Dreams. Ensuite, côté code :

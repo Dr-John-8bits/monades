@@ -59,7 +59,8 @@ static stmlib::Svf send_hp_filter[2];
 static uint16_t chorus_line[2048] POOL;static rings::Chorus chorus;
 static int16_t diffuser[1210];static unsigned diffuser_head[4];static const unsigned diffuser_len[4]={150,214,319,527}; // Monades: 12 dB high-pass on the echo and room sends
 static void reset_fx(){send_hp_filter[0].Init();send_hp_filter[1].Init();memset(chorus_line,0,sizeof chorus_line);chorus.Init(chorus_line);memset(diffuser,0,sizeof diffuser);memset(diffuser_head,0,sizeof diffuser_head);fx_active=false;memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
-static void v9_defaults(md_patch &p){p.version=9;for(int i=0;i<6;i++){p.gamaka[i]=MD_GAMAKA_OFF;p.gamaka_amount[i]=500;}p.vadi=p.samvadi=-1;}
+static void v10_defaults(md_patch &p){p.version=10;p.motion_every=0;}
+static void v9_defaults(md_patch &p){for(int i=0;i<6;i++){p.gamaka[i]=MD_GAMAKA_OFF;p.gamaka_amount[i]=500;}p.vadi=p.samvadi=-1;v10_defaults(p);}
 static void v8_defaults(md_patch &p){for(int i=0;i<6;i++)p.gen[i]={MD_GEN_OFF,500,8,12};p.form=0;p.form_bars=1;p.form_drops=2;v9_defaults(p);}
 static void v7_defaults(md_patch &p){p.send_hp=0;p.echo_tone=p.room_tone=500;p.echo_sync=p.room_diffusion=p.chorus=0;p.chorus_depth=500;v8_defaults(p);for(int i=0;i<6;i++)for(int s=0;s<2;s++)p.lfo[i][s]={3,MD_LFO_SINE,s?MD_TO_PAN:MD_TO_CUTOFF,0};}
 static void extension_defaults(md_patch &p){v7_defaults(p);p.delay_ms=200;p.delay_fb=300;p.reverb_time=450;p.fx_level=0;memset(p.ext,0,sizeof p.ext);for(int i=0;i<6;i++){p.ext[i].tides_rate=250;for(int j=0;j<16;j++)p.ext[i].notes[j]=(j%4==0?0:j%4==2?7:-1);}}
@@ -90,6 +91,7 @@ static int bound(int x,int a,int b) { return x<a?a:x>b?b:x; }
 static float unit(int x) { return bound(x,0,1000)*.001f; }
 static uint16_t custom_scale=0x091; /* CUSTOM: root, major third, fifth until the player edits it */
 static int last_generated[6]; /* per track, for ascent / descent sets */
+static int motion_held[6]; /* Motion's degree, held for motion_every steps */
 // Ascending into a note uses the ascent set, descending the descent set (ragas such as Desh or Jaunpuri, classical melodic minor).
 static unsigned micro_mask(const MicroDef &m){unsigned mask=1;for(unsigned k=0;k<m.count;k++)mask|=1u<<((int)(m.degree[k]/100.0f+.5f)%12);return mask;} /* nearest semitones, for twelve-tone views */
 static unsigned scale_mask_for(int scale,int down){scale=bound(scale,0,SCALE_COUNT-1);if(scale==SCALE_CUSTOM)return custom_scale|1u;if(scale>=SCALE_TWELVE)return micro_mask(micro_defs[scale-SCALE_TWELVE]);return down?scale_defs[scale].down:scale_defs[scale].up;}
@@ -164,104 +166,11 @@ static void tone_preset(int track,int id) {
 static int32_t *track_field(md_track &t,int c) {
 switch(c){case MD_MODEL:return &t.model;case MD_TONE:return &t.tone;case MD_HARM:return &t.harm;case MD_DECAY:return &t.decay;case MD_LEVEL:return &t.level;case MD_SEND:return &t.send;case MD_HITS:return &t.hits;case MD_LENGTH:return &t.length;case MD_ROTATE:return &t.rotate;case MD_PROB:return &t.prob;case MD_NOTE:return &t.note;case MD_PAN:return &t.pan;case MD_MUTE:return &t.mute;default:return &t.speed;}
 }
-// Monades MIDI out: a queue drained by the app, the note-offs owed, and the clock.
-struct OutMsg { uint8_t st,d1,d2,pad; };
-static OutMsg outq[256];static volatile unsigned out_r,out_w;
-struct OwedOff { float left; uint8_t ch,note; };
-static OwedOff owed[64];static unsigned owed_n;
-static md_midi_routing routing;static float clock_left;
-static void out_push(uint8_t st,uint8_t d1,uint8_t d2){unsigned w=out_w;if(w-out_r>=256){stats.midi_out_dropped++;return;}outq[w&255]={st,d1,d2,0};fence();out_w=w+1;}
-static int chan_bend[16]; /* pitch bend sent per channel, -8192..8191 (range assumed +/-2 semitones) */
-static void out_bend(unsigned ch,int bend){if(bend==chan_bend[ch])return;chan_bend[ch]=bend;unsigned v=(unsigned)(bend+8192);out_push(0xe0|ch,v&127,(v>>7)&127);}
-static void out_all_off(){for(unsigned j=0;j<owed_n;j++)out_push(0x80|owed[j].ch,owed[j].note,0);owed_n=0;}
-static void out_note(unsigned track,float note,float velocity,float gate){
- if(!routing.mode)return;
- int n=bound((int)(note+.5f),0,127),vel=bound((int)(velocity*127+.5f),1,127);unsigned chans=0;
- if(routing.mode==1)chans=1u<<track;
- else for(unsigned z=0;z<8;z++){const int ch=routing.zone[z].ch;if(ch>=1&&ch<=16&&n>=routing.zone[z].lo&&n<=routing.zone[z].hi)chans|=1u<<(ch-1);}
- // Per-track mode: one voice per channel, so a microtonal note goes out as the nearest note plus pitch bend.
- // Zones may stack notes on a channel: there the nearest note only.
- const int bend=routing.mode==1?bound((int)floorf((note-n)*4096.0f+.5f),-8192,8191):0;
- for(unsigned ch=0;ch<16;ch++){if(!(chans&(1u<<ch)))continue;
-  if(routing.mode==1)out_bend(ch,bend);
-  for(unsigned j=0;j<owed_n;j++)if(owed[j].ch==ch&&owed[j].note==n){out_push(0x80|ch,(uint8_t)n,0);owed[j]=owed[--owed_n];break;} // retrigger
-  if(owed_n>=64)continue; // never send a note-on whose note-off cannot be owed
-  out_push(0x90|ch,(uint8_t)n,(uint8_t)vel);owed[owed_n++]={gate,(uint8_t)ch,(uint8_t)n};stats.midi_out_notes++;}
-}
-static void out_advance(unsigned z){
- for(unsigned j=0;j<owed_n;){owed[j].left-=z;if(owed[j].left<=0){out_push(0x80|owed[j].ch,owed[j].note,0);owed[j]=owed[--owed_n];}else j++;}
-}
-// Monades LFOs. Synced ones read the sequencer's position in sixteenths, so they restart with PLAY and follow
-// an external MIDI clock; free ones keep their own phase. Random shapes come from the seed, cycle by cycle.
-static const float lfo_sync[MD_LFO_SYNCED]={128,64,32,16,8,6,16/3.0f,4,3,8/3.0f,2,4/3.0f,1,2/3.0f,.5f};
-static const char *const lfo_sync_names[MD_LFO_SYNCED]={"8 BARS","4 BARS","2 BARS","1 BAR","1/2","1/4 .","1/2 T","1/4","1/8 .","1/4 T","1/8","1/8 T","1/16","1/16 T","1/32"};
-static float beat,beat_limit;static uint32_t beat_wraps; // sixteenths, wrapped every 384 (a multiple of every synced cycle)
-static float lfo_free_phase[6][2];static uint32_t lfo_free_cycle[6][2];
-static float lfo_free_hz(int rate){return .02f*stmlib::SemitonesToRatio((rate-MD_LFO_SYNCED)*119.589f/15.0f);} // 0.02..20 Hz
-static float lfo_random(unsigned track,unsigned slot,uint32_t cycle){unsigned r=patch.seed^(track*0x9e3779b9u)^(slot*0x7f4a7c15u)^(cycle*0x85ebca6bu);random_word(r);random_word(r);return (r>>8)*(1.0f/8388608.0f)-1.0f;}
-static float lfo_shape(int shape,unsigned track,unsigned slot,uint32_t cycle,float ph){
- switch(shape){
-  case MD_LFO_TRIANGLE:return ph<.25f?4*ph:ph<.75f?2-4*ph:4*ph-4;
-  case MD_LFO_RAMP_UP:return 2*ph-1;
-  case MD_LFO_RAMP_DOWN:return 1-2*ph;
-  case MD_LFO_SQUARE:return ph<.5f?1.0f:-1.0f;
-  case MD_LFO_SAMPLE_HOLD:return lfo_random(track,slot,cycle);
-  case MD_LFO_SMOOTH_RANDOM:{float a=lfo_random(track,slot,cycle),b=lfo_random(track,slot,cycle+1);return a+(b-a)*(.5f-.5f*plaits::Sine(ph*.5f+.25f));}
-  default:return plaits::Sine(ph);
- }
-}
-// Modulation for this quantum: per track and target, plus the two shared targets.
-static float lfo_mod[6][MD_LFO_TARGETS],lfo_echo_time,lfo_grain_pos,lfo_echo_fb,lfo_grain_size;
-static void lfo_update(unsigned n){
- beat+=n*patch.tempo*4.0f/(60.0f*MD_RATE);if(playing&&beat>beat_limit)beat=beat_limit; // never run past the next step
- if(beat>=384){beat-=384;beat_limit-=384;beat_wraps++;}
- memset(lfo_mod,0,sizeof lfo_mod);lfo_echo_time=lfo_grain_pos=lfo_echo_fb=lfo_grain_size=0;
- for(unsigned i=0;i<6;i++)for(unsigned s=0;s<2;s++){const md_lfo &l=patch.lfo[i][s];float ph;uint32_t cycle;
-  if(l.rate<MD_LFO_SYNCED){float len=lfo_sync[l.rate],pos=beat/len;uint32_t whole=(uint32_t)pos;ph=pos-whole;cycle=beat_wraps*(uint32_t)(384/len+.5f)+whole;}
-  else{float &f=lfo_free_phase[i][s];f+=n*lfo_free_hz(l.rate)/MD_RATE;while(f>=1){f-=1;lfo_free_cycle[i][s]++;}ph=f;cycle=lfo_free_cycle[i][s];}
-  float v=lfo_shape(l.shape,i,s,cycle,ph);stats.lfo_phase[i][s]=ph;stats.lfo_cycle[i][s]=cycle;stats.lfo_value[i][s]=v;
-  if(!l.depth)continue;
-  float m=v*l.depth*.001f;
-  if(l.target==MD_TO_LEVEL)m=-fabsf(l.depth*.001f)*(1-(l.depth<0?-v:v))*.5f; // tremolo: 0 at the top, -depth at the bottom
-  if(l.target==MD_TO_ECHO_TIME)lfo_echo_time+=m;else if(l.target==MD_TO_GRAIN_POS)lfo_grain_pos+=m;else if(l.target==MD_TO_ECHO_FEEDBACK)lfo_echo_fb+=m;else if(l.target==MD_TO_GRAIN_SIZE)lfo_grain_size+=m;else lfo_mod[i][l.target]+=m;
- }
-}
+#include "midi_out.inc"
+#include "lfo.inc"
 static float clamp01(float x){return x<0?0:x>1?1:x;}
-// Monades generator: a Marbles-like loop register per track. Each hit either replays its slot (chance = déjà-vu)
-// or draws a new value from the source and writes it back, so the phrase mutates slowly at high déjà-vu.
-// It owns its random stream: other tracks and the Mutable Dreams sequence draw exactly as before. Lock does not
-// reset it (the register would never fill): on a generator track, déjà-vu is what makes the phrase repeat.
-struct GenState { uint32_t rng,count,valid,gate; int32_t off[16]; int32_t prev; };
-static GenState gens[6];
-static void gen_reset(){for(unsigned i=0;i<6;i++){GenState &g=gens[i];memset(&g,0,sizeof g);g.rng=(patch.seed^(i*0x9e3779b9u))|1;
- const int32_t *n=patch.ext[i].notes;g.prev=0;for(int k=0;k<16;k++)if(n[k]>=0){g.prev=n[k];break;}
- stats.gen_valid[i]=stats.gen_gate[i]=0;stats.gen_pos[i]=stats.gen_fresh[i]=0;memset(stats.gen_off[i],0,sizeof stats.gen_off[i]);}}
-static int gen_draw(unsigned i,GenState &g){
- const md_gen &c=patch.gen[i];unsigned r=random_word(g.rng);
- if(c.source==MD_GEN_MARKOV){
-  // First-order chain learned from the phrase, read as a loop: follow one of the notes that came after the current one.
-  int seq[16],n=0;for(int k=0;k<16;k++)if(patch.ext[i].notes[k]>=0)seq[n++]=patch.ext[i].notes[k];
-  if(n>=2){int next[16],m=0;for(int k=0;k<n;k++)if(seq[k]==g.prev)next[m++]=seq[(k+1)%n];
-   return m?next[r%m]:seq[r%n];}
- }
- if(c.source==MD_GEN_MOTIF){
-  // The motif in order; with chance spread / 24 a note moves to a neighbour (up to 2 semitones, snapped later).
-  int seq[16],n=0;for(int k=0;k<16;k++)if(patch.ext[i].notes[k]>=0)seq[n++]=patch.ext[i].notes[k];
-  if(n){int x=seq[g.count%n];if(r%24<(unsigned)c.spread)x+=((r>>8)&1?1:-1)*(1+(int)((r>>9)&1));return x;}
- }
- int spread=c.spread;return (int)(r%(unsigned)(spread+1))-spread/2;
-}
-// Form: four sections, tension 0..1. Low tension thins the rhythm and lets some tracks rest, peak brings everything in.
-static const float form_tension_of[MD_FORM_SECTIONS]={.25f,.6f,1.0f,.45f};
-static const unsigned form_bar_len[4]={2,4,8,16};
-static unsigned form_mask(unsigned cycle,unsigned section){
- if(!patch.form)return 0;unsigned live[6],n=0;for(unsigned i=0;i<6;i++)if(!patch.track[i].mute)live[n++]=i;
- unsigned drop=(unsigned)((1-form_tension_of[section&3])*patch.form_drops+.5f);if(n<2)return 0;if(drop>n-1)drop=n-1;
- unsigned r=(cycle*4+section+1)*0x9e3779b9u,mask=0; // the same every pass of this section, other tracks rest next cycle
- for(unsigned k=0;k<drop;k++){random_word(r);unsigned j=k+r%(n-k),tmp=live[k];live[k]=live[j];live[j]=tmp;mask|=1u<<live[k];}
- return mask;
-}
-// Echo / room damping: 500 keeps Mutable Dreams' exact coefficient.
+#include "generative.inc"
+// Echo sync: the division in sixteenths.
 static const float echo_sync_len[MD_ECHO_SYNCS]={0,.5f,2/3.0f,1,4/3.0f,1.5f,2,8/3.0f,3,4}; // sixteenths
 static float echo_ms_now(){
  if(!patch.echo_sync)return (float)patch.delay_ms;
@@ -269,21 +178,8 @@ static float echo_ms_now(){
  while(ms>350)ms*=.5f;while(ms<40)ms*=2; // the line holds 371 ms: a slow tempo plays half the division (still on the grid)
  return ms;
 }
+// Echo / room damping: 500 keeps Mutable Dreams' exact coefficient.
 static float tone_coef(int v,float lo,float mid,float hi){return v==500?mid:v<500?lo+(mid-lo)*v*.002f:mid+(hi-mid)*(v-500)*.002f;}
-// Gamaka shapes, shared with the screen. amount 0..1000 sets the time scale and depth.
-static float gamaka_shape(int style,int amount,float from,float ms){
- float a=amount*.001f;
- switch(style){
-  case MD_GAMAKA_KAN:{float hold=15+60*a,slide=8+20*a;return ms<hold?from:ms<hold+slide?from*(1-(ms-hold)/slide):0;}
-  case MD_GAMAKA_MEEND:{float span=40+460*a;if(ms>=span)return 0;float x=ms/span;return from*(1-x)*(1-x)*(1+2*x);} // smooth arrival
-  case MD_GAMAKA_ANDOLAN:{float rate=4.5f-2.5f*a,depth=.25f+.75f*a,onset=ms<120?ms/120:1;return from*depth*onset*(.5f-.5f*plaits::Sine(ms*.001f*rate+.25f));} // from < 0: sways down
-  default:return 0;
- }
-}
-static float scale_neighbour(float note,int dir){ // the next scale note above (dir 1) or below (-1)
- for(int k=1;k<=4;k++){float q=quantize_any(note+dir*k,patch.root,patch.scale,dir<0);if(dir>0?q>note+.01f:q<note-.01f)return q;}
- return note+dir;
-}
 static void fire(unsigned i,float note,float velocity) {
  Voice &v=voices[i];
  {int style=patch.gamaka[i];v.orn_style=0;v.orn_age=0;
@@ -315,7 +211,7 @@ static void apply(Command e) {
  } else switch(e.c) {
  case MD_MACRO:patch.macro[bound(e.t,0,3)]=bound(v,0,1000);break;
  case MD_TEMPO:patch.tempo=bound(v,30,220);break;
- case MD_PLAY:{int was=playing;playing=!!v;memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;beat=0;beat_limit=1;beat_wraps=0;gen_reset();}
+ case MD_PLAY:{int was=playing;playing=!!v;memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;beat=0;beat_limit=1;beat_wraps=0;gen_reset();memset(motion_held,0,sizeof motion_held);}
   if(routing.clock&&!clock_source&&playing!=was){out_push(playing?0xfa:0xfc,0,0);clock_left=0;}if(!playing)out_all_off();}break;
  case MD_LOCK:patch.locked=!!v;break;
  case MD_MUTATE: previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
@@ -381,6 +277,7 @@ static void apply(Command e) {
  case MD_GAMAKA:patch.gamaka[i]=bound(v,0,MD_GAMAKAS-1);break;
  case MD_GAMAKA_AMOUNT:patch.gamaka_amount[i]=bound(v,0,1000);break;
  case MD_VADI:patch.vadi=bound(v,-1,11);break;
+ case MD_MOTION_EVERY:patch.motion_every=bound(v,0,4);break;
  case MD_SAMVADI:patch.samvadi=bound(v,-1,11);break;
  case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
  }
@@ -419,6 +316,8 @@ static void tick() {
    }
    if(t.model>=MD_FM) {
     if(gen&&!e.bass_mode)note+=gen_off;
+    else if(!e.bass_mode&&patch.motion_every){const unsigned every=1u<<bound(patch.motion_every,0,4); // a new variation on the beat, held in between
+     if(local%every==0)motion_held[i]=(roll>>10)%1000<(unsigned)patch.macro[1]?degree[(roll>>20)%7]:0;note+=motion_held[i];}
     else if(!e.bass_mode&&(roll>>10)%1000<(unsigned)patch.macro[1])note+=degree[(roll>>20)%7];
     {int target=note+patch.transpose+(int)floorf(lfo_mod[i][MD_TO_NOTES]*12+.5f); /* LFO steps stay in the scale */
      // Pivot notes: a generated note within two semitones of the vadi (or samvadi) is drawn to it, a third of the time.
@@ -794,7 +693,7 @@ void md_render(float *lr,unsigned n) {
 }
 const md_patch *md_state(){return &patch;}const md_stats *md_status(){return &stats;}int md_playing(){return playing;}
 int md_validate(const md_patch *p) {
- if(!p||p->magic!=0x4D445231||p->version!=9||!p->seed||p->tempo<30||p->tempo>220)return 0;
+ if(!p||p->magic!=0x4D445231||p->version!=10||!p->seed||p->tempo<30||p->tempo>220)return 0;
  if(p->biome_id< -1||p->biome_id>=MD_BIOMES||p->edited_mask>127)return 0;
  for(int i=0;i<6;i++)if(p->tone_preset[i]< -1||p->tone_preset[i]>=MD_TONE_PRESETS)return 0;
  for(int j=0;j<4;j++)if(p->macro[j]<0||p->macro[j]>1000)return 0;
@@ -808,6 +707,7 @@ int md_validate(const md_patch *p) {
  if(p->send_hp<0||p->send_hp>1000||p->echo_tone<0||p->echo_tone>1000||p->room_tone<0||p->room_tone>1000)return 0;
  for(int i=0;i<6;i++){const md_gen &g=p->gen[i];if(g.source<0||g.source>=MD_GEN_SOURCES||g.dejavu<0||g.dejavu>1000||g.loop<1||g.loop>16||g.spread<0||g.spread>24)return 0;}
  for(int i=0;i<6;i++)if(p->gamaka[i]<0||p->gamaka[i]>=MD_GAMAKAS||p->gamaka_amount[i]<0||p->gamaka_amount[i]>1000)return 0;
+ if(p->motion_every<0||p->motion_every>4)return 0;
  if(p->vadi< -1||p->vadi>11||p->samvadi< -1||p->samvadi>11)return 0;
  if(p->form<0||p->form>1000||p->form_bars<0||p->form_bars>3||p->form_drops<0||p->form_drops>3)return 0;
  if(p->echo_sync<0||p->echo_sync>=MD_ECHO_SYNCS||p->room_diffusion<0||p->room_diffusion>1000||p->chorus<0||p->chorus>1000||p->chorus_depth<0||p->chorus_depth>1000)return 0;
@@ -819,6 +719,8 @@ unsigned md_memory_bytes(){return sizeof chorus_line+sizeof chorus+sizeof diffus
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
  if(bytes==sizeof(md_patch)){md_patch p;memcpy(&p,data,sizeof p);if(!md_validate(&p))return 0;*out=p;return 1;}
+ // Monades v9 (1676 bytes): Motion varies every step.
+ if(bytes==offsetof(md_patch,motion_every)){md_patch p;memcpy(&p,data,bytes);if(p.version!=9)return 0;v10_defaults(p);if(!md_validate(&p))return 0;*out=p;return 1;}
  // Monades v8 (1620 bytes): no gamakas, no pivot notes.
  if(bytes==offsetof(md_patch,gamaka)){md_patch p;memcpy(&p,data,bytes);if(p.version!=8)return 0;v9_defaults(p);if(!md_validate(&p))return 0;*out=p;return 1;}
  // Monades v7 (1512 bytes): generators and form start off.
