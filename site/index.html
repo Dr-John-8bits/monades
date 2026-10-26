@@ -56,7 +56,7 @@ ol.items>li{counter-increment:it;position:relative;padding:9px 0 9px 34px;border
 ol.items>li:first-child{border-top:0}
 ol.items>li::before{content:counter(it,lower-alpha) ".";position:absolute;left:0;top:9px;font-family:var(--mono);font-size:13px;color:var(--muted)}
 ol.items>li b{font-weight:600}
-.st{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.st{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:normal;max-width:100%}
 .st::before{content:"[ "}.st::after{content:" ]"}
 .st.done{color:#06081a;background:var(--mark);padding:0 4px}
 .st.done::before,.st.done::after{content:""}
@@ -71,6 +71,21 @@ table.pages td:first-child{font-family:var(--mono);font-size:12px;letter-spacing
 .order div span{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.05em;margin-bottom:4px}
 footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:16px}
 .theme{background:none;border:1px solid var(--rule);color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:5px 9px;cursor:pointer}
+a.cta{display:inline-block;margin:26px 10px 0 0;padding:7px 12px;border:1px solid var(--mark);color:var(--mark);text-decoration:none;font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+a.cta:hover{background:var(--mark);color:#06081a}
+.screens{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:22px 18px;margin:8px 0 0}
+.screens figure{margin:0}
+.screens img{display:block;width:100%;height:auto;image-rendering:pixelated;border:1px solid var(--rule);background:#06081a}
+.screens figcaption{margin-top:7px;font-size:14px;line-height:1.4;color:var(--muted)}
+.screens figcaption b{display:block;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);margin-bottom:2px}
+table.manual{width:100%;border-collapse:collapse;font-size:15px;margin:10px 0 22px}
+table.manual th,table.manual td{text-align:left;vertical-align:top;padding:7px 10px 7px 0;border-top:1px solid var(--rule)}
+table.manual th{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--ink)}
+table.manual td:first-child{font-family:var(--mono);font-size:12px;letter-spacing:.03em;white-space:nowrap;color:var(--mark)}
+h3{font-weight:600;font-size:18px;margin:26px 0 8px}
+ol.steps{margin:6px 0 0;padding-left:22px}
+ol.steps>li{padding:6px 0;max-width:64ch}
+.prop pre{font-family:var(--mono);font-size:13px;background:rgba(127,140,200,.08);border:1px solid var(--rule);padding:10px 12px;overflow-x:auto;max-width:64ch}
 @media (max-width:900px){
   .prop{grid-template-columns:72px minmax(0,1fr)}
   .side{grid-column:2;margin-top:12px}
@@ -84,7 +99,8 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
   .num{margin-bottom:10px}
   .num small{display:inline;margin-left:10px}
   header.top nav a{margin:0 14px 0 0}
-  table.pages td:first-child{white-space:normal}
+  table.pages td:first-child,table.manual td:first-child{white-space:normal}
+  .screens{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media print{.theme,header.top nav{display:none}}
 </style>
@@ -94,13 +110,14 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 
 <header class="top mono">
   <div>Monades · 0.1 · Firmware génératif pour M-VAVE FM-1 pour Flash Dog Duke Silver</div>
-  <nav><a href="#lots">Les lots</a><a href="#ordre">Ordre</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
+  <nav><a href="#ecrans">Écrans</a><a href="#mode">Mode d'emploi</a><a href="#mpc">MIDI</a><a href="#lots">Les lots</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
 </header>
 
 <section class="title">
   <p class="crew mono"><a href="https://thomasclaissethcl-blip.github.io/FDDS/">Flash Dog Duke Silver</a></p>
   <h1>Monades</h1>
   <p class="lede">La flotte sans fenêtres de la S.A.R.L. Napoléon d'Artagnan qui presse <span class="hl">la limonade de la Galaxie.</span></p>
+  <p><a class="cta" href="#mode">Mode d'emploi</a><a class="cta" href="#ecrans">Les écrans</a><a class="cta" href="#mpc">MIDI avec la MPC</a><a class="cta" href="https://github.com/Dr-John-8bits/monades">Sources</a></p>
 </section>
 
 <figure class="monads" aria-labelledby="cap">
@@ -124,16 +141,137 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
   <div class="num">§2<small>État présent</small></div>
   <div>
     <h2>Rien à flasher pour l'instant</h2>
-    <div class="status-line"><span>Renommage, identité USB, documentation</span><span class="st done">fait</span></div>
-    <p>Le code compile sur Mac et passe tous les tests de Mutable Dreams. Aucune version de Monades n'a encore été testée sur un FM-1. Pour jouer dès aujourd'hui, installez <a href="https://github.com/kidbee85-beep/mutable-dreams/releases">Mutable Dreams</a>&nbsp;: Monades en reprendra les Biomes et les sauvegardes.</p>
+    <div class="status-line"><span>Code des lots, testé sur Mac</span><span class="st done">fait</span></div>
+    <div class="status-line"><span>Compilation et test sur un FM-1</span><span class="st">à venir</span></div>
+    <p>Le code compile sur Mac et passe les tests de Mutable Dreams et ceux de Monades. Aucune version de Monades n'a encore été testée sur un FM-1. Pour jouer dès aujourd'hui, installez <a href="https://github.com/kidbee85-beep/mutable-dreams/releases">Mutable Dreams</a>&nbsp;: Monades en reprendra les Biomes et les sauvegardes.</p>
   </div>
   <aside class="side">
     <p>Identité firmware <code>FM-1_714</code>, distincte de Mutable Dreams (<code>FM-1_710</code>).</p>
   </aside>
 </section>
 
+<section class="prop" id="ecrans">
+  <div class="num">§3<small>Écrans</small></div>
+  <div>
+    <h2>Ce que montre l'écran</h2>
+    <div class="screens">
+      <figure><img src="ecrans/live.png" alt="Page LIVE BIOME" width="240" height="240" loading="lazy"><figcaption><b>Live</b>Les six pistes en vaisseaux&nbsp;: taille = niveau, flamme = densité, anneau = piste choisie.</figcaption></figure>
+      <figure><img src="ecrans/sound.png" alt="Page SOUND" width="240" height="240" loading="lazy"><figcaption><b>Sound</b>L'onde de la piste, après son filtre.</figcaption></figure>
+      <figure><img src="ecrans/filter.png" alt="Page VELVET FILTER" width="240" height="240" loading="lazy"><figcaption><b>Filter</b>La courbe réelle du filtre&nbsp;; le point suit les LFO.</figcaption></figure>
+      <figure><img src="ecrans/envelope.png" alt="Page ENVELOPE" width="240" height="240" loading="lazy"><figcaption><b>Envelope</b>L'enveloppe exacte&nbsp;; le point suit chaque note.</figcaption></figure>
+      <figure><img src="ecrans/rhythm.png" alt="Page RHYTHM" width="240" height="240" loading="lazy"><figcaption><b>Rhythm</b>L'anneau euclidien&nbsp;: coups joués, coups refusés par Chance.</figcaption></figure>
+      <figure><img src="ecrans/generator.png" alt="Page GENERATOR / DEJA VU" width="240" height="240" loading="lazy"><figcaption><b>Generator</b>Le registre déjà-vu&nbsp;: une colonne par case, hauteur = note.</figcaption></figure>
+      <figure><img src="ecrans/form.png" alt="Page FORM" width="240" height="240" loading="lazy"><figcaption><b>Form</b>Les quatre sections du morceau&nbsp;; taille = tension.</figcaption></figure>
+      <figure><img src="ecrans/grain.png" alt="Page GRANULAR BUS" width="240" height="240" loading="lazy"><figcaption><b>Granular</b>La bande, la tête d'écriture et les grains.</figcaption></figure>
+      <figure><img src="ecrans/space.png" alt="Page SHARED SPACE" width="240" height="240" loading="lazy"><figcaption><b>Space</b>Les échos en ondes, la traîne de la room.</figcaption></figure>
+      <figure><img src="ecrans/lfo.png" alt="Page LFO A" width="240" height="240" loading="lazy"><figcaption><b>LFO</b>Deux cycles, tels que le moteur les calcule.</figcaption></figure>
+      <figure><img src="ecrans/harmony.png" alt="Page HARMONY" width="240" height="240" loading="lazy"><figcaption><b>Harmony</b>La gamme sur le cercle des 12 notes.</figcaption></figure>
+      <figure><img src="ecrans/raga.png" alt="Page RAGA / GAMAKA" width="240" height="240" loading="lazy"><figcaption><b>Raga</b>Les notes pivots et la forme du gamaka.</figcaption></figure>
+      <figure><img src="ecrans/midi.png" alt="Page MIDI / PERFORMANCE" width="240" height="240" loading="lazy"><figcaption><b>MIDI</b>Ports et canaux&nbsp;; le satellite émet à chaque message envoyé.</figcaption></figure>
+      <figure><img src="ecrans/zones.png" alt="Page MIDI OUT ZONES" width="240" height="240" loading="lazy"><figcaption><b>Zones</b>Les zones de notes et leurs canaux de sortie.</figcaption></figure>
+    </div>
+  </div>
+  <aside class="side"><p>Captures du simulateur sur Mac, en taille réelle (240&nbsp;×&nbsp;240) agrandie. Le FM-1 n'a pas encore été testé.</p></aside>
+</section>
+
+<section class="prop" id="mode">
+  <div class="num">§4<small>Mode d'emploi</small></div>
+  <div>
+    <h2>Mode d'emploi</h2>
+    <p>Cinq boutons ouvrent les pages. Appuyer plusieurs fois sur le même bouton fait défiler ses pages. Sur chaque page, les potards K1 à K4 règlent les quatre cadres du bas de l'écran.</p>
+    <h3>Les pages</h3>
+    <table class="manual">
+      <tr><th>Bouton</th><th>Pages, dans l'ordre</th></tr>
+      <tr><td>HOME</td><td>LIVE BIOME</td></tr>
+      <tr><td>EDIT</td><td>SOUND → VELVET FILTER → ENVELOPE → MIX → GLOBAL MIXER</td></tr>
+      <tr><td>SEQ</td><td>RHYTHM → GROOVE → BASS / MOTIFS → PHRASE → GENERATOR → FORM</td></tr>
+      <tr><td>FX</td><td>GRANULAR BUS → TAPE → SHARED SPACE → SPACE TONE → ECHO SYNC / CHORUS → MARBLES / TIDES / WARPS → LFO A → LFO B</td></tr>
+      <tr><td>GLO</td><td>HARMONY → RAGA / GAMAKA → SYSTEM → LOOK → MIDI → MIDI OUT ZONES → USER BANKS</td></tr>
+    </table>
+    <h3>Les autres commandes</h3>
+    <table class="manual">
+      <tr><th>Commande</th><th>Effet</th></tr>
+      <tr><td>SELECT</td><td>Choisit la piste 1 à 6.</td></tr>
+      <tr><td>SEL</td><td>Coupe ou rétablit la piste choisie.</td></tr>
+      <tr><td>ALGO</td><td>Change le moteur sonore de la piste (12 moteurs).</td></tr>
+      <tr><td>PRESET</td><td>Sur les pages d'une piste&nbsp;: un des 224 sons. Ailleurs&nbsp;: un des 76 Biomes, ou le Blank.</td></tr>
+      <tr><td>PLAY</td><td>Lance ou arrête la séquence.</td></tr>
+      <tr><td>REC</td><td>Nouvelle variation. Sur SYSTEM et MIDI&nbsp;: panique. Sur GENERATOR&nbsp;: efface le motif.</td></tr>
+      <tr><td>ENV</td><td>Revient à la variation précédente.</td></tr>
+      <tr><td>ARP</td><td>Verrouille la graine&nbsp;: la même variation se répète.</td></tr>
+      <tr><td>LFO</td><td>Fige la bande granulaire (Freeze).</td></tr>
+      <tr><td>OCT− / OCT+</td><td>Octave du clavier.</td></tr>
+      <tr><td>SAVE</td><td>Sauve le Biome et les préférences, à l'arrêt et sur horloge interne. Sur USER BANKS&nbsp;: sauve dans le slot choisi.</td></tr>
+      <tr><td>Clavier</td><td>Joue la piste choisie. Sur HARMONY avec la gamme CUSTOM&nbsp;: ajoute ou retire des notes. Sur GENERATOR&nbsp;: écrit le motif.</td></tr>
+      <tr><td>Maintenir</td><td>Maintenir un bouton affiche son aide.</td></tr>
+    </table>
+    <h3>K1 à K4, page par page</h3>
+    <table class="manual">
+      <tr><th>Page</th><th>K1 · K2 · K3 · K4</th></tr>
+      <tr><td>LIVE</td><td>Density · Motion · Colour · Space (les quatre macros)</td></tr>
+      <tr><td>SOUND</td><td>Tone · Harmonics · Shape (Decay pour les batteries) · Level</td></tr>
+      <tr><td>FILTER</td><td>Cutoff · Résonance · Mode (LP 12, LP 24, LPG, HP 12, HP 24, BP, Notch) · Breathe</td></tr>
+      <tr><td>ENVELOPE</td><td>Attack · Decay · Level · Envoi grain</td></tr>
+      <tr><td>MIX</td><td>Envoi grain · Note de base · Pan · Division d'horloge</td></tr>
+      <tr><td>MIXER</td><td>Niveau · Envoi grain · Envoi écho · Envoi room</td></tr>
+      <tr><td>RHYTHM</td><td>Hits · Longueur · Rotation · Chance</td></tr>
+      <tr><td>GROOVE</td><td>Swing · Repeats · Accent · Division d'horloge</td></tr>
+      <tr><td>BASS</td><td>Mode de phrase (OFF, EUCLID, STEP) · Motif · Glide · Note de base</td></tr>
+      <tr><td>PHRASE</td><td>Pas · Note ou silence · Accent · Chance</td></tr>
+      <tr><td>GENERATOR</td><td>Source (OFF, RANDOM, MARKOV, MOTIF) · Déjà-vu · Longueur de boucle · Ambitus</td></tr>
+      <tr><td>FORM</td><td>Profondeur · Longueur des sections · Pistes au repos · Motion tous les N pas</td></tr>
+      <tr><td>GRANULAR</td><td>Mix · Taille du grain · Position · Feedback</td></tr>
+      <tr><td>TAPE</td><td>Hauteur des grains · Sens · Source du ducking · Quantité</td></tr>
+      <tr><td>SPACE</td><td>Temps d'écho · Feedback · Traîne de la room · Retour</td></tr>
+      <tr><td>SPACE TONE</td><td>Passe-haut des envois · Couleur de l'écho · Couleur de la room · Diffusion</td></tr>
+      <tr><td>ECHO / CHORUS</td><td>Écho synchronisé · Feedback · Mix du chorus · Profondeur du chorus</td></tr>
+      <tr><td>MODULATION</td><td>Marbles · Tides · Cycle de Tides · Warps</td></tr>
+      <tr><td>LFO A / B</td><td>Vitesse (synchronisée ou libre) · Forme · Cible · Profondeur</td></tr>
+      <tr><td>HARMONY</td><td>Fondamentale · Gamme (91) · Transposition · Tempo</td></tr>
+      <tr><td>RAGA</td><td>Vadi · Samvadi · Gamaka · Quantité</td></tr>
+      <tr><td>SYSTEM</td><td>Tempo · ECO / FULL · Relâche du ducking · Remise à zéro du maximum</td></tr>
+      <tr><td>LOOK</td><td>Animations · Son de démarrage · Revoir l'intro · Remise à zéro du maximum</td></tr>
+      <tr><td>MIDI</td><td>Horloge reçue · Notes reçues dans la gamme · Notes envoyées · Horloge envoyée</td></tr>
+      <tr><td>ZONES</td><td>Zone · Note basse · Note haute · Canal</td></tr>
+      <tr><td>USER BANKS</td><td>Slot · Biomes ou sons · Charger · Curseur du nom (PRESET change la lettre)</td></tr>
+    </table>
+  </div>
+  <aside class="side"><p>LOOK, K1 sur STILL&nbsp;: plus aucune animation, les informations restent affichées.</p><p>Hérité de Mutable Dreams&nbsp;: 76 Biomes et le Blank, 224 sons, 12 moteurs.</p></aside>
+</section>
+
+<section class="prop" id="mpc">
+  <div class="num">§5<small>MIDI</small></div>
+  <div>
+    <h2>MIDI avec la MPC</h2>
+    <ol class="steps">
+      <li><b>Brancher.</b> Le FM-1 se relie en USB, à la MPC ou à l'ordinateur, et apparaît comme «&nbsp;Monades FM-1&nbsp;». Il n'a pas de prise MIDI OUT&nbsp;: la sortie passe par l'USB.</li>
+      <li><b>Jouer le FM-1 depuis la MPC.</b> Canaux 1 à 6 = pistes 1 à 6, avec vélocité et pitch bend. CC&nbsp;7 niveau, 10 pan, 74 filtre, 71 résonance, 91 envoi room, 12 envoi écho, 13 envoi grain, 5 glide, 11 expression, 64 sustain&nbsp;; un changement de programme choisit le son. Sur le canal 16, les CC&nbsp;16 à 19 pilotent les quatre macros. GLO › MIDI, K2&nbsp;: ramène les notes reçues dans la gamme.</li>
+      <li><b>Enregistrer les notes générées.</b> GLO › MIDI, K3 NOTES OUT&nbsp;:
+        <br>TRACKS 1-6&nbsp;: la piste n sort sur le canal n.
+        <br>ZONES&nbsp;: chaque plage de notes sort sur son canal. Réglage sur GLO › MIDI OUT ZONES&nbsp;: K1 zone (8), K2 note basse, K3 note haute, K4 canal (OFF ou 1 à 16). Une note dans deux zones part sur les deux canaux.
+        <div class="zones">Par défaut&nbsp;:<br>C1 → B2 &nbsp;·&nbsp; canal 1<br>C3 → B4 &nbsp;·&nbsp; canal 2<br>C5 → C7 &nbsp;·&nbsp; canal 3</div>
+        Les notes reçues en MIDI ne sont jamais renvoyées.</li>
+      <li><b>Le tempo.</b> Le FM-1 mène&nbsp;: K4 CLOCK OUT sur ON (horloge MIDI, start et stop avec PLAY), et la MPC suit l'horloge reçue. La MPC mène&nbsp;: K1 CLOCK IN sur USB&nbsp;; l'horloge envoyée se coupe alors.</li>
+      <li><b>Gammes microtonales.</b> En TRACKS, chaque note part avec un pitch bend&nbsp;: régler la plage de bend de l'instrument sur ±2 demi-tons. En ZONES, les notes sont arrondies au demi-ton.</li>
+      <li><b>Garder les réglages.</b> SAVE, à l'arrêt.</li>
+    </ol>
+  </div>
+  <aside class="side"><p>Les ornements (gamakas) ne sont pas envoyés en MIDI&nbsp;: la MPC reçoit la note sans le glissé.</p></aside>
+</section>
+
+<section class="prop" id="installer">
+  <div class="num">§6<small>Installer</small></div>
+  <div>
+    <h2>Installer, revenir en arrière</h2>
+    <p>Pas encore de version à installer&nbsp;: Monades n'a été ni compilé pour le FM-1, ni testé dessus. Le jour venu&nbsp;:</p>
+    <pre>python3 base/tools/fm1_install.py Monades-0.1.0.fwsc --yes</pre>
+    <p>Le FM-1 redémarre avec l'identité <code>FM-1_714000100</code>. Pour revenir à Mutable Dreams, installer son paquet de la même façon. Pour revenir au firmware d'origine (V15)&nbsp;: <code>--force</code>, seul cas où il sert. V15 efface les banques utilisateur&nbsp;: en garder une sauvegarde <code>.mddb</code>.</p>
+  </div>
+  <aside class="side"><p>Procédure complète et liste de vérifications&nbsp;: <a href="https://github.com/Dr-John-8bits/monades/blob/main/docs/monades/TESTS-FM1.md">TESTS-FM1.md</a>.</p></aside>
+</section>
+
 <section class="prop" id="p3">
-  <div class="num">§3<small>Principe</small></div>
+  <div class="num">§7<small>Principe</small></div>
   <div>
     <h2>Tout ce qui bouge à l'écran montre quelque chose</h2>
     <p>Aucune animation purement décorative. Chaque mouvement reflète un réglage ou l'état réel du moteur&nbsp;: un grain, un LFO, un pas, une enveloppe. Tourner un potard doit <span class="hl">se voir</span> immédiatement&nbsp;; sinon on ne comprend plus ce qu'on fait.</p>
@@ -144,28 +282,28 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 <div id="lots"></div>
 
 <section class="prop" id="p4">
-  <div class="num">§4<small>Lot UI</small></div>
+  <div class="num">§8<small>Lot UI</small></div>
   <div>
     <h2>Lisibilité&nbsp;: chaque écran montre ce qu'on règle</h2>
-    <div class="status-line"><span class="st">en cours</span></div>
-    <p>L'audit des 19 pages de Mutable Dreams montrait beaucoup d'écrans décoratifs ou en texte seul. Où on en est&nbsp;:</p>
+    <div class="status-line"><span class="st done">fait</span></div>
+    <p>L'audit des 19 pages de Mutable Dreams montrait beaucoup d'écrans décoratifs ou en texte seul.</p>
     <table class="pages">
-      <tr><th>Page</th><th>Aujourd'hui</th><th>Demain</th></tr>
-      <tr><td>Granular<br><span class="st">en cours</span></td><td>Points qui dérivent, sans lien avec les réglages</td><td>La bande, la tête d'écriture, chaque grain à sa place, le Freeze qui fige tout</td></tr>
-      <tr><td>Mixer<br><span class="st">en cours</span></td><td>Vumètre de 2&nbsp;px qui sature, envois en chiffres</td><td>Vumètres en dB, envois des 6 pistes visibles, retours d'effets, master</td></tr>
-      <tr><td>Sound<br><span class="st">en cours</span></td><td>Spirale décorative</td><td>Mini-oscilloscope&nbsp;: Tone et Harmonics changent la forme d'onde</td></tr>
-      <tr><td>Harmony<br><span class="st">en cours</span></td><td>Une lettre et un nom de gamme</td><td>Cercle des 12 notes, gamme allumée, notes jouées qui flashent</td></tr>
-      <tr><td>Filter<br><span class="st">en cours</span></td><td>Courbe qui ignore résonance et mode</td><td>Vraie réponse avec bosse de résonance, repère qui suit les LFO</td></tr>
-      <tr><td>Envelope<br><span class="st">en cours</span></td><td>Courbe fausse (Decay ignoré)</td><td>Courbe exacte et point qui suit chaque note</td></tr>
-      <tr><td>Space<br><span class="st">en cours</span></td><td>Texte seul</td><td>Échos dessinés selon le temps de delay et le feedback</td></tr>
-      <tr><td>Phrase<br><span class="st">en cours</span></td><td>Grille de chiffres</td><td>Mini piano-roll avec tête de lecture</td></tr>
-      <tr><td>Groove<br><span class="st">en cours</span></td><td>Texte seul</td><td>Pas décalés par le swing, repeats en sous-barres, accent en hauteur</td></tr>
-      <tr><td>Tape<br><span class="st">en cours</span></td><td>Texte seul</td><td>Flèche de lecture des grains, réduction du ducking en direct</td></tr>
-      <tr><td>Mix<br><span class="st">en cours</span></td><td>Texte seul</td><td>Pan entre L et R, note de base sur un clavier, division d'horloge</td></tr>
-      <tr><td>Modulation<br><span class="st">en cours</span></td><td>Texte seul</td><td>Phase de Tides en direct, pas que Marbles fait varier, profondeur de Warps</td></tr>
-      <tr><td>MIDI<br><span class="st">en cours</span></td><td>Texte seul</td><td>Canaux et ports qui s'allument à chaque message</td></tr>
-      <tr><td>Rhythm<br><span class="st">en cours</span></td><td>Anneau euclidien</td><td>Probabilité visible, coups joués ou sautés, repeats</td></tr>
-      <tr><td>Live<br><span class="st">en cours</span></td><td>Petits vumètres, macros en chiffres</td><td>Vrais vumètres, effet visible des macros</td></tr>
+      <tr><th>Page</th><th>Mutable Dreams</th><th>Monades</th></tr>
+      <tr><td>Granular<br><span class="st done">fait</span></td><td>Points qui dérivent, sans lien avec les réglages</td><td>La bande, la tête d'écriture, chaque grain à sa place, le Freeze qui fige tout</td></tr>
+      <tr><td>Mixer<br><span class="st done">fait</span></td><td>Vumètre de 2&nbsp;px qui sature, envois en chiffres</td><td>Vumètres en dB, envois des 6 pistes visibles, retours d'effets, master</td></tr>
+      <tr><td>Sound<br><span class="st done">fait</span></td><td>Spirale décorative</td><td>Mini-oscilloscope&nbsp;: Tone et Harmonics changent la forme d'onde</td></tr>
+      <tr><td>Harmony<br><span class="st done">fait</span></td><td>Une lettre et un nom de gamme</td><td>Cercle des 12 notes, gamme allumée, notes jouées qui flashent</td></tr>
+      <tr><td>Filter<br><span class="st done">fait</span></td><td>Courbe qui ignore résonance et mode</td><td>Vraie réponse avec bosse de résonance, repère qui suit les LFO</td></tr>
+      <tr><td>Envelope<br><span class="st done">fait</span></td><td>Courbe fausse (Decay ignoré)</td><td>Courbe exacte et point qui suit chaque note</td></tr>
+      <tr><td>Space<br><span class="st done">fait</span></td><td>Texte seul</td><td>Échos dessinés selon le temps de delay et le feedback</td></tr>
+      <tr><td>Phrase<br><span class="st done">fait</span></td><td>Grille de chiffres</td><td>Mini piano-roll avec tête de lecture</td></tr>
+      <tr><td>Groove<br><span class="st done">fait</span></td><td>Texte seul</td><td>Pas décalés par le swing, repeats en sous-barres, accent en hauteur</td></tr>
+      <tr><td>Tape<br><span class="st done">fait</span></td><td>Texte seul</td><td>Flèche de lecture des grains, réduction du ducking en direct</td></tr>
+      <tr><td>Mix<br><span class="st done">fait</span></td><td>Texte seul</td><td>Pan entre L et R, note de base sur un clavier, division d'horloge</td></tr>
+      <tr><td>Modulation<br><span class="st done">fait</span></td><td>Texte seul</td><td>Phase de Tides en direct, pas que Marbles fait varier, profondeur de Warps</td></tr>
+      <tr><td>MIDI<br><span class="st done">fait</span></td><td>Texte seul</td><td>Canaux et ports qui s'allument à chaque message</td></tr>
+      <tr><td>Rhythm<br><span class="st done">fait</span></td><td>Anneau euclidien</td><td>Probabilité visible, coups joués ou sautés, repeats</td></tr>
+      <tr><td>Live<br><span class="st done">fait</span></td><td>Petits vumètres, macros en chiffres</td><td>Vrais vumètres, effet visible des macros</td></tr>
     </table>
   </div>
   <aside class="side">
@@ -175,24 +313,24 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 </section>
 
 <section class="prop" id="p5">
-  <div class="num">§5<small>Lot 1</small></div>
+  <div class="num">§9<small>Lot 1</small></div>
   <div>
     <h2>MIDI&nbsp;: les notes générées sortent</h2>
-    <div class="status-line"><span class="st">en cours</span></div>
+    <div class="status-line"><span class="st done">fait</span></div>
     <ol class="items">
-      <li><b>Sortie MIDI des notes générées</b>, en USB et en Bluetooth.</li>
-      <li><b>Routage par zones de notes</b>&nbsp;: chaque plage part sur son propre canal, jusqu'à 8 zones, chevauchements permis.
+      <li><b>Sortie MIDI des notes générées</b>, en USB. <span class="st done">fait</span> <span class="st">Bluetooth&nbsp;: pas dans cette version</span></li>
+      <li><b>Routage par zones de notes</b>&nbsp;: chaque plage part sur son propre canal, jusqu'à 8 zones, chevauchements permis. <span class="st done">fait</span>
         <div class="zones">C1 → B2 &nbsp;·&nbsp; canal 1 &nbsp;(basse)<br>C3 → B4 &nbsp;·&nbsp; canal 2 &nbsp;(accords)<br>C5 → C7 &nbsp;·&nbsp; canal 3 &nbsp;(lead)</div></li>
-      <li>Mode simple&nbsp;: un canal par piste, avec option «&nbsp;MIDI seul&nbsp;».</li>
-      <li><b>Horloge MIDI en sortie</b> (clock, start, stop), pour qu'une MPC suive.</li>
-      <li>Vélocité qui suit les accents.</li>
+      <li>Mode simple&nbsp;: un canal par piste <span class="st done">fait</span>, avec option «&nbsp;MIDI seul&nbsp;» <span class="st">à venir</span>.</li>
+      <li><b>Horloge MIDI en sortie</b> (clock, start, stop), pour qu'une MPC suive. <span class="st done">fait</span></li>
+      <li>Vélocité qui suit les accents. <span class="st done">fait</span></li>
     </ol>
   </div>
-  <aside class="side"><p>La plateforme sait déjà envoyer du MIDI (<code>plat_midi_send</code>)&nbsp;; Mutable Dreams ne s'en sert pas.</p><p>Pas de prise MIDI OUT sur le FM-1&nbsp;: tout passe par l'USB.</p></aside>
+  <aside class="side"><p>La plateforme sait déjà envoyer du MIDI (<code>plat_midi_send</code>)&nbsp;; Mutable Dreams ne s'en servait pas.</p><p>Pas de prise MIDI OUT sur le FM-1&nbsp;: tout passe par l'USB.</p></aside>
 </section>
 
 <section class="prop" id="p6">
-  <div class="num">§6<small>Lot 2</small></div>
+  <div class="num">§10<small>Lot 2</small></div>
   <div>
     <h2>Harmonie&nbsp;: toutes les gammes</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -207,7 +345,7 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 </section>
 
 <section class="prop" id="p7">
-  <div class="num">§7<small>Lot 3</small></div>
+  <div class="num">§11<small>Lot 3</small></div>
   <div>
     <h2>Génératif&nbsp;: au-delà de la boucle</h2>
     <div class="status-line"><span class="st">en cours</span></div>
@@ -222,7 +360,7 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 </section>
 
 <section class="prop" id="p8">
-  <div class="num">§8<small>Lot 4</small></div>
+  <div class="num">§12<small>Lot 4</small></div>
   <div>
     <h2>Tempo et effets</h2>
     <div class="status-line"><span class="st">en cours</span></div>
@@ -238,12 +376,13 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 </section>
 
 <section class="prop" id="p9">
-  <div class="num">§9<small>Lot Web</small></div>
+  <div class="num">§13<small>Lot Web</small></div>
   <div>
     <h2>Ce site</h2>
     <div class="status-line"><span class="st">en cours</span></div>
     <ol class="items">
-      <li>Une page, des propositions numérotées, rien de décoratif.</li>
+      <li>Une page, des propositions numérotées, rien de décoratif. <span class="st done">fait</span></li>
+      <li>Les écrans, le mode d'emploi, le MIDI avec la MPC. <span class="st done">fait</span></li>
       <li>À venir&nbsp;: l'instrument jouable dans le navigateur, l'installation et le retour au firmware d'origine.</li>
     </ol>
   </div>
@@ -251,7 +390,7 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 </section>
 
 <section class="prop" id="p9b">
-  <div class="num">§9b<small>Lot Identité</small></div>
+  <div class="num">§14<small>Lot Identité</small></div>
   <div>
     <h2>Une interface à part</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -266,7 +405,7 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 </section>
 
 <section class="prop" id="p10">
-  <div class="num">§10<small>Lot 5</small></div>
+  <div class="num">§15<small>Lot 5</small></div>
   <div>
     <h2>Divers</h2>
     <div class="status-line"><span class="st">en cours</span></div>
@@ -280,24 +419,24 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 </section>
 
 <section class="prop" id="ordre">
-  <div class="num">§11<small>Ordre</small></div>
+  <div class="num">§16<small>Ordre</small></div>
   <div>
     <h2>Ordre de marche</h2>
     <div class="order">
       <div><span>0</span>Tester le FM-1</div>
-      <div><span>§4</span>Lisibilité</div>
-      <div><span>§5</span>MIDI</div>
-      <div><span>§6</span>Harmonie</div>
-      <div><span>§7</span>Génératif</div>
-      <div><span>§8</span>Tempo, effets</div>
-      <div><span>§10</span>Divers</div>
+      <div><span>§8</span>Lisibilité</div>
+      <div><span>§9</span>MIDI</div>
+      <div><span>§10</span>Harmonie</div>
+      <div><span>§11</span>Génératif</div>
+      <div><span>§12</span>Tempo, effets</div>
+      <div><span>§15</span>Divers</div>
     </div>
   </div>
   <aside class="side"><p>Chaque lot est d'abord développé et testé sur ordinateur, puis dans le navigateur, puis sur le FM-1.</p></aside>
 </section>
 
 <section class="prop" id="p12">
-  <div class="num">§12<small>Crédits</small></div>
+  <div class="num">§17<small>Crédits</small></div>
   <div>
     <h2>Sur les épaules de</h2>
     <p><b>Kid Bunka / Christoph Link</b> (Mutable Dreams), <b>Émilie Gillet / Mutable Instruments</b> (Plaits, Rings, Elements, stmlib), <b>Charles Vestal</b> (fm1-base), <b>Leo Kuroshita</b> (Felucca, felucca-bsp).</p>
@@ -322,7 +461,7 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
   function build(){
   // Phones get a denser grid with short labels so the figure stays legible.
   narrow=window.innerWidth<600;rows=[];while(svg.firstChild)svg.removeChild(svg.firstChild);
-  x0=narrow?40:150;dx=narrow?22:50;dy=narrow?34:40;
+  x0=narrow?44:168;dx=narrow?22:49;dy=narrow?34:40;
   svg.setAttribute('viewBox',narrow?'0 0 400 210':'0 0 960 250');
   voices.forEach(function(v,r){
     var pat=euclid(v[0],v[1]),cells=[];
