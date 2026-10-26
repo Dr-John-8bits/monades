@@ -28,7 +28,8 @@ typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; floa
  float cutoff_now[6],q_now[6],env_now[6]; int32_t env_attacking[6];
  float duck_gain,tide_phase[6]; /* ducking gain now (1 = none), Tides cycle position 0..1 per track */
  uint32_t step_played[6],step_skipped[6]; /* per track, bit = step of its cycle: last pass played / hit refused by Chance */
- uint32_t midi_out_notes,midi_out_dropped; /* Monades MIDI out: note-ons queued, messages lost to a full queue */ } md_stats;
+ uint32_t midi_out_notes,midi_out_dropped; /* Monades MIDI out: note-ons queued, messages lost to a full queue */
+ float last_pitch[6]; /* last note fired per track, fractional for microtonal scales */ } md_stats;
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);
@@ -72,6 +73,8 @@ int md_scale_custom(void); /* index of the CUSTOM scale */
 int md_scale_at(int position); /* browsing order, grouped by family */
 int md_scale_position(int scale);
 void md_set_custom_scale(unsigned mask); /* audio owner; the root is always kept */
+float md_quantize_pitch(float note,int root,int scale); /* fractional MIDI note for microtonal scales */
+int md_scale_cents(int scale,float *degrees,int max,float *period); /* degrees in cents, root first; returns the count */
 #ifdef __cplusplus
 }
 #endif

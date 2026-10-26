@@ -407,20 +407,33 @@ static void md_draw_all(void) {
   // Circle of the 12 pitch classes, C at the top: lit = in the scale, coloured rings = notes the tracks play now.
   cv_rect(4,44,232,108,MD_BG);
   cv_text(16,50,&FONT_M,notes[p->root],col);md_text(16,80,md_scale_family(p->scale),MD_DIM);cv_text(16,95,text_w(&FONT_B,md_scale_name(p->scale))>118?&FONT_XS:&FONT_B,md_scale_name(p->scale),MD_INK);
-  {char tr[20]="TRANSPOSE +";md_num(p->transpose,tr+(p->transpose>0?11:10));md_text(16,120,tr,MD_DIM);}
+  {char tr[20]="TRANSPOSE +";md_num(p->transpose,tr+(p->transpose>0?11:10));md_text(16,112,tr,MD_DIM);}
   int custom=p->scale==md_scale_custom();unsigned down=md_scale_mask_down(p->scale);
   md_text(16,139,custom?"KEYS: ADD / REMOVE NOTES":down!=md_scale_mask(p->scale)?"HOLLOW: DESCENT ONLY":"RINGS: NOTES PLAYING",custom?col:MD_DIM);
   const md_stats *ms=md_status();unsigned mask=md_scale_mask(p->scale);const int cx=176,cy=100;
+  // Every scale is drawn from its degrees in cents: twelve-tone ones land on the 12 marks, microtonal ones between them.
+  static float deg[32];float period=1200;int nd=md_scale_cents(p->scale,deg,32,&period);
+  int micro=period!=1200;for(int k=0;k<nd&&!micro;k++)if((int)deg[k]%100)micro=1;
   for(i=0;i<12;i++){
    float a=i*.523598776f;int x=cx+(int)(fm_sinf(a)*28),y=cy-(int)(fm_cosf(a)*28);
-   int iv=(i-p->root+12)%12,up=(mask>>iv)&1,dn=(down>>iv)&1,in=up||dn,root=i==p->root;
+   int iv=(i-p->root+12)%12,up=(mask>>iv)&1,dn=(down>>iv)&1,root=i==p->root;
+   int lx=cx+(int)(fm_sinf(a)*42),ly=cy-(int)(fm_cosf(a)*42);
+   if(period==1200)md_text(lx-text_w(&FONT_XS,notes[i])/2,ly-6,notes[i],!micro&&(up||dn)?MD_DIM:MD_EDGE);
+   if(micro){md_circle(x,y,1,MD_EDGE,1);continue;}
    // Filled = in both directions, small filled = ascent only, hollow = descent only.
    if(root){md_circle(x,y,6,col,1);md_circle(x,y,7,MD_INK,0);}else if(up&&dn)md_circle(x,y,5,MD_INK,1);else if(up)md_circle(x,y,3,MD_INK,1);else if(dn)md_circle(x,y,5,MD_INK,0);else md_circle(x,y,2,MD_EDGE,1);
-   int lx=cx+(int)(fm_sinf(a)*42),ly=cy-(int)(fm_cosf(a)*42);md_text(lx-text_w(&FONT_XS,notes[i])/2,ly-6,notes[i],in?MD_DIM:MD_EDGE);
+  }
+  if(micro){
+   float base=period==1200?p->root*100.0f:0;
+   for(int k=0;k<nd;k++){float a=(base+deg[k])/period*6.2831853f;int x=cx+(int)(fm_sinf(a)*28),y=cy-(int)(fm_cosf(a)*28);
+    if(k==0){md_circle(x,y,5,col,1);md_circle(x,y,6,MD_INK,0);}else md_circle(x,y,nd>16?2:4,MD_INK,1);}
+   char info[24];md_num(nd,info);char *q=info;while(*q)q++;const char *t2=" DEGREES / ";while(*t2)*q++=*t2++;md_num((int)(period+.5f),q);while(*q)q++;*q++=' ';*q++='C';*q=0;
+   md_text(16,125,info,MD_DIM);
   }
   for(int tk=0;tk<6;tk++){
    if(p->track[tk].model<MD_FM||p->track[tk].mute||plat_ms()>pulse_until[tk]+300||ms->last_note[tk]<=0)continue;
-   int pc=ms->last_note[tk]%12;float a=pc*.523598776f;md_circle(cx+(int)(fm_sinf(a)*28),cy-(int)(fm_cosf(a)*28),9+tk%2,dream_colors[tk],0);
+   float pc=micro?(ms->last_pitch[tk]*100.0f-(period==1200?0:p->root*100.0f)):(float)(ms->last_note[tk]%12)*100.0f;
+   float a=pc/period*6.2831853f;md_circle(cx+(int)(fm_sinf(a)*28),cy-(int)(fm_cosf(a)*28),9+tk%2,dream_colors[tk],0);
   }
   md_named(8,158,"K1 ROOT",notes[p->root],col);md_named(124,158,"K2 SCALE",md_scale_name(p->scale),col);
   md_value_span(8,194,"K3 TRANSPOSE",p->transpose,-24,24,col);md_value_span(124,194,"K4 TEMPO",p->tempo,30,220,col);

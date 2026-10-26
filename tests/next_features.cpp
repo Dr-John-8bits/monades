@@ -72,5 +72,25 @@ int main(){
   md_patch q=blank(MD_BASS);q.scale=md_scale_count()-1;assert(md_validate(&q));q.scale=md_scale_count();assert(!md_validate(&q));
   printf("PASS %d scales: 1.1 order kept, raga ascent/descent, custom scale, browsing order complete\n",md_scale_count());
  }
+ {
+  // Monades microtonal: cents quantizing, non-octave periods, MIDI pitch bend in per-track mode only.
+  auto find=[](const char *n){for(int i=0;i<md_scale_count();i++)if(!strcmp(md_scale_name(i),n))return i;return -1;};
+  int rast=find("RAST"),bp=find("BOHLEN PIERCE"),shruti=find("SHRUTI22");assert(rast>0&&bp>0&&shruti>0);
+  assert(fabsf(md_quantize_pitch(63.4f,0,rast)-63.5f)<1e-4f);           /* E half-flat, 350 cents above C */
+  assert(fabsf(md_quantize_pitch(70.4f,0,rast)-70.5f)<1e-4f);           /* B half-flat */
+  float d[32],per=0;assert(md_scale_cents(bp,d,32,&per)==13&&fabsf(per-1901.955f)<.01f);
+  {float lattice=(4*1901.955f+292.6f)*.01f;assert(fabsf(md_quantize_pitch(lattice+.3f,0,bp)-lattice)<.01f);} /* 4 tritaves + 2 steps above the root */
+  assert(md_scale_cents(shruti,d,32,&per)==22&&per==1200);
+  for(int i=0;i<md_scale_count();i++){float q=md_quantize_pitch(61.3f,2,i);assert(q>=24&&q<=96);}
+  int bends=0,on=0;uint8_t m[3];
+  md_patch q=blank(MD_VA);q.scale=rast;q.track[0].note=63;q.track[0].prob=1000;assert(md_load(&q));
+  md_midi_routing r={};r.mode=1;md_set_midi_routing(&r);while(md_midi_take(m));
+  cmd(MD_PLAY,0,1);for(int b=0;b<300;b++){md_render(audio,128);while(md_midi_take(m)){if((m[0]&0xf0)==0xe0)bends++;if((m[0]&0xf0)==0x90)on++;}}cmd(MD_PLAY,0,0);
+  assert(on>0&&bends>0);
+  r.mode=2;r.zone[0].lo=24;r.zone[0].hi=96;r.zone[0].ch=1;md_set_midi_routing(&r);while(md_midi_take(m));bends=on=0;
+  cmd(MD_PLAY,0,1);for(int b=0;b<300;b++){md_render(audio,128);while(md_midi_take(m)){if((m[0]&0xf0)==0xe0)bends++;if((m[0]&0xf0)==0x90)on++;}}cmd(MD_PLAY,0,0);
+  assert(on>0&&bends==0);
+  puts("PASS microtonal: Rast quarter tones, Bohlen-Pierce tritave, 22 shrutis, pitch bend per track, nearest note in zones");
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

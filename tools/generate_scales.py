@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 # Writes app/dsp/scale_table.inc: python3 tools/generate_scales.py app/dsp/scale_table.inc
+# Scala files (.scl) dropped in tools/scala/ are added to the SCALA family.
 # Scale library for Monades: (name, family, ascent intervals, descent intervals or None). Indices 0-7 keep Mutable Dreams 1.1 order.
 L=[
 ("CHROMATIC","BASIC",list(range(12)),None),
@@ -83,7 +84,39 @@ L=[
 ("MAJOR LOCRIAN","WORLD",[0,2,4,5,6,8,10],None),
 ("CUSTOM","CUSTOM",[0],None),
 ]
-FAM=["BASIC","MODES","MINOR MAJOR","PENTA BLUES","BEBOP","SYMMETRIC","THAAT","RAGA","MAQAM 12-TET","JAPAN","WORLD","CUSTOM"]
+import math,os,sys
+from fractions import Fraction
+def cents(x):
+    """Scala pitch: a ratio (3/2, 2) or cents (contains a dot)."""
+    x=x.strip().split()[0]
+    if "." in x:return float(x)
+    return 1200*math.log2(float(Fraction(x)))
+# Microtonal scales: (name, family, period in cents, degrees in cents above the root, the root itself excluded).
+MICRO=[
+("RAST","MAQAM 1/4",1200,[200,350,500,700,900,1050]),
+("BAYATI","MAQAM 1/4",1200,[150,300,500,700,800,1000]),
+("SABA","MAQAM 1/4",1200,[150,300,400,700,800,1000]),
+("JUST MAJOR","MICROTONAL",1200,[cents(r) for r in "9/8 5/4 4/3 3/2 5/3 15/8".split()]),
+("JUST MINOR","MICROTONAL",1200,[cents(r) for r in "9/8 6/5 4/3 3/2 8/5 9/5".split()]),
+("PYTHAGOREAN","MICROTONAL",1200,[cents(r) for r in "9/8 81/64 4/3 3/2 27/16 243/128".split()]),
+("24-TET","MICROTONAL",1200,[50*k for k in range(1,24)]),
+("19-TET","MICROTONAL",1200,[1200*k/19 for k in range(1,19)]),
+("SLENDRO 5-TET","MICROTONAL",1200,[240*k for k in range(1,5)]),
+("THAI 7-TET","MICROTONAL",1200,[1200*k/7 for k in range(1,7)]),
+]
+def read_scl(path):
+    """A Scala file: description, count, then one pitch per line; the last pitch is the period."""
+    lines=[l for l in open(path,encoding="latin-1").read().splitlines() if not l.lstrip().startswith("!")]
+    count=int(lines[1].split()[0]);pitches=[cents(l) for l in lines[2:2+count]]
+    assert len(pitches)==count and count>=1
+    name=os.path.splitext(os.path.basename(path))[0].upper().replace("_"," ")[:13]
+    return (name,"SCALA",pitches[-1],pitches[:-1])
+SCALA_DIR=os.path.join(os.path.dirname(os.path.abspath(__file__)),"scala")
+if os.path.isdir(SCALA_DIR):
+    MICRO+=[read_scl(os.path.join(SCALA_DIR,f)) for f in sorted(os.listdir(SCALA_DIR)) if f.lower().endswith(".scl")]
+for n,f,per,deg in MICRO:
+    assert len(n)<=13 and 0<per and len(deg)<=31 and all(0<d<per for d in deg) and deg==sorted(deg),n
+FAM=["BASIC","MODES","MINOR MAJOR","PENTA BLUES","BEBOP","SYMMETRIC","THAAT","RAGA","MAQAM 12-TET","MAQAM 1/4","JAPAN","WORLD","MICROTONAL","SCALA","CUSTOM"]
 def mask(iv):
     m=0
     for i in iv:m|=1<<i
@@ -91,8 +124,9 @@ def mask(iv):
 assert all(len(n)<=13 for n,_,_,_ in L)
 leg=[0xfff,0x5ad,0xab5,0x6ad,0x4a9,0x295,0x555,0x5ab]
 for i,v in enumerate(leg):assert mask(L[i][2])==v and L[i][3] is None,(i,L[i])
-order=[i for f in FAM for i,x in enumerate(L) if x[1]==f]
-assert sorted(order)==list(range(len(L)))
+ALL=[(n,f) for n,f,_,_ in L]+[(n,f) for n,f,_,_ in MICRO]
+order=[i for f in FAM for i,x in enumerate(ALL) if x[1]==f]
+assert sorted(order)==list(range(len(ALL)))
 out=["/* Generated for Monades (scale table): name, family, ascent mask, descent mask (bit k = k semitones above the root).",
 " * Indices 0-7 keep the Mutable Dreams 1.1 order so saved patches play the same. CUSTOM's mask comes from md_set_custom_scale(). */",
 "struct ScaleDef { const char *name; uint8_t family; uint16_t up,down; };",
@@ -101,6 +135,11 @@ out=["/* Generated for Monades (scale table): name, family, ascent mask, descent
 for n,f,u,d in L:out.append(' {"%s",%d,0x%03x,0x%03x},'%(n,FAM.index(f),mask(u),mask(d if d else u)))
 out.append("};")
 out.append("static const uint8_t scale_order[]={%s}; /* browsing order, grouped by family */"%",".join(map(str,order)))
-out.append("enum { SCALE_COUNT=%d, SCALE_CUSTOM=%d };"%(len(L),len(L)-1))
+out.append("/* Microtonal scales (index SCALE_TWELVE + k): period and degrees in cents above the root. */")
+out.append("struct MicroDef { const char *name; uint8_t family,count; float period; float degree[31]; };")
+out.append("static const MicroDef micro_defs[]={")
+for n,f,per,deg in MICRO:out.append(' {"%s",%d,%d,%.4ff,{%s}},'%(n,FAM.index(f),len(deg),per,",".join("%.4ff"%d for d in deg)))
+out.append("};")
+out.append("enum { SCALE_TWELVE=%d, SCALE_COUNT=%d, SCALE_CUSTOM=%d };"%(len(L),len(ALL),len(L)-1))
 open(__import__('sys').argv[1],"w").write("\n".join(out)+"\n")
-print(len(L),"scales")
+print(len(ALL),"scales,",len(MICRO),"microtonal")

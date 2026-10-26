@@ -1,7 +1,7 @@
 /* Generated for Monades (scale table): name, family, ascent mask, descent mask (bit k = k semitones above the root).
  * Indices 0-7 keep the Mutable Dreams 1.1 order so saved patches play the same. CUSTOM's mask comes from md_set_custom_scale(). */
 struct ScaleDef { const char *name; uint8_t family; uint16_t up,down; };
-static const char *const scale_families[]={"BASIC","MODES","MINOR MAJOR","PENTA BLUES","BEBOP","SYMMETRIC","THAAT","RAGA","MAQAM 12-TET","JAPAN","WORLD","CUSTOM"};
+static const char *const scale_families[]={"BASIC","MODES","MINOR MAJOR","PENTA BLUES","BEBOP","SYMMETRIC","THAAT","RAGA","MAQAM 12-TET","MAQAM 1/4","JAPAN","WORLD","MICROTONAL","SCALA","CUSTOM"};
 static const ScaleDef scale_defs[]={
  {"CHROMATIC",0,0xfff,0xfff},
  {"MINOR",0,0x5ad,0x5ad},
@@ -67,21 +67,37 @@ static const ScaleDef scale_defs[]={
  {"KURD",8,0x5ab,0x5ab},
  {"NIKRIZ",8,0x6cd,0x6cd},
  {"NAWA ATHAR",8,0x9cd,0x9cd},
- {"HIRAJOSHI",9,0x18d,0x18d},
- {"IN",9,0x1a3,0x1a3},
- {"INSEN",9,0x4a3,0x4a3},
- {"IWATO",9,0x463,0x463},
- {"YO",9,0x2a5,0x2a5},
- {"KUMOI",9,0x28d,0x28d},
- {"RYUKYU",9,0x8b1,0x8b1},
- {"PELOG ~",10,0x18b,0x18b},
- {"SLENDRO ~",10,0x2a5,0x2a5},
- {"PERSIAN",10,0x973,0x973},
- {"ORIENTAL",10,0x673,0x673},
- {"ENIGMATIC",10,0xd53,0xd53},
- {"SPANISH 8",10,0x57b,0x57b},
- {"MAJOR LOCRIAN",10,0x575,0x575},
- {"CUSTOM",11,0x001,0x001},
+ {"HIRAJOSHI",10,0x18d,0x18d},
+ {"IN",10,0x1a3,0x1a3},
+ {"INSEN",10,0x4a3,0x4a3},
+ {"IWATO",10,0x463,0x463},
+ {"YO",10,0x2a5,0x2a5},
+ {"KUMOI",10,0x28d,0x28d},
+ {"RYUKYU",10,0x8b1,0x8b1},
+ {"PELOG ~",11,0x18b,0x18b},
+ {"SLENDRO ~",11,0x2a5,0x2a5},
+ {"PERSIAN",11,0x973,0x973},
+ {"ORIENTAL",11,0x673,0x673},
+ {"ENIGMATIC",11,0xd53,0xd53},
+ {"SPANISH 8",11,0x57b,0x57b},
+ {"MAJOR LOCRIAN",11,0x575,0x575},
+ {"CUSTOM",14,0x001,0x001},
 };
-static const uint8_t scale_order[]={0,1,2,3,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,4,5,25,26,27,28,29,30,6,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78}; /* browsing order, grouped by family */
-enum { SCALE_COUNT=79, SCALE_CUSTOM=78 };
+static const uint8_t scale_order[]={0,1,2,3,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,4,5,25,26,27,28,29,30,6,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,79,80,81,64,65,66,67,68,69,70,71,72,73,74,75,76,77,82,83,84,85,86,87,88,89,90,78}; /* browsing order, grouped by family */
+/* Microtonal scales (index SCALE_TWELVE + k): period and degrees in cents above the root. */
+struct MicroDef { const char *name; uint8_t family,count; float period; float degree[31]; };
+static const MicroDef micro_defs[]={
+ {"RAST",9,6,1200.0000f,{200.0000f,350.0000f,500.0000f,700.0000f,900.0000f,1050.0000f}},
+ {"BAYATI",9,6,1200.0000f,{150.0000f,300.0000f,500.0000f,700.0000f,800.0000f,1000.0000f}},
+ {"SABA",9,6,1200.0000f,{150.0000f,300.0000f,400.0000f,700.0000f,800.0000f,1000.0000f}},
+ {"JUST MAJOR",12,6,1200.0000f,{203.9100f,386.3137f,498.0450f,701.9550f,884.3587f,1088.2687f}},
+ {"JUST MINOR",12,6,1200.0000f,{203.9100f,315.6413f,498.0450f,701.9550f,813.6863f,1017.5963f}},
+ {"PYTHAGOREAN",12,6,1200.0000f,{203.9100f,407.8200f,498.0450f,701.9550f,905.8650f,1109.7750f}},
+ {"24-TET",12,23,1200.0000f,{50.0000f,100.0000f,150.0000f,200.0000f,250.0000f,300.0000f,350.0000f,400.0000f,450.0000f,500.0000f,550.0000f,600.0000f,650.0000f,700.0000f,750.0000f,800.0000f,850.0000f,900.0000f,950.0000f,1000.0000f,1050.0000f,1100.0000f,1150.0000f}},
+ {"19-TET",12,18,1200.0000f,{63.1579f,126.3158f,189.4737f,252.6316f,315.7895f,378.9474f,442.1053f,505.2632f,568.4211f,631.5789f,694.7368f,757.8947f,821.0526f,884.2105f,947.3684f,1010.5263f,1073.6842f,1136.8421f}},
+ {"SLENDRO 5-TET",12,4,1200.0000f,{240.0000f,480.0000f,720.0000f,960.0000f}},
+ {"THAI 7-TET",12,6,1200.0000f,{171.4286f,342.8571f,514.2857f,685.7143f,857.1429f,1028.5714f}},
+ {"BOHLEN PIERCE",13,12,1901.9550f,{146.3000f,292.6000f,438.9000f,585.2000f,731.5000f,877.8000f,1024.1000f,1170.4000f,1316.7000f,1463.0000f,1609.3000f,1755.6000f}},
+ {"SHRUTI22",13,21,1200.0000f,{90.2250f,111.7313f,182.4037f,203.9100f,294.1350f,315.6413f,386.3137f,407.8200f,498.0450f,519.5513f,590.2237f,611.7300f,701.9550f,792.1800f,813.6863f,884.3587f,905.8650f,996.0900f,1017.5963f,1088.2687f,1109.7750f}},
+};
+enum { SCALE_TWELVE=79, SCALE_COUNT=91, SCALE_CUSTOM=78 };

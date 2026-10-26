@@ -81,7 +81,17 @@ static float unit(int x) { return bound(x,0,1000)*.001f; }
 static uint16_t custom_scale=0x091; /* CUSTOM: root, major third, fifth until the player edits it */
 static int last_generated[6]; /* per track, for ascent / descent sets */
 // Ascending into a note uses the ascent set, descending the descent set (ragas such as Desh or Jaunpuri, classical melodic minor).
-static unsigned scale_mask_for(int scale,int down){scale=bound(scale,0,SCALE_COUNT-1);if(scale==SCALE_CUSTOM)return custom_scale|1u;return down?scale_defs[scale].down:scale_defs[scale].up;}
+static unsigned micro_mask(const MicroDef &m){unsigned mask=1;for(unsigned k=0;k<m.count;k++)mask|=1u<<((int)(m.degree[k]/100.0f+.5f)%12);return mask;} /* nearest semitones, for twelve-tone views */
+static unsigned scale_mask_for(int scale,int down){scale=bound(scale,0,SCALE_COUNT-1);if(scale==SCALE_CUSTOM)return custom_scale|1u;if(scale>=SCALE_TWELVE)return micro_mask(micro_defs[scale-SCALE_TWELVE]);return down?scale_defs[scale].down:scale_defs[scale].up;}
+// Microtonal: the nearest degree in cents (ties go down), repeated every period above the root; a fractional MIDI note.
+static float quantize_micro(float note,int root,const MicroDef &m){
+ note=fminf(96.0f,fmaxf(24.0f,note));root=bound(root,0,11);
+ float rel=(note-root)*100.0f,k=floorf(rel/m.period),r=rel-k*m.period,best=0,dist=r;
+ for(unsigned j=0;j<=m.count;j++){float d=j<m.count?m.degree[j]:m.period,e=fabsf(r-d);if(e<dist){dist=e;best=d;}}
+ float out=root+(k*m.period+best)*.01f;
+ while(out>96.0f)out-=m.period*.01f;while(out<24.0f)out+=m.period*.01f;
+ return out;
+}
 static int quantize_mask(int note,int root,unsigned mask){
  note=bound(note,24,96);root=bound(root,0,11);
  for(int delta=0;delta<12;delta++){
@@ -89,6 +99,11 @@ static int quantize_mask(int note,int root,unsigned mask){
   if(low>=24&&(mask&(1u<<((low-root+12)%12))))return low;
   if(high<=96&&(mask&(1u<<((high-root+12)%12))))return high;
  }return note;
+}
+static float quantize_any(float note,int root,int scale,int down){
+ scale=bound(scale,0,SCALE_COUNT-1);
+ if(scale>=SCALE_TWELVE)return quantize_micro(note,root,micro_defs[scale-SCALE_TWELVE]);
+ return (float)quantize_mask((int)floorf(note+.5f),root,scale_mask_for(scale,down));
 }
 static unsigned random_word(unsigned &r) { r^=r<<13;r^=r>>17;r^=r<<5;return r; }
 static float noise() { return (random_word(rng)>>8)*(1.0f/8388608.0f)-1.0f; }
@@ -146,13 +161,19 @@ struct OwedOff { float left; uint8_t ch,note; };
 static OwedOff owed[64];static unsigned owed_n;
 static md_midi_routing routing;static float clock_left;
 static void out_push(uint8_t st,uint8_t d1,uint8_t d2){unsigned w=out_w;if(w-out_r>=256){stats.midi_out_dropped++;return;}outq[w&255]={st,d1,d2,0};fence();out_w=w+1;}
+static int chan_bend[16]; /* pitch bend sent per channel, -8192..8191 (range assumed +/-2 semitones) */
+static void out_bend(unsigned ch,int bend){if(bend==chan_bend[ch])return;chan_bend[ch]=bend;unsigned v=(unsigned)(bend+8192);out_push(0xe0|ch,v&127,(v>>7)&127);}
 static void out_all_off(){for(unsigned j=0;j<owed_n;j++)out_push(0x80|owed[j].ch,owed[j].note,0);owed_n=0;}
 static void out_note(unsigned track,float note,float velocity,float gate){
  if(!routing.mode)return;
  int n=bound((int)(note+.5f),0,127),vel=bound((int)(velocity*127+.5f),1,127);unsigned chans=0;
  if(routing.mode==1)chans=1u<<track;
  else for(unsigned z=0;z<8;z++){const int ch=routing.zone[z].ch;if(ch>=1&&ch<=16&&n>=routing.zone[z].lo&&n<=routing.zone[z].hi)chans|=1u<<(ch-1);}
+ // Per-track mode: one voice per channel, so a microtonal note goes out as the nearest note plus pitch bend.
+ // Zones may stack notes on a channel: there the nearest note only.
+ const int bend=routing.mode==1?bound((int)floorf((note-n)*4096.0f+.5f),-8192,8191):0;
  for(unsigned ch=0;ch<16;ch++){if(!(chans&(1u<<ch)))continue;
+  if(routing.mode==1)out_bend(ch,bend);
   for(unsigned j=0;j<owed_n;j++)if(owed[j].ch==ch&&owed[j].note==n){out_push(0x80|ch,(uint8_t)n,0);owed[j]=owed[--owed_n];break;} // retrigger
   if(owed_n>=64)continue; // never send a note-on whose note-off cannot be owed
   out_push(0x90|ch,(uint8_t)n,(uint8_t)vel);owed[owed_n++]={gate,(uint8_t)ch,(uint8_t)n};stats.midi_out_notes++;}
@@ -162,7 +183,7 @@ static void out_advance(unsigned z){
 }
 static void fire(unsigned i,float note,float velocity) {
  Voice &v=voices[i];v.trigger=1;v.midi_gate=0;v.target_note=note;if(!patch.ext[i].glide||!v.active)v.note=note;v.velocity=velocity;v.active=1;
- stats.events[i]++;stats.last_note[i]=(int)note;
+ stats.events[i]++;stats.last_note[i]=(int)note;stats.last_pitch[i]=note;
  if((int)i==patch.duck_source&&!patch.track[i].mute)duckenv=1;
 }
 static void apply(Command e) {
@@ -195,7 +216,7 @@ static void apply(Command e) {
  case MD_GRAIN_POS:patch.grain_pos=bound(v,0,1000);break;
  case MD_FEEDBACK:patch.feedback=bound(v,0,850);break;
  case MD_QUALITY:if(patch.quality!=bound(v,0,1)){patch.quality=bound(v,0,1);for(unsigned j=0;j<6;j++){voices[j].eco_phase=0;voices[j].eco_previous=voices[j].eco_next=0;voices[j].fade=0;}}break;
- case MD_TRIGGER:fire(i,(float)(t.model>=MD_FM?md_quantize(v+patch.transpose,patch.root,patch.scale):bound(v,24,96)),.8f);break;
+ case MD_TRIGGER:fire(i,t.model>=MD_FM?quantize_any((float)(v+patch.transpose),patch.root,patch.scale,0):(float)bound(v,24,96),.8f);break;
  case MD_ATTACK:t.attack=bound(v,0,1000);break;
  case MD_RATCHET:t.ratchet=bound(v,1,4);break;
  case MD_SHAPE:t.shape=bound(v,0,1000);break;
@@ -245,7 +266,7 @@ static void tick() {
   {const uint32_t bit=1u<<(local%(unsigned)t.length);const bool hit=patch.ext[i].bass_mode==2||md_hit(local,hits,t.length,t.rotate);
    stats.step_played[i]&=~bit;stats.step_skipped[i]&=~bit;if(hit&&!t.mute){if(roll%1000<(unsigned)t.prob)stats.step_played[i]|=bit;else stats.step_skipped[i]|=bit;}}
   if((patch.ext[i].bass_mode==2||md_hit(local,hits,t.length,t.rotate))&&roll%1000<(unsigned)t.prob&&!t.mute) {
-   int note=t.note;
+   int note=t.note;float pitch;
    const md_extension &e=patch.ext[i];
    if(e.bass_mode){int off=e.notes[local%(e.bass_mode==2?(t.length>16?16:t.length):16)];if(off<0)continue;note+=off;
     // Marbles-inspired remembered variation: deterministic for each seed/position,
@@ -255,11 +276,12 @@ static void tick() {
    }
    if(t.model>=MD_FM) {
     if(!e.bass_mode&&(roll>>10)%1000<(unsigned)patch.macro[1])note+=degree[(roll>>20)%7];
-    {int target=note+patch.transpose;note=quantize_mask(target,patch.root,scale_mask_for(patch.scale,target<last_generated[i]));last_generated[i]=note;}
+    {int target=note+patch.transpose;pitch=quantize_any((float)target,patch.root,patch.scale,target<last_generated[i]);note=(int)floorf(pitch+.5f);last_generated[i]=note;}
    }
    float velocity=.8f+unit(t.accent)*((local%t.length)==0?.2f:-.25f);
-   fire(i,(float)note,velocity);out_note(i,(float)note,velocity,duration*.5f/t.ratchet);
-   repeats[i]={(duration/t.ratchet),duration/t.ratchet,(float)note,velocity,(unsigned)t.ratchet-1};
+   if(t.model<MD_FM)pitch=(float)note;
+   fire(i,pitch,velocity);out_note(i,pitch,velocity,duration*.5f/t.ratchet);
+   repeats[i]={(duration/t.ratchet),duration/t.ratchet,pitch,velocity,(unsigned)t.ratchet-1};
   }
  }
  stats.step=step++;untilstep+=duration;
@@ -522,13 +544,13 @@ int md_hit(unsigned s,unsigned h,unsigned l,unsigned r) {if(!l||l>32)return 0;h=
 void md_init() {
  voices=reinterpret_cast<Voice*>(voices_raw);memset(voices_raw,0,sizeof voices_raw);memset(tape,0,sizeof tape);memset(grains,0,sizeof grains);
  memset(&stats,0,sizeof stats);memset(smooth,0,sizeof smooth);memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);
- out_r=out_w=owed_n=0;memset(&routing,0,sizeof routing);clock_left=0;
+ out_r=out_w=owed_n=0;memset(&routing,0,sizeof routing);clock_left=0;memset(chan_bend,0,sizeof chan_bend);
  for(int i=0;i<6;i++)last_generated[i]=60;
  memset(midi_bank,0,sizeof midi_bank);qread=qwrite=writehead=grainclock=tape_valid=0;feedback_lp=0;rng=0x88888;stmlib::Random::Seed(rng);scene(0);playing=0;clock_source=midi_quantize=clock_pulse=0;clock_age=clock_last=0;clock_interval=0;
 }
 void md_set_midi_routing(const md_midi_routing *r){
  // Turning output off (or changing the routing) first releases every note still owed on the old routing.
- out_all_off();routing=*r;routing.mode=bound(routing.mode,0,2);routing.clock=!!routing.clock;
+ out_all_off();for(unsigned ch=0;ch<16;ch++)out_bend(ch,0);routing=*r;routing.mode=bound(routing.mode,0,2);routing.clock=!!routing.clock;
  for(unsigned z=0;z<8;z++){routing.zone[z].lo=bound(routing.zone[z].lo,0,127);routing.zone[z].hi=bound(routing.zone[z].hi,0,127);routing.zone[z].ch=bound(routing.zone[z].ch,0,16);}
 }
 int md_midi_take(uint8_t m[3]){unsigned r=out_r;if(r==out_w)return 0;fence();const OutMsg &o=outq[r&255];m[0]=o.st;m[1]=o.d1;m[2]=o.d2;fence();out_r=r+1;return 1;}
@@ -564,7 +586,7 @@ void md_midi(unsigned st,unsigned a,unsigned b,int port){
   return;
  }
  unsigned i=st&15;if(i==15&&(st&240)==0xb0&&a>=16&&a<=19){apply({MD_MACRO,(int)a-16,(int)b*1000/127});return;}if(i>=6)return;Voice &v=voices[i];unsigned type=st&240;
- if(type==0x90&&b){int note=midi_quantize?md_quantize(a,patch.root,patch.scale):bound(a,24,96);fire(i,note,b/127.0f);held[i]=a;v.midi_gate=md_has_envelope(v.model)?1:0;}
+ if(type==0x90&&b){float note=midi_quantize?quantize_any((float)a,patch.root,patch.scale,0):(float)bound(a,24,96);fire(i,note,b/127.0f);held[i]=a;v.midi_gate=md_has_envelope(v.model)?1:0;}
  else if(type==0x80||(type==0x90&&!b)){if(held[i]==(int)a){held[i]=-1;if(!sustain[i])v.midi_gate=-1;}}
  else if(type==0xc0){unsigned id=midi_bank[i]*128+a;if(id<MD_TONE_PRESETS)tone_preset(i,id);}
  else if(type==0xe0)bend[i]=((int)(a|(b<<7))-8192)*(2.0f/8192);
@@ -657,8 +679,15 @@ int md_cutoff_hz(int value){return (int)cutoff_hz(unit(value));}
 unsigned md_scale_mask(int scale){return scale_mask_for(scale,0);}
 unsigned md_scale_mask_down(int scale){return scale_mask_for(scale,1);}
 int md_quantize(int note,int root,int scale){return quantize_mask(note,root,scale_mask_for(scale,0));}
-const char *md_scale_name(int s){return scale_defs[bound(s,0,SCALE_COUNT-1)].name;}
-const char *md_scale_family(int s){return scale_families[scale_defs[bound(s,0,SCALE_COUNT-1)].family];}
+const char *md_scale_name(int s){s=bound(s,0,SCALE_COUNT-1);return s>=SCALE_TWELVE?micro_defs[s-SCALE_TWELVE].name:scale_defs[s].name;}
+const char *md_scale_family(int s){s=bound(s,0,SCALE_COUNT-1);return scale_families[s>=SCALE_TWELVE?micro_defs[s-SCALE_TWELVE].family:scale_defs[s].family];}
+float md_quantize_pitch(float note,int root,int scale){return quantize_any(note,root,scale,0);}
+int md_scale_cents(int s,float *degrees,int max,float *period){
+ // Degrees in cents above the root (the root first); twelve-tone scales give their ascent set.
+ s=bound(s,0,SCALE_COUNT-1);int n=0;
+ if(s>=SCALE_TWELVE){const MicroDef &m=micro_defs[s-SCALE_TWELVE];*period=m.period;if(n<max)degrees[n++]=0;for(unsigned k=0;k<m.count&&n<max;k++)degrees[n++]=m.degree[k];return n;}
+ unsigned mask=scale_mask_for(s,0);*period=1200;for(int k=0;k<12&&n<max;k++)if(mask&(1u<<k))degrees[n++]=k*100.0f;return n;
+}
 int md_scale_count(void){return SCALE_COUNT;}
 int md_scale_custom(void){return SCALE_CUSTOM;}
 int md_scale_at(int position){return scale_order[bound(position,0,SCALE_COUNT-1)];}
