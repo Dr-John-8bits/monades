@@ -207,6 +207,8 @@ static void tick() {
   unsigned local=step/t.speed;
   int hits=bound(t.hits+(patch.macro[0]-500)*t.length/1500,0,t.length);
   unsigned roll=random_word(seqrng);
+  {const uint32_t bit=1u<<(local%(unsigned)t.length);const bool hit=patch.ext[i].bass_mode==2||md_hit(local,hits,t.length,t.rotate);
+   stats.step_played[i]&=~bit;stats.step_skipped[i]&=~bit;if(hit&&!t.mute){if(roll%1000<(unsigned)t.prob)stats.step_played[i]|=bit;else stats.step_skipped[i]|=bit;}}
   if((patch.ext[i].bass_mode==2||md_hit(local,hits,t.length,t.rotate))&&roll%1000<(unsigned)t.prob&&!t.mute) {
    int note=t.note;
    const md_extension &e=patch.ext[i];

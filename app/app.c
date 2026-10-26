@@ -66,13 +66,18 @@ static void md_soft_point(float x,float y,uint16_t ink){
 }
 static float bloom_x[6][72],bloom_y[6][72],bloom_cx[6],bloom_cy[6];
 static uint32_t bloom_frame=0xffffffffu;
+static int md_segments(float peak);
 static void md_bloom_cache(void){
- if(bloom_frame==flower_time)return;bloom_frame=flower_time;
+ // Each flower reads the engine: size = real level (dB), petals = hits after Density, wobble = Motion.
+ // Recomputed every frame (not only when animated) so macro changes always show.
+ bloom_frame=flower_time;const md_patch *bp=md_state();
  for(int j=0;j<6;j++){
   float a=j*1.04719755f-.52f+flower_time*.000025f;
   bloom_cx[j]=51+fm_cosf(a)*24;bloom_cy[j]=95+fm_sinf(a)*24;
-  float energy=clamp((int)(md_status()->track_peak[j]*60),0,4);
-  for(int k=0;k<72;k++){float b=k*.0872664626f,r=15+3*fm_sinf(3*b+a)+2*fm_cosf(b+a)+energy;
+  float energy=md_segments(md_status()->track_peak[j]*1.9f)*.2f;
+  int len=bp->track[j].length>0?bp->track[j].length:1,hits=bp->track[j].hits+(bp->macro[0]-500)*len/1500;hits=hits<2?2:hits>9?9:hits;
+  float wobble=1+bp->macro[1]*.005f;
+  for(int k=0;k<72;k++){float b=k*.0872664626f,r=15+wobble*fm_sinf(hits*b+a)+2*fm_cosf(b+a)+energy;
    bloom_x[j][k]=bloom_cx[j]+fm_cosf(b)*r;bloom_y[j][k]=bloom_cy[j]+fm_sinf(b)*r;
   }
  }
@@ -335,13 +340,16 @@ static void md_draw_all(void) {
   }
  }else if(dream_ui.page==LIVE) {
   md_bloom_cache();
+  // Colour = brightness of the outlines, Space = the halo around the six flowers.
+  {float hr=44+p->macro[3]*.012f;for(int k=0;k<96;k++){float b=k*.065449847f;md_soft_point(51+fm_cosf(b)*hr,95+fm_sinf(b)*hr,md_tint(MD_BG,MD_DIM,(unsigned)(4+p->macro[3]*20/1000)));}}
+  unsigned colour_mix=(unsigned)(10+p->macro[2]*22/1000);
   for(i=0;i<6;i++){int x=(int)bloom_cx[i],y=(int)bloom_cy[i];
-   for(int k=0;k<72;k++)md_soft_point(bloom_x[i][k],bloom_y[i][k],dream_colors[i]);
+   for(int k=0;k<72;k++)md_soft_point(bloom_x[i][k],bloom_y[i][k],md_tint(MD_BG,dream_colors[i],colour_mix));
    md_circle(x,y,6+i%3,dream_colors[i],i==dream_ui.track);if(dream_prefs.motion&&plat_ms()<pulse_until[i])md_circle(x,y,4,MD_INK,1);
    md_circle(51,95,5,MD_INK,0);
    if(i==dream_ui.track)cv_rect(94,45+i*17,137,16,MD_CARD);
    md_num(i+1,s);md_text(98,46+i*17,s,dream_colors[i]);md_text(112,46+i*17,md_model_name(p->track[i].model),p->track[i].mute?MD_DIM:MD_INK);
-   int meter=clamp((int)(md_status()->track_peak[i]*100),0,18);cv_rect(212,57+i*17,meter,2,dream_colors[i]);
+   {int lit=md_segments(md_status()->track_peak[i]*1.9f)/2;for(int sg=0;sg<12;sg++)cv_rect(206+sg*2,56+i*17,1,3,sg<lit?(sg>=11?MD_HOT:dream_colors[i]):MD_CARD);}
    if(i==dream_ui.track)cv_rect(94,48+i*17,2,9,col);
   }
   md_text(12,141,md_tone_name(p->tone_preset[dream_ui.track]),col);md_text(140,141,md_biome_family(p->biome_id),MD_DIM);
@@ -419,8 +427,22 @@ static void md_draw_all(void) {
    md_value_span(8,158,"K1 CUTOFF Hz",md_cutoff_hz(t->cutoff),60,18000,col);md_value(124,158,"K2 RESONANCE",t->resonance/10,col);
    md_named(8,194,"K3 CHARACTER",modes[t->filter],col);md_value(124,194,"K4 BREATHE",t->breathe/10,col);
   } else if(dream_ui.page==RHYTHM) {
-   for(i=0;i<t->length;i++){float a=i*6.2831853f/t->length-1.5707963f;md_circle(120+(int)(fm_cosf(a)*35),110+(int)(fm_sinf(a)*35),3,md_hit(i,t->hits,t->length,t->rotate)?col:MD_DIM,md_hit(i,t->hits,t->length,t->rotate));}
-   if(md_playing()){float a=(md_status()->step%t->length)*6.2831853f/t->length-1.5707963f;md_circle(120+(int)(fm_cosf(a)*27),110+(int)(fm_sinf(a)*27),2,MD_INK,1);}
+   // The ring the sequencer really uses: hits include the Density macro, the playhead follows the clock division.
+   // Solid = played last pass, red ring = a hit Chance refused, pale = not reached yet (brightness = Chance), outer dots = Repeats.
+   {const md_stats *ms=md_status();int tr=dream_ui.track,len=t->length>0?t->length:1;
+    int hits=t->hits+(p->macro[0]-500)*len/1500;hits=hits<0?0:hits>len?len:hits;
+    const int cx=120,cy=112,rr=30;
+    unsigned mix=(unsigned)(8+t->prob*20/1000);
+    for(i=0;i<len;i++){float a=i*6.2831853f/len-1.5707963f;int x=cx+(int)(fm_cosf(a)*rr),y=cy+(int)(fm_sinf(a)*rr);
+     int hit=p->ext[tr].bass_mode==2||md_hit(i,hits,len,t->rotate);uint32_t bit=1u<<i;
+     if(!hit){md_circle(x,y,1,MD_EDGE,1);continue;}
+     if(ms->step_played[tr]&bit)md_circle(x,y,4,col,1);
+     else if(ms->step_skipped[tr]&bit)md_circle(x,y,4,MD_HOT,0);
+     else md_circle(x,y,4,md_tint(MD_BG,col,mix),1);
+     for(int k=1;k<t->ratchet;k++)md_circle(cx+(int)(fm_cosf(a)*(rr+5+k*4)),cy+(int)(fm_sinf(a)*(rr+5+k*4)),1,col,1);}
+    if(md_playing()){int pos=(int)((ms->step/(unsigned)(t->speed>0?t->speed:1))%(unsigned)len);float a=pos*6.2831853f/len-1.5707963f;md_circle(cx+(int)(fm_cosf(a)*(rr-9)),cy+(int)(fm_sinf(a)*(rr-9)),2,MD_INK,1);}
+    char hl[12];md_num(hits,hl);char *q=hl;while(*q)q++;*q++='/';md_num(len,q);md_text(cx-text_w(&FONT_XS,hl)/2,cy-6,hl,MD_INK);
+    md_text(8,139,"SOLID PLAYED  RED: CHANCE SAID NO",MD_DIM);}
    md_value_span(8,158,"K1 HITS",t->hits,0,t->length,col);md_value_span(124,158,"K2 LENGTH",t->length,1,32,col);md_value_span(8,194,"K3 ROTATION",t->rotate,0,t->length-1,col);md_value(124,194,"K4 CHANCE",t->prob/10,col);
   } else if(dream_ui.page==GRAIN) {
    // The tape itself: now at the right edge, about 3 s of past to the left.

@@ -26,7 +26,8 @@ typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; floa
  float fx_peak[3],out_peak[2],limit_peak;
  /* Monades views: actual (modulated) filter cutoff in Hz and Q, envelope level and attack phase per track. */
  float cutoff_now[6],q_now[6],env_now[6]; int32_t env_attacking[6];
- float duck_gain,tide_phase[6]; /* ducking gain now (1 = none), Tides cycle position 0..1 per track */ } md_stats;
+ float duck_gain,tide_phase[6]; /* ducking gain now (1 = none), Tides cycle position 0..1 per track */
+ uint32_t step_played[6],step_skipped[6]; /* per track, bit = step of its cycle: last pass played / hit refused by Chance */ } md_stats;
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);
