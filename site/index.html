@@ -10,17 +10,21 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#fcfcfa; --ink:#141414; --muted:#6a6a64; --rule:#dcdcd6; --mark:#f0e13c; --lit:#141414; --off:#d6d6cf;
+  /* Deep space by default, like the FM-1 screen; "Clair" switches to a daylight version. */
+  --paper:#06081a; --ink:#f2f0ff; --muted:#9aa2c4; --rule:#252a4a; --mark:#ffc668; --lit:#f2f0ff; --off:#252a4a;
+  --star:rgba(220,226,255,.55); --star2:rgba(150,170,255,.35);
+  --v1:#ff8c76; --v2:#ffc668; --v3:#7cdeb8; --v4:#80aaff; --v5:#cc96ff; --v6:#60dcf0;
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--paper:#0f0f0e;--ink:#ebeae4;--muted:#93928a;--rule:#2c2c29;--mark:#e9d92e;--lit:#ebeae4;--off:#2f2f2c}
-}
-:root[data-theme="dark"]{--paper:#0f0f0e;--ink:#ebeae4;--muted:#93928a;--rule:#2c2c29;--mark:#e9d92e;--lit:#ebeae4;--off:#2f2f2c}
+:root[data-theme="light"]{--paper:#f7f7fb;--ink:#12142a;--muted:#5e6382;--rule:#d9dbe8;--mark:#ffc668;--lit:#12142a;--off:#d9dbe8;--star:rgba(18,20,42,.18);--star2:rgba(60,80,170,.14);
+  --v1:#d9503a;--v2:#b8800f;--v3:#1f9a72;--v4:#3a63d6;--v5:#8a4fd1;--v6:#1592ad}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 17.5px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+body{margin:0;background-color:var(--paper);color:var(--ink);font:400 17.5px/1.6 var(--sans);-webkit-font-smoothing:antialiased;
+  /* A fixed starfield: three sparse layers of single-pixel stars, no motion. */
+  background-image:radial-gradient(1px 1px at 23px 41px,var(--star) 50%,transparent 51%),radial-gradient(1px 1px at 151px 97px,var(--star2) 50%,transparent 51%),radial-gradient(1.5px 1.5px at 87px 163px,var(--star) 50%,transparent 51%),radial-gradient(1px 1px at 199px 13px,var(--star2) 50%,transparent 51%);
+  background-size:211px 199px,263px 241px,307px 283px,173px 167px;background-attachment:fixed}
 a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
 a:hover{text-decoration-color:var(--mark);text-decoration-thickness:3px}
 .wrap{max-width:1080px;margin:0 auto;padding:0 16px}
@@ -31,7 +35,11 @@ header.top nav a:hover{text-decoration:underline}
 .title{padding:56px 0 8px}
 h1{font-weight:600;font-size:clamp(60px,14vw,170px);line-height:.88;letter-spacing:-.035em;margin:0;text-transform:uppercase}
 .lede{font-size:clamp(20px,2.6vw,27px);line-height:1.35;margin:22px 0 0;max-width:34ch}
-.hl{background:linear-gradient(transparent 58%,var(--mark) 58%,var(--mark) 92%,transparent 92%);padding:0 .08em}
+.hl{color:var(--mark);background:linear-gradient(transparent 86%,var(--mark) 86%,var(--mark) 93%,transparent 93%);padding:0 .04em}
+:root[data-theme="light"] .hl{color:var(--ink);background:linear-gradient(transparent 58%,var(--mark) 58%,var(--mark) 92%,transparent 92%)}
+.crew{margin:0 0 14px;color:var(--mark)}
+.crew a{text-decoration:none}
+.crew a:hover{text-decoration:underline}
 figure.monads{margin:44px 0 0;padding:20px 0 14px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 figure.monads svg{display:block;width:100%;height:auto}
 figure.monads figcaption{margin-top:10px;color:var(--muted);font-size:15px;max-width:62ch}
@@ -50,7 +58,7 @@ ol.items>li::before{content:counter(it,lower-alpha) ".";position:absolute;left:0
 ol.items>li b{font-weight:600}
 .st{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
 .st::before{content:"[ "}.st::after{content:" ]"}
-.st.done{color:var(--ink);background:var(--mark);padding:0 4px}
+.st.done{color:#06081a;background:var(--mark);padding:0 4px}
 .st.done::before,.st.done::after{content:""}
 .status-line{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 16px}
 table.pages{width:100%;border-collapse:collapse;font-size:15.5px;margin:10px 0 4px}
@@ -90,6 +98,7 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
 </header>
 
 <section class="title">
+  <p class="crew mono"><a href="https://thomasclaissethcl-blip.github.io/FDDS/">Flash Dog Duke Silver</a></p>
   <h1>Monades</h1>
   <p class="lede">La flotte sans fenêtres de la S.A.R.L. Napoléon d'Artagnan qui presse <span class="hl">la limonade de la Galaxie.</span></p>
 </section>
@@ -326,13 +335,14 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
       c.setAttribute('cx',x0+i*dx);c.setAttribute('cy',y0+r*dy);
       var inside=i<v[0];
       c.setAttribute('r',pat[i%v[0]]&&inside?(narrow?6:7):2.5);
-      c.setAttribute('style','fill:'+(inside?'var(--off)':'none')+';stroke:'+(inside?'none':'var(--rule)'));
+      c.setAttribute('style','fill:'+(inside?'var(--off)':'none')+';stroke:'+(inside?'none':'var(--rule)'));c.dataset.v=r;
       svg.appendChild(c);cells.push({el:c,on:pat[i%v[0]],inside:inside});
     }
-    var halo=document.createElementNS(NS,'circle');
-    halo.setAttribute('r',narrow?11:14);halo.setAttribute('cy',y0+r*dy);
-    halo.setAttribute('style','fill:var(--mark);opacity:.55');
-    svg.insertBefore(halo,cells[0].el);
+    // The monad itself: a windowless ship in its voice's colour, as on the FM-1, riding its own sequence.
+    var halo=document.createElementNS(NS,'polygon'),sz=narrow?9:12;
+    halo.setAttribute('points',sz+',0 '+(-sz*.6)+','+(-sz*.6)+' '+(-sz*.6)+','+(sz*.6));
+    halo.setAttribute('style','fill:var(--v'+(r+1)+');opacity:.9');
+    svg.appendChild(halo);halo.cy=y0+r*dy;
     rows.push({n:v[0],pat:pat,cells:cells,halo:halo});
   });
   draw();
@@ -341,11 +351,11 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
     // Each monad shows its own position: the lengths differ, only the clock is shared.
     rows.forEach(function(row){
       var pos=step%row.n;
-      row.halo.setAttribute('cx',x0+pos*dx);
+      row.halo.setAttribute('transform','translate('+(x0+pos*dx-(narrow?14:18))+','+row.halo.cy+')');
       row.cells.forEach(function(c,i){
         if(!c.inside)return;
         var active=i===pos;
-        c.el.style.fill=active?'var(--lit)':'var(--off)';
+        c.el.style.fill=c.on?(active?'var(--lit)':'var(--v'+(+c.el.dataset.v+1)+')'):(active?'var(--lit)':'var(--off)');c.el.style.opacity=c.on&&!active?.55:1;
         c.el.setAttribute('r',c.on?(active?(narrow?8:9):(narrow?6:7)):(active?4:2.5));
       });
     });
@@ -358,7 +368,7 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
   var btn=document.getElementById('theme'),root=document.documentElement;
   try{var t=localStorage.getItem('monades-theme');if(t)root.setAttribute('data-theme',t);}catch(e){}
   btn.addEventListener('click',function(){
-    var dark=root.getAttribute('data-theme')?root.getAttribute('data-theme')==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var dark=root.getAttribute('data-theme')!=='light'; // deep space unless switched to daylight
     var next=dark?'light':'dark';root.setAttribute('data-theme',next);
     try{localStorage.setItem('monades-theme',next);}catch(e){}
   });

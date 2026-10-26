@@ -21,12 +21,13 @@ static uint32_t intro_until,intro_start,chime_left;static int intro_pending;stat
 static void dream_intro(void){intro_start=plat_ms();intro_until=intro_start+3200;chime_left=dream_prefs.boot_sound?88200:0;for(int i=0;i<3;i++)chime_phase[i]=0;}
 static void dream_dismiss_intro(void){intro_until=chime_left=0;}
 static uint32_t overloads,cpu_peak,flower_time,last_events[6],pulse_until[6],quality_notice;
-static const uint16_t dream_colors[6]={RGB(238,151,135),RGB(219,185,105),RGB(135,199,177),RGB(151,175,224),RGB(199,158,210),RGB(102,192,204)};
-#define MD_BG RGB(11,19,25)
-#define MD_CARD RGB(28,40,50)
-#define MD_INK RGB(250,245,233)
-#define MD_DIM RGB(183,196,205)
-#define MD_EDGE RGB(66,85,96)
+// Monades: six stellar colours, one per ship of the fleet.
+static const uint16_t dream_colors[6]={RGB(255,140,118),RGB(255,198,104),RGB(124,222,184),RGB(128,170,255),RGB(204,150,255),RGB(96,220,240)};
+#define MD_BG RGB(6,8,20)
+#define MD_CARD RGB(22,26,48)
+#define MD_INK RGB(244,242,255)
+#define MD_DIM RGB(172,180,208)
+#define MD_EDGE RGB(60,66,100)
 static const char *dream_pages[]={"LIVE BIOME","SOUND","RHYTHM","GRANULAR BUS","MIX / NOTES","QUALITY / SYSTEM","ENVELOPE / BLOOM","GROOVE / REPEATS","TAPE / MOTION","HARMONY / GLOBAL","VELVET FILTER","LOOK / STARTUP","GLOBAL MIXER","BASS / MOTIFS","SHARED SPACE","MARBLES / TIDES / WARPS","PHRASE / NOTES","MIDI / PERFORMANCE","USER BANKS","MIDI OUT ZONES","LFO A","LFO B","SPACE TONE","ECHO SYNC / CHORUS","GENERATOR / DEJA VU","FORM","RAGA / GAMAKA"};
 static const char *help_title[NB]={"GRANULAR BUS","MUTE A TRACK","RETURN","FREEZE","CHOOSE A VOICE","SYSTEM","LIVE MACROS","SAVE","LOCK THE SEED","GENERATE RHYTHMS","PLAY / STOP","MUTATE","LOWER OCTAVE","HIGHER OCTAVE"};
 static const char *help_lines[NB][5]={
@@ -76,22 +77,28 @@ static void md_soft_point(float x,float y,uint16_t ink){
   cv_px[py*cv_w+px]=swap16((red<<11)|(green<<5)|blue);
  }
 }
-static float bloom_x[6][72],bloom_y[6][72],bloom_cx[6],bloom_cy[6];
-static uint32_t bloom_frame=0xffffffffu;
+static uint16_t md_tint(uint16_t a,uint16_t b,unsigned mix);
+// The fleet: six windowless ships. Live page: orbit radius jitters with Motion, hull size = real level (dB),
+// flame = hits after Density, outline brightness = Colour, the dust ring around them = Space.
+static void md_ship(float cx,float cy,float a,float len,uint16_t c,int solid,float flame,uint16_t flame_ink){
+ float ux=fm_cosf(a),uy=fm_sinf(a),nx=-uy,ny=ux;
+ float tx=cx+ux*len,ty=cy+uy*len,lx=cx-ux*len*.6f+nx*len*.55f,ly=cy-uy*len*.6f+ny*len*.55f,rx=cx-ux*len*.6f-nx*len*.55f,ry=cy-uy*len*.6f-ny*len*.55f;
+ for(int k=0;k<=24;k++){float u=k/24.0f;md_soft_point(tx+(lx-tx)*u,ty+(ly-ty)*u,c);md_soft_point(tx+(rx-tx)*u,ty+(ry-ty)*u,c);md_soft_point(lx+(rx-lx)*u,ly+(ry-ly)*u,c);}
+ if(solid)for(int k=1;k<12;k++){float u=k/12.0f;float ax=tx+(lx-tx)*u,ay=ty+(ly-ty)*u,bx=tx+(rx-tx)*u,by=ty+(ry-ty)*u;for(int m=0;m<=8;m++){float v=m/8.0f;md_soft_point(ax+(bx-ax)*v,ay+(by-ay)*v,c);}}
+ float bx=cx-ux*len*.6f,by=cy-uy*len*.6f;for(int k=1;k<=(int)flame;k++)md_soft_point(bx-ux*k,by-uy*k,md_tint(MD_BG,flame_ink,(unsigned)(30-k*20/(flame+1))));
+}
 static int md_segments(float peak);
-static void md_bloom_cache(void){
- // Each flower reads the engine: size = real level (dB), petals = hits after Density, wobble = Motion.
- // Recomputed every frame (not only when animated) so macro changes always show.
- bloom_frame=flower_time;const md_patch *bp=md_state();
+static void md_fleet(float cx,float cy,float radius,float spin,const md_patch *bp,int live){
  for(int j=0;j<6;j++){
-  float a=j*1.04719755f-.52f+flower_time*.000025f;
-  bloom_cx[j]=51+fm_cosf(a)*24;bloom_cy[j]=95+fm_sinf(a)*24;
-  float energy=md_segments(md_status()->track_peak[j]*1.9f)*.2f;
-  int len=bp->track[j].length>0?bp->track[j].length:1,hits=bp->track[j].hits+(bp->macro[0]-500)*len/1500;hits=hits<2?2:hits>9?9:hits;
-  float wobble=1+bp->macro[1]*.005f;
-  for(int k=0;k<72;k++){float b=k*.0872664626f,r=15+wobble*fm_sinf(hits*b+a)+2*fm_cosf(b+a)+energy;
-   bloom_x[j][k]=bloom_cx[j]+fm_cosf(b)*r;bloom_y[j][k]=bloom_cy[j]+fm_sinf(b)*r;
-  }
+  float a=j*1.04719755f-.52f+spin,r=radius+(live?bp->macro[1]*.004f*fm_sinf(spin*7+j*2.1f):0);
+  float x=cx+fm_cosf(a)*r,y=cy+fm_sinf(a)*r;
+  float size=live?4.5f+md_segments(md_status()->track_peak[j]*1.9f)*.25f:7;
+  int len=bp->track[j].length>0?bp->track[j].length:1,hits=bp->track[j].hits+(bp->macro[0]-500)*len/1500;hits=hits<0?0:hits>len?len:hits;
+  int pulse=dream_prefs.motion&&plat_ms()<pulse_until[j];
+  float flame=live?2+hits*10.0f/len+(pulse?4:0):3;
+  uint16_t ink=live?md_tint(MD_BG,dream_colors[j],(unsigned)(14+bp->macro[2]*18/1000)):dream_colors[j];
+  md_ship(x,y,a+1.5707963f,size,bp->track[j].mute&&live?MD_EDGE:ink,!(bp->track[j].mute&&live),bp->track[j].mute&&live?0:flame,pulse?MD_INK:dream_colors[j]);
+  if(live&&j==dream_ui.track)md_circle((int)x,(int)y,(int)size+4,dream_colors[j],0);
  }
 }
 // RGB565 translucency over the current 40-line tile: no second framebuffer.
@@ -100,41 +107,33 @@ static uint16_t md_tint(uint16_t a,uint16_t b,unsigned mix){
  unsigned g=(((a&0x07e0u)*(32-mix)+(b&0x07e0u)*mix)>>5)&0x07e0u;
  return (uint16_t)(rb|g);
 }
-static void md_glass_leaf(int x,int y,uint16_t c){
- static const uint8_t edge[8]={12,8,6,4,3,2,1,1};
+// Hull panel: translucent plate with two cut corners, a colour stripe and a running light. Same 108 x 32 footprint.
+static void md_panel(int x,int y,uint16_t c){
  for(int row=0;row<32;row++){
   int py=y+row+cv_oy;if(py<0||py>=(int)cv_h)continue;
-  int left=row<8?edge[row]:row>28?row-28:0;
-  int right=row>23?edge[31-row]:row<3?3-row:0;
+  int left=row<5?5-row:0,right=row>26?row-26:0;
   int a=x+left,z=x+107-right;if(a<0)a=0;if(z>=(int)cv_w)z=cv_w-1;
-  for(int px=a;px<=z;px++){
-   uint16_t old=swap16(cv_px[py*cv_w+px]);
-   cv_px[py*cv_w+px]=swap16(md_tint(old,MD_CARD,12));
-  }
+  for(int px=a;px<=z;px++){uint16_t old=swap16(cv_px[py*cv_w+px]);cv_px[py*cv_w+px]=swap16(md_tint(old,MD_CARD,14));}
   if(a<=z){cv_pset(a,y+row,MD_EDGE);cv_pset(z,y+row,MD_EDGE);}
  }
- // Asymmetric leaf tips and a restrained colour vein leave the field visible.
- cv_rect(x+12,y,92,1,MD_EDGE);cv_rect(x+4,y+31,92,1,MD_EDGE);
- for(int j=0;j<17;j++)cv_pset(x+13+j,y,md_tint(MD_EDGE,c,12));
+ cv_rect(x+5,y,103,1,MD_EDGE);cv_rect(x,y+31,102,1,MD_EDGE);
+ cv_rect(x+1,y+7,2,18,md_tint(MD_EDGE,c,20));cv_rect(x+99,y+3,5,1,c);
 }
-static void md_leaf_slider(int x,int y,int width,int value,int lo,int hi,uint16_t c){
+// Straight gauge with tenth ticks; the lit part and the marker carry the value.
+static void md_gauge(int x,int y,int width,int value,int lo,int hi,uint16_t c){
  int fill=clamp(value-lo,0,hi-lo)*width/(hi>lo?hi-lo:1);
- for(int j=0;j<=width;j++){
-  int bend=j*(width-j)*3/(width*width/4+1);
-  cv_pset(x+j,y+bend,j<=fill?c:MD_EDGE);
-  if(j&&j%14==0){cv_pset(x+j-1,y+bend-1,j<=fill?c:MD_EDGE);cv_pset(x+j-2,y+bend-2,j<=fill?c:MD_EDGE);}
- }
- int bend=fill*(width-fill)*3/(width*width/4+1);
- md_circle(x+fill,y+bend,2,c,1);cv_pset(x+fill,y+bend,MD_INK);
+ cv_rect(x,y,width+1,1,MD_EDGE);if(fill>0)cv_rect(x,y-1,fill,2,c);
+ for(int k=0;k<=10;k++){int tx=x+k*width/10;cv_rect(tx,y+2,1,k%5==0?3:1,k*width/10<=fill?c:MD_EDGE);}
+ cv_rect(x+fill-1,y-3,3,6,c);cv_pset(x+fill,y-1,MD_INK);cv_pset(x+fill,y,MD_INK);
 }
 static void md_value_span(int x,int y,const char *label,int value,int lo,int hi,uint16_t c) {
- char s[12];md_glass_leaf(x,y,c);md_text(x+6,y+2,label,MD_DIM);md_num(value,s);
+ char s[12];md_panel(x,y,c);md_text(x+6,y+2,label,MD_DIM);md_num(value,s);
  cv_text(x+7,y+14,&FONT_B,s,MD_BG);cv_text(x+6,y+13,&FONT_B,s,MD_INK);
  int start=text_w(&FONT_B,s)+12;if(start<45)start=45;if(start>78)start=78;
- md_leaf_slider(x+start,y+24,100-start,value,lo,hi,c);
+ md_gauge(x+start,y+23,96-start,value,lo,hi,c);
 }
 static void md_value(int x,int y,const char *label,int value,uint16_t c){md_value_span(x,y,label,value,0,100,c);}
-static void md_named(int x,int y,const char *label,const char *value,uint16_t c){md_glass_leaf(x,y,c);md_text(x+6,y+2,label,MD_DIM);cv_text(x+7,y+15,text_w(&FONT_B,value)>96?&FONT_XS:&FONT_B,value,MD_BG);cv_text(x+6,y+14,text_w(&FONT_B,value)>96?&FONT_XS:&FONT_B,value,c);}
+static void md_named(int x,int y,const char *label,const char *value,uint16_t c){md_panel(x,y,c);md_text(x+6,y+2,label,MD_DIM);cv_text(x+7,y+15,text_w(&FONT_B,value)>96?&FONT_XS:&FONT_B,value,MD_BG);cv_text(x+6,y+14,text_w(&FONT_B,value)>96?&FONT_XS:&FONT_B,value,c);}
 // Segmented 2 dB meters, -48..0 dBFS at the output: what is heard, not the knob position.
 static const float meter_db[24]={0.00398107f,0.00501187f,0.00630957f,0.00794328f,0.01f,0.0125893f,0.0158489f,0.0199526f,0.0251189f,0.0316228f,0.0398107f,0.0501187f,0.0630957f,0.0794328f,0.1f,0.125893f,0.158489f,0.199526f,0.251189f,0.316228f,0.398107f,0.501187f,0.630957f,0.794328f};
 #define MD_HOT RGB(236,92,82)
@@ -169,66 +168,33 @@ static void md_meter(int id,int x,int w,float peak,uint16_t c,int muted){
  }
 }
 
-// Cached organic contours: generate only when changing page, never in audio.
-static struct {int16_t x,y;uint16_t c;} organic_points[2400];
-static int16_t organic_flow[7][120];
-static unsigned organic_count;static int organic_page=-1;
-static void md_seed_point(int x,int y,uint16_t ink){
- if(x>=0&&x<240&&y>=40&&y<222&&organic_count<2400){organic_points[organic_count].x=x;organic_points[organic_count].y=y;organic_points[organic_count++].c=ink;}
-}
-static void md_organic(void){
- int page=dream_ui.page;
- if(organic_page!=page){organic_page=page;organic_count=0;
-  static const uint16_t inks[]={RGB(47,58,61),RGB(37,64,57),RGB(52,52,70),RGB(38,58,75),RGB(60,53,53)};
-  uint16_t ink=inks[page%5],leaf=inks[(page+1)%5];
-  for(int band=0;band<7;band++)for(int x=0;x<240;x+=2){
-   int y=42+band*27+(int)(12*fm_sinf(x*(.018f+.002f*(page%4))+band*.63f)+5*fm_cosf(x*.041f+page));
-   organic_flow[band][x/2]=y;md_seed_point(x,y,ink);
-  }
-  for(int petal=0;petal<5;petal++)for(int k=0;k<96;k++){
-   float a=k*.065449847f;float radius=22+petal*8+7*fm_sinf((3+page%5)*a+page*.4f);
-   int x=185+(int)(radius*fm_cosf(a)),y=96+(int)(radius*fm_sinf(a));
-   md_seed_point(x,y,ink);
-  }
-  // A different pressed fern on each page; cached once, below all labels/cards.
-  int side=page%2?1:-1,origin=side>0?9:230;
-  for(int stem=0;stem<90;stem++)md_seed_point(origin+side*stem/5,207-stem,leaf);
-  for(int sprig=0;sprig<8;sprig++)for(int sideleaf=-1;sideleaf<=1;sideleaf+=2)for(int k=0;k<40;k++){
-   float u=k/39.0f;int width=7+(7-sprig)*2;
-   int x=origin+side*(sprig*2+(int)(u*width))+sideleaf*(int)(5*fm_sinf(u*3.14159265f));
-   int y=194-sprig*10-(int)(u*(12+sprig));md_seed_point(x,y,leaf);md_seed_point(x+side,y,leaf);
-  }
- }
- // Sparse drifting pollen; quiet text plates stay above the moving field.
- for(int k=0;k<12;k++){int x=4+(k*61+page*17)%232,y=43+(k*29+(int)(flower_time/(130+k*11)))%110;
-  cv_pset(x,y,dream_colors[(k+page)%6]);cv_pset(x+1,y+1,MD_DIM);if(k%3==0){cv_pset(x-1,y+1,MD_DIM);cv_pset(x,y+2,MD_DIM);}}
- for(unsigned k=0;k<organic_count;k++)if(organic_points[k].y+cv_oy>=0&&organic_points[k].y+cv_oy<40)cv_pset(organic_points[k].x,organic_points[k].y,organic_points[k].c);
- // Seven flowing shoots, including behind translucent controls. Interpolate
- // cached contours; a soft head and fading trail need no per-frame trigonometry.
- for(unsigned j=0;j<7;j++){
-  float pos=(flower_time%(26000+j*1700))*(238.0f/(26000+j*1700));
-  for(int tail=0;tail<14;tail++){
-   float x=pos-tail*1.6f;if(x<0)x+=238;int k=(int)(x*.5f);if(k>118)k=118;
-   float f=x*.5f-k,y=organic_flow[j][k]+(organic_flow[j][k+1]-organic_flow[j][k])*f;
-   if(y<41||y>221||y+cv_oy<-2||y+cv_oy>=40)continue;
-   uint16_t ink=md_tint(MD_BG,dream_colors[(j+page)%6],(unsigned)(24-tail));
-   md_soft_point(x,y,ink);
-   if(tail==0){md_soft_point(x-1,y-1,ink);md_soft_point(x+1,y+1,ink);md_soft_point(x-2,y+1,ink);}
-  }
- }
+// Starfield. The stars drift left at the tempo while the sequence plays and stand still when it stops
+// (or with Motion off); a streak crosses a track's lane each time that track plays a note.
+static struct {uint8_t x,y,depth;} stars[90];static int stars_ready;static float star_drift;static uint32_t star_clock;
+static void md_space(void){
+ if(!stars_ready){stars_ready=1;unsigned r=0x2545f491u;for(int k=0;k<90;k++){r^=r<<13;r^=r>>17;r^=r<<5;stars[k].x=(uint8_t)(r%240);stars[k].y=(uint8_t)(41+(r>>8)%180);stars[k].depth=(uint8_t)(1+(r>>16)%3);}}
+ uint32_t now=plat_ms();if(md_playing()&&dream_prefs.motion)star_drift+=(now-star_clock)*md_state()->tempo*(1.0f/60000);star_clock=now; // one star-unit per beat
+ for(int k=0;k<90;k++){int d=stars[k].depth,x=(int)(stars[k].x-star_drift*d*4)%240;if(x<0)x+=240;int y=stars[k].y;
+  if(y+cv_oy<0||y+cv_oy>=40)continue;uint16_t c=d==3?MD_DIM:d==2?MD_EDGE:md_tint(MD_BG,MD_EDGE,18);cv_pset(x,y,c);if(d==3&&k%4==0){cv_pset(x+1,y,MD_EDGE);cv_pset(x,y+1,MD_EDGE);}}
+ if(!dream_prefs.motion)return;
+ for(int i=0;i<6;i++){uint32_t fired=pulse_until[i]-160;if(!pulse_until[i]||now-fired>900)continue; // pulse_until marks each new event
+  float head=236-(now-fired)*.26f;int y=58+i*28;if(y+cv_oy<-1||y+cv_oy>=41)continue;
+  for(int tl=0;tl<22;tl++){float x=head+tl;if(x<0||x>239)continue;md_soft_point(x,(float)y,md_tint(MD_BG,dream_colors[i],(unsigned)(28-tl)));}}
 }
 static void md_draw_all(void) {
  const md_patch *p=md_state();const md_track *t=&p->track[dream_ui.track];uint16_t col=dream_colors[dream_ui.track];char s[24];int i;
- if(dream_ui.help<0)md_organic();
+ if(dream_ui.help<0)md_space();
  cv_rect(0,0,240,39,MD_BG);cv_rect(10,38,220,1,MD_EDGE);cv_rect(10,38,28,1,col);
  cv_rect(0,224,240,16,MD_BG);
  cv_text(10,5,&FONT_B,"MONADES",MD_INK);md_circle(226,12,3,md_playing()?dream_colors[2]:MD_DIM,1);
  md_text(10,25,dream_pages[dream_ui.page],col);md_num(p->tempo,s);md_text(186,25,s,MD_INK);md_text(211,25,"BPM",MD_DIM);
  if(intro_until&&plat_ms()<intro_until&&dream_ui.help<0){
   float progress=(plat_ms()-intro_start)/3200.0f;
-  for(int ring=0;ring<3;ring++)for(int k=0;k<84;k++){float a=k*.074799825f;float r=48+ring*13+4*fm_sinf(3*a+progress*6);cv_pset(120+(int)(fm_cosf(a)*r),104+(int)(fm_sinf(a)*r),MD_CARD);}
-  for(int j=0;j<6;j++){float a=j*1.04719755f+progress*.9f;int x=120+(int)(fm_cosf(a)*(22+10*progress)),y=104+(int)(fm_sinf(a)*(22+10*progress));md_circle(x,y,24,dream_colors[j],0);md_circle(x,y,4,dream_colors[j],1);}
-  md_circle(120,104,7,MD_INK,0);cv_text(29,174,&FONT_B,"LET YOUR BIOME BLOOM",MD_INK);md_text(41,198,"76 BIOMES / 224 TONES",MD_DIM);
+  // The fleet arrives from deep space and takes its formation around the star.
+  {float e=progress>1?1:progress,arrive=1-(1-e)*(1-e);md_circle(120,100,(int)(2+4*arrive),MD_INK,1);
+   md_fleet(120,100,30+(1-arrive)*24,progress*1.2f,md_state(),0);}
+  cv_text(120-text_w(&FONT_B,"MONADES")/2,158,&FONT_B,"MONADES",MD_INK);md_text(120-text_w(&FONT_XS,"FLASH DOG DUKE SILVER")/2,180,"FLASH DOG DUKE SILVER",col);
+  md_text(120-text_w(&FONT_XS,"76 BIOMES / 224 TONES")/2,200,"76 BIOMES / 224 TONES",MD_DIM);
   cv_rect(32,220,(int)(176*progress),2,col);md_text(48,223,"ANY CONTROL TO BEGIN",MD_DIM);return;
  }
  if(dream_ui.help>=0) {
@@ -535,14 +501,11 @@ static void md_draw_all(void) {
    md_value_span(8,158,"K1 STEP",e->edit_step+1,1,16,col);md_value_span(124,158,"K2 NOTE / REST",e->notes[e->edit_step],-1,24,col);md_value(8,194,"K3 ACCENT",t->accent/10,col);md_value(124,194,"K4 CHANCE",t->prob/10,col);
   }
  }else if(dream_ui.page==LIVE) {
-  md_bloom_cache();
-  // Colour = brightness of the outlines, Space = the halo around the six flowers.
-  {float hr=44+p->macro[3]*.012f;for(int k=0;k<96;k++){float b=k*.065449847f;md_soft_point(51+fm_cosf(b)*hr,95+fm_sinf(b)*hr,md_tint(MD_BG,MD_DIM,(unsigned)(4+p->macro[3]*20/1000)));}}
-  unsigned colour_mix=(unsigned)(10+p->macro[2]*22/1000);
-  for(i=0;i<6;i++){int x=(int)bloom_cx[i],y=(int)bloom_cy[i];
-   for(int k=0;k<72;k++)md_soft_point(bloom_x[i][k],bloom_y[i][k],md_tint(MD_BG,dream_colors[i],colour_mix));
-   md_circle(x,y,6+i%3,dream_colors[i],i==dream_ui.track);if(dream_prefs.motion&&plat_ms()<pulse_until[i])md_circle(x,y,4,MD_INK,1);
-   md_circle(51,95,5,MD_INK,0);
+  // The fleet around its star. Space = the dust ring, Colour = how bright the hulls are (see md_fleet).
+  {float hr=42+p->macro[3]*.012f;for(int k=0;k<96;k++){float b=k*.065449847f;if(k%2)md_soft_point(51+fm_cosf(b)*hr,95+fm_sinf(b)*hr,md_tint(MD_BG,MD_DIM,(unsigned)(4+p->macro[3]*22/1000)));}}
+  md_circle(51,95,4,MD_INK,1);md_circle(51,95,6,md_tint(MD_BG,MD_INK,12),0);
+  md_fleet(51,95,26,flower_time*.00012f,p,1);
+  for(i=0;i<6;i++){
    if(i==dream_ui.track)cv_rect(94,45+i*17,137,16,MD_CARD);
    md_num(i+1,s);md_text(98,46+i*17,s,dream_colors[i]);md_text(112,46+i*17,md_model_name(p->track[i].model),p->track[i].mute?MD_DIM:MD_INK);
    {int lit=md_segments(md_status()->track_peak[i]*1.9f)/2;for(int sg=0;sg<12;sg++)cv_rect(206+sg*2,56+i*17,1,3,sg<lit?(sg>=11?MD_HOT:dream_colors[i]):MD_CARD);}
@@ -551,7 +514,7 @@ static void md_draw_all(void) {
   md_text(12,141,md_tone_name(p->tone_preset[dream_ui.track]),col);md_text(140,141,md_biome_family(p->biome_id),MD_DIM);
   const char *labels[]={"K1 DENSITY","K2 MOTION","K3 COLOUR","K4 SPACE"};for(i=0;i<4;i++)md_value(8+(i%2)*116,158+(i/2)*36,labels[i],p->macro[i]/10,dream_colors[i]);
  } else if(dream_ui.page==SYSTEM) {
-  md_text(10,48,"MONADES 0.1 / MD 1.1",MD_INK);md_text(10,69,p->quality?"FULL  24 MODES / 4 GRAINS":"ECO / ADAPTIVE MODES / 2 GRAINS",col);
+  md_text(10,48,"MONADES 0.1",MD_INK);md_text(238-text_w(&FONT_XS,"FLASH DOG DUKE SILVER"),48,"FLASH DOG DUKE SILVER",col);md_text(10,69,p->quality?"FULL  24 MODES / 4 GRAINS":"ECO / ADAPTIVE MODES / 2 GRAINS",col);
   md_text(10,93,"LOAD / MAX %",MD_DIM);
 #ifdef PLAT_HOST
   md_text(139,93,"HOST ONLY",MD_INK);
@@ -563,7 +526,7 @@ static void md_draw_all(void) {
   md_text(10,166,"K1 TEMPO   K2 ECO / FULL",MD_INK);md_text(10,188,"REC: PANIC / CLEAR TAPE",col);
   md_text(10,211,"K3: DUCK RELEASE / K4: RESET",MD_DIM);
  } else if(dream_ui.page==APPEARANCE) {
-  for(i=0;i<6;i++){float a=i*1.04719755f+flower_time*.0003f;md_circle(120+(int)(fm_cosf(a)*23),100+(int)(fm_sinf(a)*23),19,dream_colors[i],0);}
+  md_circle(120,98,3,MD_INK,1);md_fleet(120,98,28,flower_time*.0003f,p,0); /* Motion LIVING: the fleet turns; STILL: it holds */
   md_text(24,140,"SAVE KEEPS THESE SETTINGS",MD_DIM);
   md_named(8,158,"K1 MOTION",dream_prefs.motion?"LIVING":"STILL",col);md_named(124,158,"K2 START SOUND",dream_prefs.boot_sound?"ON":"OFF",col);
   md_named(8,194,"K3 INTRO","REPLAY",col);md_named(124,194,"K4 CPU MAX","RESET",col);
@@ -893,4 +856,7 @@ int app_expect(const char *what,int *got) {
 #include "web.c"
 #include "diagnostics.c"
 
-void app_splash(void){for(unsigned y=0;y<240;y+=40){cv_begin(240,40,MD_BG);cv_oy=-(int)y;for(int j=0;j<6;j++){float a=j*1.04719755f;md_circle(120+(int)(fm_cosf(a)*27),100+(int)(fm_sinf(a)*27),23,dream_colors[j],0);}cv_text(42,168,&FONT_B,"MUTABLE DREAMS",MD_INK);md_text(60,194,"A BIOME IS WAKING",MD_DIM);cv_blit(0,y);}}
+void app_splash(void){for(unsigned y=0;y<240;y+=40){cv_begin(240,40,MD_BG);cv_oy=-(int)y;
+ unsigned r=0x2545f491u;for(int k=0;k<70;k++){r^=r<<13;r^=r>>17;r^=r<<5;cv_pset((int)(r%240),(int)((r>>8)%240),k%3?MD_EDGE:MD_DIM);}
+ md_circle(120,96,4,MD_INK,1);for(int j=0;j<6;j++){float a=j*1.04719755f-.52f;md_ship(120+fm_cosf(a)*30,96+fm_sinf(a)*30,a+1.5707963f,7,dream_colors[j],1,3,dream_colors[j]);}
+ cv_text(120-text_w(&FONT_B,"MONADES")/2,160,&FONT_B,"MONADES",MD_INK);md_text(120-text_w(&FONT_XS,"FLASH DOG DUKE SILVER")/2,186,"FLASH DOG DUKE SILVER",MD_DIM);cv_blit(0,y);}}

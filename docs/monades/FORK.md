@@ -136,13 +136,21 @@ Vérifier qu'aucun firmware FM-1 ne porte déjà le nom (The Firmware Hub, aweso
 
 **C'est un lot idéal pour commencer** : il n'ajoute aucune fonction risquée, il améliore tout de suite la compréhension, et il permet d'apprendre le code (UI + moteur) avant les gros chantiers.
 
-### Lot Identité — Interface spatiale (plus tard)
+### Lot Identité — Interface spatiale
 Se démarquer visuellement de Mutable Dreams : remplacer son univers végétal (feuilles, fougères, pollen, « fleurs » de la page Live, cartes en forme de feuille) par un univers spatial (étoiles, galaxie, vaisseaux).
 - Garder la règle de design : **rien de décoratif sans information**. Par exemple : les six voix en six vaisseaux sur la page Live, des étoiles qui s'allument sur les coups joués, un fond qui avance au tempo.
 - Nouvelle palette et nouvel écran de démarrage, nom MONADES.
 - Remplacer les cartes « feuille » des réglages K1–K4 par un style propre à Monades.
 - Le site web passera aussi à l'interface spatiale, en temps utile.
 - Pas tout de suite : après le lot UI, une fois les écrans fonctionnels validés sur le FM-1.
+**Fait (branche `monades/identite`)** :
+- palette « espace profond » et six couleurs d'étoiles, une par vaisseau ;
+- fond étoilé : il défile à la vitesse du tempo pendant la lecture, s'arrête à l'arrêt ou en Motion STILL ; une traînée traverse la ligne d'une piste à chaque note. Fougères, pollen et tiges décoratives retirés (environ 14 Ko de mémoire libérés) ;
+- page LIVE : la flotte des six vaisseaux sans fenêtres autour de son étoile (taille = niveau réel, flamme = hits après Density, tremblement d'orbite = Motion, éclat = Colour, anneau de poussière = Space, flamme blanche à chaque note, coque vide si muette) ;
+- cadres K1–K4 en panneaux de coque à coins coupés, jauges droites graduées ;
+- démarrage : MONADES, FLASH DOG DUKE SILVER, la flotte qui se met en formation ; FLASH DOG DUKE SILVER aussi sur la page SYSTEM ;
+- site : espace profond par défaut (mode clair au choix), fond étoilé fixe, monades dessinées en vaisseaux colorés, nom Flash Dog Duke Silver au-dessus du titre. Aucun texte nouveau.
+**Reste** : valider les contrastes sur l'écran réel du FM-1.
 
 ### Lot Web — Site Monades
 Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de la Monadologie** :
