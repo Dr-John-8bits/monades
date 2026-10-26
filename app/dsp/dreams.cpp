@@ -594,9 +594,10 @@ int md_tone_model(int id){return tone_bank[bound(id,0,MD_TONE_PRESETS-1)].model;
 int md_has_envelope(int model){return model==MD_FM||model==MD_VA||model==MD_HARMONIC||model==MD_CHOIR||model==MD_BASS||model==MD_MELLOW||model==MD_SATIN;}
 int md_cutoff_hz(int value){return (int)cutoff_hz(unit(value));}
 
+static const unsigned scale_masks[]={0xfff,0x5ad,0xab5,0x6ad,0x4a9,0x295,0x555,0x5ab}; /* bit k: k semitones above the root */
+unsigned md_scale_mask(int scale){return scale_masks[bound(scale,0,7)];}
 int md_quantize(int note,int root,int scale){
- static const unsigned masks[]={0xfff,0x5ad,0xab5,0x6ad,0x4a9,0x295,0x555,0x5ab};
- note=bound(note,24,96);root=bound(root,0,11);unsigned mask=masks[bound(scale,0,7)];
+ note=bound(note,24,96);root=bound(root,0,11);unsigned mask=scale_masks[bound(scale,0,7)];
  for(int delta=0;delta<12;delta++){
   int low=note-delta,high=note+delta;
   if(low>=24&&(mask&(1u<<((low-root+12)%12))))return low;

@@ -312,8 +312,22 @@ static void md_draw_all(void) {
   md_named(8,194,"K3 INTRO","REPLAY",col);md_named(124,194,"K4 CPU MAX","RESET",col);
  } else if(dream_ui.page==HARMONY) {
   static const char *notes[]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
-  cv_text(24,60,&FONT_M,notes[p->root],col);cv_text(76,68,&FONT_B,md_scale_name(p->scale),MD_INK);
-  md_text(12,108,"MELODIC VOICES FOLLOW SCALE",MD_DIM);md_text(12,130,"GLO AGAIN: QUALITY / SYSTEM",MD_DIM);
+  // Circle of the 12 pitch classes, C at the top: lit = in the scale, coloured rings = notes the tracks play now.
+  cv_rect(4,44,232,108,MD_BG);
+  cv_text(16,58,&FONT_M,notes[p->root],col);cv_text(16,96,&FONT_B,md_scale_name(p->scale),MD_INK);
+  {char tr[20]="TRANSPOSE +";md_num(p->transpose,tr+(p->transpose>0?11:10));md_text(16,120,tr,MD_DIM);}
+  md_text(16,139,"RINGS: NOTES PLAYING",MD_DIM);
+  const md_stats *ms=md_status();unsigned mask=md_scale_mask(p->scale);const int cx=176,cy=100;
+  for(i=0;i<12;i++){
+   float a=i*.523598776f;int x=cx+(int)(fm_sinf(a)*28),y=cy-(int)(fm_cosf(a)*28);
+   int in=(mask>>((i-p->root+12)%12))&1,root=i==p->root;
+   if(root){md_circle(x,y,6,col,1);md_circle(x,y,7,MD_INK,0);}else if(in)md_circle(x,y,5,MD_INK,1);else md_circle(x,y,2,MD_EDGE,1);
+   int lx=cx+(int)(fm_sinf(a)*42),ly=cy-(int)(fm_cosf(a)*42);md_text(lx-text_w(&FONT_XS,notes[i])/2,ly-6,notes[i],in?MD_DIM:MD_EDGE);
+  }
+  for(int tk=0;tk<6;tk++){
+   if(p->track[tk].model<MD_FM||p->track[tk].mute||plat_ms()>pulse_until[tk]+300||ms->last_note[tk]<=0)continue;
+   int pc=ms->last_note[tk]%12;float a=pc*.523598776f;md_circle(cx+(int)(fm_sinf(a)*28),cy-(int)(fm_cosf(a)*28),9+tk%2,dream_colors[tk],0);
+  }
   md_named(8,158,"K1 ROOT",notes[p->root],col);md_named(124,158,"K2 SCALE",md_scale_name(p->scale),col);
   md_value_span(8,194,"K3 TRANSPOSE",p->transpose,-24,24,col);md_value_span(124,194,"K4 TEMPO",p->tempo,30,220,col);
  } else {
