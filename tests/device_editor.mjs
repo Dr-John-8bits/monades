@@ -8,15 +8,15 @@ const image=fs.readFileSync(root+'/app/build/san/dreams-map-test.mddb');assert.e
 const bad=Buffer.from(image);bad[35]^=1;assert.throws(()=>PB.parse(bad));assert.throws(()=>PB.parse(image.slice(0,-1)));
 const wrong=Buffer.from(image);wrong.writeUInt16LE(1,16);wrong.writeUInt32LE(PB.crc32(wrong,0,wrong.length-4),wrong.length-4);assert.throws(()=>PB.parse(wrong));
 const le=n=>[n&255,n>>>8&255,n>>>16&255,n>>>24&255];
-const patch=Array.from({length:1620},(_,i)=>(i*17)&255);
+const patch=Array.from({length:1676},(_,i)=>(i*17)&255);
 class Mock{
  constructor(){this.q=[];this.log=[];this.lost=false;this.data=[];this.token=7;this.parallel=0;this.max=0;}
  send(p){this.log.push(p);this.parallel++;this.max=Math.max(this.max,this.parallel);const c=p[4];let status=0,data=[];
   if(p[2]===0x4c){this.q.push([0xf0,0x7d,0x4c,0x43,c,0xf7]);return true;}
-  if(c===7)data=[1,7,1620,22,16,64,224,77].flatMap(le);
-  if(c===8)data=[1620,PB.crc32(patch),4].flatMap(le);
+  if(c===7)data=[1,7,1676,22,16,64,224,77].flatMap(le);
+  if(c===8)data=[1676,PB.crc32(patch),4].flatMap(le);
   if(c===5){assert.equal(p[8],4);const off=p[6]|p[7]<<7;data=patch.slice(off,off+224);}
-  if(c===11){const h=unpack(p.slice(6,-1));assert.equal(new DataView(h.buffer).getUint32(0,true),1620);this.data=[];data=[this.token];}
+  if(c===11){const h=unpack(p.slice(6,-1));assert.equal(new DataView(h.buffer).getUint32(0,true),1676);this.data=[];data=[this.token];}
   if(c===12){assert.equal(p[6],this.token);const off=p[7]|p[8]<<7;assert.equal(off,this.data.length);this.data.push(...unpack(p.slice(9,-1)));}
   if(c===13){assert.deepEqual(this.data,patch);}
   if(c===9){data=Array(208).fill(0);}

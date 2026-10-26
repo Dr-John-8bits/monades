@@ -3,6 +3,7 @@ tap GLO
 tap GLO
 tap GLO
 tap GLO
+tap GLO
 expect page 17
 press GLO
 wait 900

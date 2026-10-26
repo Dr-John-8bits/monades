@@ -33,6 +33,12 @@ Vérifier qu'aucun firmware FM-1 ne porte déjà le nom (The Firmware Hub, aweso
 7. **Import Scala `.scl`/`.kbm`** et microtonal : hauteurs en cents pour les moteurs internes, pitch bend par canal en sortie MIDI.
 8. **Ragas complets** : montée et descente différentes (arohana/avarohana), notes pivots (vadi/samvadi), ornements (gamakas, glissandos).
 9. **Saisie de tes propres notes** : soit un ensemble de notes (gamme maison), soit un motif que le générateur parcourt et fait varier. Saisie au clavier, par MIDI entrant ou dans l'éditeur navigateur.
+   **Fait** : 91 gammes par familles, montée / descente des ragas, gamme CUSTOM au clavier, microtonal et Scala `.scl` (branches précédentes). Puis, branche `monades/raga`, page RAGA / GAMAKA (cycle GLO, après HARMONY) :
+   - **vadi / samvadi** : deux notes de la gamme qui attirent les notes générées (un tiers des notes à deux demi-tons ou moins) et sont accentuées ;
+   - **gamakas** par piste : **kan** (note de grâce depuis la note du dessus dans la gamme), **meend** (glissé depuis la note précédente), **andolan** (balancement lent vers la note du dessous), **mix** (un des trois par note, tiré de la graine), avec une quantité qui règle durée et profondeur ;
+   - **motif au clavier** sur la page GENERATOR : chaque touche écrit sa note dans la phrase et avance, REC efface. Nouvelle source **MOTIF** qui parcourt le motif dans l'ordre, SPREAD = part de variation ; MARKOV l'apprend aussi ;
+   - patch v9 (1676 octets), migration depuis v8, v7, 1.1 et plus anciens.
+   **Reste** : `.kbm`, chargement de Scala sans recompiler, saisie par MIDI entrant ou dans l'éditeur navigateur, gamakas en sortie MIDI (pitch bend).
 
 ### Lot 3 — Génératif « vrai »
 10. Remplacer la variation actuelle (euclidien + probabilité + graine renouvelée tous les 32 pas) par un moteur à part et lisible :

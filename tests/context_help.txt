@@ -28,6 +28,7 @@ tap GLO
 tap GLO
 tap GLO
 tap GLO
+tap GLO
 expect page 18
 press SEL
 wait 900
@@ -49,6 +50,7 @@ tap HOME
 spin K1 6
 wait 20
 expect density 620
+tap GLO
 tap GLO
 tap GLO
 tap GLO

@@ -107,3 +107,29 @@ spin K1 10
 tap SEQ
 expect page 2
 expect invalid 0
+tap HOME
+wait 100
+tap SEQ
+tap SEQ
+tap SEQ
+tap SEQ
+tap SEQ
+expect page 24
+spin K1 3
+tap REC
+wait 200
+expect motif0 -1
+expect motif5 -1
+tapkey 0
+wait 60
+tapkey 4
+wait 200
+expect motif2 -1
+tap HOME
+tap GLO
+tap GLO
+expect page 26
+spin K3 4
+spin K1 2
+wait 300
+expect invalid 0

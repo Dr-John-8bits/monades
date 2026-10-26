@@ -14,7 +14,8 @@ enum { MD_MODEL, MD_TONE, MD_HARM, MD_DECAY, MD_LEVEL, MD_SEND, MD_HITS,
  MD_REVERSE,MD_DUCK_SOURCE,MD_DUCK,MD_DUCK_RELEASE,MD_ACCENT,MD_SHAPE,MD_CUTOFF,MD_RESONANCE,MD_FILTER,MD_BREATHE,MD_TONE_PRESET,MD_DELAY_SEND,MD_REVERB_SEND,MD_DELAY_TIME,MD_DELAY_FB,MD_REVERB_TIME,MD_FX_LEVEL,MD_BASS_MODE,MD_BASS_PATTERN,MD_GLIDE,MD_MARBLES,MD_TIDES,MD_TIDES_RATE,MD_WARPS,MD_BASS_STEP,MD_BASS_VALUE,MD_CLOCK_SOURCE,MD_MIDI_QUANTIZE,
  MD_LFO_RATE,MD_LFO_SHAPE,MD_LFO_TARGET,MD_LFO_DEPTH,MD_SEND_HP,MD_ECHO_TONE,MD_ROOM_TONE,
  MD_ECHO_SYNC,MD_ROOM_DIFFUSION,MD_CHORUS,MD_CHORUS_DEPTH,
- MD_GEN_SOURCE,MD_GEN_DEJAVU,MD_GEN_LOOP,MD_GEN_SPREAD,MD_FORM,MD_FORM_BARS,MD_FORM_DROPS,MD_COMMAND_COUNT }; /* LFO commands: track argument = track + 6 * slot (A, B) */
+ MD_GEN_SOURCE,MD_GEN_DEJAVU,MD_GEN_LOOP,MD_GEN_SPREAD,MD_FORM,MD_FORM_BARS,MD_FORM_DROPS,
+ MD_GAMAKA,MD_GAMAKA_AMOUNT,MD_VADI,MD_SAMVADI,MD_COMMAND_COUNT }; /* LFO commands: track argument = track + 6 * slot (A, B) */
 typedef struct { int32_t model,tone,harm,decay,level,send,hits,length,rotate,prob,note,pan,mute,speed,attack,ratchet,accent,shape,cutoff,resonance,filter,breathe; } md_track;
 typedef struct { int32_t delay_send,reverb_send,bass_mode,pattern,glide,marbles,tides,tides_rate,warps,edit_step; int32_t notes[16]; } md_extension;
 /* Monades LFO, two per track. rate: 0..14 synced to the tempo (8 bars .. 1/32), 15..30 free 0.02..20 Hz.
@@ -29,7 +30,10 @@ typedef struct { int32_t rate,shape,target,depth; } md_lfo;
 /* Monades generator, per track. source: 0 off (Mutable Dreams), 1 random within spread semitones, 2 Markov chain
  * learned from the track's phrase. dejavu 0..1000: chance to replay the loop register instead of drawing anew
  * (1000 = frozen loop; notes and Chance decisions alike). loop 1..16 hits. */
-enum { MD_GEN_OFF, MD_GEN_RANDOM, MD_GEN_MARKOV, MD_GEN_SOURCES, MD_FORM_SECTIONS=4 };
+enum { MD_GEN_OFF, MD_GEN_RANDOM, MD_GEN_MARKOV, MD_GEN_MOTIF, MD_GEN_SOURCES, MD_FORM_SECTIONS=4 }; /* MOTIF: walks the phrase in order, spread = variation */
+/* Gamakas (raga ornaments) on melodic tracks: kan = grace from the upper scale note, meend = glide from the previous
+ * note, andolan = slow sway towards the lower scale note, mix = one of them per note, chosen from the seed. */
+enum { MD_GAMAKA_OFF, MD_GAMAKA_KAN, MD_GAMAKA_MEEND, MD_GAMAKA_ANDOLAN, MD_GAMAKA_MIX, MD_GAMAKAS };
 typedef struct { int32_t source,dejavu,loop,spread; } md_gen;
 typedef struct {
  uint32_t magic,version,seed; int32_t macro[4],tempo,locked,freeze,grain_size,grain_pos,feedback,quality;
@@ -42,6 +46,8 @@ typedef struct {
  int32_t echo_sync,room_diffusion,chorus,chorus_depth; /* chorus = wet amount on the dry mix, 0 = off */
  /* v8: generators, and the form: calm / build / peak / release of 2-16 bars (form_bars 0..3), depth 0 = off. */
  md_gen gen[6]; int32_t form,form_bars,form_drops;
+ /* v9: gamaka style and amount per track; vadi / samvadi = semitones above the root, -1 = none. */
+ int32_t gamaka[6],gamaka_amount[6],vadi,samvadi;
 } md_patch;
 typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; float peak; uint32_t grain_writes,voice_quanta,skipped_quanta; int32_t last_note[6]; uint32_t quality_reductions,element_modes; float track_peak[6];
  /* Monades meters, output-referred like the final mix: grain/delay/room returns, master L/R, pre-limiter peak. */
@@ -55,7 +61,8 @@ typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; floa
  float lfo_phase[6][2],lfo_value[6][2]; uint32_t lfo_cycle[6][2]; /* where each LFO is: phase 0..1 in cycle n, output -1..1 */
  int32_t gen_off[6][16]; uint32_t gen_valid[6],gen_pos[6],gen_fresh[6]; /* loop register: offsets, written slots, slot of the last hit, 1 if it was drawn anew */
  uint32_t gen_gate[6]; /* Chance decision stored per slot */
- uint32_t form_section,form_cycle,form_drop_mask; float form_pos; } md_stats;
+ uint32_t form_section,form_cycle,form_drop_mask; float form_pos;
+ float gamaka_now[6]; int32_t gamaka_style[6]; float gamaka_age[6]; /* ornament offset in semitones now, its style, ms since the note */ } md_stats;
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);
@@ -114,6 +121,8 @@ unsigned md_form_mask(unsigned cycle,unsigned section); /* tracks the form drops
 float md_form_tension(unsigned section);
 int md_form_bars(void);
 const char *md_gen_source_name(int source);
+const char *md_gamaka_name(int style);
+float md_gamaka_shape(int style,int amount,float from,float ms); /* ornament offset (semitones) ms after a note; from = start offset */
 float md_echo_sync_len16(int sync); /* the division in sixteenths, 0 = off */
 #ifdef __cplusplus
 }

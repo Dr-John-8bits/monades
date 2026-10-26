@@ -97,7 +97,7 @@ async function exportPatch(){const m=await patchRequest('patch-export');return {
 async function importPatch(text){
  if(text.length>65536)throw Error('This file is too large to be a Mutable Dreams patch.');
  let p;try{p=JSON.parse(text)}catch{throw Error('This is not a readable patch file.');}
- if(p?.format!=='mutable-dreams-patch'||p.version!==1||!Array.isArray(p.patch)||![652,1292,1512,1620].includes(p.patch.length)||p.patch.some(v=>!Number.isInteger(v)||v<0||v>255))throw Error('Choose a Mutable Dreams patch exported by this editor.');
+ if(p?.format!=='mutable-dreams-patch'||p.version!==1||!Array.isArray(p.patch)||![652,1292,1512,1620,1676].includes(p.patch.length)||p.patch.some(v=>!Number.isInteger(v)||v<0||v>255))throw Error('Choose a Mutable Dreams patch exported by this editor.');
  return patchRequest('patch-import',p.patch);
 }
 $('export-patch').onclick=async()=>{try{const p=await exportPatch(),url=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)+'\n'],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=(p.name.replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'')||'My-Biome')+'.mutable-dreams.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);$('patch-status').textContent='Patch exported. Keep the file to return to this world.';}catch(e){$('patch-status').textContent=e.message;}};

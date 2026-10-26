@@ -39,6 +39,7 @@ struct Voice {
  float strike_gate,target_note,sub_phase,tide_phase,warp_phase,warp_smooth,delay_send_smooth,reverb_send_smooth;
  float mem[112],env,amp,note,excite,fade,velocity,cut_smooth,res_smooth,breath_phase,lpg,eco_previous,eco_next;
  int model,trigger,attacking,active,eco_phase;
+ float orn_from,orn_age; int orn_style; // Monades gamaka: start offset, seconds since the note, style
 };
 alignas(Voice) static unsigned char voices_raw[sizeof(Voice)*6] POOL;
 static Voice *voices;
@@ -58,7 +59,8 @@ static stmlib::Svf send_hp_filter[2];
 static uint16_t chorus_line[2048] POOL;static rings::Chorus chorus;
 static int16_t diffuser[1210];static unsigned diffuser_head[4];static const unsigned diffuser_len[4]={150,214,319,527}; // Monades: 12 dB high-pass on the echo and room sends
 static void reset_fx(){send_hp_filter[0].Init();send_hp_filter[1].Init();memset(chorus_line,0,sizeof chorus_line);chorus.Init(chorus_line);memset(diffuser,0,sizeof diffuser);memset(diffuser_head,0,sizeof diffuser_head);fx_active=false;memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
-static void v8_defaults(md_patch &p){p.version=8;for(int i=0;i<6;i++)p.gen[i]={MD_GEN_OFF,500,8,12};p.form=0;p.form_bars=1;p.form_drops=2;}
+static void v9_defaults(md_patch &p){p.version=9;for(int i=0;i<6;i++){p.gamaka[i]=MD_GAMAKA_OFF;p.gamaka_amount[i]=500;}p.vadi=p.samvadi=-1;}
+static void v8_defaults(md_patch &p){for(int i=0;i<6;i++)p.gen[i]={MD_GEN_OFF,500,8,12};p.form=0;p.form_bars=1;p.form_drops=2;v9_defaults(p);}
 static void v7_defaults(md_patch &p){p.send_hp=0;p.echo_tone=p.room_tone=500;p.echo_sync=p.room_diffusion=p.chorus=0;p.chorus_depth=500;v8_defaults(p);for(int i=0;i<6;i++)for(int s=0;s<2;s++)p.lfo[i][s]={3,MD_LFO_SINE,s?MD_TO_PAN:MD_TO_CUTOFF,0};}
 static void extension_defaults(md_patch &p){v7_defaults(p);p.delay_ms=200;p.delay_fb=300;p.reverb_time=450;p.fx_level=0;memset(p.ext,0,sizeof p.ext);for(int i=0;i<6;i++){p.ext[i].tides_rate=250;for(int j=0;j<16;j++)p.ext[i].notes[j]=(j%4==0?0:j%4==2?7:-1);}}
 
@@ -242,6 +244,11 @@ static int gen_draw(unsigned i,GenState &g){
   if(n>=2){int next[16],m=0;for(int k=0;k<n;k++)if(seq[k]==g.prev)next[m++]=seq[(k+1)%n];
    return m?next[r%m]:seq[r%n];}
  }
+ if(c.source==MD_GEN_MOTIF){
+  // The motif in order; with chance spread / 24 a note moves to a neighbour (up to 2 semitones, snapped later).
+  int seq[16],n=0;for(int k=0;k<16;k++)if(patch.ext[i].notes[k]>=0)seq[n++]=patch.ext[i].notes[k];
+  if(n){int x=seq[g.count%n];if(r%24<(unsigned)c.spread)x+=((r>>8)&1?1:-1)*(1+(int)((r>>9)&1));return x;}
+ }
  int spread=c.spread;return (int)(r%(unsigned)(spread+1))-spread/2;
 }
 // Form: four sections, tension 0..1. Low tension thins the rhythm and lets some tracks rest, peak brings everything in.
@@ -263,8 +270,30 @@ static float echo_ms_now(){
  return ms;
 }
 static float tone_coef(int v,float lo,float mid,float hi){return v==500?mid:v<500?lo+(mid-lo)*v*.002f:mid+(hi-mid)*(v-500)*.002f;}
+// Gamaka shapes, shared with the screen. amount 0..1000 sets the time scale and depth.
+static float gamaka_shape(int style,int amount,float from,float ms){
+ float a=amount*.001f;
+ switch(style){
+  case MD_GAMAKA_KAN:{float hold=15+60*a,slide=8+20*a;return ms<hold?from:ms<hold+slide?from*(1-(ms-hold)/slide):0;}
+  case MD_GAMAKA_MEEND:{float span=40+460*a;if(ms>=span)return 0;float x=ms/span;return from*(1-x)*(1-x)*(1+2*x);} // smooth arrival
+  case MD_GAMAKA_ANDOLAN:{float rate=4.5f-2.5f*a,depth=.25f+.75f*a,onset=ms<120?ms/120:1;return from*depth*onset*(.5f-.5f*plaits::Sine(ms*.001f*rate+.25f));} // from < 0: sways down
+  default:return 0;
+ }
+}
+static float scale_neighbour(float note,int dir){ // the next scale note above (dir 1) or below (-1)
+ for(int k=1;k<=4;k++){float q=quantize_any(note+dir*k,patch.root,patch.scale,dir<0);if(dir>0?q>note+.01f:q<note-.01f)return q;}
+ return note+dir;
+}
 static void fire(unsigned i,float note,float velocity) {
- Voice &v=voices[i];v.trigger=1;v.midi_gate=0;v.target_note=note;if(!patch.ext[i].glide||!v.active)v.note=note;v.velocity=velocity;v.active=1;
+ Voice &v=voices[i];
+ {int style=patch.gamaka[i];v.orn_style=0;v.orn_age=0;
+  if(style&&patch.track[i].model>=MD_FM){
+   if(style==MD_GAMAKA_MIX){unsigned r=patch.seed^(stats.events[i]*0x9e3779b9u)^(i*0x85ebca6bu);random_word(r);style=MD_GAMAKA_KAN+(int)(r%3);}
+   float prev=stats.last_pitch[i]>0?stats.last_pitch[i]:note;
+   v.orn_from=style==MD_GAMAKA_KAN?scale_neighbour(note,1)-note:style==MD_GAMAKA_ANDOLAN?scale_neighbour(note,-1)-note:fmaxf(-7.0f,fminf(7.0f,prev-note));
+   v.orn_style=style;}
+  stats.gamaka_style[i]=v.orn_style;}
+ v.trigger=1;v.midi_gate=0;v.target_note=note;if(!patch.ext[i].glide||!v.active)v.note=note;v.velocity=velocity;v.active=1;
  stats.events[i]++;stats.last_note[i]=(int)note;stats.last_pitch[i]=note;
  if((int)i==patch.duck_source&&!patch.track[i].mute)duckenv=1;
 }
@@ -349,6 +378,10 @@ static void apply(Command e) {
  case MD_FORM:patch.form=bound(v,0,1000);break;
  case MD_FORM_BARS:patch.form_bars=bound(v,0,3);break;
  case MD_FORM_DROPS:patch.form_drops=bound(v,0,3);break;
+ case MD_GAMAKA:patch.gamaka[i]=bound(v,0,MD_GAMAKAS-1);break;
+ case MD_GAMAKA_AMOUNT:patch.gamaka_amount[i]=bound(v,0,1000);break;
+ case MD_VADI:patch.vadi=bound(v,-1,11);break;
+ case MD_SAMVADI:patch.samvadi=bound(v,-1,11);break;
  case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
  }
 }
@@ -387,9 +420,13 @@ static void tick() {
    if(t.model>=MD_FM) {
     if(gen&&!e.bass_mode)note+=gen_off;
     else if(!e.bass_mode&&(roll>>10)%1000<(unsigned)patch.macro[1])note+=degree[(roll>>20)%7];
-    {int target=note+patch.transpose+(int)floorf(lfo_mod[i][MD_TO_NOTES]*12+.5f); /* LFO steps stay in the scale */pitch=quantize_any((float)target,patch.root,patch.scale,target<last_generated[i]);note=(int)floorf(pitch+.5f);last_generated[i]=note;}
+    {int target=note+patch.transpose+(int)floorf(lfo_mod[i][MD_TO_NOTES]*12+.5f); /* LFO steps stay in the scale */
+     // Pivot notes: a generated note within two semitones of the vadi (or samvadi) is drawn to it, a third of the time.
+     if(patch.vadi>=0||patch.samvadi>=0){const int pivots[2]={patch.vadi,patch.samvadi};unsigned pr=roll^0x5bd1e995u;random_word(pr);
+      if(pr%3==0)for(int k=0;k<2;k++){if(pivots[k]<0)continue;int pc=(patch.root+pivots[k])%12,d=((pc-target)%12+18)%12-6;if(d>=-2&&d<=2&&d){target+=d;break;}}}pitch=quantize_any((float)target,patch.root,patch.scale,target<last_generated[i]);note=(int)floorf(pitch+.5f);last_generated[i]=note;}
    }
    float velocity=.8f+unit(t.accent)*((local%t.length)==0?.2f:-.25f);
+   if(t.model>=MD_FM&&(patch.vadi>=0||patch.samvadi>=0)){int pc=((note-patch.root)%12+12)%12;if(pc==patch.vadi)velocity=fminf(1.0f,velocity+.15f);else if(pc==patch.samvadi)velocity=fminf(1.0f,velocity+.08f);} // pivots sing out
    if(t.model<MD_FM)pitch=(float)note;
    fire(i,pitch,velocity);out_note(i,pitch,velocity,duration*.5f/t.ratchet);
    repeats[i]={(duration/t.ratchet),duration/t.ratchet,pitch,velocity,(unsigned)t.ratchet-1};
@@ -446,7 +483,9 @@ static void quantum(float *lr,unsigned n) {
   float tidal=(1.0f-4.0f*fabsf(v.tide_phase-.5f))*unit(e.tides);
   float tone=fminf(.98f,fmaxf(t.model==MD_HARMONIC?0.0f:.02f,unit(t.tone)+(smooth[2]-.5f)*.65f+lm[MD_TO_TONE]*.5f));
   bend_smooth[i]+=(bend[i]-bend_smooth[i])*slew40;
-  float played_note=v.note+bend_smooth[i]+lm[MD_TO_PITCH]*12.0f;
+  float ornament=0;if(v.orn_style){ornament=gamaka_shape(v.orn_style,patch.gamaka_amount[i],v.orn_from,v.orn_age*1000);v.orn_age+=n*(1.0f/MD_RATE);}
+  stats.gamaka_now[i]=ornament;stats.gamaka_age[i]=v.orn_age*1000;
+  float played_note=v.note+bend_smooth[i]+lm[MD_TO_PITCH]*12.0f+ornament;
   float f=440.0f*stmlib::SemitonesToRatio(played_note-69.0f)/MD_RATE;
   plaits::EngineParameters p={trig?1:0,played_note,tone,shp,harm*.999f,v.velocity};bool done=false;
   memset(out,0,sizeof out);memset(aux,0,sizeof aux);
@@ -755,7 +794,7 @@ void md_render(float *lr,unsigned n) {
 }
 const md_patch *md_state(){return &patch;}const md_stats *md_status(){return &stats;}int md_playing(){return playing;}
 int md_validate(const md_patch *p) {
- if(!p||p->magic!=0x4D445231||p->version!=8||!p->seed||p->tempo<30||p->tempo>220)return 0;
+ if(!p||p->magic!=0x4D445231||p->version!=9||!p->seed||p->tempo<30||p->tempo>220)return 0;
  if(p->biome_id< -1||p->biome_id>=MD_BIOMES||p->edited_mask>127)return 0;
  for(int i=0;i<6;i++)if(p->tone_preset[i]< -1||p->tone_preset[i]>=MD_TONE_PRESETS)return 0;
  for(int j=0;j<4;j++)if(p->macro[j]<0||p->macro[j]>1000)return 0;
@@ -768,6 +807,8 @@ int md_validate(const md_patch *p) {
  if(p->delay_ms<40||p->delay_ms>350||p->delay_fb<0||p->delay_fb>800||p->reverb_time<0||p->reverb_time>850||p->fx_level<0||p->fx_level>1000)return 0;
  if(p->send_hp<0||p->send_hp>1000||p->echo_tone<0||p->echo_tone>1000||p->room_tone<0||p->room_tone>1000)return 0;
  for(int i=0;i<6;i++){const md_gen &g=p->gen[i];if(g.source<0||g.source>=MD_GEN_SOURCES||g.dejavu<0||g.dejavu>1000||g.loop<1||g.loop>16||g.spread<0||g.spread>24)return 0;}
+ for(int i=0;i<6;i++)if(p->gamaka[i]<0||p->gamaka[i]>=MD_GAMAKAS||p->gamaka_amount[i]<0||p->gamaka_amount[i]>1000)return 0;
+ if(p->vadi< -1||p->vadi>11||p->samvadi< -1||p->samvadi>11)return 0;
  if(p->form<0||p->form>1000||p->form_bars<0||p->form_bars>3||p->form_drops<0||p->form_drops>3)return 0;
  if(p->echo_sync<0||p->echo_sync>=MD_ECHO_SYNCS||p->room_diffusion<0||p->room_diffusion>1000||p->chorus<0||p->chorus>1000||p->chorus_depth<0||p->chorus_depth>1000)return 0;
  for(int i=0;i<6;i++)for(int s=0;s<2;s++){const md_lfo &l=p->lfo[i][s];if(l.rate<0||l.rate>=MD_LFO_RATES||l.shape<0||l.shape>=MD_LFO_SHAPES||l.target<0||l.target>=MD_LFO_TARGETS||l.depth< -1000||l.depth>1000)return 0;}
@@ -778,6 +819,8 @@ unsigned md_memory_bytes(){return sizeof chorus_line+sizeof chorus+sizeof diffus
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
  if(bytes==sizeof(md_patch)){md_patch p;memcpy(&p,data,sizeof p);if(!md_validate(&p))return 0;*out=p;return 1;}
+ // Monades v8 (1620 bytes): no gamakas, no pivot notes.
+ if(bytes==offsetof(md_patch,gamaka)){md_patch p;memcpy(&p,data,bytes);if(p.version!=8)return 0;v9_defaults(p);if(!md_validate(&p))return 0;*out=p;return 1;}
  // Monades v7 (1512 bytes): generators and form start off.
  if(bytes==offsetof(md_patch,gen)){md_patch p;memcpy(&p,data,bytes);if(p.version!=7)return 0;v8_defaults(p);if(!md_validate(&p))return 0;*out=p;return 1;}
  // Mutable Dreams 1.1 (v5 / v6, 1292 bytes): everything Monades added starts neutral.
@@ -842,7 +885,9 @@ float md_echo_ms(void){return echo_ms_now();}
 unsigned md_form_mask(unsigned c,unsigned s){return form_mask(c,s);}
 float md_form_tension(unsigned s){return form_tension_of[s&3];}
 int md_form_bars(void){return (int)form_bar_len[bound(patch.form_bars,0,3)];}
-const char *md_gen_source_name(int s){static const char *const n[MD_GEN_SOURCES]={"OFF","RANDOM","MARKOV"};return n[bound(s,0,MD_GEN_SOURCES-1)];}
+const char *md_gamaka_name(int s){static const char *const n[MD_GAMAKAS]={"OFF","KAN","MEEND","ANDOLAN","MIX"};return n[bound(s,0,MD_GAMAKAS-1)];}
+float md_gamaka_shape(int style,int amount,float from,float ms){return gamaka_shape(style,amount,from,ms);}
+const char *md_gen_source_name(int s){static const char *const n[MD_GEN_SOURCES]={"OFF","RANDOM","MARKOV","MOTIF"};return n[bound(s,0,MD_GEN_SOURCES-1)];}
 float md_echo_sync_len16(int s){return echo_sync_len[bound(s,0,MD_ECHO_SYNCS-1)];}
 const char *md_echo_sync_name(int s){static const char *const n[MD_ECHO_SYNCS]={"OFF","1/32","1/16 T","1/16","1/8 T","1/16 .","1/8","1/4 T","1/8 .","1/4"};return n[bound(s,0,MD_ECHO_SYNCS-1)];}
 int md_send_hp_hz(int v){return v>0?(int)(20.0f*stmlib::SemitonesToRatio(bound(v,0,1000)*.0797262f)+.5f):0;}
