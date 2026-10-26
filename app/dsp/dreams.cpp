@@ -60,7 +60,9 @@ static Grain grains[4];
 static md_patch patch,previous;
 static md_stats stats;
 static unsigned writehead,grainclock,tape_valid;
-static uint8_t tape_peak[256];static unsigned tape_peak_col; // display-only overview of the tape, 512 samples a column
+static uint8_t tape_peak[256];static unsigned tape_peak_col;
+// Display-only scope per voice: 128 points after the filter, stride chosen so about two periods fit 64 points.
+static int16_t scope_buf[6][128];static unsigned scope_pos[6],scope_phase[6]; // display-only overview of the tape, 512 samples a column
 static float feedback_lp,dcx[2],dcy[2],smooth[4];
 static unsigned rng,seqrng,step;
 static float untilstep,duckenv;
@@ -374,6 +376,9 @@ static void quantum(float *lr,unsigned n) {
    out[k]=x;
   }
   if(t.filter){v.filter1.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);if(t.filter==2)v.filter2.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);}
+  {unsigned stride=(unsigned)(1.0f/(f*32.0f));stride=stride<1?1:stride>32?32:stride;unsigned ph=scope_phase[i],ps=scope_pos[i];
+   for(unsigned k=0;k<n;k++)if(++ph>=stride){ph=0;float y=out[k]*8192.0f;scope_buf[i][ps]=(int16_t)(y>32767?32767:y<-32767?-32767:y);ps=(ps+1)&127;}
+   scope_phase[i]=ph;scope_pos[i]=ps;}
   // Local scalars prevent output-buffer aliasing from forcing repeated Voice
   // loads/stores. Same arithmetic and order; commit once after the tile.
   float mix_amp=v.amp;float mix_fade=v.fade;float mix_lpg=v.lpg;float mix_warp_smooth=v.warp_smooth;float mix_warp_phase=v.warp_phase;float mix_expression_smooth=v.expression_smooth;float mix_pan_smooth=v.pan_smooth;float mix_delay_send_smooth=v.delay_send_smooth;float mix_reverb_send_smooth=v.reverb_send_smooth;
@@ -479,6 +484,12 @@ void md_init() {
  voices=reinterpret_cast<Voice*>(voices_raw);memset(voices_raw,0,sizeof voices_raw);memset(tape,0,sizeof tape);memset(grains,0,sizeof grains);
  memset(&stats,0,sizeof stats);memset(smooth,0,sizeof smooth);memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);
  memset(midi_bank,0,sizeof midi_bank);qread=qwrite=writehead=grainclock=tape_valid=0;feedback_lp=0;rng=0x88888;stmlib::Random::Seed(rng);scene(0);playing=0;clock_source=midi_quantize=clock_pulse=0;clock_age=clock_last=0;clock_interval=0;
+}
+unsigned md_scope(int track,float *dst){
+ // Oldest first; the caller aligns on a rising zero crossing.
+ track=bound(track,0,5);unsigned ps=scope_pos[track];
+ for(unsigned k=0;k<128;k++)dst[k]=scope_buf[track][(ps+k)&127]*(1.0f/8192);
+ return 128;
 }
 void md_tape_view(md_tape *v){
  // Same placement rule as new grains in quantum(), so the screen shows where the next ones start.

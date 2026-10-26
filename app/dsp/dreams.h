@@ -29,6 +29,7 @@ typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; floa
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);
+unsigned md_scope(int track,float *dst); /* 128 points of the voice after its filter, oldest first */
 void md_init(void);
 int md_command(int command,int track,int value);
 unsigned md_command_space(void);

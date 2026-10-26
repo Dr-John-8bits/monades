@@ -335,7 +335,16 @@ static void md_draw_all(void) {
   cv_rect(72,46,160,18,MD_BG);cv_text(74,48,&FONT_B,md_model_name(t->model),MD_INK);
   md_text(14,69,md_tone_name(p->tone_preset[dream_ui.track]),col);if(p->edited_mask&(2u<<dream_ui.track))md_text(210,69,"*",col);
   if(dream_ui.page==SOUND) {
-   for(i=0;i<44;i++){float a=i*.42f+flower_time*.00015f;int r=14+i/2+(int)(3*fm_sinf(i*.25f+flower_time*.001f));md_circle(119+(int)(fm_cosf(a)*r),109+(int)(fm_sinf(a)*r),i%4==0?3:1,col,1);}
+   // Oscilloscope of this voice after its filter: Tone, Harmonics and Shape change the drawn wave.
+   static float sc[128];md_scope(dream_ui.track,sc);
+   cv_rect(4,84,232,66,MD_BG);cv_rect(20,110,200,1,MD_EDGE);
+   int start=0;for(int k=1;k<64;k++)if(sc[k-1]<0&&sc[k]>=0){start=k;break;}
+   float peak=0;for(int k=start;k<start+64;k++){float a=sc[k]<0?-sc[k]:sc[k];if(a>peak)peak=a;}
+   if(md_status()->track_peak[dream_ui.track]<.0002f||peak<1e-5f)md_text(102,116,"SILENT",MD_DIM);
+   else{float g=22.0f/peak;int py=110-(int)(sc[start]*g);
+    for(int px=1;px<200;px++){float pos=start+px*63.0f/199;int k=(int)pos;float fr=pos-k,v=sc[k]+(sc[k+1]-sc[k])*fr;int y=110-(int)(v*g);
+     int a=y<py?y:py,z=y<py?py:y;cv_rect(20+px,a,1,z-a+1,col);py=y;}}
+   md_text(8,139,"ZOOM FOLLOWS PITCH / AUTO GAIN",MD_DIM);
    md_value(8,158,"K1 TONE",t->tone/10,col);md_value(124,158,"K2 HARMONICS",t->harm/10,col);if(t->model==MD_ELEMENTS)md_named(8,194,"K3 EXCITER",t->shape<334?"MALLET":t->shape<667?"PLECTRUM":"PARTICLES",col);else md_value(8,194,md_has_envelope(t->model)?"K3 SHAPE":"K3 DECAY",(md_has_envelope(t->model)?t->shape:t->decay)/10,col);md_value(124,194,"K4 LEVEL",t->level/10,col);
   } else if(dream_ui.page==FILTER) {
    static const char *modes[]={"OFF","LP 12 dB","LP 24 dB","LOW PASS GATE"};
