@@ -129,6 +129,7 @@ static float md_lp_db(float w,float q,int four){
  if(four)den*=(1-w2)*(1-w2)+w2*2.0f;
  return -3.01029996f*fm_log2f(den);
 }
+static const char *md_pitch_names[12]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
 static int md_db_y(float db){if(db>18)db=18;if(db<-36)db=-36;return 86+(int)((18-db)*46/54);}
 static void md_seconds(float sec,char *s){int tenths=(int)(sec*10+.5f);md_num(tenths/10,s);while(*s)s++;*s++='.';*s++='0'+tenths%10;*s++=' ';*s++='S';*s=0;}
 static void md_meter(int id,int x,int w,float peak,uint16_t c,int muted){
@@ -242,7 +243,13 @@ static void md_draw_all(void) {
  if(dream_ui.page>=MIXER){
   const md_extension *e=&p->ext[dream_ui.track];
   if(dream_ui.page==MIDI){
-   md_text(12,65,"CHANNELS 1-6 / SIX MONO VOICES",MD_INK);md_text(12,94,"VELOCITY / SUSTAIN / +/-2 BEND",MD_DIM);md_text(12,120,"CC7 LEVEL / 74 FILTER / 91 ROOM",MD_DIM);
+   // Activity: channels 1-6 light with their track on every note; each port's IN / OUT lights for 200 ms per message.
+   {cv_rect(4,44,232,108,MD_BG);md_text(12,50,"CH",MD_DIM);
+    for(i=0;i<6;i++){int x=40+i*30;uint16_t c=plat_ms()<pulse_until[i]+120?dream_colors[i]:MD_CARD;cv_rect(x,48,24,16,c);char n[3];md_num(i+1,n);cv_text(x+9,50,&FONT_XS,n,c==MD_CARD?MD_DIM:MD_BG);}
+    static const char *ports[3]={"USB","BLE","TRS"};md_text(80,74,"IN",MD_DIM);md_text(140,74,"OUT",MD_DIM);
+    for(i=0;i<3;i++){int y=92+i*16;md_text(12,y-5,ports[i],MD_DIM);
+     for(int o=0;o<2;o++){uint32_t ago=plat_midi_ago(i,o);md_circle(86+o*60,y,4,ago<200?MD_INK:MD_CARD,1);char n[12];md_num((int)plat_midi_count(i,o),n);md_text(96+o*60,y-5,n,MD_EDGE);}}
+    md_text(12,139,"CC7 LEVEL / 74 FILTER / 91 ROOM",MD_DIM);}
    md_named(8,158,"K1 CLOCK",md_clock_source()==0?"INTERNAL":md_clock_source()==1?"USB":"TRS",col);md_named(124,158,"K2 SCALE SNAP",md_midi_quantize()?"ON":"OFF",col);
    md_text(14,204,"REC: PANIC / CLOCK LOSS: STOP",col);
   }else if(dream_ui.page==BANKS){
@@ -288,7 +295,25 @@ static void md_draw_all(void) {
    md_text(x0,48,!p->fx_level?"RETURN 0: NOTHING HEARD":!sends?"NO TRACK SENDS: SEE MIXER":"BARS: ECHOES  CURVE: ROOM",p->fx_level&&sends?MD_DIM:MD_HOT);
    md_value_span(8,158,"K1 ECHO ms",p->delay_ms,40,350,col);md_value(124,158,"K2 FEEDBACK",p->delay_fb/10,col);md_value(8,194,"K3 ROOM TAIL",p->reverb_time/10,col);md_value(124,194,"K4 RETURN",p->fx_level/10,col);
   }else if(dream_ui.page==MODULATION){
-   md_text(15,65,"MEMORY / TIDES / RING BLEND",MD_INK);md_text(15,94,"INSPIRED BY MUTABLE INSTRUMENTS",MD_DIM);md_text(15,121,"TIDES NEEDS A TRACK FILTER",MD_DIM);
+   // Tides: one cycle of its triangle (height = amount) and the dot where this track is now.
+   // Marbles: which phrase steps vary for the current seed (same rule as the sequencer). Warps: ring blend depth.
+   {const md_stats *ms=md_status();int tr=dream_ui.track;cv_rect(4,44,232,108,MD_BG);
+    float amt=e->tides*.001f;int x0=16,w=140,cy=74;
+    cv_rect(x0,cy,w,1,MD_EDGE);
+    for(i=0;i<w;i++){float ph=i/(float)(w-1),tri=1-4*(ph>.5f?ph-.5f:.5f-ph);cv_pset(x0+i,cy-(int)(tri*20*amt),t->filter?col:MD_EDGE);}
+    {float ph=ms->tide_phase[tr],tri=1-4*(ph>.5f?ph-.5f:.5f-ph);md_circle(x0+(int)(ph*(w-1)),cy-(int)(tri*20*amt),3,MD_INK,1);}
+    char cyc[16];md_seconds(.5f+e->tides_rate*.001f*19.5f,cyc);md_text(x0,50,"TIDES",MD_DIM);md_text(x0+w-text_w(&FONT_XS,cyc),50,cyc,MD_DIM);
+    if(!t->filter)md_text(x0,82,"NEEDS A TRACK FILTER",MD_HOT);
+    // Warps: the ring blend gain swings between 1 - w and 1.
+    float wa=e->warps*.001f;int wx=172,ww=56;md_text(wx,50,"WARPS",MD_DIM);
+    for(i=0;i<ww;i++){float g=1-wa*.5f+wa*.5f*fm_sinf(i*.3f);int h=(int)(16*g);cv_rect(wx+i,cy-h,1,2*h+1,md_tint(MD_BG,col,(unsigned)(6+wa*20)));}
+    // Marbles over the 16 phrase steps.
+    const md_patch *mp=md_state();int bx=16;md_text(bx,98,"MARBLES",MD_DIM);
+    for(i=0;i<16;i++){int x=bx+6+i*13,y=124;
+     if(i%4==0){cv_rect(x-3,y-3,7,7,MD_DIM);continue;}
+     unsigned mr=mp->seed^((unsigned)tr*0x9e3779b9u)^((unsigned)(i+1)*0x85ebca6bu);mr^=mr<<13;mr^=mr>>17;mr^=mr<<5;
+     int varies=mr%1000<(unsigned)e->marbles;md_circle(x,y,varies?4:2,varies?col:MD_EDGE,1);}
+    md_text(bx,139,!e->bass_mode?"MARBLES ACTS ON PHRASES: BASS PAGE":"SQUARES FIXED / DOTS VARY",!e->bass_mode?MD_HOT:MD_DIM);}
    md_value(8,158,"K1 MARBLES",e->marbles/10,col);md_value(124,158,"K2 TIDES",e->tides/10,col);md_value(8,194,"K3 CYCLE",e->tides_rate/10,col);md_value(124,194,"K4 WARPS",e->warps/10,col);
   }else{
    // Mini piano-roll: 16 steps by 0..+24 semitones above the base note; rests as dashes on the floor.
@@ -439,16 +464,50 @@ static void md_draw_all(void) {
    if(md_has_envelope(t->model)){md_value_span(8,158,"K1 ATTACK ms",8*t->attack*t->attack/1000,0,8000,col);md_value_span(124,158,"K2 DECAY ms",60+16*t->decay*t->decay/1000,60,16060,col);}else{md_named(8,158,"K1 MELODIC ONLY","-",MD_DIM);md_value(124,158,"K2 DECAY",t->decay/10,col);}
    md_value(8,194,"K3 LEVEL",t->level/10,col);md_value(124,194,"K4 SEND",t->send/10,col);
   } else if(dream_ui.page==GROOVE) {
-   md_text(12,84,"SWING IS SHARED BY ALL TRACKS",MD_DIM);md_text(12,108,"REPEATS / ACCENT PER TRACK",MD_DIM);
+   // Steps of this track: odd steps shift right with Swing (dim ticks = straight grid), bar height = velocity
+   // (Accent lifts step 1, lowers the others), sub-bars = Repeats, brightness = Chance, highlight = step playing.
+   {const int x0=16,cw=13,base=130;int len=t->length>16?16:t->length,pos=-1;float sw=p->swing*.001f*.5f;
+    cv_rect(4,84,232,66,MD_BG);
+    if(md_playing())pos=(int)((md_status()->step/(unsigned)(t->speed>0?t->speed:1))%(unsigned)(t->length>0?t->length:1));
+    unsigned mix=(unsigned)(10+t->prob*22/1000);
+    for(i=0;i<len;i++){int gx=x0+i*cw;cv_rect(gx,base+2,1,3,MD_EDGE);
+     int x=gx+(i%2?(int)(cw*sw+.5f):0);
+     if(i==pos)cv_rect(x,88,cw-2,base-87,md_tint(MD_BG,col,6));
+     if(!md_hit(i,t->hits,t->length,t->rotate)){cv_rect(x+3,base-1,cw-8,1,MD_EDGE);continue;}
+     float vel=.8f+t->accent*.001f*(i==0?.2f:-.25f);int h=(int)(40*vel),r=t->ratchet<1?1:t->ratchet,sub=(cw-3)/r;
+     for(int k=0;k<r;k++)cv_rect(x+1+k*sub,base-h,sub>2?sub-1:1,h,md_tint(MD_BG,col,mix));}
+    char lab[24]="SWING ";md_num(p->swing/10,lab+6);char *e2=lab;while(*e2)e2++;*e2++='%';*e2++=' ';*e2++=' ';*e2++='/';md_num(t->speed,e2);
+    md_text(x0,139,lab,MD_DIM);}
    md_value_span(8,158,"K1 SWING",p->swing/10,0,60,col);md_value_span(124,158,"K2 REPEATS",t->ratchet,1,4,col);
    md_value(8,194,"K3 ACCENT",t->accent/10,col);md_value_span(124,194,"K4 CLOCK DIV",t->speed,1,8,col);
   } else if(dream_ui.page==TAPE) {
-   md_text(24,80,p->reverse?"<  REVERSE MEMORY":"FORWARD MEMORY  >",col);
-   md_text(12,109,"DUCK SOURCE: ANY TRACK / 0 OFF",MD_DIM);
+   // Grain playback as an arrow (length = pitch ratio on a log scale, left = reverse) and the ducking now:
+   // the source track and a bar of the gain reduction it applies to the other tracks.
+   {cv_rect(4,84,232,66,MD_BG);const int cx=120,ay=98;cv_rect(24,ay,192,1,MD_EDGE);cv_rect(cx,ay-4,1,9,MD_DIM);
+    int len=36+p->grain_pitch*3/2,dir=p->reverse?-1:1,tip;if(len<3)len=3;tip=cx+dir*len;
+    cv_rect(dir>0?cx:tip,ay-1,len,3,col);for(int k=0;k<5;k++)cv_rect(tip-dir*k,ay-k,1,2*k+1,col);
+    md_text(24,106,"SLOWER",MD_DIM);md_text(176,106,"FASTER",MD_DIM);
+    md_text(12,124,"DUCK",MD_DIM);
+    if(p->duck_source<0)md_text(52,124,"OFF",MD_EDGE);
+    else{char n[4];md_num(p->duck_source+1,n);md_circle(58,130,7,dream_colors[p->duck_source],1);cv_text(56,124,&FONT_XS,n,MD_BG);
+     float gr=1-md_status()->duck_gain;cv_rect(72,128,150,4,MD_CARD);cv_rect(72,128,(int)(gr/.9f*150),4,MD_HOT);}
+    md_text(12,139,"GAIN REDUCTION ON OTHER TRACKS",MD_DIM);}
    md_value_span(8,158,"K1 PITCH st",p->grain_pitch,-24,24,col);md_named(124,158,"K2 DIRECTION",p->reverse?"REVERSE":"FORWARD",col);
    if(p->duck_source<0)md_named(8,194,"K3 DUCK FROM","OFF",col);else md_value_span(8,194,"K3 DUCK TRACK",p->duck_source+1,1,6,col);md_value_span(124,194,"K4 DUCK %",p->duck_amount*90/1000,0,90,col);
   } else {
-   md_text(10,82,"ALGO: CHANGE SOUND",MD_DIM);md_text(10,104,"SEL: MUTE THIS TRACK",MD_DIM);md_text(10,126,t->mute?"MUTED":"TRACK AUDIBLE",col);
+   // Pan as a position between L and R, base note on a one-octave keyboard, clock division as pulses on 16 steps.
+   {cv_rect(4,84,232,66,MD_BG);uint16_t c=t->mute?MD_EDGE:col;
+    md_text(12,88,"L",MD_DIM);md_text(222,88,"R",MD_DIM);cv_rect(26,94,190,1,MD_EDGE);cv_rect(120,91,1,7,MD_EDGE);
+    md_circle(26+t->pan*190/1000,94,5,c,1);
+    char nn[8];int pc=t->note%12;const char *nm=md_pitch_names[pc];int k2=0;while(nm[k2]){nn[k2]=nm[k2];k2++;}md_num(t->note/12-1,nn+k2);
+    cv_text(14,106,&FONT_B,nn,c);
+    static const int wx[7]={0,2,4,5,7,9,11};
+    for(i=0;i<7;i++)cv_rect(84+i*20,106,19,22,wx[i]==pc?c:MD_DIM);
+    static const int bx[5]={1,3,6,8,10},bp[5]={0,1,3,4,5};
+    for(i=0;i<5;i++)cv_rect(84+bp[i]*20+13,106,12,13,bx[i]==pc?c:MD_BG);
+    int pos=md_playing()?(int)(md_status()->step%16):-1;
+    for(i=0;i<16;i++){int on=i%(t->speed>0?t->speed:1)==0;cv_rect(84+i*9,134,on?5:3,on?4:2,i==pos?MD_INK:on?c:MD_EDGE);}
+    md_text(12,132,t->mute?"MUTED":"CLOCK",t->mute?MD_HOT:MD_DIM);}
    md_value(8,158,"K1 SEND",t->send/10,col);md_value_span(124,158,"K2 MIDI NOTE",t->note,24,96,col);md_value(8,194,"K3 PAN",t->pan/10,col);md_value_span(124,194,"K4 CLOCK DIV",t->speed,1,8,col);
   }
  }

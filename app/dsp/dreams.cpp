@@ -255,6 +255,7 @@ static void quantum(float *lr,unsigned n) {
  float send[Q]={},out[Q],aux[Q],tmp[Q],exc[Q],duck[Q];memset(lr,0,n*2*sizeof(float));
  float duckdec=1.0f-1.0f/(MD_RATE*(.04f+unit(patch.duck_release)*1.46f));
  for(unsigned k=0;k<n;k++){duck[k]=1-duckenv*unit(patch.duck_amount)*.9f;duckenv*=duckdec;}
+ stats.duck_gain=n?duck[n-1]:1;
  float grainrate=stmlib::SemitonesToRatio((float)patch.grain_pitch)*(patch.reverse?-1:1);
  float fb=unit(patch.feedback);
  for(unsigned i=0;i<6;i++) {
@@ -265,6 +266,7 @@ static void quantum(float *lr,unsigned n) {
   const md_extension &e=patch.ext[i];
   v.note+=(v.target_note-v.note)*(e.glide?n/(float)(n+MD_RATE*.35f*unit(e.glide)):1.0f);
   v.tide_phase+=n/(MD_RATE*(.5f+unit(e.tides_rate)*19.5f));if(v.tide_phase>=1)v.tide_phase-=1;
+  stats.tide_phase[i]=v.tide_phase;
   float tidal=(1.0f-4.0f*fabsf(v.tide_phase-.5f))*unit(e.tides);
   float tone=fminf(.98f,fmaxf(t.model==MD_HARMONIC?0.0f:.02f,unit(t.tone)+(smooth[2]-.5f)*.65f));
   bend_smooth[i]+=(bend[i]-bend_smooth[i])*slew40;
