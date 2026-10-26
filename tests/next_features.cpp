@@ -40,5 +40,24 @@ int main(){
   assert(energy>100);assert(md_status()->nonfinite==0);
  }
  puts("PASS rapid Plectrum rolls remain audible across the complete shape region");
+ {
+  // Monades MIDI out: zones (with an overlap), per-track mode, clock, balanced note-offs, no echo of MIDI input.
+  uint8_t m[3];int on[16],off[16],clocks,starts,stops;
+  auto reset=[&]{memset(on,0,sizeof on);memset(off,0,sizeof off);clocks=starts=stops=0;};
+  auto drain=[&]{while(md_midi_take(m)){int st=m[0];if(st==0xf8)clocks++;else if(st==0xfa)starts++;else if(st==0xfc)stops++;else if((st&0xf0)==0x90)on[st&15]++;else if((st&0xf0)==0x80)off[st&15]++;}};
+  auto play=[&](const md_midi_routing &r,int blocks){md_patch q=blank(MD_BASS);q.track[0].prob=1000;q.tempo=120;assert(md_load(&q));md_set_midi_routing(&r);drain();reset();
+   cmd(MD_PLAY,0,1);for(int b=0;b<blocks;b++){md_render(audio,128);drain();}cmd(MD_PLAY,0,0);drain();};
+  md_midi_routing r={};r.mode=2;r.clock=1;r.zone[0].lo=24;r.zone[0].hi=47;r.zone[0].ch=1;r.zone[1].lo=36;r.zone[1].hi=60;r.zone[1].ch=2;r.zone[2].lo=72;r.zone[2].hi=96;r.zone[2].ch=3;
+  play(r,689);
+  assert(starts==1&&stops==1);assert(clocks>=95&&clocks<=98);
+  assert(on[0]>=15&&on[0]==on[1]&&on[2]==0);for(int c=0;c<16;c++)assert(on[c]==off[c]);
+  puts("PASS MIDI out zones: overlap sends on both channels, clock 24 ppqn, start/stop, every note released");
+  md_midi_routing t1={};t1.mode=1;play(t1,689);
+  assert(on[0]>=15&&clocks==0&&starts==0);for(int c=1;c<16;c++)assert(on[c]==0);for(int c=0;c<16;c++)assert(on[c]==off[c]);
+  puts("PASS MIDI out per track: track 1 on channel 1, no clock when disabled");
+  md_midi_routing none={};play(none,300);for(int c=0;c<16;c++)assert(on[c]==0);assert(clocks==0);
+  md_set_midi_routing(&t1);md_midi(0x90,60,100,0);run(10);md_midi(0x80,60,0,0);run(10);drain();for(int c=0;c<16;c++)assert(on[c]==0);
+  puts("PASS MIDI out off sends nothing; notes received over MIDI are never echoed");
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

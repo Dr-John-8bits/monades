@@ -126,6 +126,27 @@ static void tone_preset(int track,int id) {
 static int32_t *track_field(md_track &t,int c) {
 switch(c){case MD_MODEL:return &t.model;case MD_TONE:return &t.tone;case MD_HARM:return &t.harm;case MD_DECAY:return &t.decay;case MD_LEVEL:return &t.level;case MD_SEND:return &t.send;case MD_HITS:return &t.hits;case MD_LENGTH:return &t.length;case MD_ROTATE:return &t.rotate;case MD_PROB:return &t.prob;case MD_NOTE:return &t.note;case MD_PAN:return &t.pan;case MD_MUTE:return &t.mute;default:return &t.speed;}
 }
+// Monades MIDI out: a queue drained by the app, the note-offs owed, and the clock.
+struct OutMsg { uint8_t st,d1,d2,pad; };
+static OutMsg outq[256];static volatile unsigned out_r,out_w;
+struct OwedOff { float left; uint8_t ch,note; };
+static OwedOff owed[64];static unsigned owed_n;
+static md_midi_routing routing;static float clock_left;
+static void out_push(uint8_t st,uint8_t d1,uint8_t d2){unsigned w=out_w;if(w-out_r>=256){stats.midi_out_dropped++;return;}outq[w&255]={st,d1,d2,0};fence();out_w=w+1;}
+static void out_all_off(){for(unsigned j=0;j<owed_n;j++)out_push(0x80|owed[j].ch,owed[j].note,0);owed_n=0;}
+static void out_note(unsigned track,float note,float velocity,float gate){
+ if(!routing.mode)return;
+ int n=bound((int)(note+.5f),0,127),vel=bound((int)(velocity*127+.5f),1,127);unsigned chans=0;
+ if(routing.mode==1)chans=1u<<track;
+ else for(unsigned z=0;z<8;z++){const int ch=routing.zone[z].ch;if(ch>=1&&ch<=16&&n>=routing.zone[z].lo&&n<=routing.zone[z].hi)chans|=1u<<(ch-1);}
+ for(unsigned ch=0;ch<16;ch++){if(!(chans&(1u<<ch)))continue;
+  for(unsigned j=0;j<owed_n;j++)if(owed[j].ch==ch&&owed[j].note==n){out_push(0x80|ch,(uint8_t)n,0);owed[j]=owed[--owed_n];break;} // retrigger
+  if(owed_n>=64)continue; // never send a note-on whose note-off cannot be owed
+  out_push(0x90|ch,(uint8_t)n,(uint8_t)vel);owed[owed_n++]={gate,(uint8_t)ch,(uint8_t)n};stats.midi_out_notes++;}
+}
+static void out_advance(unsigned z){
+ for(unsigned j=0;j<owed_n;){owed[j].left-=z;if(owed[j].left<=0){out_push(0x80|owed[j].ch,owed[j].note,0);owed[j]=owed[--owed_n];}else j++;}
+}
 static void fire(unsigned i,float note,float velocity) {
  Voice &v=voices[i];v.trigger=1;v.midi_gate=0;v.target_note=note;if(!patch.ext[i].glide||!v.active)v.note=note;v.velocity=velocity;v.active=1;
  stats.events[i]++;stats.last_note[i]=(int)note;
@@ -149,7 +170,8 @@ static void apply(Command e) {
  } else switch(e.c) {
  case MD_MACRO:patch.macro[bound(e.t,0,3)]=bound(v,0,1000);break;
  case MD_TEMPO:patch.tempo=bound(v,30,220);break;
- case MD_PLAY:playing=!!v;memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;}break;
+ case MD_PLAY:{int was=playing;playing=!!v;memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;}
+  if(routing.clock&&!clock_source&&playing!=was){out_push(playing?0xfa:0xfc,0,0);clock_left=0;}if(!playing)out_all_off();}break;
  case MD_LOCK:patch.locked=!!v;break;
  case MD_MUTATE: previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
  case MD_RETURN:patch=previous;seqrng=patch.seed;for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
@@ -195,7 +217,7 @@ static void apply(Command e) {
  case MD_WARPS:patch.ext[i].warps=bound(v,0,1000);break;
  case MD_BASS_STEP:patch.ext[i].edit_step=bound(v,0,15);break;
  case MD_BASS_VALUE:patch.ext[i].notes[patch.ext[i].edit_step]=bound(v,-1,24);break;
- case MD_PANIC:playing=0;clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
+ case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
  }
 }
 static void tick() {
@@ -223,7 +245,7 @@ static void tick() {
     note=md_quantize(note+patch.transpose,patch.root,patch.scale);
    }
    float velocity=.8f+unit(t.accent)*((local%t.length)==0?.2f:-.25f);
-   fire(i,(float)note,velocity);
+   fire(i,(float)note,velocity);out_note(i,(float)note,velocity,duration*.5f/t.ratchet);
    repeats[i]={(duration/t.ratchet),duration/t.ratchet,(float)note,velocity,(unsigned)t.ratchet-1};
   }
  }
@@ -487,8 +509,15 @@ int md_hit(unsigned s,unsigned h,unsigned l,unsigned r) {if(!l||l>32)return 0;h=
 void md_init() {
  voices=reinterpret_cast<Voice*>(voices_raw);memset(voices_raw,0,sizeof voices_raw);memset(tape,0,sizeof tape);memset(grains,0,sizeof grains);
  memset(&stats,0,sizeof stats);memset(smooth,0,sizeof smooth);memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);
+ out_r=out_w=owed_n=0;memset(&routing,0,sizeof routing);clock_left=0;
  memset(midi_bank,0,sizeof midi_bank);qread=qwrite=writehead=grainclock=tape_valid=0;feedback_lp=0;rng=0x88888;stmlib::Random::Seed(rng);scene(0);playing=0;clock_source=midi_quantize=clock_pulse=0;clock_age=clock_last=0;clock_interval=0;
 }
+void md_set_midi_routing(const md_midi_routing *r){
+ // Turning output off (or changing the routing) first releases every note still owed on the old routing.
+ out_all_off();routing=*r;routing.mode=bound(routing.mode,0,2);routing.clock=!!routing.clock;
+ for(unsigned z=0;z<8;z++){routing.zone[z].lo=bound(routing.zone[z].lo,0,127);routing.zone[z].hi=bound(routing.zone[z].hi,0,127);routing.zone[z].ch=bound(routing.zone[z].ch,0,16);}
+}
+int md_midi_take(uint8_t m[3]){unsigned r=out_r;if(r==out_w)return 0;fence();const OutMsg &o=outq[r&255];m[0]=o.st;m[1]=o.d1;m[2]=o.d2;fence();out_r=r+1;return 1;}
 unsigned md_scope(int track,float *dst){
  // Oldest first; the caller aligns on a rising zero crossing.
  track=bound(track,0,5);unsigned ps=scope_pos[track];
@@ -514,7 +543,7 @@ void md_midi(unsigned st,unsigned a,unsigned b,int port){
   if(!clock_source||port!=(clock_source==1?0:2))return;
   if(st==0xfa){step=0;seqrng=patch.seed;clock_pulse=0;playing=1;clock_age=0;clock_last=stats.frames;clock_interval=0;memset(repeats,0,sizeof repeats);}
   else if(st==0xfb){playing=1;clock_age=0;}
-  else if(st==0xfc){playing=0;memset(repeats,0,sizeof repeats);}
+  else if(st==0xfc){playing=0;memset(repeats,0,sizeof repeats);out_all_off();}
   else if(st==0xf8&&playing){unsigned delta=stats.frames-clock_last;clock_last=stats.frames;
    if(delta>=MD_RATE*60/(220*24)&&delta<=MD_RATE*60/(30*24)){clock_interval=clock_interval?clock_interval*.85f+delta*.15f:delta;patch.tempo=bound((int)(MD_RATE*60/(24*clock_interval)+.5f),30,220);}
    clock_age=0;if(clock_pulse==0){untilstep=0;tick();}clock_pulse=(clock_pulse+1)%6;}
@@ -544,14 +573,16 @@ void md_render(float *lr,unsigned n) {
   if(playing){
    if(!clock_source&&untilstep<=0)tick();
    for(unsigned i=0;i<6;i++)if(repeats[i].remaining&&repeats[i].left<=0){
-    if(!patch.track[i].mute)fire(i,repeats[i].note,repeats[i].velocity);
+    if(!patch.track[i].mute){fire(i,repeats[i].note,repeats[i].velocity);out_note(i,repeats[i].note,repeats[i].velocity,repeats[i].spacing*.5f);}
     repeats[i].remaining--;repeats[i].left+=repeats[i].spacing;
    }
    unsigned to=(!clock_source&&untilstep>0)?(unsigned)ceilf(untilstep):0;if(to&&z>to)z=to;
    for(unsigned i=0;i<6;i++)if(repeats[i].remaining){to=(unsigned)ceilf(repeats[i].left);if(to&&z>to)z=to;}
+   if(routing.clock&&!clock_source){if(clock_left<=0){out_push(0xf8,0,0);clock_left+=MD_RATE*60.0f/(patch.tempo*24.0f);}to=(unsigned)ceilf(clock_left);if(to&&z>to)z=to;clock_left-=z;}
    untilstep-=z;for(unsigned i=0;i<6;i++)if(repeats[i].remaining)repeats[i].left-=z;
   }
-  if(clock_source&&playing){clock_age+=z;if(clock_age>MD_RATE*2){playing=0;memset(repeats,0,sizeof repeats);}}
+  out_advance(z);
+  if(clock_source&&playing){clock_age+=z;if(clock_age>MD_RATE*2){playing=0;memset(repeats,0,sizeof repeats);out_all_off();}}
   quantum(lr,z);lr+=z*2;n-=z;
  }
 }

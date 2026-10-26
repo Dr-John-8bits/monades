@@ -27,10 +27,17 @@ typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; floa
  /* Monades views: actual (modulated) filter cutoff in Hz and Q, envelope level and attack phase per track. */
  float cutoff_now[6],q_now[6],env_now[6]; int32_t env_attacking[6];
  float duck_gain,tide_phase[6]; /* ducking gain now (1 = none), Tides cycle position 0..1 per track */
- uint32_t step_played[6],step_skipped[6]; /* per track, bit = step of its cycle: last pass played / hit refused by Chance */ } md_stats;
+ uint32_t step_played[6],step_skipped[6]; /* per track, bit = step of its cycle: last pass played / hit refused by Chance */
+ uint32_t midi_out_notes,midi_out_dropped; /* Monades MIDI out: note-ons queued, messages lost to a full queue */ } md_stats;
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);
+/* Monades MIDI out. Generated notes (sequencer and repeats, never notes received over MIDI) go out by track
+ * (mode 1: track n on channel n) or by note zones (mode 2: every zone holding the note, channel 1-16, 0 = zone off;
+ * overlapping zones send the note on each channel). clock: 24 ppqn with start / stop while the internal clock runs. */
+typedef struct { int32_t mode,clock; struct { int32_t lo,hi,ch; } zone[8]; } md_midi_routing;
+void md_set_midi_routing(const md_midi_routing *routing); /* audio owner (under plat_lock) */
+int md_midi_take(uint8_t msg[3]); /* next outgoing message (msg[0] = status), 1 if there was one */
 unsigned md_scope(int track,float *dst); /* 128 points of the voice after its filter, oldest first */
 void md_init(void);
 int md_command(int command,int track,int value);
