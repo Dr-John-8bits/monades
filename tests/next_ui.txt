@@ -92,3 +92,18 @@ tap FX
 expect page 21
 tap FX
 expect page 3
+tap HOME
+wait 100
+tap SEQ
+tap SEQ
+tap SEQ
+tap SEQ
+tap SEQ
+expect page 24
+spin K1 1
+tap SEQ
+expect page 25
+spin K1 10
+tap SEQ
+expect page 2
+expect invalid 0

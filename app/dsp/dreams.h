@@ -13,7 +13,8 @@ enum { MD_MODEL, MD_TONE, MD_HARM, MD_DECAY, MD_LEVEL, MD_SEND, MD_HITS,
  MD_ATTACK,MD_SWING,MD_RATCHET,MD_ROOT,MD_SCALE,MD_TRANSPOSE,MD_GRAIN_PITCH,
  MD_REVERSE,MD_DUCK_SOURCE,MD_DUCK,MD_DUCK_RELEASE,MD_ACCENT,MD_SHAPE,MD_CUTOFF,MD_RESONANCE,MD_FILTER,MD_BREATHE,MD_TONE_PRESET,MD_DELAY_SEND,MD_REVERB_SEND,MD_DELAY_TIME,MD_DELAY_FB,MD_REVERB_TIME,MD_FX_LEVEL,MD_BASS_MODE,MD_BASS_PATTERN,MD_GLIDE,MD_MARBLES,MD_TIDES,MD_TIDES_RATE,MD_WARPS,MD_BASS_STEP,MD_BASS_VALUE,MD_CLOCK_SOURCE,MD_MIDI_QUANTIZE,
  MD_LFO_RATE,MD_LFO_SHAPE,MD_LFO_TARGET,MD_LFO_DEPTH,MD_SEND_HP,MD_ECHO_TONE,MD_ROOM_TONE,
- MD_ECHO_SYNC,MD_ROOM_DIFFUSION,MD_CHORUS,MD_CHORUS_DEPTH,MD_COMMAND_COUNT }; /* LFO commands: track argument = track + 6 * slot (A, B) */
+ MD_ECHO_SYNC,MD_ROOM_DIFFUSION,MD_CHORUS,MD_CHORUS_DEPTH,
+ MD_GEN_SOURCE,MD_GEN_DEJAVU,MD_GEN_LOOP,MD_GEN_SPREAD,MD_FORM,MD_FORM_BARS,MD_FORM_DROPS,MD_COMMAND_COUNT }; /* LFO commands: track argument = track + 6 * slot (A, B) */
 typedef struct { int32_t model,tone,harm,decay,level,send,hits,length,rotate,prob,note,pan,mute,speed,attack,ratchet,accent,shape,cutoff,resonance,filter,breathe; } md_track;
 typedef struct { int32_t delay_send,reverb_send,bass_mode,pattern,glide,marbles,tides,tides_rate,warps,edit_step; int32_t notes[16]; } md_extension;
 /* Monades LFO, two per track. rate: 0..14 synced to the tempo (8 bars .. 1/32), 15..30 free 0.02..20 Hz.
@@ -25,6 +26,11 @@ enum { MD_TO_CUTOFF, MD_TO_RESONANCE, MD_TO_LEVEL, MD_TO_PAN, MD_TO_PITCH, MD_TO
  MD_TO_ECHO_SEND, MD_TO_ROOM_SEND, MD_TO_GRAIN_SEND, MD_TO_ECHO_TIME, MD_TO_GRAIN_POS,
  MD_TO_ATTACK, MD_TO_DECAY, MD_TO_ECHO_FEEDBACK, MD_TO_GRAIN_SIZE, MD_TO_NOTES, MD_TO_HITS }; /* NOTES: scale steps on generated notes; HITS: density */
 typedef struct { int32_t rate,shape,target,depth; } md_lfo;
+/* Monades generator, per track. source: 0 off (Mutable Dreams), 1 random within spread semitones, 2 Markov chain
+ * learned from the track's phrase. dejavu 0..1000: chance to replay the loop register instead of drawing anew
+ * (1000 = frozen loop; notes and Chance decisions alike). loop 1..16 hits. */
+enum { MD_GEN_OFF, MD_GEN_RANDOM, MD_GEN_MARKOV, MD_GEN_SOURCES, MD_FORM_SECTIONS=4 };
+typedef struct { int32_t source,dejavu,loop,spread; } md_gen;
 typedef struct {
  uint32_t magic,version,seed; int32_t macro[4],tempo,locked,freeze,grain_size,grain_pos,feedback,quality;
  md_track track[MD_TRACKS];
@@ -34,6 +40,8 @@ typedef struct {
  /* Monades v7: high-pass on the echo and room sends (0 = off), echo / room tone (500 = Mutable Dreams), LFOs. */
  int32_t send_hp,echo_tone,room_tone; md_lfo lfo[6][2];
  int32_t echo_sync,room_diffusion,chorus,chorus_depth; /* chorus = wet amount on the dry mix, 0 = off */
+ /* v8: generators, and the form: calm / build / peak / release of 2-16 bars (form_bars 0..3), depth 0 = off. */
+ md_gen gen[6]; int32_t form,form_bars,form_drops;
 } md_patch;
 typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; float peak; uint32_t grain_writes,voice_quanta,skipped_quanta; int32_t last_note[6]; uint32_t quality_reductions,element_modes; float track_peak[6];
  /* Monades meters, output-referred like the final mix: grain/delay/room returns, master L/R, pre-limiter peak. */
@@ -44,7 +52,10 @@ typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; floa
  uint32_t step_played[6],step_skipped[6]; /* per track, bit = step of its cycle: last pass played / hit refused by Chance */
  uint32_t midi_out_notes,midi_out_dropped; /* Monades MIDI out: note-ons queued, messages lost to a full queue */
  float last_pitch[6]; /* last note fired per track, fractional for microtonal scales */
- float lfo_phase[6][2],lfo_value[6][2]; uint32_t lfo_cycle[6][2]; /* where each LFO is: phase 0..1 in cycle n, output -1..1 */ } md_stats;
+ float lfo_phase[6][2],lfo_value[6][2]; uint32_t lfo_cycle[6][2]; /* where each LFO is: phase 0..1 in cycle n, output -1..1 */
+ int32_t gen_off[6][16]; uint32_t gen_valid[6],gen_pos[6],gen_fresh[6]; /* loop register: offsets, written slots, slot of the last hit, 1 if it was drawn anew */
+ uint32_t gen_gate[6]; /* Chance decision stored per slot */
+ uint32_t form_section,form_cycle,form_drop_mask; float form_pos; } md_stats;
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);
@@ -99,6 +110,10 @@ const char *md_lfo_target_name(int target);
 int md_send_hp_hz(int value); /* 0 = off */
 float md_echo_ms(void); /* the echo time in use, synced or not */
 const char *md_echo_sync_name(int sync);
+unsigned md_form_mask(unsigned cycle,unsigned section); /* tracks the form drops in that section */
+float md_form_tension(unsigned section);
+int md_form_bars(void);
+const char *md_gen_source_name(int source);
 float md_echo_sync_len16(int sync); /* the division in sixteenths, 0 = off */
 #ifdef __cplusplus
 }

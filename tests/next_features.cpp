@@ -11,9 +11,9 @@ static void cmd(int c,int t,int v){assert(md_command(c,t,v));run(1);}
 static md_patch blank(int model){md_init();cmd(MD_SCENE,0,64);md_patch p=*md_state();p.track[0].mute=0;p.track[0].model=model;p.track[0].note=36;p.track[0].level=650;p.track[0].decay=200;p.track[0].attack=0;p.track[0].hits=16;p.track[0].length=16;p.track[0].prob=1000;p.macro[0]=500;p.macro[1]=0;p.macro[2]=500;p.macro[3]=0;return p;}
 static uint64_t hash(const md_patch &p){md_init();assert(md_load(&p));cmd(MD_PLAY,0,1);uint64_t h=1469598103934665603ull;for(int b=0;b<2200;b++){md_render(audio,128);for(float x:audio){uint32_t u;memcpy(&u,&x,4);h=(h^u)*1099511628211ull;}}return h;}
 int main(){
- static_assert(sizeof(md_patch)==1512,"Browser patch size must match");
+ static_assert(sizeof(md_patch)==1620,"Browser patch size must match");
  auto p=blank(MD_BASS);assert(md_load(&p));cmd(MD_TRIGGER,0,36);assert(run(300)>1);puts("PASS round bass audible");
- uint8_t legacy[652];memcpy(legacy,&p,652);uint32_t v=4;memcpy(legacy+4,&v,4);assert(md_import(legacy,sizeof legacy));assert(md_state()->version==7&&md_state()->fx_level==0);puts("PASS 1.0 migration retains old fields and disables additions");
+ uint8_t legacy[652];memcpy(legacy,&p,652);uint32_t v=4;memcpy(legacy+4,&v,4);assert(md_import(legacy,sizeof legacy));assert(md_state()->version==8&&md_state()->fx_level==0);puts("PASS 1.0 migration retains old fields and disables additions");
  p=*md_state();p.fx_level=1001;assert(!md_load(&p));p=*md_state();p.ext[0].notes[15]=25;assert(!md_load(&p));
  p=blank(MD_BASS);p.ext[0].bass_mode=1;for(int &n:p.ext[0].notes)n=-1;assert(md_load(&p));cmd(MD_PLAY,0,1);assert(run(3000)==0&&md_status()->events[0]==0);puts("PASS phrase rests do not trigger");
  p=blank(MD_BASS);p.ext[0].bass_mode=1;p.ext[0].marbles=1000;p.locked=1;assert(hash(p)==hash(p));auto a=hash(p);p.ext[0].marbles=0;assert(a!=hash(p));puts("PASS Marbles remembered variation deterministic and audible");
@@ -95,7 +95,7 @@ int main(){
  {
   // Patch v7: a Mutable Dreams 1.1 patch (v6, 1292 bytes) loads with every Monades addition neutral.
   md_patch q=blank(MD_VA);uint8_t old[1292];memcpy(old,&q,1292);uint32_t v6=6;memcpy(old+4,&v6,4);
-  assert(md_import(old,sizeof old));const md_patch *s=md_state();assert(s->version==7&&s->send_hp==0&&s->echo_tone==500&&s->room_tone==500);
+  assert(md_import(old,sizeof old));const md_patch *s=md_state();assert(s->version==8&&s->send_hp==0&&s->echo_tone==500&&s->room_tone==500);
   for(int i=0;i<6;i++)for(int k=0;k<2;k++)assert(s->lfo[i][k].depth==0);
   uint32_t v7=7;memcpy(old+4,&v7,4);assert(!md_import(old,sizeof old));
   q=blank(MD_VA);q.lfo[2][1].rate=MD_LFO_RATES;assert(!md_validate(&q));q=blank(MD_VA);q.lfo[0][0].depth=1001;assert(!md_validate(&q));q=blank(MD_VA);q.track[0].filter=MD_FILTER_MODES;assert(!md_validate(&q));
@@ -128,7 +128,7 @@ int main(){
   // HP 24 is steeper than HP 12 at the same cutoff.
   auto energy=[&](int mode){md_patch r=blank(MD_VA);r.track[0].filter=mode;r.track[0].cutoff=800;r.track[0].resonance=0;r.track[0].breathe=0;assert(md_load(&r));cmd(MD_PLAY,0,1);double e=run(400);cmd(MD_PLAY,0,0);return e;};
   assert(energy(7)<energy(4)*.8);
-  // Sample & hold on NOTES: generated notes jump around but always stay in the scale (major, root C).
+  // Sample & hold on NOTES: generated notes jump around but always stay in the scale (scale 1, root C).
   md_patch q=blank(MD_VA);q.scale=1;q.root=0;q.track[0].note=60;q.lfo[0][0]={10,MD_LFO_SAMPLE_HOLD,MD_TO_NOTES,1000};assert(md_load(&q));cmd(MD_PLAY,0,1);
   unsigned mask=md_scale_mask(1),seen=0;for(int b=0;b<1500;b++){md_render(audio,128);int nt=md_status()->last_note[0];if(nt>0){assert((mask>>(nt%12))&1);seen|=1u<<(nt%12);}}
   cmd(MD_PLAY,0,0);int distinct=0;for(int k=0;k<12;k++)distinct+=(seen>>k)&1;assert(distinct>=4);
@@ -143,6 +143,40 @@ int main(){
   auto out=[&](int chorus,int diffusion){md_patch r=blank(MD_VA);r.chorus=chorus;r.chorus_depth=800;r.room_diffusion=diffusion;r.ext[0].reverb_send=800;r.fx_level=800;return hash(r);};
   uint64_t plain=out(0,0);assert(out(1000,0)!=plain&&out(0,1000)!=plain);
   puts("PASS lot 4: HP24, notes in scale from S&H, hits LFO, echo sync, chorus, room diffusion");
+ }
+ {
+  // Patch v8: a Monades v7 patch (1512 bytes) loads with generators and form off.
+  md_patch q=blank(MD_VA);uint8_t v7[1512];memcpy(v7,&q,1512);uint32_t ver=7;memcpy(v7+4,&ver,4);
+  assert(md_import(v7,sizeof v7));assert(md_state()->version==8&&md_state()->form==0);for(int i=0;i<6;i++)assert(md_state()->gen[i].source==MD_GEN_OFF&&md_state()->gen[i].loop==8);
+  q=blank(MD_VA);q.gen[0].loop=0;assert(!md_validate(&q));q=blank(MD_VA);q.form_bars=4;assert(!md_validate(&q));
+  // Generated notes of track 1, one per event.
+  auto notes=[&](md_patch r,int count,int *out){assert(md_load(&r));cmd(MD_PLAY,0,1);unsigned last=md_status()->events[0];int n=0;
+   for(int b=0;b<20000&&n<count;b++){md_render(audio,64);if(md_status()->events[0]!=last){last=md_status()->events[0];out[n++]=md_status()->last_note[0];}}
+   cmd(MD_PLAY,0,0);assert(n==count);};
+  int a[48];
+  // Déjà-vu 1000: once the 4-slot register is written, the phrase loops exactly.
+  q=blank(MD_VA);q.scale=1;q.track[0].note=60;q.gen[0]={MD_GEN_RANDOM,1000,4,12};notes(q,48,a);
+  for(int k=4;k<48;k++)assert(a[k]==a[k-4]);
+  // Déjà-vu 0: every hit draws anew within the spread (60 +/- 6, then snapped to the scale).
+  q.gen[0].dejavu=0;notes(q,48,a);{unsigned seen=0;for(int k=0;k<48;k++){assert(a[k]>=53&&a[k]<=67&&((md_scale_mask(1)>>(a[k]%12))&1));seen|=1u<<(a[k]%12);}int d=0;for(int k=0;k<12;k++)d+=(seen>>k)&1;assert(d>=4);}
+  // Middle déjà-vu: a phrase that changes slowly, neither frozen nor random.
+  q.gen[0].dejavu=850;notes(q,48,a);{int same=0;for(int k=8;k<48;k++)same+=a[k]==a[k-4];assert(same>20&&same<40);}
+  // Markov on the phrase 0 3 7 12 (scale 1 is minor): each note follows one that came after it in the phrase.
+  q=blank(MD_VA);q.scale=1;q.track[0].note=60;for(int k=0;k<16;k++)q.ext[0].notes[k]=-1;q.ext[0].notes[0]=0;q.ext[0].notes[1]=3;q.ext[0].notes[2]=7;q.ext[0].notes[3]=12;
+  q.gen[0]={MD_GEN_MARKOV,0,8,12};notes(q,40,a);
+  for(int k=1;k<40;k++){int x=a[k-1]-60,y=a[k]-60;assert((x==0&&y==3)||(x==3&&y==7)||(x==7&&y==12)||(x==12&&y==0));}
+  // Chance frozen by déjà-vu: with Chance 50 % the played steps repeat bar after bar.
+  q=blank(MD_VA);q.track[0].prob=500;q.gen[0]={MD_GEN_RANDOM,1000,16,0};assert(md_load(&q));cmd(MD_PLAY,0,1);
+  uint32_t bars[4]={};for(int b=0,bar=0;b<20000&&bar<4;b++){md_render(audio,64);if(md_status()->step%16==15){bars[bar]=md_status()->step_played[0];if(md_status()->step/16>=1u+bar)bar++;}}
+  cmd(MD_PLAY,0,0);assert(bars[1]==bars[2]&&bars[2]==bars[3]&&bars[1]!=0&&bars[1]!=0xffff);
+  puts("PASS generators: v7 migrates, deja-vu loops / mutates / draws anew, Markov follows the phrase, Chance groove freezes");
+  // Form: the peak plays everything, calm sections thin out and rest some tracks.
+  q=blank(MD_VA);for(int i=1;i<4;i++){q.track[i]=q.track[0];q.track[i].mute=0;}q.form=1000;q.form_bars=0;q.form_drops=3;assert(md_load(&q));
+  assert(md_form_mask(0,2)==0&&md_form_mask(0,0)!=0&&md_form_mask(0,0)!=0x0f);
+  cmd(MD_PLAY,0,1);unsigned per[4]={},prev=0;for(int b=0;b<20000;b++){md_render(audio,64);unsigned e=0;for(int i=0;i<4;i++)e+=md_status()->events[i];
+   if(md_status()->form_cycle>0)break;per[md_status()->form_section]+=e-prev;prev=e;}
+  cmd(MD_PLAY,0,0);assert(per[2]>per[0]*3/2&&per[2]>per[3]);
+  puts("PASS form: calm / build / peak / release change density and rest tracks");
  }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

@@ -41,6 +41,13 @@ Vérifier qu'aucun firmware FM-1 ne porte déjà le nom (The Firmware Hub, aweso
     - phrases qui mutent lentement, et structure de morceau (sections, tension et détente) ;
     - boucles de longueurs inégales qui se décalent (à la Eno).
 11. Garder Biomes, macros et rythmes euclidiens comme cadre.
+   **Fait (branche `monades/generatif`)**, pages GENERATOR / DEJA VU et FORM (cycle SEQ, après PHRASE) :
+   - par piste, une **source de notes** : OFF (comportement 1.1, macro Motion), **RANDOM** dans un ambitus (SPREAD, 0 à 24 demi-tons), ou **MARKOV** : chaîne d'ordre 1 apprise sur la phrase de la page PHRASE (une gamme de raga y est respectée, montée et descente comprises) ;
+   - un **registre déjà-vu** façon Marbles, de 1 à 16 cases : à chaque coup, il rejoue sa case ou tire du nouveau. 0 = toujours neuf, 100 = boucle figée, entre les deux = phrase qui mute lentement. Il mémorise aussi les décisions de Chance, donc il fige le groove, même sur une piste de batterie ;
+   - une **forme** globale : calme, montée, sommet, détente, de 2 à 16 mesures chacune. La tension fait varier la densité, et 0 à 3 pistes se reposent dans les sections calmes, d'autres à chaque cycle ;
+   - les boucles de longueurs inégales (longueur 1 à 32 et division par piste) existaient déjà ;
+   - patch v8 (1620 octets) ; les patchs v7, 1.1 et plus anciens se chargent avec tout cela coupé.
+   **Reste** : Markov d'ordre 2, motif saisi au clavier, tension qui agit aussi sur le registre, le filtre ou les effets.
 
 ### Lot 4 — Tempo et effets
 12. **Delay synchronisé au tempo** (1/4, 1/8 pointée, triolets).

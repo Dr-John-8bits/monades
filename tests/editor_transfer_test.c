@@ -11,8 +11,8 @@ static void chunks(const md_patch *p,unsigned token){for(unsigned off=0;off<size
 int main(void){
  boot();run_ms(100);dream_dismiss_intro();md_patch initial=*md_state(),desired=initial;desired.tempo=92;
  assert(!req(7,0,0)&&response_n==32);assert(!req(9,0,0)&&response_n==208);
- assert(!req(8,0,0));assert(md_stored_size==1512);assert(!memcmp(md_stored_snapshot,&initial,1512));
- dream_cmd(MD_TEMPO,0,110);run_ms(20);assert(!memcmp(md_stored_snapshot,&initial,1512));
+ assert(!req(8,0,0));assert(md_stored_size==1620);assert(!memcmp(md_stored_snapshot,&initial,1620));
+ dream_cmd(MD_TEMPO,0,110);run_ms(20);assert(!memcmp(md_stored_snapshot,&initial,1620));
  assert(app_backup_validate(0,&initial,sizeof initial));
  md_patch legacy=initial;legacy.version=4;assert(app_backup_validate(0,&legacy,652));
  legacy.version=5;assert(app_backup_validate(0,&legacy,1292));legacy.version=6;assert(app_backup_validate(0,&legacy,1292));assert(!app_backup_validate(0,&legacy,sizeof legacy));
@@ -28,7 +28,7 @@ int main(void){
  for(int kind=0;kind<2;kind++)for(int slot=0;slot<(kind?64:16);slot++){bank_kind=kind;bank_slot=slot;assert(!bank_action(2));int obj=bank_object();assert(app_backup_validate(obj,store[obj],store_len[obj]));}
  bank_kind=0;bank_slot=15;writes=store_writes;bank_armed=-1;assert(bank_action(1)==5&&store_writes==writes);assert(!bank_action(1));
  {UserBiome old=user_biome_io;old.patch.version=6;assert(app_backup_validate(18,&old,USER_BIOME_1_1));
-  int obj=OBJ_USER+3;memcpy(store[obj],&old,USER_BIOME_1_1);store_len[obj]=USER_BIOME_1_1;bank_kind=0;bank_slot=3;assert(!bank_action(0));assert(md_state()->version==7&&md_state()->lfo[0][0].depth==0);} /* a slot saved by 1.1 still loads */
+  int obj=OBJ_USER+3;memcpy(store[obj],&old,USER_BIOME_1_1);store_len[obj]=USER_BIOME_1_1;bank_kind=0;bank_slot=3;assert(!bank_action(0));assert(md_state()->version==8&&md_state()->lfo[0][0].depth==0);} /* a slot saved by 1.1 still loads */
  UserBiome u=user_biome_io;u.name[23]='x';assert(!app_backup_validate(18,&u,sizeof u));
  ToneBank tones=tone_bank_io;tones.used=0x10000;assert(!app_backup_validate(22,&tones,sizeof tones));
  tones=tone_bank_io;tones.tone[15].ext.notes[2]=99;assert(!app_backup_validate(22,&tones,sizeof tones));
