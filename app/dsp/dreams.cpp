@@ -60,6 +60,7 @@ static Grain grains[4];
 static md_patch patch,previous;
 static md_stats stats;
 static unsigned writehead,grainclock,tape_valid;
+static uint8_t tape_peak[256];static unsigned tape_peak_col; // display-only overview of the tape, 512 samples a column
 static float feedback_lp,dcx[2],dcy[2],smooth[4];
 static unsigned rng,seqrng,step;
 static float untilstep,duckenv;
@@ -104,7 +105,7 @@ static void reset_voice(unsigned i) {
 }
 #include "preset_bank.inc"
 static void clear_audio() {
- reset_fx();tape_valid=0;writehead=grainclock=0;
+ reset_fx();tape_valid=0;writehead=grainclock=0;memset(tape_peak,0,sizeof tape_peak);tape_peak_col=0;
  memset(grains,0,sizeof grains);memset(repeats,0,sizeof repeats);
  memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);feedback_lp=duckenv=0;
 }
@@ -433,7 +434,9 @@ static void quantum(float *lr,unsigned n) {
   // Full-rate tape preserves the dry send's bandwidth; 131072 PCM16 samples.
   // Same 256 KiB memory footprint, now 2.97 s at 44.1 kHz rather than 5.94 s.
   if(!patch.freeze){float input=clip(send[k]+feedback_lp*fb);
-   tape[writehead]=int16_t(input*32767);writehead=(writehead+1)&GM;if(tape_valid<GN)tape_valid++;stats.grain_writes++;
+   tape[writehead]=int16_t(input*32767);
+   {unsigned col=writehead>>9;uint8_t a=(uint8_t)(fabsf(input)*254.9f);if(col!=tape_peak_col){tape_peak_col=col;tape_peak[col]=0;}if(a>tape_peak[col])tape_peak[col]=a;}
+   writehead=(writehead+1)&GM;if(tape_valid<GN)tape_valid++;stats.grain_writes++;
   }
   float effect[2]={};
   if(patch.fx_level)fx_active=true;
@@ -474,6 +477,17 @@ void md_init() {
  voices=reinterpret_cast<Voice*>(voices_raw);memset(voices_raw,0,sizeof voices_raw);memset(tape,0,sizeof tape);memset(grains,0,sizeof grains);
  memset(&stats,0,sizeof stats);memset(smooth,0,sizeof smooth);memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);
  memset(midi_bank,0,sizeof midi_bank);qread=qwrite=writehead=grainclock=tape_valid=0;feedback_lp=0;rng=0x88888;stmlib::Random::Seed(rng);scene(0);playing=0;clock_source=midi_quantize=clock_pulse=0;clock_age=clock_last=0;clock_interval=0;
+}
+void md_tape_view(md_tape *v){
+ // Same placement rule as new grains in quantum(), so the screen shows where the next ones start.
+ memcpy(v->peak,tape_peak,sizeof v->peak);v->head=writehead;v->valid=tape_valid;v->length=GN;v->freeze=patch.freeze;
+ float rate=stmlib::SemitonesToRatio((float)patch.grain_pitch)*(patch.reverse?-1:1);
+ float life=2205+(unsigned)(unit(patch.grain_size)*11025),travel=((patch.freeze?0.0f:1.0f)-rate)*life;
+ float lo=260+fmaxf(0.0f,-travel),hi=(float)tape_valid-260-fmaxf(0.0f,travel);
+ v->zone=hi>lo?lo+unit(patch.grain_pos)*(hi-lo):-1;v->zone_len=life;
+ for(unsigned j=0;j<4;j++){const Grain &g=grains[j];int on=g.life&&g.age<g.life;v->grain[j].active=on;if(!on)continue;
+  float d=(float)writehead-g.pos;if(d<0)d+=GN;float w=plaits::Sine(g.phase*.5f);
+  v->grain[j].behind=d;v->grain[j].len=(float)g.life;v->grain[j].env=w*w;}
 }
 int md_clock_source(void){return clock_source;}
 int md_midi_quantize(void){return midi_quantize;}

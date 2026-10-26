@@ -326,8 +326,30 @@ static void md_draw_all(void) {
    if(md_playing()){float a=(md_status()->step%t->length)*6.2831853f/t->length-1.5707963f;md_circle(120+(int)(fm_cosf(a)*27),110+(int)(fm_sinf(a)*27),2,MD_INK,1);}
    md_value_span(8,158,"K1 HITS",t->hits,0,t->length,col);md_value_span(124,158,"K2 LENGTH",t->length,1,32,col);md_value_span(8,194,"K3 ROTATION",t->rotate,0,t->length-1,col);md_value(124,194,"K4 CHANCE",t->prob/10,col);
   } else if(dream_ui.page==GRAIN) {
-   for(i=0;i<43;i++){int drift=(int)(flower_time/(30+i%7));int x=18+(i*47+drift)%204,y=85+(i*29+(int)(9*fm_sinf(flower_time*.001f+i)))%50;md_circle(x,y,1+i%3,dream_colors[i%6],0);}
-   md_text(63,139,p->freeze?"FROZEN MEMORY":"LIVE INTERNAL SENDS",MD_INK);
+   // The tape itself: now at the right edge, about 3 s of past to the left.
+   // Bands = grains (width = Grain Size, brightness = envelope x Space), bracket = Position, line below = Feedback.
+   static md_tape tv;md_tape_view(&tv);
+   const int x0=8,w=224,top=86,mid=107,half=19;const float scale=(float)w/tv.length,space=p->macro[3]*.001f;
+   const uint16_t ice=RGB(151,200,230),head_ink=tv.freeze?ice:col;
+   cv_rect(4,top-2,232,52,MD_BG);
+   for(i=0;i<4;i++){if(!tv.grain[i].active)continue;
+    int gx=x0+w-1-(int)(tv.grain[i].behind*scale),gw=(int)(tv.grain[i].len*scale);if(gw<2)gw=2;
+    unsigned mix=(unsigned)(4+tv.grain[i].env*space*24);if(mix>28)mix=28;
+    int a=gx,z=gx+gw;if(a<x0)a=x0;if(z>x0+w)z=x0+w;if(z>a)cv_rect(a,top,z-a,2*half+1,md_tint(MD_BG,dream_colors[i],mix));}
+   for(int px=0;px<w;px++){
+    unsigned behind=(unsigned)((w-1-px)/scale);
+    if(behind>=tv.valid){if(px%3==0)cv_pset(x0+px,mid,MD_EDGE);continue;}
+    unsigned idx=(tv.head-behind)&(tv.length-1);unsigned q=tv.peak[idx>>9]*half*half/255,h=0;while((h+1)*(h+1)<=q)h++; // square-root scale: quiet sends stay visible
+    cv_rect(x0+px,mid-(int)h,1,2*(int)h+1,tv.freeze?md_tint(MD_BG,ice,22):MD_DIM);
+   }
+   for(i=0;i<4;i++){if(!tv.grain[i].active)continue;int gx=x0+w-1-(int)(tv.grain[i].behind*scale);
+    if(gx>=x0)cv_rect(gx,top,1,2*half+1,md_tint(MD_BG,MD_INK,(unsigned)(8+tv.grain[i].env*24)));}
+   cv_rect(x0+w-2,top-2,2,2*half+5,head_ink);
+   if(tv.zone>=0){int zw=(int)(tv.zone_len*scale);if(zw<2)zw=2;int zx=x0+w-1-(int)(tv.zone*scale)-zw/2;
+    cv_rect(zx<x0?x0:zx,top+2*half+3,zw,2,col);
+    if(p->feedback){int fx=zx+zw/2;uint16_t fbk=md_tint(MD_BG,col,(unsigned)(4+p->feedback*24/1000));
+     cv_rect(fx,top+2*half+7,x0+w-2-fx,1,fbk);cv_rect(x0+w-4,top+2*half+6,1,3,fbk);}}
+   md_text(8,139,"-3 S",MD_DIM);md_text(84,139,tv.freeze?"FROZEN":p->reverse?"< REVERSE":"RECORDING",tv.freeze?ice:MD_INK);md_text(206,139,"NOW",MD_DIM);
    md_value(8,158,"K1 SPACE",p->macro[3]/10,col);md_value(124,158,"K2 GRAIN SIZE",p->grain_size/10,col);md_value(8,194,"K3 POSITION",p->grain_pos/10,col);md_value(124,194,"K4 FEEDBACK",p->feedback/10,col);
   } else if(dream_ui.page==ENVELOPE) {
    for(i=0;i<180;i++){int split=20+t->attack/10;int y=i<split?133-i*45/split:88+(i-split)*45/(180-split);cv_pset(30+i,y,col);cv_pset(30+i,y+1,col);}
