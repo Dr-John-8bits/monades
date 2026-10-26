@@ -115,6 +115,13 @@ Vérifier qu'aucun firmware FM-1 ne porte déjà le nom (The Firmware Hub, aweso
 
 **C'est un lot idéal pour commencer** : il n'ajoute aucune fonction risquée, il améliore tout de suite la compréhension, et il permet d'apprendre le code (UI + moteur) avant les gros chantiers.
 
+### Lot Identité — Interface spatiale (plus tard)
+Se démarquer visuellement de Mutable Dreams : remplacer son univers végétal (feuilles, fougères, pollen, « fleurs » de la page Live, cartes en forme de feuille) par un univers spatial (étoiles, galaxie, vaisseaux).
+- Garder la règle de design : **rien de décoratif sans information**. Par exemple : les six voix en six vaisseaux sur la page Live, des étoiles qui s'allument sur les coups joués, un fond qui avance au tempo.
+- Nouvelle palette et nouvel écran de démarrage, nom MONADES.
+- Remplacer les cartes « feuille » des réglages K1–K4 par un style propre à Monades.
+- Pas tout de suite : après le lot UI, une fois les écrans fonctionnels validés sur le FM-1.
+
 ### Lot Web — Site Monades
 Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de la Monadologie** :
 - une seule page, sobre et typographique (beaucoup de blanc, une seule couleur d'accent) ;
