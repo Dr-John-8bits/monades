@@ -1,0 +1,13 @@
+diff --git a/blink/syscall.c b/blink/syscall.c
+index 34cc01c..f172e5b 100644
+--- a/blink/syscall.c
++++ b/blink/syscall.c
+@@ -1094,7 +1094,7 @@ static i64 SysBrk(struct Machine *m, i64 addr) {
+   BEGIN_NO_PAGE_FAULTS;
+   LOCK(&m->system->mmap_lock);
+   MEM_LOGF("brk(%#" PRIx64 ") currently %#" PRIx64, addr, m->system->brk);
+-  pagesize = FLAG_pagesize;
++  pagesize = HasLinearMapping() ? FLAG_pagesize : 4096;
+   addr = ROUNDUP(addr, pagesize);
+   if (addr >= kNullSize) {
+     if (addr > m->system->brk) {

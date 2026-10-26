@@ -1,0 +1,76 @@
+MUTABLE DREAMS 1.1 — DEVELOPMENT PREVIEW
+Prepared 19 October 2026. Public release 1.0 remains unchanged.
+
+STATUS
+This is a locally tested development build, not a release or a hardware-qualified update. No device was contacted or flashed during this development pass. The FM-1 test comes next, with the owner present. Existing 1.0 hardware measurements do not establish performance of the new effects or Elements port.
+
+WHAT IS NEW
+- Global six-channel mixer: track level, granular send, delay send, reverb send; selected-channel marker, mute and audio peak meters.
+- Round Bass: a clean fundamental, optional lower octave and restrained second harmonic. All ten engines remain freely assignable to all six tracks.
+- Six independent 16-step bass motifs: four starting patterns, editable semitone offsets and rests, track transpose, glide, accent and probability. Scale quantization remains active. Rhythm hits/length/rotation still gate these phrase steps. Set 16 hits in 16 steps if you want the phrase alone to determine rests. Glide is a track-wide pitch transition, not a per-step legato/tie editor.
+- Shared full-rate echo, 40–350 ms, interpolated time changes, bounded feedback and feedback damping.
+- Shared four-line diffused feedback room, stereo returns and low-frequency rejection in its input. No master EQ or compulsory saturation. The delay is currently time-based, not a tempo-following ping-pong delay.
+- Marbles-inspired remembered offbeat pitch variation. It acts on enabled bass phrases; locking the seed preserves its choices. It is not a full Marbles port.
+- Tides-inspired cyclic cutoff motion, 0.5–20 seconds. Enable a track filter to hear it. It is not a full Tides audio-rate oscillator port.
+- Warps-inspired gentle ring-modulation blend. It uses an internal carrier at the voice pitch, not arbitrary track-to-track routing or the full Warps algorithm set.
+- Elements Strike: selected original Elements exciter and modal-resonator code, adapted to 44.1 kHz. SHAPE selects mallet, plectrum or particles. FULL uses 16 resonant modes; ECO uses 8. No Bow/Blow layer, bowed waveguides, strings alternative, Ominous voice or internal Elements reverb. Use the shared room instead. These mode counts are provisional until device benchmarking.
+- 32 extra sound presets: 16 Round Bass and 16 Elements Strike, bringing the library to 160. All original 128 IDs and all 65 original Biomes remain intact.
+- Five additional example patches: Rooted Dub, Sub Tides, Moss Bells, Quiet Metal and Velvet Motion. These are available in the development browser and as patch files; they are not added to the device's original factory Biome selector yet.
+- Seventeen firmware pages, each with its own quiet organic contour background. Background geometry is cached only when changing page; it is outside the audio callback. Existing animation preference is retained.
+
+HARDWARE NAVIGATION (TO TEST LATER)
+EDIT: Sound > Filter > Envelope > Notes/Pan > Global Mixer.
+SEQ: Rhythm > Groove > Bass > Phrase.
+FX: Granular > Tape > Shared Space > Marbles/Tides/Warps.
+GLO: Harmony > System > Look.
+HOME returns to live macros. SELECT chooses a track. SEL mutes it.
+Hold a function button for help. Release, then tap once to close help; that tap does not invoke its normal short action.
+
+GLOBAL MIXER
+K1 level; K2 granular send; K3 delay send; K4 reverb send.
+Sends follow the selected track's level and mute. Existing room/echo tails can continue after a track is muted.
+
+BASS
+K1 phrase on/off; K2 starting motif; K3 glide; K4 base note.
+PHRASE: K1 selected step; K2 semitone offset (-1 = rest); K3 accent; K4 chance.
+The same phrase controls can drive VA, FM, Elements or other freely chosen engines. Bass-specific note shaping does not require a reserved bass track.
+
+SHARED SPACE
+K1 delay milliseconds; K2 delay feedback; K3 room tail; K4 effect return.
+Start by turning up the return, then give selected tracks a send in Global Mixer. Keep the low bass mostly dry. A zero return mutes the shared effects; after activation they can continue processing their internal tails. SYSTEM + REC / PANIC clears all voices, grain memory validity and effect buffers.
+
+MARBLES / TIDES / WARPS
+K1 remembered note variation; K2 filter-motion depth; K3 motion cycle; K4 ring blend.
+All start at zero in imported 1.0 patches and original factory Biomes. These are purpose-built interpretations with credit to Mutable Instruments, not claims of complete module ports.
+
+BROWSER
+Open Mutable-Dreams-Preview.html in a current desktop browser and start the instrument. It embeds the actual application/DSP compiled to WebAssembly, not a substitute audio engine. Choose one of the five development examples while stopped, then press Play. All 17 pages and 160 sounds are exposed.
+The development preview uses its own local-storage key. It does not overwrite release 1.0 browser saves. Patch import accepts 1.0 files and current development files; export writes the new format. Browser storage remains separate from hardware.
+The browser's direct local-file opening was blocked by the automation security policy during this pass. Engine/worklet, schema, page exports and rendered native UI checks were run locally; an actual browser UI/audio-session check remains pending.
+
+QUALITY AND LIMITS
+The 2.97-second granular tape is unchanged. New effects have separate buffers. Existing dry paths remain linear at ordinary levels. Delay and reverb use PCM16 memory internally to fit the platform; this is not a claim of 24-bit effect storage. The room is a compact algorithmic prototype, not a convolution or shimmer reverb. Echo time changes intentionally produce a smooth pitch glide.
+Existing FULL/ECO behaviour is retained. Extra feature weights are provisional estimates. Six heavy engines plus granular, effects and Warps may exceed the device budget even when native/WASM tests pass. Desktop speed is not a model of the FM-1. Do not publish this build until physical callback peaks, overload counters and listening checks pass.
+
+SAVE / DOWNGRADE
+Old version-4 (1.0) patches migrate with additions disabled. The new version-5 saved patch is larger. Version 1.0 cannot be assumed to load a 1.1 saved patch. Before any later flash, preserve the original 1.0 project with its existing backup procedure. Keep that backup for a downgrade. The published 1.0 firmware, installer and official V15 return path are unchanged; no new hardware round-trip claim is made.
+
+NEXT DEVICE SESSION
+1. Back up the connected device's current 1.0 project and verify its identity.
+2. Install only the exact development package whose SHA-256 is recorded in this folder.
+3. Start stopped, at low master level; audition the five examples and the first eight original Biomes.
+4. Confirm all controls, long-press help, meters, save/reboot and version-4 migration.
+5. Measure six-voice mixed patches, six Bass and six Elements; effects off/on; FULL/ECO; maximum feedback, long tails, Warps, rapid time changes and Grain Size 10/19/20/21/30/50/100.
+6. Include rapid Biome changes, mute/unmute during tails, help/background animation and browser/device comparisons.
+7. Run at least a ten-minute soak. Reject deadline faults, overloads, invalid samples, stuck notes and unwanted clicks; assess tonal quality by listening too.
+8. Set final admission limits from those measurements. If necessary limit simultaneous expensive features explicitly rather than treating estimated desktop results as certification.
+9. Verify backup/restore and downgrade recovery before any public 1.1 release.
+
+CREDITS
+With gratitude to Emilie Gillet and Mutable Instruments. Original Plaits, Rings, Elements and stmlib notices are preserved. fm1-base / felucca-bsp retain their upstream rights and credits. The additional GPL distribution and original component licences remain documented in the source. Independent community work, unaffiliated with Mutable Instruments or M-VAVE.
+
+FINAL OFFLINE BUILD
+Firmware identity: FM-1_710010100
+SHA-256: b94abe9a1320d3328d8bc5ae0c33d475003f977cff38e6a0619ba49d5497bc98
+Image 244636 bytes. Normal RAM 48920 / 98304 bytes; audio pool 329856 / 344064 bytes. Remaining pool: 14208 bytes. These are link-time allocations, not measured callback or stack headroom.
+See Test-Evidence/test-report.json and complete logs.

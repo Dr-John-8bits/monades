@@ -1,0 +1,48 @@
+{
+  "firmware_sha256": "0652b8b8eddeea09f20e9d149280321e5b52a096967414a1c08f5e3f80ad0e3e",
+  "source": "FM-1 USB, controlled frozen FM tone, three seconds per size, normalized high-frequency energy",
+  "rows": [
+    {
+      "size": 10,
+      "old_hf": 7.875860073861744e-08,
+      "new_hf": 2.114779609800631e-08,
+      "reduction_db": 5.710328772701892
+    },
+    {
+      "size": 19,
+      "old_hf": 6.599378051764461e-08,
+      "new_hf": 2.154637601540051e-08,
+      "reduction_db": 4.861287734126452
+    },
+    {
+      "size": 20,
+      "old_hf": 5.932415692026761e-08,
+      "new_hf": 2.3681182848828658e-08,
+      "reduction_db": 3.9882818387709933
+    },
+    {
+      "size": 21,
+      "old_hf": 1.6397173801667432e-06,
+      "new_hf": 2.353750928790878e-08,
+      "reduction_db": 18.430084955946292
+    },
+    {
+      "size": 30,
+      "old_hf": 5.9181607357757804e-05,
+      "new_hf": 2.0920329091946777e-08,
+      "reduction_db": 34.516182442989695
+    },
+    {
+      "size": 50,
+      "old_hf": 0.00018341046374964462,
+      "new_hf": 2.4099156738210832e-08,
+      "reduction_db": 38.81422262678756
+    },
+    {
+      "size": 100,
+      "old_hf": 0.0002079341009459834,
+      "new_hf": 2.2090151355539108e-08,
+      "reduction_db": 39.73727027406495
+    }
+  ]
+}

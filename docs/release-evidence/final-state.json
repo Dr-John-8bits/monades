@@ -1,0 +1,63 @@
+{
+  "firmware_sha256": "0652b8b8eddeea09f20e9d149280321e5b52a096967414a1c08f5e3f80ad0e3e",
+  "identity": "FM-1_710000401",
+  "biome": "Velvet Mist",
+  "stopped": true,
+  "live_matches_saved": true,
+  "patch_sha256": "b306f88dd6413c47627238e81722cbedcc0e4e02ab5b7aa44df65a9dbdde66d3",
+  "patch_bytes": 652,
+  "status": {
+    "motion": 1,
+    "boot_sound": 1,
+    "page": 0,
+    "help": -1,
+    "intro": 0,
+    "quality_reductions": 10,
+    "master": 518,
+    "protocol": 2,
+    "ms": 1514726,
+    "cpu": 8,
+    "cpu_peak": 59,
+    "xruns": 0,
+    "overloads": 0,
+    "frames": 66800640,
+    "nonfinite": 0,
+    "dropped": 0,
+    "quality": 0,
+    "playing": 0,
+    "events": [
+      47067,
+      47248,
+      46181,
+      45162,
+      43271,
+      41345
+    ],
+    "models": [
+      7,
+      6,
+      5,
+      4,
+      3,
+      7
+    ],
+    "filters": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "memory": 280348,
+    "patch_version": 4,
+    "grain_writes": 61415040,
+    "freeze": 0,
+    "peak": 0.990808367729187,
+    "voice_quanta": 10057836,
+    "skipped_quanta": 2756550,
+    "tempo": 76,
+    "callback_peak_us": 1910,
+    "callback_budget_us": 2902
+  }
+}

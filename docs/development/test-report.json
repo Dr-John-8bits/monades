@@ -1,0 +1,39 @@
+{
+  "version": "1.1.0-dev",
+  "status": "offline-tested; hardware qualification pending",
+  "firmwareIdentity": "FM-1_710010100",
+  "firmwareSHA256": "b94abe9a1320d3328d8bc5ae0c33d475003f977cff38e6a0619ba49d5497bc98",
+  "firmwareBytes": 610136,
+  "imageBytes": 244636,
+  "normalRamUsed": 48920,
+  "normalRamCapacity": 98304,
+  "audioPoolUsed": 329856,
+  "audioPoolCapacity": 344064,
+  "engines": 10,
+  "soundPresets": 160,
+  "originalBiomes": 65,
+  "browserExamples": 5,
+  "pages": 17,
+  "checks": {
+    "deviceCompilation": "PASS",
+    "containerCRCAndPayload": "PASS",
+    "dspSanitizers": "PASS",
+    "all160Sounds": "PASS",
+    "65OriginalBiomeAudioHashes": "UNCHANGED",
+    "newFeatureStress8x60Seconds": "PASS",
+    "granular101SizesBothQualities": "PASS",
+    "nativeOriginalNewAndHelpUI": "PASS",
+    "actualWasmWorkletAndPatchMigration": "PASS",
+    "offlineBackupSchema": "PASS",
+    "embeddedPageJavaScriptSyntax": "PASS"
+  },
+  "notTested": [
+    "physical FM-1 timing, audio, save/reboot and recovery",
+    "actual browser DOM interaction and audio session: local-file automation blocked by browser security policy",
+    "subjective listening by owner"
+  ],
+  "hardwareContacted": false,
+  "flashed": false,
+  "published": false,
+  "originalRelease1_0Unchanged": true
+}

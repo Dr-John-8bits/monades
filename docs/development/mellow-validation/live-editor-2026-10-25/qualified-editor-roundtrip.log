@@ -1,0 +1,6 @@
+START candidate 427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534
+PASS candidate FM-1_710010100  [running]  port: X0X FM-1
+START stock 427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534
+PASS stock FM-1_015  [running]  port: FM-1
+START from-stock 427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534
+PASS from-stock FM-1_710010100  [running]  port: X0X FM-1

@@ -1,0 +1,13 @@
+{"name": "six-plectrum-334", "cpu_peak_percent": 73.5354927636113, "issues": [], "rms": 0.0022647515184803357}
+{"name": "six-plectrum-500", "cpu_peak_percent": 72.9841488628532, "issues": [], "rms": 0.002310087117039814}
+{"name": "six-plectrum-666", "cpu_peak_percent": 73.3631977946244, "issues": [], "rms": 0.0023392810296180106}
+PROGRESS six-snare-stress 30 s 80.1 %
+{"name": "six-snare-stress", "cpu_peak_percent": 80.0999310820124, "issues": [], "rms": 0.040133464998072604}
+PROGRESS six-rings-stress 30 s 82.74 %
+{"name": "six-rings-stress", "cpu_peak_percent": 82.73604410751206, "issues": [], "rms": 0.19310773118256838}
+PROGRESS six-harmonic-stress 31 s 83.53 %
+{"name": "six-harmonic-stress", "cpu_peak_percent": 83.52860096485183, "issues": [], "rms": 0.02583575729198569}
+PROGRESS mixed-six-plectrum-soak 30 s 78.51 %
+PROGRESS mixed-six-plectrum-soak 60 s 78.51 %
+PROGRESS mixed-six-plectrum-soak 91 s 78.51 %
+{"name": "mixed-six-plectrum-soak", "cpu_peak_percent": 78.51481736733288, "issues": [], "rms": 0.08913273670138543}

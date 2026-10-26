@@ -1,0 +1,81 @@
+MUTABLE DREAMS 1.1 — RELEASE PREPARATION
+25 October 2026. Private preparation, not a publication instruction.
+
+Keep published 1.0 and its downloads, tag, website history and source immutable.
+Stage 1.1 under its own versioned paths. Publish only the exact qualified binary,
+matching source, checksums, English editor and recovery instructions. User backups
+must never enter the source bundle, website, GitHub assets or promotional media.
+
+Before public release:
+- DONE for 427a: exact 1.1 -> manufacturer V15 -> same 1.1, physically confirmed
+  restore and byte-identical saved objects. Repeat if the final binary changes.
+  V15 erased banks/preferences; keep that backup requirement prominent.
+- DONE for 427a: direct published 1.0 -> 1.1, first-boot saved-Biome migration,
+  complete original bank/project restoration. 1.0 users need legacy backup
+  instructions; they cannot use the new editor or .mddb before updating.
+- DONE: owner retested the corrected Density slider in both directions,
+  JSON/.mddb downloads and disconnect. Other UI paths/installer remain separate.
+- Owner listens to warm Biomes and Granular Size 20..100; sustained six-track
+  effects and MIDI tests must retain headroom without xruns or fallback surprises.
+- Exercise the released browser page in a supported secure-origin browser with
+  real Web MIDI permission: connect, physical edits reflected, edit each page,
+  save/load named banks, individual patch exchange, .mddb backup and restore,
+  cancellation/disconnect, and return to browser without duplicate audio.
+- Extended cold starts / power sessions and physical TRS MIDI remain separate
+  qualification items; do not turn the USB/software tests into claims about them.
+- Review dependency notices, GPL combined distribution/MIT/MPL original notices,
+  and the Nunito font licence. Independent community project, no MI endorsement.
+- Include installation from Stock V15, explicit data backup, return to V15, and
+  data restoration after reinstalling 1.1. Do not claim every custom firmware as
+  a supported direct starting point without testing it. Firmware and user data
+  are separate: reinstalling the package is not the same as restoring banks.
+
+English website update, once firmware qualification is finished:
+Lead with gratitude for the community's feedback and actual sonic demonstrations.
+Show warm sound engines, six freely assignable voices, shared mixer/space, personal
+Biomes and phrases, MIDI, organic motion, long-press help and the live editor.
+Distinguish selected Mutable algorithms from inspired original implementations.
+Offer Play in browser, Connect FM-1, user guide, current 1.1 package/source/checksum,
+backup/recovery guide and V15 reference; retain access to 1.0. Explain the device
+editor's parameter view honestly. Embed the finished tutorial with captions and
+chapters. Use one clear 1.1 launch, without development-build chronology.
+
+VIDEO — detailed 6–8 minute product demonstration as in UPDATE-VIDEO-BRIEF.txt.
+Calm English female narration, clear and unhurried. The 3:45 sequence below is
+a condensed editorial outline, not a replacement for the more detailed update.
+A real product demonstration: show the actual FM-1, real hands, legible controls
+and genuine firmware output. Avoid synthetic product renders and invented UI.
+Film at a clean desk with steady light, restrained camera movement and close-ups.
+Record direct FM-1 audio, then leave moments without speech so listeners can hear
+warmth, bass, transients and granular changes. Keep narration above the music with
+soft ducking; no loud stingers. Match every advertised function to a real shot.
+
+0:00–0:20  Actual FM-1 power-on / logo, quiet warm chord. Thank the community for
+           listening, sharing Biomes and giving constructive feedback.
+0:20–0:55  Warm Biome: Satin/Mellow voice, low-pass character, envelope movement.
+           Hear the dry source first, then gently open the shared space.
+0:55–1:30  Six freely assigned tracks, global mixer, sends; add a round bass line
+           and a restrained groove, then a contrasting rhythmic example.
+1:30–2:05  Granular bus: show Size 20 to larger fragments, position/freeze, musical
+           results with direct audio. Only use footage from the final tested build.
+2:05–2:40  Make a short personal phrase, name and save a User Biome, load another,
+           recall the saved one. Show the long-press hint page in a close-up.
+2:40–3:15  Browser instrument, then Connect FM-1 and a real device response.
+           Export one Biome and back up banks. Explain these are separate files.
+3:15–3:45  Clear Stock V15 update/return guidance; link to full recovery guide.
+           Thank Mutable Instruments / Emilie Gillet and contributors. Thank the
+           community again. End with the FM-1 playing; project URL and version 1.1.
+
+Deliverables after qualification: 16:9 master, English voice and captions, chapter
+markers, thumbnail using the actual FM-1, YouTube title/description and source links.
+Instagram: 25–35 second 9:16 reel built from the same real footage, captions, cover,
+English post caption, accessible description and a short list of relevant tags.
+Use Runway only where it improves the production; do not substitute invented device
+footage for demonstrable product behaviour. Confirm current rights and credits
+before generating final voice assets or purchasing additional services.
+
+Sven / The Firmware Hub:
+Prepare an English update email after the checks: concise thank-you, 1.1 feature
+summary, tested update/recovery path, public release/source/editor/tutorial links,
+licence information and exact tested device. Preserve transparent technical limits.
+No email is sent from this preparation document.

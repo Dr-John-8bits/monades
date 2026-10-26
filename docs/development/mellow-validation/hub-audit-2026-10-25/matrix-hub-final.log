@@ -1,0 +1,22 @@
+{"name": "six-snare-stress", "cpu_peak_percent": 80.68573397656789, "issues": [], "rms": 0.04035353540297353}
+{"name": "six-rings-stress", "cpu_peak_percent": 82.73604410751206, "issues": [], "rms": 0.1933375875754967}
+{"name": "six-harmonic-stress", "cpu_peak_percent": 83.45968297725706, "issues": [], "rms": 0.025707083948034795}
+{"name": "six-fm-stress", "cpu_peak_percent": 80.27222605099931, "issues": [], "rms": 0.07099990056951626}
+{"name": "six-kick-stress", "cpu_peak_percent": 68.9696760854583, "issues": [], "rms": 0.048296279686965815}
+{"name": "six-hat-stress", "cpu_peak_percent": 63.59407305306684, "issues": [], "rms": 0.031412377218461456}
+{"name": "six-va-stress", "cpu_peak_percent": 70.29634734665747, "issues": [], "rms": 0.03194576534576925}
+{"name": "six-choir-stress", "cpu_peak_percent": 65.1619572708477, "issues": [], "rms": 0.04330583525991536}
+{"name": "six-bass-stress", "cpu_peak_percent": 61.026878015161955, "issues": [], "rms": 0.03777923749165169}
+{"name": "six-elements-stress", "cpu_peak_percent": 71.881461061337, "issues": [], "rms": 0.07684431253510456}
+{"name": "six-mellow-stress", "cpu_peak_percent": 67.8669882839421, "issues": [], "rms": 0.0348485993479255}
+{"name": "six-satin-stress", "cpu_peak_percent": 68.986905582357, "issues": [], "rms": 0.03697766190795925}
+PROGRESS mixed-six-soak 30 s 77.08 %
+PROGRESS mixed-six-soak 60 s 77.08 %
+PROGRESS mixed-six-soak 91 s 77.08 %
+PROGRESS mixed-six-soak 121 s 77.08 %
+PROGRESS mixed-six-soak 151 s 77.08 %
+PROGRESS mixed-six-soak 182 s 77.08 %
+PROGRESS mixed-six-soak 212 s 77.08 %
+PROGRESS mixed-six-soak 242 s 77.08 %
+PROGRESS mixed-six-soak 273 s 77.08 %
+{"name": "mixed-six-soak", "cpu_peak_percent": 77.08476912474156, "issues": [], "rms": 0.09342992462464556}

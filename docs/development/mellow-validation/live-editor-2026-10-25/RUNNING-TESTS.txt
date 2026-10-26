@@ -1,0 +1,11 @@
+This folder preserves executed reports and local bench harnesses, not a turnkey
+hardware test command. Local bench scripts reference workspace-relative paths
+and a private baseline .mddb image, which is deliberately excluded. Before a new
+hardware qualification, make fresh backups of that device and adapt paths. Do
+not run a flashing/restore harness against an unfamiliar instrument blindly.
+
+Portable software tests live in tests/ and base/tests/ in the complete source.
+Build sanitized host objects, then tools/test_transfer.py; build web WASM, package
+the page, run tests/web_engine.mjs, tests/device_editor.mjs and the private
+installer tests. Consult the source README and build repair notes.
+Physical restore confirmation must come from the operator pressing SEL.

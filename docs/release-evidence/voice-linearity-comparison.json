@@ -1,0 +1,12 @@
+[
+  {
+    "variant": "before",
+    "harmonic_distortion_ratio": 0.03067586729320897,
+    "peak": 0.204788476228714
+  },
+  {
+    "variant": "linear-voice",
+    "harmonic_distortion_ratio": 0.0025108909855850467,
+    "peak": 0.22627370059490204
+  }
+]

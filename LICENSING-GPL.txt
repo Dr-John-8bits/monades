@@ -1,3 +1,14 @@
+VERSION 1.1 — SOURCE AND LICENSE NOTICE
+This release source continues the additional GPL-3.0-only distribution below.
+New Elements source retains its original MIT notices.
+Current corresponding 1.1 source: Mutable-Dreams-1.1-Source.zip; its
+SOURCE-SHA256.txt identifies the included files. Names/hashes below describing
+1.0 remain historical evidence and do not identify the 1.1 source archive.
+The 1.1 display additionally uses Nunito by its project authors under SIL OFL
+1.1; its unmodified font and licence are in base/assets/fonts. Rendering
+coverage into generated bitmaps does not change the font licence. Historical 1.0 binary hashes
+below identify the published baseline, not this 1.1 build.
+
 MUTABLE DREAMS 1.0 — ADDITIONAL GPL DISTRIBUTION
 
 Copyright (c) 2026 Mutable Dreams contributors.

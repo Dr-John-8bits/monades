@@ -1,0 +1,5 @@
+PASS install-original-1.0 FM-1_710010000
+PASS original 1.0 custom Biome saved and read back exactly
+PASS direct-1.0-to-1.1 FM-1_710010100
+PASS all original saved Biome fields migrated exactly from v4 to v6
+PASS direct upgrade; unchanged saved objects excluding deliberately saved test project: 21 of 21. Original user restore is still required.

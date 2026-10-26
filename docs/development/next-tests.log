@@ -1,0 +1,16 @@
+PASS round bass audible
+PASS 1.0 migration retains old fields and disables additions
+PASS phrase rests do not trigger
+PASS Marbles remembered variation deterministic and audible
+PASS Tides changes filtered audio
+PASS Warps ring blend changes audio
+PASS shared effect tails / panic exact silence
+PASS 60-second feature stress model 8
+PASS 60-second feature stress model 9
+PASS 60-second feature stress model 4
+PASS 60-second feature stress model 5
+PASS 60-second feature stress model 8
+PASS 60-second feature stress model 9
+PASS 60-second feature stress model 4
+PASS 60-second feature stress model 5
+ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim

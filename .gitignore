@@ -1,0 +1,4 @@
+app/build/
+**/__pycache__/
+.DS_Store
+node_modules/

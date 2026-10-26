@@ -1,0 +1,66 @@
+[
+  {
+    "file": "01-Velvet-Mist.wav",
+    "seconds": 12,
+    "stereo": true,
+    "pcm_bits": 16,
+    "sample_rate": 44100,
+    "saturated_samples": 0
+  },
+  {
+    "file": "02-Soft-Machines.wav",
+    "seconds": 12,
+    "stereo": true,
+    "pcm_bits": 16,
+    "sample_rate": 44100,
+    "saturated_samples": 0
+  },
+  {
+    "file": "03-Six-Kicks.wav",
+    "seconds": 12,
+    "stereo": true,
+    "pcm_bits": 16,
+    "sample_rate": 44100,
+    "saturated_samples": 0
+  },
+  {
+    "file": "04-Resonant-Field.wav",
+    "seconds": 12,
+    "stereo": true,
+    "pcm_bits": 16,
+    "sample_rate": 44100,
+    "saturated_samples": 0
+  },
+  {
+    "file": "05-Pearl-Lagoon.wav",
+    "seconds": 12,
+    "stereo": true,
+    "pcm_bits": 16,
+    "sample_rate": 44100,
+    "saturated_samples": 0
+  },
+  {
+    "file": "06-Amber-Fog.wav",
+    "seconds": 12,
+    "stereo": true,
+    "pcm_bits": 16,
+    "sample_rate": 44100,
+    "saturated_samples": 0
+  },
+  {
+    "file": "07-Soft-Canopy.wav",
+    "seconds": 12,
+    "stereo": true,
+    "pcm_bits": 16,
+    "sample_rate": 44100,
+    "saturated_samples": 0
+  },
+  {
+    "file": "08-Silver-Marsh.wav",
+    "seconds": 12,
+    "stereo": true,
+    "pcm_bits": 16,
+    "sample_rate": 44100,
+    "saturated_samples": 0
+  }
+]

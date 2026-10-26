@@ -1,0 +1,60 @@
+{
+  "status": {
+    "element_modes": 8,
+    "motion": 1,
+    "boot_sound": 1,
+    "page": 0,
+    "help": -1,
+    "intro": 0,
+    "quality_reductions": 0,
+    "master": 1,
+    "protocol": 2,
+    "ms": 747004,
+    "cpu": 14,
+    "cpu_peak": 14,
+    "xruns": 0,
+    "overloads": 2,
+    "frames": 32934144,
+    "nonfinite": 0,
+    "dropped": 0,
+    "quality": 0,
+    "playing": 0,
+    "events": [
+      27584,
+      27592,
+      27570,
+      27572,
+      27589,
+      27582
+    ],
+    "models": [
+      11,
+      8,
+      11,
+      11,
+      11,
+      11
+    ],
+    "filters": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "memory": 333728,
+    "patch_version": 6,
+    "grain_writes": 32934144,
+    "freeze": 0,
+    "peak": 0.9865499138832092,
+    "voice_quanta": 2599761,
+    "skipped_quanta": 654405,
+    "tempo": 64,
+    "callback_peak_us": 523,
+    "callback_budget_us": 2902
+  },
+  "master_override_released": true,
+  "live_biome": "Satin River",
+  "saved_startup_project_overwritten": false
+}

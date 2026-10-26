@@ -1,0 +1,50 @@
+RETRY read-only telemetry
+PROGRESS MIDI 30 seconds 16200 messages
+PROGRESS MIDI 60 seconds 32400 messages
+PROGRESS MIDI 90 seconds 48618 messages
+PASS all six channels received every scheduled Note On
+PASS no new xruns
+PASS no new overloads
+PASS no new nonfinite
+PASS no new dropped
+PASS no new quality_reductions
+PASS USB capture finite and uninterrupted
+PASS six-channel MIDI audio audible
+PASS MIDI audio retains callback reserve
+PASS USB MIDI Start and 24-PPQN clock play
+PASS USB MIDI Stop
+PASS USB MIDI Continue
+PASS external clock loss stops after two seconds
+PASS USB clock ignored when TRS clock selected (routing only)
+PASS held help 0
+PASS release does not tap 0
+PASS held help 1
+PASS release does not tap 1
+PASS held help 2
+PASS release does not tap 2
+PASS held help 3
+PASS release does not tap 3
+PASS held help 4
+PASS release does not tap 4
+PASS held help 5
+PASS release does not tap 5
+PASS held help 6
+PASS release does not tap 6
+PASS held help 7
+PASS release does not tap 7
+PASS held help 8
+PASS release does not tap 8
+PASS held help 9
+PASS release does not tap 9
+PASS held help 10
+PASS release does not tap 10
+PASS held help 11
+PASS release does not tap 11
+PASS held help 12
+PASS release does not tap 12
+PASS held help 13
+PASS release does not tap 13
+PASS no new xruns through clock/help tests
+PASS no new overloads through clock/help tests
+PASS no new nonfinite through clock/help tests
+PASS no new dropped through clock/help tests

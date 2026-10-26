@@ -1,0 +1,10 @@
+RETRY absolute command 27 0 0
+PASS named user Biome survives firmware update/restart
+PASS user sound bank survives firmware update/restart
+PASS saved project survives restart byte-for-byte against pre-flash backup
+PASS saved own Biome recalls after reboot
+PASS USB MIDI channels independently trigger tracks 1/2
+PASS USB CC74 edits selected channel filter
+PASS USB bank/program reaches Satin preset 208
+PASS USB external clock starts transport
+PASS clock-loss timeout stops transport

@@ -1,0 +1,1 @@
+Isolated JS regression and owner confirmation. No automated browser rendering. No firmware/DSP changes.

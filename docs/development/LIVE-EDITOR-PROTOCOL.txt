@@ -1,0 +1,76 @@
+MUTABLE DREAMS 1.1 — LIVE EDITOR / BANK TRANSFER
+25 October 2026 — development integration; qualify the exact device package.
+
+Saved data and the live patch are separate. The device never silently saves the
+live patch just because a backup was requested. Use SAVE or a User Bank slot to
+persist it; Export a patch preserves an unsaved live edit as an independent file.
+
+A .mddb backup contains exactly 22 objects, ordered 0, 2, 3..22:
+- saved startup project;
+- saved motion / startup-sound preferences;
+- sixteen named User Biomes (complete six-track patch and sequences);
+- four packed banks containing sixty-four User Sounds.
+It excludes object 1 (unit calibration), transient granular audio, session MIDI
+settings and the live working patch. Empty records intentionally clear slots.
+
+Backup format: fm1-base backup protocol, magic MDDB, version 1. The original
+MPL-2.0 notices remain on the platform and browser transport. Every object and
+the whole image have CRC-32 checks. Mutable Dreams additionally validates exact
+object IDs, sizes, names, patch versions and parameter ranges before committing.
+Restoration stages alternate A/B records, then requires physical SEL; HOME or a
+60-second timeout cancels. A journal at 0xE1000 completes an interrupted commit.
+The journal is in the updater's staging region, outside all saved-data sectors;
+backup/restore and firmware updating are mutually exclusive main-loop operations.
+Never use remote panel input to bypass physical confirmation.
+
+CLI:
+  python3 tools/dreams_backup.py backup my-banks.mddb --port 'X0X FM-1'
+  python3 tools/dreams_backup.py info my-banks.mddb
+  python3 tools/dreams_backup.py restore my-banks.mddb --port 'X0X FM-1'
+  python3 tools/device_editor.py export my-biome.json
+  python3 tools/device_editor.py import my-biome.json
+Install mido and python-rtmidi. No audio-capture dependencies are needed by these
+transfer tools. The bench test harness separately uses sounddevice and numpy.
+
+Browser:
+Connect FM-1 explicitly with Web MIDI + SysEx. Browser audio is suspended while
+hardware editing; listen through the FM-1. Return to browser resumes the separate
+browser instrument. All nineteen pages, six assignable tracks, sound/Biome choices,
+macros, effects and sequence parameters address the selected instrument. The
+canvas in hardware mode is a parameter view, not a mirrored hardware framebuffer.
+Local browser User Banks and device User Banks are separate. Export / Import
+transfers an individual complete live Biome via JSON. Full banks use .mddb.
+Saving an occupied hardware slot asks explicitly before overwriting. Full restore
+also requires physical SEL. Transfers pause parameter polling and panel controls.
+No write is automatically repeated after a missing acknowledgement.
+
+Live protocol (USB SysEx): F0 7D 4D 44 command sequence payload F7.
+Reply: same prefix + status + group-mask packed raw bytes + F7.
+Existing commands 1..6 remain compatible. Commands added:
+7 capabilities: eight little-endian u32 words [1,7,1292,22,16,64,224,77].
+8 snapshot the entire live patch atomically; return size, CRC32, generation.
+5 read immutable snapshot chunk (offset in two 7-bit bytes); optional generation
+  byte rejects a snapshot replaced by another reader. Maximum reply chunk 224.
+9 live state: 46 little-endian i32 fields, then 24 bytes of selected bank name.
+  page,track,playing,octave,help,motion,biome,edited,tempo,locked,freeze,boot sound,
+  bank slot,bank kind,clock source,MIDI quantize,6 models,6 tone IDs,6 mutes,
+  4 displayed knob values,4 raw knob values,4 macros.
+10 page/track/preferences/bank selection: command,track,value+8192 (two 7-bit bytes).
+11 begin live upload: packed u32 length + CRC32; returns one-byte transaction token.
+12 chunk: token,offset (two 7-bit bytes),group-packed payload. Sequential only.
+13 commit: token. Requires full payload, correct CRC/version/ranges, STOP/internal
+  clock and an empty command queue. Live memory only; does not write a bank.
+14 cancel upload: token. Upload expires after five seconds without a chunk.
+15 bank: kind,slot,track,action[,24 ASCII name bytes]. Actions: 0 read name,
+  1 load,2 save without overwrite consent,3 save with explicit overwrite consent.
+  Status 5 asks for consent; no write has happened. Slots are zero-based.
+Status: 1 malformed;2 queue full;3 empty;4 busy/playing/external clock;
+5 overwrite confirmation;6 invalid format/data;7 store failure.
+
+Legacy LC panel protocol remains available. New opt-in operation 5, value 1,
+arms/renews an 1800 ms control lease; value 0 disables it. The browser renews it
+when polling. Expiry clears remote buttons, keys, encoders and master override.
+Physical input remains separate and still owns restore confirmation.
+
+Automated evidence is recorded separately from interactive browser/hardware
+listening checks. Never describe a native or simulated test as a physical test.

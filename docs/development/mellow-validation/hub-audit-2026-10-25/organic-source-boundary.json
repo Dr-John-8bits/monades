@@ -1,0 +1,7 @@
+{
+  "app_render_unchanged_in_organic_pass": true,
+  "dreams_cpp_sha256": "bd22060d0aacb158821cbd497c74dc292bacc78166bb3afbe969e63d8801d2ba",
+  "app_c_sha256": "b5d330c6bf0acab109d9f2b64b690dac674e1456f3e6f9ae2921c548ccbbf7f4",
+  "before_ui_fwsc_sha256": "e59b1bd6f908486d9bd06cad2b1ef6849bebd599a916048e434234576d222c69",
+  "final_fwsc_sha256": "976a5f731b6c1c21017eec4a10631cb26d503f544e790ed5155fa6a050a6ba6f"
+}

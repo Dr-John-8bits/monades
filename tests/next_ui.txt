@@ -1,0 +1,74 @@
+wait 3400
+tap EDIT
+tap EDIT
+tap EDIT
+tap EDIT
+tap EDIT
+expect page 12
+spin K1 2
+spin K3 12
+spin K4 15
+wait 100
+shot mixer.png
+press EDIT
+wait 900
+expect help 4
+release EDIT
+tap HOME
+expect help -1
+tap SEQ
+tap SEQ
+tap SEQ
+expect page 13
+spin K1 1
+spin K2 1
+spin K3 10
+wait 100
+shot bass.png
+press SEQ
+wait 900
+expect help 9
+release SEQ
+tap HOME
+tap SEQ
+expect page 16
+spin K1 4
+spin K2 3
+wait 100
+shot phrase.png
+tap FX
+tap FX
+tap FX
+expect page 14
+spin K4 25
+wait 100
+shot space.png
+press FX
+wait 900
+expect help 0
+release FX
+tap HOME
+tap FX
+expect page 15
+spin K1 20
+spin K2 20
+spin K3 20
+spin K4 20
+wait 100
+shot modulation.png
+press FX
+wait 900
+expect help 0
+release FX
+wait 100
+shot modulation-help.png
+tap HOME
+expect help -1
+tap HOME
+tap PLAY
+wait 3000
+expect invalid 0
+expect queue_drops 0
+tap PLAY
+tap SAVE
+wait 100

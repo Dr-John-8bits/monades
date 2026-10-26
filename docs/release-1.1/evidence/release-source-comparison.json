@@ -1,0 +1,23 @@
+{
+  "dsp_and_platform_unchanged": true,
+  "device_source_differences": [
+    "app/app.c"
+  ],
+  "app_change": "System-page version text only; build flag APP_VERSION changes 1.1.0-DEV to 1.1.0",
+  "compiled_dsp_objects_identical": {
+    "third_party_elements_dsp_exciter.o": true,
+    "third_party_plaits_resources.o": true,
+    "third_party_stmlib_utils_random.o": true,
+    "third_party_rings_dsp_resonator.o": true,
+    "third_party_rings_resources.o": true,
+    "third_party_stmlib_dsp_units.o": true,
+    "third_party_elements_dsp_resonator.o": true,
+    "third_party_plaits_dsp_engine_virtual_analog_engine.o": true,
+    "third_party_plaits_dsp_engine_additive_engine.o": true,
+    "third_party_plaits_dsp_engine_fm_engine.o": true,
+    "third_party_elements_resources.o": true,
+    "dsp_dreams.o": true
+  },
+  "update_loader_byte_identical": true,
+  "files_compared": 368
+}

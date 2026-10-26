@@ -1,0 +1,24 @@
+MUTABLE DREAMS 1.1 — BROWSER INSTALLATION FOLLOW-UP
+25 October 2026. Firmware SHA256:
+427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534
+
+The owner used the actual browser installer and reported successful installation
+and restart. This was a reinstall of the same 1.1 candidate, not a browser V15
+roundtrip and not another direct 1.0 upgrade.
+
+Independent device readback confirmed FM-1_710010100, the correct saved startup
+project and byte-identical contents of all 22 saved objects. At readback the
+device was stopped with zero xruns, overloads, nonfinite samples and dropped
+commands. The owner's separate unsaved live patch was restored exactly.
+Physical controls/master were released and the instrument left stopped at HOME.
+
+Confirmed visible workflows now include browser sound/controls/User Biome
+save-load; live connection, bidirectional Density, JSON and .mddb downloads,
+disconnect; and a real browser reinstall. Unreported GUI file-import/full-bank
+restore paths are not implied. Physical TRS MIDI remains deferred by the owner.
+The exact 427a candidate previously passed a Python-installer V15 roundtrip and
+a direct upgrade from the unchanged published 1.0, with migration verified.
+
+This closes the pending browser-install check for 427a. A release-label rebuild
+will have its own hash and qualification; these results do not certify it by
+filename alone. No public files or releases changed.

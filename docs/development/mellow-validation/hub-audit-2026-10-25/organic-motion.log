@@ -1,0 +1,4 @@
+  ok motion == 0
+  ok invalid == 0
+  ok queue_drops == 0
+host: 12683 ms simulated, 954 blits, render 0.4% of real time (host CPU)

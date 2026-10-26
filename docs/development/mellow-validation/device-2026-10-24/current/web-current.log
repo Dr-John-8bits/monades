@@ -1,0 +1,15 @@
+/Users/christophlink/Documents/Codex/2026-10-18/erstelle-eine-machbarkeitsstudie-f-r-eine/work/mutable-dreams-next/app/build/wasm/dreams.wasm
+PASS user Biome / sound banks, overwrite guard, restart, 64 added warm tones
+{
+  "result": "PASS",
+  "pages": 19,
+  "patchBytes": 1292,
+  "legacyImport": true,
+  "invalidPatchUnchanged": true,
+  "exportRoundTrip": true,
+  "newDemos": 5,
+  "tone207": true,
+  "peak": 0.06420743465423584,
+  "wasmMemory": 4194304,
+  "hardwareTest": false
+}

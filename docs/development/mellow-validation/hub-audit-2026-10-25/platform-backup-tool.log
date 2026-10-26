@@ -1,0 +1,30 @@
+error: FM-1_1100: give its app's backup magic, --magic XXXX (app.h APP_BACKUP_MAGIC, four letters)
+error: the FM-1 does not answer (a firmware without backup, or a magic that is not its app's?)
+STOP FIRST: the FM-1 is playing. Stop it, then restore again.
+error: /var/folders/pr/fq_z4m3n4nn80z7dw609nn2w0000gn/T/tmpg913x6op/fm1.bak.bad: part object 12: damaged (CRC-32)
+error: not restored: the file's head (a backup of another firmware, or of another version). Nothing changed.
+error: /var/folders/pr/fq_z4m3n4nn80z7dw609nn2w0000gn/T/tmpg913x6op/fm1.bak is not a Polly backup (its magic b'TSTB', Polly's b'PLYB'); the FM-1 runs Polly
+error: the FM-1 stopped asking: nothing changed
+error: the FM-1 runs FM-1_906, not Template (FM-1_11xx)
+the device's image (backup_test) parses: TSTB, 18 parts            ok
+backup: exit 0, the file byte for byte                             ok
+info: the file's parts                                             ok
+backup without --magic, an FM-1 not KNOWN: exit 2, nothing asked   ok
+another magic: the FM-1 does not answer (exit 4), nothing written  ok
+a KNOWN firmware (Polly's identity): its magic, no --magic needed  ok
+backup while playing: written, the note said                       ok
+restore: exit 0, the device holds the backup                       ok
+... the request: its size and CRC-32; asked once                   ok
+... the host says to answer on the FM-1                            ok
+playing: STOP FIRST (exit 5), nothing changed                      ok
+HOME on the FM-1: exit 1, nothing changed                          ok
+a damaged file: refused here (exit 2), nothing sent                ok
+another version's backup: the FM-1 refuses its head (exit 1), nothing changed ok
+another firmware's backup on a KNOWN one (Polly): refused (exit 6), nothing sent ok
+the FM-1 stops asking: exit 4, nothing changed                     ok
+not confirmed here: cancelled, nothing sent                        ok
+a Kind: backup with its magic, no --magic                          ok
+a Kind: another identity (X0X's) refused (exit 6)                  ok
+a Kind: another version said so: a backup of another version of Template  ok
+a Kind: another magic: not a Template backup                       ok
+backup tool test passed

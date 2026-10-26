@@ -1,0 +1,138 @@
+MUTABLE DREAMS 1.1 — FIRMWARE AND DEVICE AUDIT
+25 October 2026. Private development candidate, not a public release.
+
+CURRENT INSTALLED FWSC SHA256: 976a5f731b6c1c21017eec4a10631cb26d503f544e790ed5155fa6a050a6ba6f
+Identity FM-1_710010100; patch v6 / 1292 bytes; one audio core.
+Package CRC, decrypted payload, compiler hazards and size checks passed.
+Application: 301248 B; app-slot headroom: 280316 B.
+Ordinary RAM .data+.bss: 69720 / 98304 B; pool: 330960 / 344064 B.
+Callback: 256 frames / 5804 microseconds; internal DSP tiles: 64 frames.
+Earlier callback was 128 frames / 2902 microseconds. End-to-end latency
+has not been measured. More callback reserve is not a claim of zero latency.
+
+WHAT CHANGED
+Twelve engines, 224 factory sounds, 76 musical Biomes + Blank; six freely
+assignable tracks, mixer, granular, shared echo/room, 16-step note/rest phrases,
+USB/TRS input, 16 named User Biomes and 64 User Sounds remain implemented.
+Warm options: Round Bass, Mellow Drift, Satin Morph; filters LP12/LP24/LPG.
+The Hub comparison informed bounded graphics and block-local DSP work.
+SVF coefficient caching, fused Snare filtering/mixing and local harmonic phase
+retained 6,144,000 reference float samples before the separate Plectrum fix.
+Plectrum retriggers now preserve the main impulse: the old delay could exceed
+the 17 ms repeat interval. The regression fails the old integration and passes
+the new one. Mallet/Plectrum/Particles are now named directly in SOUND.
+Help on newer pages now retains the global key meaning; main Save refuses
+external clock, consistent with bank writes. Marbles help states EUCLID/STEP.
+Nunito headings are rasterized at build time, with the original OFL licence.
+Latest graphics: translucent leaf panels, curved bud sliders, seven flowing
+contour trails and tapered mixer reservoirs. Extra RAM 1680 B, code 1240 B
+over e59b; no extra framebuffer, audio buffer or higher frame-rate target.
+
+FINAL INSTALLED BINARY — GRAPHICS / AUDIO STRESS
+Six voices, 220 BPM, maximum repeats, LP24, heavy grain sends/feedback, Tides,
+Warps and shared delay/room. ECO. Harmonic/Rings/Snare each run 60 seconds;
+mixed case runs 120 seconds, visiting all 19 pages with animations enabled
+and changing grain size (including 19/20/21), pitch, direction and position.
+Checks: no new xruns/overloads/nonfinite/dropped, every track triggered,
+complete finite audible USB capture and measured peak callback below 85%.
+CPU below means callback peak / 5804 us, not host CPU or total UI utilization.
+
+six-harmonic-all-pages              83.96%    60.3s  PASS
+six-rings-all-pages                 82.96%    60.5s  PASS
+six-snare-all-pages                 80.22%    60.5s  PASS
+six-plectrum-glass-ui               73.45%    20.2s  PASS
+mixed-six-all-pages                 78.50%   120.4s  PASS
+
+EARLIER AUDIT BINARY — COMPLETE ENGINE MATRIX
+Build 8fd3bec8ded2cb81ec682d2f7429a36d344c31565bda438db3c728ba2b650b72
+The same engine/effect architecture before the intentional Plectrum correction
+and later visual additions. 20 seconds per six-copy engine case; mixed 300s.
+These measurements are not relabelled as the final binary.
+
+six-snare-stress                    80.69%    20.3s  PASS
+six-rings-stress                    82.74%    20.5s  PASS
+six-harmonic-stress                 83.46%    20.5s  PASS
+six-fm-stress                       80.27%    20.6s  PASS
+six-kick-stress                     68.97%    20.2s  PASS
+six-hat-stress                      63.59%    20.1s  PASS
+six-va-stress                       70.30%    20.2s  PASS
+six-choir-stress                    65.16%    20.5s  PASS
+six-bass-stress                     61.03%    20.6s  PASS
+six-elements-stress                 71.88%    20.2s  PASS
+six-mellow-stress                   67.87%    20.2s  PASS
+six-satin-stress                    68.99%    20.6s  PASS
+mixed-six-soak                      77.08%   301.0s  PASS
+
+Eight additional high-register/exciter/FULL-admission cases passed CPU/fault
+checks on 8fd3. Its Plectrum main pulse was too quiet; this was found by the
+audio review and fixed, not concealed by the numerical CPU pass. First eight
+factory Biomes plus all twelve new warm Biomes passed 20-second default-patch
+smoke checks. Those short runs do not cover every long generative cycle.
+
+PLECTRUM CORRECTION VERIFIED ON e59b1bd6f908486d9bd06cad2b1ef6849bebd599a916048e434234576d222c69
+six-plectrum-334                    73.54%  RMS 0.002265  PASS
+six-plectrum-500                    72.98%  RMS 0.002310  PASS
+six-plectrum-666                    73.36%  RMS 0.002339  PASS
+six-snare-stress                    80.10%  RMS 0.040133  PASS
+six-rings-stress                    82.74%  RMS 0.193108  PASS
+six-harmonic-stress                 83.53%  RMS 0.025836  PASS
+mixed-six-plectrum-soak             78.51%  RMS 0.089133  PASS
+
+MIDI / USER BANKS
+Final build tested with 10,800 USB MIDI messages sent in 20 seconds on all six
+channels; each scheduled Note On was received, audio stayed finite/audible and
+device fault counters did not increase. Saved main project, named Biome slot16
+and packed tone bank4 stayed byte-identical to the pre-audit snapshot. Own
+phrase data was recalled correctly. All fourteen held-key help/release checks
+and external-clock main Save rejection passed again on the installed build.
+Earlier physical save/load, overwrite guard and saved-sound recall preserving
+destination rhythm/mix passed; see the previous checkpoint bank test evidence.
+MY SATIN BIOME in slot16 and the test tone in slot64 remain available.
+Private live/saved project and all twenty bank objects were read twice before
+each update. These exports are not a full-flash/calibration image or restore tool.
+The initial pre-audit v5 snapshot versus the later checkpoint differs in patch
+version and track1 mute; both are retained and that earlier cause is unknown.
+
+SOFTWARE / PRESENTATION
+Sanitized full DSP catalogue and 10,000 command/reassignment cases passed.
+Plectrum regression includes all three region points; old middle/end mappings
+failed, corrected mappings passed. Existing granular boundary/sweep tests and
+storage interrupted-write tests remain valid for the unchanged code paths.
+The final actual WASM worklet passed; the browser uses shared firmware source.
+Native sanitized UI checks passed for 266 page/key help contexts. STILL-mode
+images one second apart were pixel-identical. Native screenshots and motion
+GIF show actual firmware rendering on a 240x240 surface. The real panel cannot
+gain physical pixels. Local-file browser automation was blocked; no workaround
+or fresh interactive browser visual verification is claimed.
+
+LISTENING FILES
+Audio-FM1-Audit contains three unprocessed 30-second FM-1 USB captures:
+Mellow Canopy, Satin River, Velour Dawn, plus their importable patch JSON.
+They were recorded on e59b, before the final UI-only change. Their report retains
+that exact hash. No normalization, mastering, denoising or synthesized substitute.
+24-bit WAV container, 44.1 kHz stereo; source precision follows the USB driver.
+Audio-FM1 and Audio folders are older hardware captures/offline renders.
+
+REMAINING RELEASE WORK — EXPLICIT LIMITS
+Owner listening on headphones/speakers, extended cold/power-cycle sessions,
+physical TRS MIDI cabling, longer MIDI/jitter tests, and exact stock V15 ->
+final release -> V15 -> release installation/recovery qualification remain.
+No claim that arbitrary six-track parameter combinations or all firmware paths
+are certified by a finite stress matrix. ECO reconstructs FM/VA/Harmonic at half
+rate; Elements shares a mode budget; granular memory remains mono PCM16.
+Full hardware-bank restore/import and live browser-to-device editing are not
+implemented. Browser-local banks and individual JSON import/export work, but
+are independent of hardware. LIVE still shows the factory-origin Biome name;
+custom names are visible in BANKS. Dedicated copy/delete is unfinished.
+No MPE, MIDI OUT, live MIDI recording, ties/per-step velocity or 64-step arranger.
+Marbles/Tides/Warps are inspired functions, Elements a selected subset. CPU2
+stays disabled until its own coherency/flash/deadline qualification is complete.
+The platform backup/restore tests passed separately; that is not app integration.
+
+LEFT READY / PRESERVATION
+Satin River, stopped, HOME, physical master knob restored. The test selection
+was not saved over the existing startup project. Published 1.0 and the completed
+developer handoff ZIP retain their hashes. Nothing newly published, uploaded
+or emailed. Website/video/release work remains deferred as requested.
+See REQUIREMENTS-AUDIT.txt, FIRMWARE-HUB-AUDIT.txt, ORGANIC-INTERFACE.txt
+and BANK-RESTORE-INTEGRATION.txt for the complete feature/decision audit.

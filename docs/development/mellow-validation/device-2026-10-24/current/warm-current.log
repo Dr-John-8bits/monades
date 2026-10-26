@@ -1,0 +1,16 @@
+{"name": "three-snare-plus-three-warm", "cpu_peak_percent": 77.0158511371468, "issues": [], "rms": 0.04182123303306379}
+{"name": "three-fm-plus-three-warm", "cpu_peak_percent": 77.84286698828394, "issues": [], "rms": 0.050125708086682486}
+{"name": "three-rings-plus-three-warm", "cpu_peak_percent": 80.25499655410061, "issues": [], "rms": 0.12641313454988978}
+{"name": "three-harmonic-plus-three-warm", "cpu_peak_percent": 79.49689869055824, "issues": [], "rms": 0.03298529261268085}
+{"name": "warm-biome-65", "cpu_peak_percent": 48.070296347346655, "issues": [], "rms": 0.009788431109480258}
+{"name": "warm-biome-66", "cpu_peak_percent": 48.035837353549276, "issues": [], "rms": 0.007448282215007223}
+{"name": "warm-biome-67", "cpu_peak_percent": 47.93246037215713, "issues": [], "rms": 0.008717320714257605}
+{"name": "warm-biome-68", "cpu_peak_percent": 48.13921433494142, "issues": [], "rms": 0.007945758563082175}
+{"name": "warm-biome-69", "cpu_peak_percent": 48.0013783597519, "issues": [], "rms": 0.00890460474635667}
+{"name": "warm-biome-70", "cpu_peak_percent": 48.070296347346655, "issues": [], "rms": 0.007402772659595504}
+{"name": "warm-biome-71", "cpu_peak_percent": 48.070296347346655, "issues": [], "rms": 0.008190264602071295}
+{"name": "warm-biome-72", "cpu_peak_percent": 48.10475534114404, "issues": [], "rms": 0.009085983024609806}
+{"name": "warm-biome-73", "cpu_peak_percent": 48.518263266712616, "issues": [], "rms": 0.008867514389186053}
+{"name": "warm-biome-74", "cpu_peak_percent": 48.8973121984838, "issues": [], "rms": 0.007025145635271398}
+{"name": "warm-biome-75", "cpu_peak_percent": 56.099241902136455, "issues": [], "rms": 0.007956814691311181}
+{"name": "warm-biome-76", "cpu_peak_percent": 56.305995864920746, "issues": [], "rms": 0.008415053927131972}

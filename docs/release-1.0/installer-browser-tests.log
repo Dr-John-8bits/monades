@@ -1,0 +1,11 @@
+normal PASS
+stock PASS
+resume PASS
+resume-stock PASS
+mismatch PASS
+stock-mismatch PASS
+resume-mismatch PASS
+denied PASS
+stopped PASS
+noreturn PASS
+Embedded 1.0 SHA/identity, stock V15 SHA, foreign file rejection, English/mobile: PASS. No MIDI permission or device writes requested.

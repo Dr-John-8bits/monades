@@ -1,0 +1,126 @@
+LATEST: BROWSER-INSTALL-RESULT.txt records the successful owner-operated
+browser reinstall and independent complete saved-data readback. Earlier pending
+installer statements below are historical. Release-label build has separate evidence.
+
+LATEST FOLLOW-UP: TIMING-AND-EXTENDED-TESTS.txt
+25 October: storage timing reproduced, physical cold start verified, longer
+audio/MIDI tests completed, browser owner observations recorded. Read that
+report for current remaining gates; the earlier detailed evidence follows.
+
+LATEST ADDENDUM: DIRECT-1.0-UPDATE-TEST.txt and LIVE-EDITOR-SLIDER-FIX.txt
+Direct published 1.0 -> current 1.1 and saved-Biome migration passed. Owner
+confirmed the corrected Density slider, JSON/.mddb downloads and disconnect.
+The exact device binary is unchanged; the browser UI was corrected separately.
+
+LATEST FOLLOW-UP: TIMING-AND-EXTENDED-TESTS.txt
+25 October: storage timing reproduced, physical cold start verified, longer
+audio/MIDI tests completed, browser owner observations recorded. Read that
+report for current remaining gates; the earlier detailed evidence follows.
+
+MUTABLE DREAMS 1.1 — LIVE EDITOR / RECOVERY DEVICE QUALIFICATION
+25 October 2026. Private development candidate; published 1.0 unchanged.
+
+CURRENT INSTALLED FWSC SHA256: 427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534
+Identity FM-1_710010100. Package 610136 bytes. Patch v6, 1292 bytes.
+Application 308984 bytes; app-slot headroom 272580 bytes.
+RAM .data+.bss 71768 / 98304 bytes; pool 334800 / 344064 (9264 spare).
+One audio core. 256-frame callback / 5804 microseconds; DSP tiles 64 frames.
+CPU percentages below measure audio callback time, not host or total UI usage.
+End-to-end latency has not been measured.
+
+COMPLETED ON THE ACTUAL FM-1
+The exact package above was installed, changed to original Stock V15, and
+reinstalled from V15; each restarted identity was checked by the installer.
+V15 identity FM-1_015, package SHA256:
+db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a
+User physically confirmed the final restore with SEL. All 22 saved objects
+were read back twice through the shipped JavaScript client and compared with
+the complete pre-update backup. A final independent Python backup also matched.
+This includes the saved project, preferences, 16 Biomes and 64 sounds.
+IMPORTANT: Stock V15 erased the User Banks and preferences. Their recovery
+required the .mddb backup after reinstalling 1.1. Do not promise preservation
+through V15. Calibration is excluded from transfers.
+
+The shipped browser protocol client passed real MIDI handshake/capabilities,
+all 19 page states, complete live-patch upload/readback, and full bank restore.
+Its Node/Python transport test is NOT an interactive browser GUI test.
+Earlier integration checks additionally verified overwrite/playing guards and
+automatic release of remote keys/master after a lost control lease.
+
+EXACT FINAL BINARY — AUDIO, EDITING AND BACKUP TOGETHER
+Six Harmonic voices, then Elements/Rings/VA/Satin/Bass/Choir: 220 BPM, dense
+repeats, LP24, granular sends/feedback, shared delay/room and moving parameters.
+Both stress cases visited all 19 pages and swept Grain Size through 19/20/21
+and larger values, while transferring a byte-checked full backup during playback.
+No new xruns, overloads, nonfinite samples, dropped audio or quality reductions;
+every stress track triggered and captured USB audio stayed finite and audible.
+Checks require at least 15% measured callback reserve for these finite cases.
+The lifetime xrun counter was already 8 before the first measured case and
+remained 8 through every case and final live-patch restoration. The preceding
+boot/restore/editor sequence was not instrumented at each boundary, so these
+earlier individual events were not timestamped. The subsequent investigation
+reproduced storage-maintenance timing events while stopped; see the follow-up
+report for direct evidence and zero-xrun playback after a physical cold start.
+
+six-harmonic-live-editor-and-backup         84.29%    60.6s  PASS
+mixed-six-live-editor-and-backup            79.45%    60.2s  PASS
+Mellow Canopy                               59.41%    12.1s  PASS
+Satin River                                 60.46%    12.2s  PASS
+Velour Dawn                                 60.49%    12.2s  PASS
+
+Warm Biome runs are 12-second smoke tests, not a substitute for careful listening
+or long generative playback. No subjective claim of perfect sound follows from
+CPU/RMS checks. The earlier broader twelve-engine matrix remains historical;
+see Validation/Hub-Audit-2026-10-25 and the previous report for its exact hashes.
+
+SOFTWARE / DATA INTEGRITY
+Native sanitized transfer checks passed current/legacy decoding, malformed
+uploads, stopped/internal-clock guards, CRC/ranges, all 16/64 slots, overwrite
+consent, backup hold and no implicit save. Actual 22-object-map tests exercised
+130 simulated interrupted flash writes: whole old or whole new data, never a mix.
+These are simulated interruptions, not deliberate hardware power-cut tests.
+Full DSP catalogue and 10,000 boundary/command/reassignment checks passed.
+The final actual WASM passed 19 pages, banks, legacy import and patch roundtrip.
+JavaScript checks passed packed bytes, corrupted backups, serialized transfers,
+patch CRC/readback, bank naming, disconnect handling and packaged script syntax.
+An isolated UI regression verifies that rapid backup clicks cannot start two
+transfers while pending controls drain, and errors release the busy state.
+
+FEATURES / LIMITS
+Twelve engines, 224 factory tones, 76 musical Biomes plus Blank, six assignable
+tracks, shared mixer/granular/delay/room, 16-step phrases, MIDI input, 16 named
+User Biomes and 64 User Sounds. Original selected Mutable algorithms and
+Marbles/Tides/Warps-inspired helpers; not complete module replicas.
+The live editor transfers JSON patches and saved .mddb banks. Browser and device
+banks remain separate. It displays live parameters, not the device framebuffer.
+User slot names appear on BANKS; LIVE still shows the factory-origin name.
+No dedicated copy/delete, MPE, MIDI OUT, live MIDI recording, per-step ties/
+velocity or 64-step arranger. ECO reconstructs some voices at half rate;
+Elements has a shared mode budget; granular recording is mono PCM16.
+CPU2 remains disabled pending its own qualification. No arbitrary firmware-path
+or all-possible-patches guarantee. The newly built private browser installer has
+package/syntax checks; the physical roundtrip used the tested Python installer.
+
+REMAINING BEFORE PUBLIC RELEASE
+Owner listening and the remaining visible browser/permission/installer steps;
+physical TRS (owner deferred), end-to-end latency and longer jitter/power testing.
+Physical cold start, extended playback and 64,800 USB messages passed in the
+follow-up. Browser-only sound, controls and User Bank save/load were confirmed
+by the owner. See TIMING-AND-EXTENDED-TESTS.txt for current exact scope.
+Local-file browser automation was denied; it was not bypassed. Protocol and
+isolated-JS tests do not replace that remaining interactive test.
+Any later firmware change requires qualification of its own exact binary.
+Website/video/YouTube/Instagram and Sven follow after firmware acceptance.
+
+LEFT READY
+At the earlier checkpoint, the Before-Live-Editor patch was restored. The new
+follow-up instead preserved and restored the user's more recent post-listening
+live patch byte-for-byte. Saved project, preferences and banks match the fresh
+25 October timing-audit backup. HOME, stopped, internal clock, physical master
+control released. No test patch was saved over the startup project.
+Published 1.0 and the developer handoff ZIP retain their recorded hashes.
+No new public upload, publication or email was performed.
+
+Audio-FM1-Audit contains earlier e59b USB recordings, not recordings of 427a.
+Screens/Organic-Motion.gif and prior visual tests retain their provenance.
+See Recovery-1.1.txt, LIVE-EDITOR-PROTOCOL.txt and RELEASE-1.1-PREPARATION.txt.

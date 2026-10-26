@@ -1,0 +1,23 @@
+[
+  {
+    "obj": 2,
+    "before_bytes": 12,
+    "after_bytes": 0,
+    "before_magic": "4650444d01000000",
+    "after_magic": ""
+  },
+  {
+    "obj": 18,
+    "before_bytes": 1320,
+    "after_bytes": 0,
+    "before_magic": "4255444d4d592053",
+    "after_magic": ""
+  },
+  {
+    "obj": 22,
+    "before_bytes": 3464,
+    "after_bytes": 0,
+    "before_magic": "4254444d00800000",
+    "after_magic": ""
+  }
+]

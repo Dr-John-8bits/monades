@@ -1,0 +1,95 @@
+MUTABLE DREAMS 1.1 — TIMING FOLLOW-UP AND EXTENDED QUALIFICATION
+25 October 2026. Private development; published 1.0 unchanged.
+Exact installed firmware: 427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534
+No firmware code or binary changed during this investigation. The previous
+qualified Stock V15 roundtrip applies to this same package.
+
+THE EIGHT PRE-EXISTING TIMING EVENTS
+The lifetime xrun counter began at 8. It stayed 8 through fresh live snapshots,
+two complete backups, six complete live-patch upload/readbacks, all 19 pages,
+three factory Biome recalls and restoration of the post-listening live patch.
+
+We then sent the same full bank backup for restore and deliberately allowed
+physical confirmation to time out. This stages inactive flash copies but does
+not commit replacements. With transport stopped and no notes triggered, the
+counter rose from 8 to 11. The 22 active saved objects remained byte-identical.
+Peak callback time stayed 3511 us (budget 5804 us), overload count stayed zero.
+The platform log reported a 17325 us interrupt-service gap; the longest app
+critical section was only 41 us. No crash was recorded. A retained watchdog
+history line is not evidence of a new reset: uptime increased through the test.
+
+Source corroboration: base/bsp/chip/fm1_flash.h fl_erase4k/fl_write disable
+interrupts while the SPI NOR erase/program operation completes, because code
+executes from that same flash. base/device/unity.c st_erase zeroes the audio
+buffer before the erase. main_fm1.c increments the xrun counter if DMA advances
+while servicing a delayed half-buffer interrupt. After a flash pause, a render
+can start late and cross the DMA boundary even though its own compute time is
+well below budget. This explains the reproduced stopped-transfer events.
+
+The original eight events have no individual timestamps, so each cannot be
+assigned retrospectively. The same category is now directly reproduced during
+storage maintenance, not during ordinary playback or editor reads. No evidence
+of a sustained DSP overload was found. We did not suppress, relabel or manually
+zero counters in firmware. A real power cycle naturally begins a fresh counter.
+Saving/restoring remains a stopped/internal-clock operation and may pause or
+silence audio tails. This is not supported as seamless real-time flash writing.
+
+COLD START AND PERSISTENCE
+The owner physically powered the FM-1 off/disconnected USB and restarted it.
+The fresh boot reported 0 xruns and 0 overloads. The saved startup project and
+every saved preference/User Bank matched the fresh pre-test backup exactly.
+
+EXTENDED PLAYBACK — EXACT SAME BINARY
+The following windows started and ended at zero xruns. No new overloads,
+nonfinite samples, dropped commands, automatic quality reductions or host USB
+capture overruns occurred. Every stress track triggered. The two dense cases
+changed pages/parameters and backed up every saved bank during playback.
+CPU below is peak callback time / 5804 us, not total system utilization.
+
+six-harmonic-live-editor-and-backup          300.3s   84.34%  PASS
+mixed-six-live-editor-and-backup             300.4s   79.31%  PASS
+Mellow Canopy                                 30.2s   59.55%  PASS
+Satin River                                   30.2s   60.42%  PASS
+Velour Dawn                                   30.1s   60.44%  PASS
+
+USB MIDI
+64800 note/CC/note-off messages over two minutes on six channels.
+Each channel received all 3600 scheduled Note Ons. USB audio was
+finite, audible and complete. No new fault counters during the MIDI test or
+subsequent clock/help tests. Peak callback 2567 us.
+Actual USB Start/Stop/Continue and 24-PPQN clock passed; clock loss stopped
+transport after two seconds. USB clock was ignored when TRS clock was selected
+(routing test only). All fourteen held-help/release-without-tap checks passed.
+Physical TRS cabling was not tested: the owner has USB available and explicitly
+deferred the TRS test. USB success does not certify physical TRS wiring.
+
+USER BANK SAVE / FINAL STATE
+An existing User Biome was loaded and saved three times using precisely its
+existing name and payload. No invented patch replaced personal content.
+Storage-related timing deltas for those stopped writes:
+[0, 0, 0]
+Readback matched. The complete final backup again equals the original backup.
+The user's actual live patch after their listening session was restored exactly;
+the older pre-listening patch was not substituted. HOME, stopped, internal clock,
+physical master and keys released. Private backups remain outside the release.
+
+BROWSER EVIDENCE AND LIMITS
+The local-file URL policy rejected automated page access and explicitly forbade
+workarounds. We did not use an alternate browser surface or indirect execution
+to evade it. Isolated JS tests passed binary/CRC/queue/transfer/error handling,
+packaged page syntax and installer package/identity/restart checks. Prior real
+MIDI tests used the shipped JS client and verified its device protocol.
+Owner browser-only result: PASS, owner confirmation: audio, page/knob controls and user-slot save/load in browser mode
+Owner live connected GUI/permission result: PASS owner retest after slider fix: connected, browser controls drive device, Density number and slider follow physical encoder even after focused browser edit, live JSON and .mddb downloads successful, disconnected. Other GUI paths/installer not implied.
+These human observations apply to the reported actions. They do not automatically
+certify every file dialog, layout, failure path or browser installation workflow.
+Read BROWSER-ACCEPTANCE.txt for the remaining visible/permission/installer steps.
+
+RELEASE BOUNDARY
+Finite stress tests and one physical cold start do not certify all patches or
+every power-failure scenario. Interrupted-write atomicity remains supported by
+the separate simulated 130-write-position suite and real restore/readback.
+The Python installer V15 roundtrip passed previously on this exact binary; a real
+browser installer roundtrip is not claimed. Public 1.0/handoff hashes unchanged.
+No publication, email or new video upload occurred.
+The separate plugin study runs in its own chat, reading the firmware only.

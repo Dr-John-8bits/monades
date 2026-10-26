@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-25",
+  "pass_": true,
+  "scope": "Automated software and specified real-device tests; not public-release approval",
+  "firmware_sha256": "427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534",
+  "stock_sha256": "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a",
+  "device": "FM-1_710010100",
+  "exact_stock_roundtrip": true,
+  "physical_restore": true,
+  "all_22_saved_objects_identical": true,
+  "original_live_restored": true,
+  "stock_erases_user_banks_and_preferences": true,
+  "stress": [
+    {
+      "name": "six-harmonic-live-editor-and-backup",
+      "seconds": 60.56115779100219,
+      "cpu_peak_percent": 84.28669882839421,
+      "rms": 0.02084626909682706,
+      "issues": [],
+      "backup_while_playing": true
+    },
+    {
+      "name": "mixed-six-live-editor-and-backup",
+      "seconds": 60.19976033398416,
+      "cpu_peak_percent": 79.44521019986216,
+      "rms": 0.08782991472159754,
+      "issues": [],
+      "backup_while_playing": true
+    },
+    {
+      "name": "Mellow Canopy",
+      "seconds": 12.142839209001977,
+      "cpu_peak_percent": 59.407305306685046,
+      "rms": 0.008240879212980409,
+      "issues": [],
+      "backup_while_playing": false
+    },
+    {
+      "name": "Satin River",
+      "seconds": 12.19295441696886,
+      "cpu_peak_percent": 60.45830461750516,
+      "rms": 0.008013394837983202,
+      "issues": [],
+      "backup_while_playing": false
+    },
+    {
+      "name": "Velour Dawn",
+      "seconds": 12.157882999978028,
+      "cpu_peak_percent": 60.49276361130255,
+      "rms": 0.007688251033869713,
+      "issues": [],
+      "backup_while_playing": false
+    }
+  ],
+  "peak_callback_percent": 84.28669882839421,
+  "remaining": [
+    "Owner listening on headphones and speakers, especially warm Biomes and Granular Size above 20",
+    "Interactive browser GUI/Web MIDI permission and device workflow test on a supported secure page",
+    "Extended cold-start/power sessions, physical TRS cabling and longer MIDI/jitter qualification; localize 8 timing events already present before the measured playback windows",
+    "Website/video/YouTube/Instagram/Sven preparation and publication after final release approval"
+  ],
+  "public_release_approved": false
+}

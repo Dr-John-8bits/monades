@@ -26,7 +26,7 @@
   "validation": "https://mutable-dreams.sugarypixie10.chatgpt.site/DEVICE-TEST-REPORT.txt",
   "built_from_source_badge": false,
   "image": "https://github.com/kidbee85-beep/mutable-dreams/raw/refs/heads/main/Screen-1.1-Live.png",
-  "submission_status": "1.1 prepared for maintainer review",
+  "submission_status": "1.1 listed on The Firmware Hub; browsable source tree added on 26 October 2026",
   "browser_patch_transfer_to_device": true,
   "trs_midi": "implemented; physical cable test outstanding",
   "upgrade_from_1_0": "direct update tested on exact release binary",
@@ -35,5 +35,9 @@
   "user_guide_pages": 23,
   "documentation": "https://mutable-dreams.sugarypixie10.chatgpt.site/#guide",
   "browser_download": "https://mutable-dreams.sugarypixie10.chatgpt.site/Mutable-Dreams-1.1-Browser.html",
-  "documentation_update": "https://mutable-dreams.sugarypixie10.chatgpt.site/Documentation-Update.txt"
+  "documentation_update": "https://mutable-dreams.sugarypixie10.chatgpt.site/Documentation-Update.txt",
+  "source_tree_url": "https://github.com/kidbee85-beep/mutable-dreams/tree/main",
+  "source_build_instructions": "https://github.com/kidbee85-beep/mutable-dreams/blob/main/BUILDING.md",
+  "source_publication": "https://github.com/kidbee85-beep/mutable-dreams/blob/main/SOURCE-PUBLICATION.md",
+  "source_archive_files_verified": 807
 }

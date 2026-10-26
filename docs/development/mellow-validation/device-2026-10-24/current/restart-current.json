@@ -1,0 +1,68 @@
+{
+  "checks": [
+    "named user Biome survives firmware update/restart",
+    "user sound bank survives firmware update/restart",
+    "saved project survives restart byte-for-byte against pre-flash backup",
+    "saved own Biome recalls after reboot",
+    "USB MIDI channels independently trigger tracks 1/2",
+    "USB CC74 edits selected channel filter",
+    "USB bank/program reaches Satin preset 208",
+    "USB external clock starts transport",
+    "clock-loss timeout stops transport"
+  ],
+  "status": {
+    "element_modes": 8,
+    "motion": 1,
+    "boot_sound": 1,
+    "page": 0,
+    "help": -1,
+    "intro": 0,
+    "quality_reductions": 0,
+    "master": 1,
+    "protocol": 2,
+    "ms": 39362,
+    "cpu": 12,
+    "cpu_peak": 24,
+    "xruns": 0,
+    "overloads": 0,
+    "frames": 1714560,
+    "nonfinite": 0,
+    "dropped": 0,
+    "quality": 0,
+    "playing": 0,
+    "events": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "models": [
+      11,
+      8,
+      11,
+      11,
+      11,
+      11
+    ],
+    "filters": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "memory": 333728,
+    "patch_version": 6,
+    "grain_writes": 1714560,
+    "freeze": 0,
+    "peak": 0.1605876088142395,
+    "voice_quanta": 418,
+    "skipped_quanta": 160322,
+    "tempo": 64,
+    "callback_peak_us": 2269,
+    "callback_budget_us": 2902
+  }
+}

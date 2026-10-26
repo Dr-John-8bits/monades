@@ -1,0 +1,1 @@
+PASS: 6,144,000 float samples byte-identical after filter and Rings block processing. All 12 engines, all 4 filter modes, changing notes/cutoff and envelopes.

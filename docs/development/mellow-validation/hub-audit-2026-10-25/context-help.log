@@ -1,0 +1,17 @@
+  ok page == 12
+  ok help == 10
+  ok help_context == 0
+  ok playing == 0
+  ok help == 4
+  ok help_context == 1
+  ok page == 18
+  ok help == 1
+  ok help_context == 0
+  ok help == 7
+  ok help_context == 1
+  ok invalid == 0
+  ok queue_drops == 0
+  ok density == 620
+  ok page == 17
+  ok density == 500
+host: 12518 ms simulated, 948 blits, render 0.1% of real time (host CPU)

@@ -1,0 +1,8 @@
+Evidence boundaries
+8fd3 full matrix, edges, warm factory and midi-hub-final: 8fd3bec8ded2cb81ec682d2f7429a36d344c31565bda438db3c728ba2b650b72
+e59b Plectrum correction, pluck stress, midi-plectrum and USB audio: e59b1bd6f908486d9bd06cad2b1ef6849bebd599a916048e434234576d222c69
+976a final organic graphics, organic-device and midi-organic: 976a5f731b6c1c21017eec4a10631cb26d503f544e790ed5155fa6a050a6ba6f
+The last change is UI-only. e59b audio captures are not relabelled as 976a.
+Earlier candidate reports are historical. Private project/bank exports are excluded.
+The edge Plectrum CPU pass on 8fd3 concealed a very quiet main impulse; the e59b
+regression and targeted hardware RMS check fix that separate audio issue.

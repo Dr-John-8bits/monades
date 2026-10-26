@@ -1,0 +1,6 @@
+{
+  "browser_only": "PASS, owner confirmation: audio, page/knob controls and user-slot save/load in browser mode",
+  "live_gui": "PASS owner retest after slider fix: connected, browser controls drive device, Density number and slider follow physical encoder even after focused browser edit, live JSON and .mddb downloads successful, disconnected. Other GUI paths/installer not implied.",
+  "automation": "Denied by file:// URL policy; no workaround used",
+  "physical_trs": "Deferred by owner: only USB available"
+}

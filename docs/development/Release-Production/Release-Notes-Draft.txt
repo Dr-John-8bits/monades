@@ -1,0 +1,37 @@
+MUTABLE DREAMS 1.1
+Private release copy — publish only after final package and installer acceptance.
+
+Thank you for the response to Mutable Dreams, and for the recordings, ideas and
+careful feedback. This update focuses on warmth, personal Biomes and a more
+complete instrument for ambient music, bass lines and evolving rhythms.
+
+Six freely assignable tracks now offer twelve sound engines, 224 factory tones
+and 76 musical Biomes, plus Blank. Explore Round Bass, Elements Strike, Mellow
+Drift and Satin Morph alongside the selected Plaits/Rings-based voices. Shape
+the result with filters and envelopes, per-track mixer sends, a granular bus,
+shared delay and room, and Marbles/Tides/Warps-inspired helpers.
+
+Write your own sixteen-step phrases. Save sixteen named User Biomes and
+sixty-four User Sounds. Play the six tracks over USB MIDI, or synchronize to an
+external MIDI clock. Organic motion, clearer controls and held-key help make
+the new pages easier to explore.
+
+The browser instrument also works independently. Connect FM-1 opens the live
+hardware editor, with individual JSON Biome exchange and complete .mddb bank
+backup/restore. Browser-local banks and hardware banks are separate.
+
+The direct update from Mutable Dreams 1.0 and the Stock V15 roundtrip have been
+checked on the actual FM-1 with the documented candidate. Read the matching
+backup guide first. Returning to V15 erases new banks/preferences; restoring them
+after reinstalling 1.1 needs the .mddb file and physical SEL confirmation.
+
+With gratitude to Émilie Gillet / Mutable Instruments and the platform and
+open-source contributors. Selected original algorithms and inspired helpers;
+not full replicas of every Mutable module. An independent community project.
+The published 1.0 remains available and unchanged.
+
+Before publication: insert verified final download/source/editor/tutorial URLs;
+use the final binary hash and release name. The current preview still carries
+DEVELOPMENT on its System page and -dev in the package name. If changing that
+label for public 1.1, build and qualify the resulting exact binary. Do not silently
+rename an untested binary or reuse 427a measurements for a changed package.

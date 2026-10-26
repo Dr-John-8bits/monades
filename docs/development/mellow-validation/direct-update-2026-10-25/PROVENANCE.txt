@@ -1,0 +1,1 @@
+Exact published 1.0 -> current 427a candidate via Python installer. Personal backup data excluded.

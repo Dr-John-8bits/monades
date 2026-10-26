@@ -1,0 +1,6 @@
+no crash recorded
+rails boot 0B 1B now 0F 1F x1
+last watchdog reset in ?
+gap 000043AD late 0000007C tick 00000030
+lock 00000029 from 02006AB4
+end

@@ -1,0 +1,47 @@
+CURRENT FM-1 FIRMWARE RESEARCH — 24 October 2026
+Primary sources inspected today:
+https://github.com/isod89/clipper-fm1
+https://github.com/isod89/clipper-fm1/releases
+https://www.m-vave.com/download
+https://forum.m-vave.com/topic/23
+https://www.m-vave.com/product?id=fm-1
+
+Clipper describes 1.1 as experimental, with 23 engines / 407 sounds, one instrument
+or two MULTI parts rather than our six-track groove structure. Interesting ideas:
+string-machine ensemble, gentle analog drift, wavetable/vector morphing, sound
+comparison, preset filtering, editor-based sequence manipulation and user files.
+Its own documentation reports limited physical FM-1 testing and recent reverb/
+storage fixes. Feature count alone is not a validated CPU or reliability budget.
+No Clipper code was copied into this candidate. A future port needs source/license
+review, minimal adapters, worst-case profiling and sound-quality comparison.
+
+M-VAVE's download page lists V16 dated 21 October; the product page still lists
+V15. Official release notes describe eight timbral parts sharing 20 total FM
+voices, per-part MIDI/pan/level/bend/glide and fine tune. This shows useful control
+and voice-allocation concepts, not that 20 full Mutable-style DSP chains fit.
+The manufacturer implementation and our granular/modal engines have different
+costs. Do not advertise 20 voices in Mutable Dreams based on that announcement.
+
+Our next candidates, after hardware stabilization (inference, not implemented):
+1. Efficient string/ensemble engine and a shared chorus; small fixed delay budget.
+2. Band-limited flash-resident wavetable morphing: broader warmth/evolution with
+   modest RAM. User-table import later, with explicit flash ownership and checks.
+3. Optional sparse modulation matrix / morph between two timbres; bound work per
+   block and smooth transitions. Keep intuitive live macros as the main surface.
+4. Preset tags, favourites, searchable warm banks, compare and easy user exports.
+5. Second-core work only after a separate hardware study; it changes scheduling,
+   memory ownership and recovery and is not a free performance switch.
+
+Release website / installation gates (owner request)
+Update the public website only after qualification, with all changes, accurate
+counts, tutorial/video, MIDI chart, bank/sequence instructions and known limits.
+Provide and TEST installation from official stock firmware, plus a documented
+return to an original firmware. Cover V15 and current V16 separately; retain the
+previously verified V15 recovery artifact until a V16 route is verified.
+For other custom firmware, inspect updater compatibility and back up its own data.
+Some official-open branches require a return via stock rather than a direct jump.
+Publish a tested starting-firmware matrix; never promise "from any firmware"
+without evidence. Preserve 1.0 as an available stable release and rollback choice.
+
+Owner clarification: V15 is the primary required installation starting point.
+V16 and other firmware are optional additional routes only after separate tests.

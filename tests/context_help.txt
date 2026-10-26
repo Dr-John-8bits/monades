@@ -1,0 +1,62 @@
+wait 3400
+tap EDIT
+tap EDIT
+tap EDIT
+tap EDIT
+tap EDIT
+expect page 12
+press PLAY
+wait 900
+expect help 10
+expect help_context 0
+wait 100
+shot mixer-play-help.png
+release PLAY
+expect playing 0
+tap HOME
+press EDIT
+wait 900
+expect help 4
+expect help_context 1
+wait 100
+shot mixer-page-help.png
+release EDIT
+tap HOME
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+expect page 18
+press SEL
+wait 900
+expect help 1
+expect help_context 0
+wait 100
+shot bank-mute-help.png
+release SEL
+tap HOME
+press SAVE
+wait 900
+expect help 7
+expect help_context 1
+release SAVE
+tap HOME
+expect invalid 0
+expect queue_drops 0
+tap HOME
+spin K1 6
+wait 20
+expect density 620
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+expect page 17
+spin K1 1
+tap HOME
+tap SAVE
+wait 100
+reboot
+wait 3400
+expect density 500

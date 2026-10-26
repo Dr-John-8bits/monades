@@ -1,0 +1,61 @@
+{
+  "all_22_saved_objects_exact": true,
+  "original_live_exact": true,
+  "stopped_home": true,
+  "device_free": true,
+  "status": {
+    "element_modes": 8,
+    "motion": 1,
+    "boot_sound": 1,
+    "page": 0,
+    "help": -1,
+    "intro": 0,
+    "quality_reductions": 0,
+    "master": 1,
+    "protocol": 2,
+    "ms": 569106,
+    "cpu": 7,
+    "cpu_peak": 54,
+    "xruns": 1,
+    "overloads": 0,
+    "frames": 25082880,
+    "nonfinite": 0,
+    "dropped": 0,
+    "quality": 0,
+    "playing": 0,
+    "events": [
+      7317,
+      7443,
+      7302,
+      7261,
+      7229,
+      7162
+    ],
+    "models": [
+      7,
+      6,
+      5,
+      4,
+      3,
+      7
+    ],
+    "filters": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "memory": 333728,
+    "patch_version": 6,
+    "grain_writes": 25082880,
+    "freeze": 0,
+    "peak": 0.9850199818611145,
+    "voice_quanta": 1881368,
+    "skipped_quanta": 522400,
+    "tempo": 64,
+    "callback_peak_us": 3513,
+    "callback_budget_us": 5804
+  }
+}

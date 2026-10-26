@@ -1,0 +1,22 @@
+Build environment repair, 24 October 2026
+Blink source f006a4f, local SysBrk correction:
+  pagesize = HasLinearMapping() ? FLAG_pagesize : 4096;
+The -m guest advertises 4096-byte pages; heap growth previously rounded to the
+16-KiB host page size. That mismatch caused glibc malloc corruption even for the
+JieLi clang --version probe. With the correction the version probe passes.
+The accelerated JIT still fails compiling the loader (illegal instruction).
+Use -m -j (interpreter) for actual target compilation. This affects build speed,
+not generated firmware audio performance. Build invocation: work/device-mellow/build.sh.
+Keep the one-line emulator diff and logs; do not distribute patched Blink without
+its source/license/provenance. Original emulator saved locally as blink-before.
+
+Portable invocation after rebuilding the patched Blink:
+  export JIELI_RUNNER='/absolute/path/to/blink -m -j'
+  export JIELI_TOOLCHAIN='/absolute/path/to/jieli-linux-toolchains-20260730.1'
+  export BLINK_OVERLAYS='/absolute/path/to/linux-sysroot:'
+  export AC79_SDK='/absolute/path/to/AC79/sdk'
+  export PYTHON='/absolute/path/to/python3'
+  sh tools/build_device.sh
+The SDK directory must directly contain the cpu/ hierarchy expected by the builder.
+The compiler's guest libc/sysroot is still required. See upstream toolchain setup.
+The saved patch is tools/toolchain-patches/blink-macos-guest-pages.patch.

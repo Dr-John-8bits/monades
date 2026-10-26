@@ -1,0 +1,11 @@
+/Users/christophlink/Documents/Codex/2026-10-18/erstelle-eine-machbarkeitsstudie-f-r-eine/work/toolchain/jieli-linux-toolchains-20260730.1/pi32v2/bin/clang: error while loading shared libraries: libpthread.so.0: ELF load command address/offset not page-aligned
+/Users/christophlink/Documents/Codex/2026-10-18/erstelle-eine-machbarkeitsstudie-f-r-eine/work/toolchain/jieli-linux-toolchains-20260730.1/pi32v2/bin/clang: error while loading shared libraries: libpthread.so.0: ELF load command address/offset not page-aligned
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3576 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 7005 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 8, 8544 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 8736 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 11760 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 19712 B
+font set barlow: 60569 B (approx)
+words: 1 own + 51 common -> /Users/christophlink/Documents/Codex/2026-10-18/erstelle-eine-machbarkeitsstudie-f-r-eine/work/mutable-dreams-next/app/web/words/1384bc7f89.json (1013 B)
+build: pi32v2/bin/clang failed

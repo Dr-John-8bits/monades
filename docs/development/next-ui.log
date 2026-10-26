@@ -1,0 +1,14 @@
+  ok page == 12
+  ok help == 4
+  ok help == -1
+  ok page == 13
+  ok help == 9
+  ok page == 16
+  ok page == 14
+  ok help == 0
+  ok page == 15
+  ok help == 0
+  ok help == -1
+  ok invalid == 0
+  ok queue_drops == 0
+host: 12409 ms simulated, 936 blits, render 0.2% of real time (host CPU)

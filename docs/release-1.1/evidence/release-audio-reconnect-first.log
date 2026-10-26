@@ -1,0 +1,18 @@
+PASS exact release installed 8e039bb0e9681fbbb0504e9b7d251895958fd88ae97f11ff0342b4aef38143d2
+||PaMacCore (AUHAL)|| Warning on line 521: err=''!obj'', msg=Unknown Error
+||PaMacCore (AUHAL)|| Warning on line 441: err=''!obj'', msg=Unknown Error
+||PaMacCore (AUHAL)|| Error on line 1322: err='-10851', msg=Audio Unit: Invalid Property Value
+Traceback (most recent call last):
+  File "/Users/christophlink/Documents/Codex/2026-10-18/erstelle-eine-machbarkeitsstudie-f-r-eine/work/release-qualification/test_release_device.py", line 41, in <module>
+    d=Device('X0X FM-1');meter=Meter()
+                               ^^^^^^^
+  File "/Users/christophlink/Documents/Codex/2026-10-18/erstelle-eine-machbarkeitsstudie-f-r-eine/work/mutable-dreams-release-1.1/tools/hardware_bench.py", line 16, in __init__
+    self.name=devices[idx]['name'];self.stream=sd.InputStream(device=idx,samplerate=44100,channels=2,dtype='float32',blocksize=1024,callback=self.callback)
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/christophlink/Documents/Codex/2026-10-18/erstelle-eine-machbarkeitsstudie-f-r-eine/work/midi-python/sounddevice.py", line 1458, in __init__
+    _StreamBase.__init__(self, kind='input', wrap_callback='array',
+  File "/Users/christophlink/Documents/Codex/2026-10-18/erstelle-eine-machbarkeitsstudie-f-r-eine/work/midi-python/sounddevice.py", line 915, in __init__
+    _check(_lib.Pa_OpenStream(self._ptr, iparameters, oparameters,
+  File "/Users/christophlink/Documents/Codex/2026-10-18/erstelle-eine-machbarkeitsstudie-f-r-eine/work/midi-python/sounddevice.py", line 2839, in _check
+    raise PortAudioError(errormsg, err)
+sounddevice.PortAudioError: Error opening InputStream: Internal PortAudio error [PaErrorCode -9986]

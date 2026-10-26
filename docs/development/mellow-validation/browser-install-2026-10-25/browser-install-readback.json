@@ -1,0 +1,60 @@
+{
+  "all_22_saved_objects_exact": true,
+  "startup_project_exact": true,
+  "post_editor_live_restored": true,
+  "status": {
+    "element_modes": 16,
+    "motion": 1,
+    "boot_sound": 1,
+    "page": 0,
+    "help": -1,
+    "intro": 0,
+    "quality_reductions": 0,
+    "master": 1,
+    "protocol": 2,
+    "ms": 190827,
+    "cpu": 22,
+    "cpu_peak": 22,
+    "xruns": 0,
+    "overloads": 0,
+    "frames": 8396032,
+    "nonfinite": 0,
+    "dropped": 0,
+    "quality": 1,
+    "playing": 0,
+    "events": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "models": [
+      8,
+      0,
+      9,
+      7,
+      7,
+      7
+    ],
+    "filters": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "memory": 333728,
+    "patch_version": 6,
+    "grain_writes": 8396032,
+    "freeze": 0,
+    "peak": 0.0,
+    "voice_quanta": 0,
+    "skipped_quanta": 787128,
+    "tempo": 80,
+    "callback_peak_us": 1639,
+    "callback_budget_us": 5804
+  }
+}

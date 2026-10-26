@@ -1,0 +1,64 @@
+{
+  "identity_observed": "FM-1_710010000  [running]  port: X0X FM-1",
+  "firmware_sha256": "75008881683cbeb3515e24cfd7830136b90eb293f0752dc66b203b7f2ee7cd9f",
+  "patch_preserved": true,
+  "patch_sha256": "b306f88dd6413c47627238e81722cbedcc0e4e02ab5b7aa44df65a9dbdde66d3",
+  "expected_preferences": [
+    0,
+    0
+  ],
+  "status": {
+    "motion": 0,
+    "boot_sound": 0,
+    "page": 0,
+    "help": -1,
+    "intro": 1,
+    "quality_reductions": 0,
+    "master": 1249,
+    "protocol": 2,
+    "ms": 3969,
+    "cpu": 7,
+    "cpu_peak": 8,
+    "xruns": 0,
+    "overloads": 0,
+    "frames": 152192,
+    "nonfinite": 0,
+    "dropped": 0,
+    "quality": 0,
+    "playing": 0,
+    "events": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "models": [
+      7,
+      6,
+      5,
+      4,
+      3,
+      7
+    ],
+    "filters": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "memory": 280348,
+    "patch_version": 4,
+    "grain_writes": 152192,
+    "freeze": 0,
+    "peak": 0.0,
+    "voice_quanta": 0,
+    "skipped_quanta": 28536,
+    "tempo": 76,
+    "callback_peak_us": 365,
+    "callback_budget_us": 2902
+  }
+}

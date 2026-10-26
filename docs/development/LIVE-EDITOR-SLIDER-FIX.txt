@@ -1,0 +1,36 @@
+MUTABLE DREAMS 1.1 — LIVE EDITOR SLIDER CORRECTION
+25 October 2026. Browser-only change. Published 1.0 unchanged.
+
+OWNER REPORT AND REPRODUCTION
+After moving Density in the browser, turning its physical FM-1 encoder changed
+the numeric display but not the browser slider position. The input retained
+keyboard focus after the mouse was released. receiveEngine() suppressed range
+updates whenever document.activeElement was that input, mistaking lasting focus
+for an ongoing user gesture. This could affect all four macro sliders.
+
+FIX
+Track actual pointer and range-adjustment-key gestures instead of focus. Incoming
+states update an idle focused slider, without blurring it or echoing commands
+back to the synth. Active drags/key holds are protected. Pointer up/cancel/lost
+capture, key release, control blur and window blur release the guard. Multiple
+pointers/held keys are handled independently. Rebuilt controls discard old guards.
+The tempo slider uses the same gesture protection against stale incoming states.
+
+VALIDATION
+The old code fails the exact focused-Density regression (position 500, incoming
+730); the new code passes. Isolated JavaScript exercises the actual state handler,
+all macros, negative ranges, pointer/key release, cancellation, lost capture,
+focus loss and tempo. The packaged helper/handler match the tested source.
+The complete packaged page parses and the existing protocol/queue/transfer tests
+pass. These are isolated tests, not automated browser rendering.
+
+Owner then reloaded the page and confirmed: Density position and number now
+follow physical changes after a browser edit; live JSON and bank .mddb downloads
+work; the connection was disconnected. No claim covers unreported GUI steps.
+
+The embedded WASM and device firmware are byte-identical to their previously
+qualified versions. No device reflash was required for this UI correction.
+
+Browser HTML SHA256: 585dbbfea1a343e5812dc9b468780d34e48bd09457358a98d7f4daedbf978a15
+WASM SHA256: 1923b44f6c1c8aab2817138d18243550018fa4bd86a2218828defc2883d99654
+Firmware SHA256: 427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534

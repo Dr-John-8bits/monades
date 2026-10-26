@@ -1,0 +1,8 @@
+{"name": "satin-high-mip", "cpu_peak_percent": 75.65472088215024, "issues": [], "rms": 0.02836800630114615}
+{"name": "elements-plectrum", "cpu_peak_percent": 73.38042729152309, "issues": [], "rms": 0.00011110257086846426}
+{"name": "elements-particles", "cpu_peak_percent": 73.51826326671261, "issues": [], "rms": 0.005973449844407747}
+{"name": "fm-wide-spectrum", "cpu_peak_percent": 80.18607856650586, "issues": [], "rms": 0.026045186351243692}
+{"name": "five-va-full", "cpu_peak_percent": 75.77532736044108, "issues": [], "rms": 0.022647582497026617}
+{"name": "three-fm-full", "cpu_peak_percent": 65.92005513439008, "issues": [], "rms": 0.038858265571656496}
+{"name": "two-rings-full", "cpu_peak_percent": 61.56099241902137, "issues": [], "rms": 0.14180542907952898}
+{"name": "three-harmonic-full", "cpu_peak_percent": 66.69538249483115, "issues": [], "rms": 0.020523034324079495}

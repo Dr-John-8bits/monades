@@ -1,0 +1,23 @@
+master 1708
+wait 3400
+tap HOME
+tap EDIT
+spin ALGO -100
+wait 50
+spin ALGO 9
+wait 50
+expect model 9
+spin K3 25
+wait 1600
+shot elements-sound.png
+press EDIT
+wait 900
+expect help 4
+expect help_context 0
+shot elements-help.png
+release EDIT
+expect page 1
+expect help 4
+tap HOME
+expect help -1
+expect page 1

@@ -1,0 +1,3 @@
+PASS: identity, container size, header/directory/file CRCs, app payload and padding
+Identity: FM-1_710010100 App bytes: 300008 App-slot headroom: 281556
+SHA256: e59b1bd6f908486d9bd06cad2b1ef6849bebd599a916048e434234576d222c69

@@ -1,0 +1,32 @@
+BANK BACKUP / RESTORE — IMPLEMENTED IN 1.1 DEVELOPMENT
+25 October 2026. See DEVICE-TEST-REPORT.txt for the exact qualified package.
+
+Enabled backup=true; Mutable Dreams hooks in app/transfer.c and app/app.h.
+Platform A/B staging and journal retained; app-specific validation added before
+staging. Twenty-two objects: 0,2,3..22. Magic MDDB, version 1. Calibration excluded.
+Full bank transfer includes the SAVED startup project and preferences, 16 named
+User Biomes and 64 User Sounds. It never silently saves the live patch.
+Export unsaved live changes separately as JSON. Granular audio is not saved.
+
+Backup blocks racing saves and can stream during playback. Restore requires
+stopped/internal-clock state and physical SEL; remote keys cannot approve it.
+Native validation accepts known legacy saved projects without changing audio
+state, checks current banks/names/ranges, and refuses unknown future formats.
+The journal at 0xE1000 shares the updater staging area; the main loop makes
+these operations mutually exclusive. The final linked pool has 9264 bytes spare.
+
+Native actual-map suite: 130 simulated write interruptions, CRC/truncation/wrong
+app/cancellation checks, whole-old-or-whole-new recovery and calibration intact.
+App-specific native tests cover all 16/64 slots, overwrite guards and holds.
+Real physical SEL restore and all 22-object readback passed on final 427a.
+Live browser JavaScript was also tested against the actual FM-1 via a MIDI
+bridge. The complete interactive browser UI test remains a release gate.
+
+Exact 427a -> Stock V15 -> 427a passed. V15 erased banks/preferences; restoring
+the .mddb image recovered them byte-for-byte. Unsaved live edits were restored
+separately. Keep backups private and retain the package alongside them.
+
+Use web/device-ui.js with Connect FM-1, tools/dreams_backup.py, and
+tools/device_editor.py. Read LIVE-EDITOR-PROTOCOL.txt and Recovery-1.1.txt.
+Older read-only project_backup.py exports are retained for provenance, but do
+not replace the complete .mddb format for the supported restore workflow.

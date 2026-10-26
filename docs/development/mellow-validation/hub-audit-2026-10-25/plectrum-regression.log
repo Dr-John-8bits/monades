@@ -1,0 +1,9 @@
+old exit -6 Elements rapid pluck shape 334 energy 1458.579522437
+Elements rapid pluck shape 500 energy 3.460948504
+ Assertion failed: (energy>100), function main, file test.cpp, line 22.
+
+fixed exit 0 Elements rapid pluck shape 334 energy 1315.998597824
+Elements rapid pluck shape 500 energy 1484.309187055
+Elements rapid pluck shape 666 energy 1428.483987774
+PASS rapid Plectrum rolls remain audible across the complete shape region
+ 

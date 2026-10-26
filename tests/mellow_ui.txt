@@ -1,0 +1,39 @@
+wait 3400
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+expect page 17
+press GLO
+wait 900
+expect help 5
+release GLO
+tap HOME
+expect help -1
+tap GLO
+expect page 18
+spin K1 2
+spin K4 1
+spin PRESET 1
+wait 120
+shot user-banks.png
+press SAVE
+wait 900
+expect help 7
+release SAVE
+tap HOME
+expect help -1
+tap HOME
+spin PRESET 65
+wait 100
+expect biome 65
+tap PLAY
+wait 1500
+wait 120
+shot mellow-live.png
+tap PLAY
+tap EDIT
+wait 120
+shot mellow-sound.png
+expect invalid 0
+expect queue_drops 0

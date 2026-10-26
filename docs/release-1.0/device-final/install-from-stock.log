@@ -1,0 +1,49 @@
+package: FM-1_710010000  (outputs/Mutable-Dreams.fwsc)
+device:  FM-1_015  (FM-1)
+starting the update on FM-1_015
+checking the package (1 reads)
+checking the package (2 reads)
+checking the package (3 reads)
+checking the package (4 reads)
+checking the package (5 reads)
+checking the package (6 reads)
+checking the package (7 reads)
+checking the package (8 reads)
+checking the package (9 reads)
+checking the package (10 reads)
+checking the package (11 reads)
+checking the package (12 reads)
+checking the package (13 reads)
+checking the package (14 reads)
+checking the package (15 reads)
+checking the package (16 reads)
+checking the package (17 reads)
+checking the package (18 reads)
+checking the package (19 reads)
+checking the package (20 reads)
+checking the package (21 reads)
+checking the package (22 reads)
+switching to update mode
+writing   0%
+writing  10%
+writing  20%
+writing  30%
+writing  40%
+writing  50%
+writing  60%
+writing  70%
+writing  80%
+writing  90%
+writing   2%
+writing  10%
+writing  20%
+writing  30%
+writing  40%
+writing  50%
+writing  60%
+writing  70%
+writing  80%
+writing  90%
+writing 100%
+restarting
+done: the FM-1 runs FM-1_710010000

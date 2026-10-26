@@ -1,0 +1,11 @@
+{
+  "patchRoundtrip": true,
+  "invalidFilesPreservePatch": true,
+  "playingImportRejected": true,
+  "downloadUpload": true,
+  "saveReload": true,
+  "typingKeyboard": true,
+  "textFieldsProtected": true,
+  "mobileOverflow": false,
+  "errors": []
+}

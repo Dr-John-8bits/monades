@@ -1,0 +1,11 @@
+Final installed and roundtrip-qualified firmware: 427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534
+qualified-* and editor-load-stress identify this exact binary.
+The earlier full restore test (including a temporary slot) used 5820845f;
+the final physical restore and all 22 objects were reverified on 427a.
+The legacy saved-project validator changed after 582; it now decodes old project
+versions without touching live audio. Native legacy/DSP/WASM tests were rerun.
+This checkpoint adds no synthesis algorithms and changes no DSP render hot path.
+Live browser JS was exercised over real MIDI through a Node/Python transport.
+That proves protocol behavior, not a browser permission dialog, rendering or GUI.
+Source bundles exclude private .mddb/raw exports and manufacturer firmware.
+Earlier reports and audio retain their actual firmware hashes.

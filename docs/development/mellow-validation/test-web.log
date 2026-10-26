@@ -1,0 +1,14 @@
+PASS user Biome / sound banks, overwrite guard, restart, 48 warm tones
+{
+  "result": "PASS",
+  "pages": 19,
+  "patchBytes": 1292,
+  "legacyImport": true,
+  "invalidPatchUnchanged": true,
+  "exportRoundTrip": true,
+  "newDemos": 5,
+  "tone207": true,
+  "peak": 0.06579327583312988,
+  "wasmMemory": 4194304,
+  "hardwareTest": false
+}

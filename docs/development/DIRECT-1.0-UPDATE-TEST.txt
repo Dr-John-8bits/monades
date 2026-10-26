@@ -1,0 +1,53 @@
+MUTABLE DREAMS 1.1 — DIRECT UPDATE FROM PUBLISHED 1.0
+25 October 2026. Actual FM-1; no Stock V15 intermediate step.
+
+Source package: published Mutable Dreams 1.0, FM-1_710010000
+SHA256 75008881683cbeb3515e24cfd7830136b90eb293f0752dc66b203b7f2ee7cd9f
+Target: current 1.1 candidate, FM-1_710010100
+SHA256 427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534
+
+The device was freed by its owner after the corrected live-editor test. Its
+actual latest unsaved live patch was exported privately, and two full saved-bank
+backups were byte-identical before any firmware change.
+
+1. Installed the unchanged published 1.0 package; restarted identity confirmed.
+2. In 1.0, selected a factory Biome, changed tempo, macros, note, pan and cutoff,
+   then used normal SAVE. Read back the 652-byte v4 saved Biome exactly.
+3. Installed the current 1.1 candidate directly. The installer explicitly
+   detected FM-1_710010000 as its starting firmware and confirmed FM-1_710010100
+   after restart. No manufacturer firmware was installed between these steps.
+4. Read the first-boot 1.1 live patch: v6, 1292 bytes. Every original v4 parameter
+   byte from offset 8 through 651, and the original magic, matched exactly.
+   The version advances and the new fields receive compatible defaults.
+   The saved flash object remained the original legacy record until explicit SAVE.
+5. Read all saved objects. The 21 objects other than our deliberately changed
+   test project were unchanged, including the actual existing User Biome and
+   saved preferences. Named User Banks are a 1.1 feature; this extra preservation
+   observation is not a claim that 1.0 understands them.
+6. Restored the one changed saved project through normal live import and SAVE.
+   A new complete bank backup matched all 22 original saved objects. Then restored
+   the owner's separate post-editor unsaved live patch exactly. No full-bank
+   restore was needed because the other saved objects had already survived.
+
+RESULT: PASS for this exact 1.0 -> 1.1 hardware update and data migration.
+Tool: Python USB-MIDI installer. This does not claim a visible browser-installer
+roundtrip. The source browser installer uses the corresponding protocol; its
+packaged JS/hash/error checks are separate evidence. Every later binary needs
+qualification of its own exact hash.
+
+UPDATER GUIDANCE
+Existing 1.0 users can update directly; returning to Stock V15 is unnecessary.
+Stop and SAVE first. The source bundle's read-only project_backup.py also exports
+both the live and saved 1.0 Biomes as JSON, alongside raw originals and a report.
+Legacy JSON can be migrated in the browser instrument and re-exported for the
+1.1 hardware editor. The read-only export's JSON wrapper was checked against the
+actual v4 test patch in an isolated device-stub test; the read protocol itself was
+exercised above on the actual device.
+
+1.0 has one saved personal Biome and does not offer the 1.1 editor/.mddb protocol.
+On 1.1, use its separate live JSON and complete .mddb backup. Recovery-1.1.txt now
+distinguishes these workflows. Stock V15 still erases new User Banks/preferences;
+that separate return path continues to require a full backup.
+
+All original published 1.0 files remain immutable. Tests use a known factory
+patch with deliberate values; personal raw/JSON/.mddb backups remain private.

@@ -1,0 +1,1 @@
+PASS 465000 snare samples byte-identical over 10000 changing-parameter blocks and 8 block sizes, including reference fallback.

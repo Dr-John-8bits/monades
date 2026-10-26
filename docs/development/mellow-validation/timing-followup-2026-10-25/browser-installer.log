@@ -1,0 +1,1 @@
+PASS private installer: embedded firmware exact hash/identity, V15 hash restriction, complete JS syntax, denied permission recovery, resumed-update identity mismatch rejected, successful restart confirmed. Isolated JavaScript only; no browser GUI or hardware write.

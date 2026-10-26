@@ -1,0 +1,89 @@
+FIRMWARE HUB COMPARISON — 24 OCTOBER 2026
+Anonymous public ratings and catalogue downloaded for this review.
+Ranking reproduces the Hub score: (average * votes + 6) / (votes + 2).
+These are community ratings, not independent reliability measurements.
+Source snapshots are saved locally; no third-party firmware was flashed.
+
+Name | mean/5 | votes | Hub weighted score | release
+FMini-1 | 4.91 | 23 | 4.7572 | 1.8.0
+Clipper | 5 | 14 | 4.7500 | 1.1-experimental
+GR!MM | 5 | 14 | 4.7500 | 1.0
+AMB-1 | 4.84 | 32 | 4.7318 | 1.3
+OberVave | 4.85 | 27 | 4.7224 | 3.0.1
+Melodee | 4.89 | 19 | 4.7100 | 1.5.0-rc.1
+ZEN-1 | 4.88 | 17 | 4.6821 | 1.2
+ChoralRoot | 4.87 | 15 | 4.6500 | 0.26.1
+CoralFlower | 4.78 | 18 | 4.6020 | 0.5
+Skiff | 4.72 | 25 | 4.5926 | 1.4
+SLOOP | 4.63 | 49 | 4.5661 | 2.8.1
+FRASIL | 5 | 7 | 4.5556 | 2.0
+Felucca | 4.65 | 26 | 4.5321 | 1.6.1
+KAWA | 4.8 | 10 | 4.5000 | 0.5
+Niagara Drift | 5 | 6 | 4.5000 | 0.2
+X0X | 4.6 | 25 | 4.4815 | 1.1.0
+JIANT FM | 4.53 | 45 | 4.4649 | 0.9.9-gen2-fe81db8
+Mutable Dreams | 4.86 | 7 | 4.4467 | 1.0
+Rainbow Mode | 4.86 | 7 | 4.4467 | 1.1.5-rb
+FiMba-1 | 5 | 5 | 4.4286 | 0.6.1
+
+MOST RELEVANT SOURCE COMPARISONS
+FMini-1: single-instrument architecture with precomputed fixed-point ladder
+coefficient/response tables. A good lesson in moving expensive design work to
+build time; not evidence that six complete ladders fit our current audio budget.
+Our rounded oscillator tables and pre-rendered font follow that general principle.
+https://github.com/ruppert/fmini-1/tree/v1.8.0
+
+Clipper: extensive engine catalogue and filter families; fixed-point/polyBLEP
+building blocks and edited parameters. Breadth is valuable, but its architecture
+does not certify six simultaneous instances with our granular/shared effects.
+https://github.com/isod89/clipper-fm1/tree/v1.1-experimental
+
+GR!MM: four tracks, six shared voices, 64-step sequences, user sounds, live editor.
+The source describes a different voice/effect architecture. Its editor and bank
+workflow expose a real gap in ours: we have playable WASM and local banks, but
+not yet a public live hardware-bank restore/editor workflow. Do not claim parity.
+https://github.com/GRiMMBIENT/grimm/tree/v1.0
+
+AMB-1: long, musically constrained movement; softened pad bus, independent tape
+layers, gliding bass. The pad renderer explicitly avoids chorus beating on pure
+tones; this reinforces keeping our rounded dry sounds clear and treating chorus
+as optional later work. Its block-local oscillator/filter states also illustrate
+a useful optimization pattern. Our own mixer now uses tile-local smoothing
+state, with exact-sample regression against the previous source. The first
+128-frame device trial did NOT establish a performance gain; a larger audio
+block is measured separately. Subsequent SVF coefficient caching, fused
+Snare filtering/mixing and local harmonic-oscillator phase storage are
+original changes retaining exact reference samples. See current device report.
+https://github.com/charlesvestal/fm1-amb/tree/v1.3
+
+ZEN-1: scene animation has separate timing/dirty tracking and observable display
+cost. Adopt the principle of bounded graphics work: our added contour highlights
+reuse cached geometry at the existing 12.5-fps ceiling. Do not copy its scenery.
+https://github.com/aceyprime/zen-1/tree/v1.2
+
+OberVave: drift, shared effect sends and layered analog voices remain relevant;
+see SECOND-CORE-AND-REFERENCE-REVIEW.txt for exact previously inspected sources.
+https://github.com/zvenson/obervave/tree/v3.0.1
+
+DECISIONS
+Implemented originally in Mutable Dreams: block-local mixer state, higher
+contrast, quiet text backplates, rounded pre-rasterized Nunito headings, track
+meters/selection, translucent leaf panels, curved bud sliders, tapered mixer
+reservoirs and cached flowing contour trails. No imported engine source.
+Keep existing 12 engines / 224 presets / 76 musical Biomes plus Blank for now.
+Do not add a full ladder, sampler, convolution, supersaw stack or another reverb
+until extended qualification of the now-improved headroom is complete. More engines alone are not proof of
+better sound. Satin Morph/Mellow Drift/Round Bass already fill the warmth gap.
+CPU2 remains a separate qualification project, not enabled by reputation.
+
+Downloads: official public source files at pinned tree commits. Binary
+decompilation was unnecessary because the relevant implementations are open.
+No proprietary Baud Girl/Groove OS code or project-specific artwork was copied.
+
+FONT
+Nunito by Vernon Adams and contributors, SIL OFL 1.1. Original TTF and licence
+bundled in base/assets/fonts. Only generated glyph coverage enters firmware.
+https://github.com/googlefonts/nunito/tree/8c6a9bb9732545b9ed53f29ec5e1ab0ff53c4e6f
+
+Snapshot sources: https://thefirmwarehub.com/catalog.json and
+https://thefirmwarehub.com/api/me (anonymous aggregate ratings only).

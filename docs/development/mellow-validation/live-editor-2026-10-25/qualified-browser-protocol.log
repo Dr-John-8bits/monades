@@ -1,0 +1,1 @@
+PASS shipped browser JavaScript on real FM-1: handshake, capabilities, 22-bank backup twice identical to Python, 19 live pages, complete live-patch upload/readback. This is a transport test, not an interactive browser test.

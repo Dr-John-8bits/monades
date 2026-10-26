@@ -1,0 +1,1 @@
+Historical checkpoint before the Firmware Hub and organic UI audit. These results do not certify the currently installed firmware. See docs/development/DEVICE-TEST-REPORT.txt and ../hub-audit-2026-10-25 for current hash-bound evidence.

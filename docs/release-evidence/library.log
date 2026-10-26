@@ -1,0 +1,292 @@
+PASS patch version 4
+PASS held button 0: help only
+PASS help 0 closes without action
+PASS held button 1: help only
+PASS help 1 closes without action
+PASS held button 2: help only
+PASS help 2 closes without action
+PASS held button 3: help only
+PASS help 3 closes without action
+PASS held button 4: help only
+PASS help 4 closes without action
+PASS held button 5: help only
+PASS help 5 closes without action
+PASS held button 6: help only
+PASS help 6 closes without action
+PASS held button 7: help only
+PASS help 7 closes without action
+PASS held button 8: help only
+PASS help 8 closes without action
+PASS held button 9: help only
+PASS help 9 closes without action
+PASS held button 10: help only
+PASS help 10 closes without action
+PASS held button 11: help only
+PASS help 11 closes without action
+PASS held button 12: help only
+PASS help 12 closes without action
+PASS held button 13: help only
+PASS help 13 closes without action
+PASS Biome complete factory patch Velvet Mist
+BIOME 0 Velvet Mist 55.24 []
+PASS Biome complete factory patch Soft Machines
+BIOME 1 Soft Machines 62.2 []
+PASS Biome complete factory patch Six Kicks
+BIOME 2 Six Kicks 50.03 []
+PASS Biome complete factory patch Resonant Field
+BIOME 3 Resonant Field 68.3 []
+PASS Biome complete factory patch Pearl Lagoon
+BIOME 4 Pearl Lagoon 55.13 []
+PASS Biome complete factory patch Amber Fog
+BIOME 5 Amber Fog 55.62 []
+PASS Biome complete factory patch Soft Canopy
+BIOME 6 Soft Canopy 55.58 []
+PASS Biome complete factory patch Silver Marsh
+BIOME 7 Silver Marsh 55.58 []
+PASS Biome complete factory patch Cloud Atlas
+BIOME 8 Cloud Atlas 55.75 []
+PASS Biome complete factory patch Still Water
+BIOME 9 Still Water 55.51 []
+PASS Biome complete factory patch Moon Meadow
+BIOME 10 Moon Meadow 55.31 []
+PASS Biome complete factory patch Deep Tundra
+BIOME 11 Deep Tundra 19.54 []
+PASS Biome complete factory patch Low Horizon
+BIOME 12 Low Horizon 19.47 []
+PASS Biome complete factory patch Slow Monolith
+BIOME 13 Slow Monolith 19.5 []
+PASS Biome complete factory patch Submerged Sun
+BIOME 14 Submerged Sun 19.54 []
+PASS Biome complete factory patch Midnight Soil
+BIOME 15 Midnight Soil 19.47 []
+PASS Biome complete factory patch Ancient Air
+BIOME 16 Ancient Air 19.4 []
+PASS Biome complete factory patch Blue Cavern
+BIOME 17 Blue Cavern 19.5 []
+PASS Biome complete factory patch Distant Shelter
+BIOME 18 Distant Shelter 29.36 []
+PASS Biome complete factory patch Woodland Bells
+BIOME 19 Woodland Bells 72.67 []
+PASS Biome complete factory patch Clay Basin
+BIOME 20 Clay Basin 65.54 []
+PASS Biome complete factory patch Copper Grove
+BIOME 21 Copper Grove 72.71 []
+PASS Biome complete factory patch Glass River
+BIOME 22 Glass River 72.64 []
+PASS Biome complete factory patch Moss Resonance
+BIOME 23 Moss Resonance 72.64 []
+PASS Biome complete factory patch Hollow Valley
+BIOME 24 Hollow Valley 72.67 []
+PASS Biome complete factory patch Stone Chimes
+BIOME 25 Stone Chimes 72.61 []
+PASS Biome complete factory patch Dub Estuary
+BIOME 26 Dub Estuary 64.85 []
+PASS Biome complete factory patch Velvet Circuit
+BIOME 27 Velvet Circuit 65.82 []
+PASS Biome complete factory patch Warm Current
+BIOME 28 Warm Current 64.92 []
+PASS Biome complete factory patch Basalt Steps
+BIOME 29 Basalt Steps 65.61 []
+PASS Biome complete factory patch Night Transit
+BIOME 30 Night Transit 65.3 []
+PASS Biome complete factory patch Copper Motor
+BIOME 31 Copper Motor 64.82 []
+PASS Biome complete factory patch Soft Pressure
+BIOME 32 Soft Pressure 66.2 []
+PASS Biome complete factory patch Broken Fern
+BIOME 33 Broken Fern 65.23 []
+PASS Biome complete factory patch Odd Islands
+BIOME 34 Odd Islands 65.09 []
+PASS Biome complete factory patch Loose Gravity
+BIOME 35 Loose Gravity 64.92 []
+PASS Biome complete factory patch Skipping Stones
+BIOME 36 Skipping Stones 65.75 []
+PASS Biome complete factory patch Fracture Bloom
+BIOME 37 Fracture Bloom 65.06 []
+PASS Biome complete factory patch Tilted Rain
+BIOME 38 Tilted Rain 65.99 []
+PASS Biome complete factory patch Uneven Tide
+BIOME 39 Uneven Tide 65.09 []
+PASS Biome complete factory patch Polyrhythm Bay
+BIOME 40 Polyrhythm Bay 65.4 []
+PASS Biome complete factory patch Root Network
+BIOME 41 Root Network 49.72 []
+PASS Biome complete factory patch Seed Dispersal
+BIOME 42 Seed Dispersal 67.47 []
+PASS Biome complete factory patch Rainforest Dew
+BIOME 43 Rainforest Dew 39.87 []
+PASS Biome complete factory patch Coral Pulse
+BIOME 44 Coral Pulse 60.72 []
+PASS Biome complete factory patch Mycelium Drift
+BIOME 45 Mycelium Drift 66.95 []
+PASS Biome complete factory patch Branching Paths
+BIOME 46 Branching Paths 60.58 []
+PASS Biome complete factory patch Tidal Roots
+BIOME 47 Tidal Roots 56.03 []
+PASS Biome complete factory patch Living Sand
+BIOME 48 Living Sand 57.48 []
+PASS Biome complete factory patch Six Brushes
+BIOME 49 Six Brushes 81.63 []
+PASS Biome complete factory patch Six Leaves
+BIOME 50 Six Leaves 51.31 []
+PASS Biome complete factory patch Clay Ensemble
+BIOME 51 Clay Ensemble 67.02 []
+PASS Biome complete factory patch Skin And Stone
+BIOME 52 Skin And Stone 71.19 []
+PASS Biome complete factory patch Dust Ritual
+BIOME 53 Dust Ritual 71.12 []
+PASS Biome complete factory patch Low Drum Circle
+BIOME 54 Low Drum Circle 71.92 []
+PASS Biome complete factory patch Wooden Clocks
+BIOME 55 Wooden Clocks 70.64 []
+PASS Biome complete factory patch Sunlit Path
+BIOME 56 Sunlit Path 66.13 []
+PASS Biome complete factory patch Tiny Constellation
+BIOME 57 Tiny Constellation 66.3 []
+PASS Biome complete factory patch Amber Arpeggio
+BIOME 58 Amber Arpeggio 66.16 []
+PASS Biome complete factory patch Open Clearing
+BIOME 59 Open Clearing 66.09 []
+PASS Biome complete factory patch Glass Orchard
+BIOME 60 Glass Orchard 66.13 []
+PASS Biome complete factory patch Quiet Lanterns
+BIOME 61 Quiet Lanterns 65.64 []
+PASS Biome complete factory patch Pastel Stream
+BIOME 62 Pastel Stream 66.09 []
+PASS Biome complete factory patch Morning Orbit
+BIOME 63 Morning Orbit 66.13 []
+PASS Biome complete factory patch Blank Biome
+BIOME 64 Blank Biome 13.58 []
+PASS tone 0 Felt Foot
+PASS tone 1 Deep Pillow
+PASS tone 2 Round Sub
+PASS tone 3 Moss Kick
+PASS tone 4 Soft Knock
+PASS tone 5 Dub Heart
+PASS tone 6 Clay Drum
+PASS tone 7 Warm Pulse
+PASS tone 8 Low Pebble
+PASS tone 9 Thud Room
+PASS tone 10 Rubber Step
+PASS tone 11 Satin Kick
+PASS tone 12 Stone Floor
+PASS tone 13 Dust Punch
+PASS tone 14 Long Earth
+PASS tone 15 Tight Seed
+PASS tone 16 Brush Skin
+PASS tone 17 Paper Snare
+PASS tone 18 Muted Rim
+PASS tone 19 Sand Brush
+PASS tone 20 Velvet Snap
+PASS tone 21 Dry Twig
+PASS tone 22 Soft Clap
+PASS tone 23 Dust Snare
+PASS tone 24 Thin Shell
+PASS tone 25 Wood Snare
+PASS tone 26 Loose Skin
+PASS tone 27 Grain Snap
+PASS tone 28 Rain Stick
+PASS tone 29 Low Rattle
+PASS tone 30 Warm Wire
+PASS tone 31 Short Ember
+PASS tone 32 Silk Hat
+PASS tone 33 Mist Tick
+PASS tone 34 Dry Leaf
+PASS tone 35 Closed Dust
+PASS tone 36 Shaker Sand
+PASS tone 37 Open Air
+PASS tone 38 Fine Rain
+PASS tone 39 Soft Metal
+PASS tone 40 Leaf Shake
+PASS tone 41 Glass Dust
+PASS tone 42 Tiny Bell
+PASS tone 43 Loose Seeds
+PASS tone 44 Steam Hat
+PASS tone 45 Warm Ride
+PASS tone 46 Grain Rust
+PASS tone 47 Short Hiss
+PASS tone 48 Pure Water
+PASS tone 49 Sine Pearl
+PASS tone 50 Wool Bass
+PASS tone 51 Glass Drop
+PASS tone 52 Soft Tine
+PASS tone 53 Rubber Bell
+PASS tone 54 Warm Reed
+PASS tone 55 Amber Keys
+PASS tone 56 Low Orbit
+PASS tone 57 Velvet FM
+PASS tone 58 Copper Bell
+PASS tone 59 Hollow Chime
+PASS tone 60 Dream Marimba
+PASS tone 61 Deep Bloom
+PASS tone 62 Moon Tone
+PASS tone 63 Slow Glass
+PASS tone 64 Round Reed
+PASS tone 65 Wool Pad
+PASS tone 66 Satin Bass
+PASS tone 67 Soft Saw
+PASS tone 68 Warm Strings
+PASS tone 69 Hollow Flute
+PASS tone 70 Dust Organ
+PASS tone 71 Muted Pluck
+PASS tone 72 Slow Brass
+PASS tone 73 Cedar Pad
+PASS tone 74 Moss Pulse
+PASS tone 75 Silk Lead
+PASS tone 76 Low Current
+PASS tone 77 Warm Fifth
+PASS tone 78 Cloud Reed
+PASS tone 79 Felt Keys
+PASS tone 80 Wood Bowl
+PASS tone 81 Warm Wire
+PASS tone 82 Clay Bell
+PASS tone 83 Moss String
+PASS tone 84 Glass Pool
+PASS tone 85 Soft Steel
+PASS tone 86 Hollow Log
+PASS tone 87 Deep Vessel
+PASS tone 88 Copper Rain
+PASS tone 89 Silk String
+PASS tone 90 Small Stone
+PASS tone 91 Low Gong
+PASS tone 92 Paper Plate
+PASS tone 93 Ice Bell
+PASS tone 94 Amber Chime
+PASS tone 95 Felt Mallet
+PASS tone 96 Sine Lantern
+PASS tone 97 Warm Organ
+PASS tone 98 Odd Velvet
+PASS tone 99 Soft Spectrum
+PASS tone 100 Hollow Pipe
+PASS tone 101 Amber Pad
+PASS tone 102 Glass Choir
+PASS tone 103 Low Partial
+PASS tone 104 Silk Harmonic
+PASS tone 105 Felt Organ
+PASS tone 106 Slow Aurora
+PASS tone 107 Moss Chord
+PASS tone 108 High Mist
+PASS tone 109 Bronze Bloom
+PASS tone 110 Deep Spectrum
+PASS tone 111 Pure Harmonic
+PASS tone 112 Minor Cloud
+PASS tone 113 Major Dawn
+PASS tone 114 Suspended Air
+PASS tone 115 Open Fifth
+PASS tone 116 Velvet Choir
+PASS tone 117 Sunlit Voices
+PASS tone 118 Floating Sus
+PASS tone 119 Deep Fifth
+PASS tone 120 Minor Moss
+PASS tone 121 Major Silk
+PASS tone 122 Suspended Dew
+PASS tone 123 Wide Horizon
+PASS tone 124 Night Voices
+PASS tone 125 Warm Meadow
+PASS tone 126 Slow Halo
+PASS tone 127 Low Shelter
+PASS all library operations without audio faults
+PASS EDIT PRESET selects tone
+PASS HOME PRESET selects Biome
+PASS GLO reaches Look
+PASS motion and boot sound disabled

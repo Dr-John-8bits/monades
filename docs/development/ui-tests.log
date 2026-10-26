@@ -1,0 +1,55 @@
+  ok page == 12
+  ok help == 4
+  ok help == -1
+  ok page == 13
+  ok help == 9
+  ok page == 16
+  ok page == 14
+  ok help == 0
+  ok page == 15
+  ok help == 0
+  ok help == -1
+  ok invalid == 0
+  ok queue_drops == 0
+host: 12409 ms simulated, 936 blits, render 0.2% of real time (host CPU)
+cannot write work/mutable-dreams-next/docs/development/ui-original/live.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/sound.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/filter.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/envelope.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/mix.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/rhythm.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/groove.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/grain.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/tape.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/help.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/harmony.png
+cannot write work/mutable-dreams-next/docs/development/ui-original/bench.png
+  ok playing == 0
+  ok help == 11
+  ok help == 11
+  ok help == -1
+  ok playing == 0
+  ok playing == 1
+  ok density == 600
+  ok page == 1
+  ok page == 10
+  ok page == 6
+  ok attack == 450
+  ok page == 4
+  ok page == 7
+  ok ratchet == 3
+  ok page == 8
+  ok freeze == 1
+  ok help == 4
+  ok help == -1
+  ok track == 5
+  ok model == 0
+  ok page == 9
+  ok scale == 2
+  ok page == 5
+  ok playing == 0
+  ok density == 600
+  ok scale == 2
+  ok invalid == 0
+  ok queue_drops == 0
+host: 8134 ms simulated, 624 blits, render 0.3% of real time (host CPU)

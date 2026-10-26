@@ -1,0 +1,15 @@
+master 3200
+wait 100
+tap PLAY
+wav ambient.wav
+wait 24000
+wavstop
+tap PLAY
+spin PRESET 1
+wait 30
+tap PLAY
+wav techno.wav
+wait 24000
+wavstop
+expect invalid 0
+expect queue_drops 0

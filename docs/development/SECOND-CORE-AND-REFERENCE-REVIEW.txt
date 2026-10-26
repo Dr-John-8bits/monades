@@ -1,0 +1,47 @@
+MUTABLE DREAMS 1.1 — SECOND CORE AND REFERENCE REVIEW
+24 October 2026. Source assessment, not a dual-core device qualification.
+
+DECISION
+The second core is worth a dedicated experimental implementation, but enabling it is not presently a low-risk switch. Keep the qualified single-core audio path as the default and recovery path. No dual-core code has been enabled in the current Mutable Dreams candidate. No clock or supply-voltage change was made for this investigation.
+
+EVIDENCE AND LIMITS
+Melodee issue #17 and X0X issue #10 report CPU1 reading invalid mailbox values on particular FM-1 units, including while CPU1 was idle. These are reports from those units, not proof that this owner's FM-1 is affected. The root cause is not conclusively established by the reports.
+https://github.com/keremimo/melodee/issues/17
+https://github.com/charlesvestal/fm1-x0x/issues/10
+
+Melodee merged checks, fault handling and fallback in PR #21. This mitigates failures; it does not prove every device is reliable in dual-core mode. Its documented worker timeout is longer than our audio deadline, so copying it unchanged could prevent a crash yet still create an audible dropout.
+https://github.com/keremimo/melodee/pull/21
+
+JIANT source examined at commit 15b076be51dfc861d4dffad5ac7612856f66180e. Its worker has sequence/check words, cache-line separation, synchronization, fault counters, session fallback and a flash-parking path. Its wait allows 8 ms; Mutable Dreams' 128-frame callback at 44.1 kHz has approximately 2.902 ms. A scheduler and a bounded audio-specific failure path must be designed around our deadline.
+https://github.com/juanjiant-bit/JIANT/blob/15b076be51dfc861d4dffad5ac7612856f66180e/firmware/hal/fm1_multicore.h
+
+Our bundled BSP already includes an experimental startup helper, explicitly marked not device-tested in that BSP. The active build runs CPU0 only. Its normal platform code already applies the documented stock supply policy; dual-core success must not be assumed merely from that policy. Additional voltage or clock experimentation is not part of this 1.1 build.
+Local references: base/bsp/chip/fm1_cpu1.h; base/bsp/chip/fm1_sys.h; base/device/main_fm1.c; base/bsp/docs/CPU.md.
+
+RECOMMENDED IMPLEMENTATION FOR A SEPARATE EXPERIMENT
+1. Refactor one voice's rendering into a worker-safe operation. CPU0 owns MIDI, commands, sequencer, patch changes, tape, final mix and output. CPU1 can render a subset of independent voices into private buffers.
+2. Eliminate shared mutable random generators and statistics in worker code. Mutable Dreams currently has shared rng/seqrng, stmlib random state, statistics and mix/send arrays. Audit Elements particles and drum/noise engines especially. Command application and bank loading stay outside worker execution.
+3. Preserve summation order with per-track outputs. Six tracks x 64 frames x five float buses (L/R/grain/delay/room) require 7,680 bytes, before stack, mailbox and alignment. This is a planning estimate, not a validated linker budget. Check ordinary RAM separately from the nearly full tape/effect pool.
+4. Add sequence/check words, single-writer mailbox fields, explicit memory ordering, timeouts, fault isolation and worker health counters. Park CPU1 before flash reads/writes, bank operations, OTA and resets. Hold it before RAM initialization after any reset.
+5. Define fallback for a partially rendered job. Never mix partially written buffers or render a partially advanced voice twice. Restoring state or safely fading/reinitializing a failed voice needs explicit tests. Merely calling the same render again is not safe.
+6. Validate host serial/parallel output, race detection, injected corruption/stall/fault cases, bank persistence and update recovery. Then run extended tests with audio + animation + USB MIDI + USB audio, repeated cold boots, and more than one physical FM-1 unit before enabling it for everyone.
+7. Offer an obvious single-core recovery setting and a readable status/error counter. No automatic clock/voltage tuning to hide failures.
+
+EXPECTED BENEFIT
+Substantial relief is plausible if voice rendering dominates; double total performance is not a credible promise. Tape, output mixing, synchronization and parts of the effects remain serial. Illustrative only: if 75% of work parallelizes perfectly across two cores, Amdahl's law gives 1.6x, before synchronization cost. Measure our own callback timing before choosing which additional engines or polyphony fit.
+Moving only graphics to CPU1 will not necessarily reduce the measured audio-callback time. Graphics are currently drawn outside the audio owner; the major gain requires parallel audio work.
+
+JIANT / OBERVAVE IDEAS
+JIANT: parameter-reactive organic artwork, subpixel antialiased curves, cached geometry, a visible navigation position and generated control documentation. Preserve our botanical visual identity and our consistent long-hold help. Its extensive layered shortcuts should not be copied wholesale into our simpler interaction model.
+Sources: firmware/src/ui_being.c and ui_organic.c at the commit above; https://github.com/juanjiant-bit/JIANT .
+
+OberVave examined at bcddc4b08d819296b1e507d5fa9395eb0f2d88af: per-voice vintage offsets/drift, block-rate coefficient work, smoothed parameters, send-based shared effects and a usable program/pattern workflow are relevant. Its integrated four-track/eight-voice architecture is different from our six independent engines. A full polyphonic synth or its plate/chorus cannot be added without a fresh CPU/RAM budget. Best next sound candidates: subtle voice variation, a selectable softer filter character, and a restrained chorus/ensemble option if measurements permit.
+https://github.com/zvenson/obervave/blob/bcddc4b08d819296b1e507d5fa9395eb0f2d88af/firmware/src/obv_engine.h
+https://github.com/zvenson/obervave/blob/bcddc4b08d819296b1e507d5fa9395eb0f2d88af/firmware/src/obv_dsp.h
+https://github.com/zvenson/obervave/blob/bcddc4b08d819296b1e507d5fa9395eb0f2d88af/firmware/src/obv_fx.h
+
+GRAPHICS
+The device canvas is 240 x 240. A firmware update cannot increase the panel's physical pixel count. It can deliver smoother edges with subpixel coverage, better typography and spacing, restrained layered colour, cached curves, and animation tied to actual audio activity. The current candidate adds cached botanical contours/ferns and original subpixel live blooms. Browser artwork can use scalable vector layers at the display's resolution while retaining an accurate native-device preview. More expensive motion must degrade gracefully before audio does, and STILL remains available.
+
+LICENSING
+Both reference projects expose GPL-3.0 code with component-specific notices. No source code from either was copied into this candidate. Satin Morph and the new botanical renderer are original implementations. If future ports use their code, retain original authors/notices, identify modifications and distribute complete corresponding source under the applicable terms. The currently published 1.0 and the completed developer handoff remain unchanged.

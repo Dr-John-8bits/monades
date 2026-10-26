@@ -1,0 +1,165 @@
+master 2400
+wait 500
+shot splash-a.png
+wait 800
+shot splash-b.png
+wait 2200
+expect intro 0
+press FX
+wait 900
+expect help 0
+release FX
+wait 30
+expect help 0
+expect playing 0
+tap HOME
+expect help -1
+press SEL
+wait 900
+expect help 1
+release SEL
+wait 30
+expect help 1
+expect playing 0
+tap HOME
+expect help -1
+press ENV
+wait 900
+expect help 2
+release ENV
+wait 30
+expect help 2
+expect playing 0
+tap HOME
+expect help -1
+press LFO
+wait 900
+expect help 3
+release LFO
+wait 30
+expect help 3
+expect playing 0
+tap HOME
+expect help -1
+press EDIT
+wait 900
+expect help 4
+release EDIT
+wait 30
+expect help 4
+expect playing 0
+tap HOME
+expect help -1
+press GLO
+wait 900
+expect help 5
+release GLO
+wait 30
+expect help 5
+expect playing 0
+tap HOME
+expect help -1
+press HOME
+wait 900
+expect help 6
+release HOME
+wait 30
+expect help 6
+expect playing 0
+tap HOME
+expect help -1
+press SAVE
+wait 900
+expect help 7
+release SAVE
+wait 30
+expect help 7
+expect playing 0
+tap HOME
+expect help -1
+press ARP
+wait 900
+expect help 8
+release ARP
+wait 30
+expect help 8
+expect playing 0
+tap HOME
+expect help -1
+press SEQ
+wait 900
+expect help 9
+release SEQ
+wait 30
+expect help 9
+expect playing 0
+tap HOME
+expect help -1
+press PLAY
+wait 900
+expect help 10
+release PLAY
+wait 30
+expect help 10
+expect playing 0
+tap HOME
+expect help -1
+press REC
+wait 900
+expect help 11
+release REC
+wait 30
+expect help 11
+expect playing 0
+tap HOME
+expect help -1
+press OCT-
+wait 900
+expect help 12
+release OCT-
+wait 30
+expect help 12
+expect playing 0
+tap HOME
+expect help -1
+press OCT+
+wait 900
+expect help 13
+release OCT+
+wait 30
+expect help 13
+expect playing 0
+tap HOME
+expect help -1
+tap HOME
+spin PRESET 64
+wait 30
+expect biome 64
+tap EDIT
+spin PRESET 1
+wait 30
+expect tone_preset 112
+spin PRESET -112
+wait 30
+expect tone_preset 0
+expect model 0
+tap HOME
+spin PRESET -64
+wait 30
+expect biome 0
+tap GLO
+tap GLO
+tap GLO
+expect page 11
+spin K1 -1
+spin K2 -1
+expect motion 0
+expect boot_sound 0
+tap SAVE
+reboot
+wait 3400
+expect motion 0
+expect boot_sound 0
+expect biome 0
+expect invalid 0
+expect queue_drops 0

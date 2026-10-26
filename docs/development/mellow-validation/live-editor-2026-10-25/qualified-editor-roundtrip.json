@@ -1,0 +1,26 @@
+{
+  "firmware_sha256": "427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534",
+  "stock_sha256": "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a",
+  "backup_sha256": "bcd6fb7c329106108aee4237d0b9f84b396b52a84623542b6e8035939847abfa",
+  "steps": [
+    {
+      "step": "candidate",
+      "identity": "FM-1_710010100  [running]  port: X0X FM-1",
+      "pass_": true
+    },
+    {
+      "step": "stock",
+      "identity": "FM-1_015  [running]  port: FM-1",
+      "pass_": true
+    },
+    {
+      "step": "from-stock",
+      "identity": "FM-1_710010100  [running]  port: X0X FM-1",
+      "pass_": true
+    }
+  ],
+  "status": "Exact final candidate -> Stock V15 -> same candidate, physically confirmed restore and full readback passed.",
+  "restore_physically_confirmed": true,
+  "all_22_saved_objects_identical": true,
+  "original_live_restored": true
+}

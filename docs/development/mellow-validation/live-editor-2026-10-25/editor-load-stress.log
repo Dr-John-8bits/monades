@@ -1,0 +1,12 @@
+PROGRESS six-harmonic-live-editor-and-backup 20 84.29
+PASS streaming backup during six-harmonic-live-editor-and-backup
+PROGRESS six-harmonic-live-editor-and-backup 40 84.29
+PROGRESS six-harmonic-live-editor-and-backup 60 84.29
+RESULT six-harmonic-live-editor-and-backup 84.28669882839421 []
+PROGRESS mixed-six-live-editor-and-backup 20 79.45
+PASS streaming backup during mixed-six-live-editor-and-backup
+PROGRESS mixed-six-live-editor-and-backup 40 79.45
+RESULT mixed-six-live-editor-and-backup 79.44521019986216 []
+RESULT Mellow Canopy 59.407305306685046 []
+RESULT Satin River 60.45830461750516 []
+RESULT Velour Dawn 60.49276361130255 []

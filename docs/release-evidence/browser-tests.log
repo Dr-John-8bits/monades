@@ -1,0 +1,20 @@
+{
+  "storedBiomeRestore": true,
+  "explicitZeroBeforeStart": true,
+  "errors": [],
+  "audio": {
+    "rms": 0.03589664045745067,
+    "rate": 44100
+  },
+  "biomes": 65,
+  "tones": 128,
+  "allPages": 12,
+  "splashMoves": true,
+  "blankRms": 0,
+  "filterHelp": true,
+  "chromaticKeys": 27,
+  "octaves": true,
+  "heldPlayAndOctaves": true,
+  "helpBlocksNotes": true,
+  "overflow": false
+}

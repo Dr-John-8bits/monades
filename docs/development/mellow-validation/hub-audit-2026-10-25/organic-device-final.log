@@ -1,0 +1,12 @@
+RETRY read-only telemetry
+PROGRESS six-harmonic-all-pages 31 s 83.96 %
+{"name": "six-harmonic-all-pages", "cpu_peak_percent": 83.9593383873191, "issues": [], "rms": 0.026219844832945344}
+PROGRESS six-rings-all-pages 31 s 82.96 %
+{"name": "six-rings-all-pages", "cpu_peak_percent": 82.96002756719504, "issues": [], "rms": 0.19763323458247323}
+PROGRESS six-snare-all-pages 32 s 80.22 %
+{"name": "six-snare-all-pages", "cpu_peak_percent": 80.22053756030324, "issues": [], "rms": 0.040579025322973104}
+{"name": "six-plectrum-glass-ui", "cpu_peak_percent": 73.44934527911785, "issues": [], "rms": 0.0023125015682679225}
+PROGRESS mixed-six-all-pages 31 s 78.5 %
+PROGRESS mixed-six-all-pages 62 s 78.5 %
+PROGRESS mixed-six-all-pages 92 s 78.5 %
+{"name": "mixed-six-all-pages", "cpu_peak_percent": 78.49758787043419, "issues": [], "rms": 0.0913178733848646}

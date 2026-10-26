@@ -1,0 +1,21 @@
+START mixed-ambient-soak seconds 600
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 31, "cpu_max_pct": 65.75, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 61, "cpu_max_pct": 65.75, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 92, "cpu_max_pct": 65.75, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 122, "cpu_max_pct": 65.75, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 152, "cpu_max_pct": 65.75, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 182, "cpu_max_pct": 65.78, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 213, "cpu_max_pct": 65.78, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 244, "cpu_max_pct": 65.78, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 275, "cpu_max_pct": 65.78, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 306, "cpu_max_pct": 65.78, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 336, "cpu_max_pct": 65.82, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 367, "cpu_max_pct": 65.82, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 397, "cpu_max_pct": 65.82, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 428, "cpu_max_pct": 65.82, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 459, "cpu_max_pct": 65.82, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 490, "cpu_max_pct": 65.82, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 520, "cpu_max_pct": 65.82, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 551, "cpu_max_pct": 65.82, "xruns_delta": 0, "quality": 0, "issues": []}
+PROGRESS {"name": "mixed-ambient-soak", "elapsed": 581, "cpu_max_pct": 65.82, "xruns_delta": 0, "quality": 0, "issues": []}
+RESULT mixed-ambient-soak PASS 65.82 % []

@@ -1,0 +1,70 @@
+MUTABLE DREAMS 1.1 — VISIBLE BROWSER ACCEPTANCE
+25 October 2026. Manual steps, NOT a completed automatic browser test.
+
+The tool's browser URL policy denied access to the local file:// preview and
+explicitly prohibited alternate-surface/indirect workarounds. The software and
+real-MIDI protocol tests remain valid, but do not demonstrate rendered controls,
+browser audio-device behavior, file dialogs, downloads or MIDI consent prompts.
+
+Use the current Mutable-Dreams-1.1.html in a supported browser. Reload to pick up
+the current packaged page. Test at normal and narrow widths and with keyboard
+focus. Record the browser/version, OS, pass/fail, and any exact visible error.
+Do not test hardware control while another bench script or person uses the FM-1.
+
+BROWSER INSTRUMENT (no hardware connection)
+1. Start the instrument. The ready state appears and a warm Biome makes sound.
+2. Select Mellow Canopy, Satin River and Velour Dawn; stop and start each.
+3. Visit all nineteen pages; titles, knob values and sliders remain readable.
+4. Assign a different engine/preset to each track; edit a short note/rest phrase.
+5. Move Grain Size through 19/20/21 and larger values. Test freeze/reverse.
+6. Hold a function button for help, release, then close help. No accidental tap.
+7. In User Banks, choose an EMPTY browser slot, name a Biome, save it, change the
+   sound, then load it. The saved sound/sequence returns. Do not overwrite an
+   existing personal bank merely for testing.
+8. Export the live Biome as JSON. Reload the page, start it and import the file.
+   The instrument is restored; explicit Save is still needed to keep changes.
+9. Check ordinary playback, reduced animation/STILL, and pointer/keyboard input.
+
+LIVE FM-1 (after the bench releases the device)
+1. Connect FM-1 and allow MIDI SysEx when the browser asks. LIVE FM-1 is visible;
+   browser audio suspends. The FM-1 supplies the sound.
+2. Change a physical knob and see the editor update. Change a browser knob and
+   hear/see the device respond. Try track/page, rhythm, sound, mixer and grain.
+3. The canvas is a live parameter view, not a device-screen mirror. Verify labels
+   explain this and values remain legible at desktop and narrow window sizes.
+4. Export unsaved live work as JSON and saved banks as .mddb before write tests.
+5. Stop and choose internal clock. Import one patch: live state changes, saved
+   startup project does not change until an explicit Save. Test a malformed file:
+   an error is shown and the existing live patch survives.
+6. Name/save/load a Biome in an empty slot only if desired. Occupied slots must
+   ask for replacement. Cancel once and verify the previous bank survives.
+7. Full .mddb restore replaces every saved bank/project/preference and requires
+   physical SEL. It cannot be approved by simulated keys. HOME/timeout cancels.
+   A restore may create storage-related timing counts while playback is stopped;
+   do not confuse those with sustained playback overloads. Keep a private backup.
+8. Return to browser mode. Browser audio resumes; hardware controls and master
+   return to their physical state. Losing a connection must release held keys.
+9. Test one real MIDI permission refusal, reconnect, file download and file import.
+
+INSTALLER (separate qualification, never during playback)
+The private installer embeds the exact tested firmware and checks the known V15
+hash. Isolated tests cover syntax, package identity/hash, permission refusal and
+restart mismatch. The physical V15 roundtrip was performed by the Python tool.
+A real browser install/return requires the same fresh backups and no parallel
+MIDI clients; then confirm the restarted identity and restore .mddb via physical
+SEL. Do not infer that this browser workflow passed from the CLI roundtrip alone.
+
+STATUS RECORD
+Automatic browser GUI: BLOCKED by URL security policy, not bypassed.
+Owner browser-only observation: PASS (25 October 2026). The owner reports
+audio, page/knob operation and user-slot save/load working. This is human
+confirmation of those steps, not automatic proof of every item above.
+Owner live-editor observation: PASS for connection, bidirectional controls,
+live JSON and .mddb downloads, and disconnect. The first run found a focused
+Density slider that displayed the right number but kept its old position. The
+focus/gesture bug was fixed in browser code, reproduced in an isolated regression
+and confirmed fixed by the owner after reload. Other unreported steps above,
+including GUI file import/full-bank restore, remain unqualified. The actual
+browser reinstall subsequently passed; see BROWSER-INSTALL-RESULT.txt.
+See LIVE-EDITOR-SLIDER-FIX.txt for exact scope.
+Public release must describe only workflows that have actually passed.

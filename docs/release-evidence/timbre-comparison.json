@@ -1,0 +1,89 @@
+{
+  "scope": "Velvet Mist isolated tracks, same final engine, old versus curated settings; 3 seconds per track; controlled host render, not a listening verdict",
+  "rows": [
+    {
+      "kind": "old",
+      "track": 1,
+      "centroid": 149.0184954400145,
+      "dominant_hz": 130.63653843147674,
+      "rms": 0.06547270715236664
+    },
+    {
+      "kind": "old",
+      "track": 2,
+      "centroid": 784.2477382468218,
+      "dominant_hz": 783.8192305888605,
+      "rms": 0.1075894832611084
+    },
+    {
+      "kind": "old",
+      "track": 3,
+      "centroid": 345.58582036131116,
+      "dominant_hz": 261.61776429944814,
+      "rms": 0.006867636926472187
+    },
+    {
+      "kind": "old",
+      "track": 4,
+      "centroid": 260.86831490603646,
+      "dominant_hz": 165.1052820809429,
+      "rms": 0.041309017688035965
+    },
+    {
+      "kind": "old",
+      "track": 5,
+      "centroid": 397.76178664030306,
+      "dominant_hz": 391.90961529443024,
+      "rms": 0.11450086534023285
+    },
+    {
+      "kind": "old",
+      "track": 6,
+      "centroid": 594.815973517995,
+      "dominant_hz": 522.2014662894123,
+      "rms": 0.070738285779953
+    },
+    {
+      "kind": "final",
+      "track": 1,
+      "centroid": 148.9124095113944,
+      "dominant_hz": 130.63653843147674,
+      "rms": 0.06360407173633575
+    },
+    {
+      "kind": "final",
+      "track": 2,
+      "centroid": 196.01732350185463,
+      "dominant_hz": 196.12715136546245,
+      "rms": 0.10629182308912277
+    },
+    {
+      "kind": "final",
+      "track": 3,
+      "centroid": 262.06808643729585,
+      "dominant_hz": 261.61776429944814,
+      "rms": 0.0006312043988145888
+    },
+    {
+      "kind": "final",
+      "track": 4,
+      "centroid": 254.14022946122665,
+      "dominant_hz": 155.4540338590924,
+      "rms": 0.04749441519379616
+    },
+    {
+      "kind": "final",
+      "track": 5,
+      "centroid": 425.35154214985914,
+      "dominant_hz": 391.90961529443024,
+      "rms": 0.10814854502677917
+    },
+    {
+      "kind": "final",
+      "track": 6,
+      "centroid": 299.78916790891554,
+      "dominant_hz": 261.2730768629535,
+      "rms": 0.06477202475070953
+    }
+  ]
+}

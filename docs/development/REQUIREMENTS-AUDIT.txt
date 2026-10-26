@@ -1,0 +1,112 @@
+LATEST: BROWSER-INSTALL-RESULT.txt records the successful owner-operated
+browser reinstall and independent complete saved-data readback. Earlier pending
+installer statements below are historical. Release-label build has separate evidence.
+
+MUTABLE DREAMS 1.1 — REQUEST AUDIT
+25 October 2026, after live-editor/recovery integration. Development candidate; the public 1.0 remains unchanged.
+
+Implemented and checked in code / software tests, with device evidence where
+stated in DEVICE-TEST-REPORT.txt. An implemented function is not automatically
+qualified for every simultaneous combination.
+
+1. SOUND AND COMPOSITION
+YES: six freely assignable tracks, including six copies of one instrument.
+YES: selected original Plaits algorithms, Rings modal subset, selected Elements
+strike/resonator subset, original Choir, Round Bass, Mellow Drift and Satin Morph.
+Twelve engines; not full replicas of every Mutable Instruments module.
+YES: Marbles-inspired remembered variation (EUCLID/STEP phrase modes), Tides-inspired slow filter motion,
+Warps-inspired ring blending. These are deliberately labelled inspired helpers.
+YES: mixer with per-track volume / granular / delay / room sends; shared delay
+and room; no master EQ. Tail clearing and signal protection are tested.
+YES: warm factory library, controlled resonance, LP12 / LP24 / low-pass gate,
+slow envelopes and glide. 224 sounds, 76 musical Biomes and a Blank Biome.
+YES: own 16-step note/rest phrases per track, separate lengths / probabilities /
+ratchets / accents / clock divisions, root and scale snapping.
+LIMIT: no 64-step song arranger, per-step ties/gate/velocity or live overdub.
+YES: the audited 256-frame build passed all twelve six-engine stress cases and
+a five-minute mixed run with at least 15% measured reserve. A later Plectrum
+fix has separate targeted results; see exact hashes in DEVICE-TEST-REPORT.txt.
+LIMIT: finite test cases do not qualify every arbitrary patch or long session.
+LIMIT: ECO reconstructs FM/VA/Harmonic from half rate; a shared Elements mode
+budget reduces dense patches. Not a claim of six full Eurorack modules at once.
+
+2. PERSONAL BIOMES AND SOUNDS
+YES: 16 named User Biomes and 64 User Sounds, stored independently of factory
+recipes. Full patch/phrase/mix/effect state saved in a Biome, overwrite guard,
+explicit stopped writes, CRC-checked A/B journal. Hardware save/load/restart and
+software interrupted-write tests passed at the earlier checkpoint.
+YES: individual user-sound recall keeps destination rhythm, note and mix.
+YES: browser-local banks and individual JSON Biome import/export.
+YES: live browser-to-device editing, complete live patch JSON upload/readback,
+and full saved-bank .mddb backup/restore are integrated and device-tested.
+Restore requires physical SEL; saved bank writes require STOP/internal clock.
+LIMIT: browser banks and hardware banks are separate. Dedicated delete/copy
+management and persistent user titles on LIVE are not currently complete. The firmware stores
+the name inside each user bank; the BANKS screen shows it after recall.
+LIMIT: granular captured audio and session MIDI settings are not a saved Biome.
+
+3. MIDI
+YES: USB/TRS input parser, channels 1-6, mono note/velocity/release, sustain,
+expression, bend +/-2 semitones, documented CCs, factory bank/program changes,
+channel-16 live macros. Optional USB/TRS 24-PPQN transport with loss timeout.
+YES: software feature tests and actual USB note/CC/program/clock checks.
+LIMIT: no MPE, MIDI OUT sequencing, live MIDI recording or Song Position.
+YES: 64,800 USB MIDI messages across all six channels in two minutes passed;
+all 3,600 scheduled Note Ons per channel arrived, with zero new audio faults.
+Actual USB Start/Stop/Continue, 24-PPQN clock and clock-loss timeout passed.
+LIMIT: physical TRS cabling, longer jitter/latency runs and all CC combinations
+remain open. A routing-only test does not qualify the physical TRS connector.
+
+4. DISPLAY / USABILITY
+YES: every function key has held help; releasing the hold does not tap. All 14
+keys passed on hardware. The audit found and fixed incorrect generic help
+on newer pages: global keys now keep their own help; the page key explains
+its controls. Native regression also checks that a held key cannot tap.
+Main-project Save now also refuses an active external clock, matching Banks.
+Six-track navigation and contextual knob labels.
+YES: animated logo intro, optional master-respecting chime, STILL mode.
+YES: Elements SOUND now names Mallet/Plectrum/Particles directly. Plectrum
+main-impulse delay was corrected for rapid retriggers, with a regression that
+fails the previous integration and passes the new one.
+YES: independent page contours, fern patterns and live blooms. This audit adds
+higher contrast, quiet label backplates, rounded Nunito headings, track activity
+meters, translucent leaf panels, curved bud sliders, tapered mixer reservoirs
+and seven flowing contour trails. Geometry is cached and frame rate bounded.
+STILL screenshots were verified pixel-identical; see ORGANIC-INTERFACE.txt.
+LIMIT: the physical screen is 240x240. Cleaner antialiasing and typography do
+not add physical pixels. No claim of a higher-resolution LCD.
+
+5. STABILITY / BUILD / INSTALLATION
+YES: macOS device compiler repaired using an explicit 4 KiB guest-heap alignment
+fix and interpreter mode. Native, WASM and hardware builds use the same DSP.
+YES: no allocations in render; source and package/hash checks; private backups
+before firmware tests. Published 1.0 and the developer handoff remain intact.
+YES: CPU2 options inspected, including JIANT and issue reports. NOT ENABLED:
+shared ownership/cache coherency/flash parking/deadline fallback need a separate
+qualified implementation. More theoretical CPU power is not a safety proof.
+YES: exact 427a candidate -> original Stock V15 -> same candidate, followed
+by physically confirmed restore and byte-identical readback of all 22 objects.
+Stock V15 erases User Banks/preferences: a complete .mddb backup is required.
+YES: physical cold start with complete saved-data persistence and extended
+zero-xrun audio/MIDI windows; storage timing investigated separately.
+Owner confirmed browser-only audio, controls and User Bank save/load.
+OPEN: physical TRS MIDI (owner deferred), remaining visible browser/permission
+steps and browser installer qualification. See the follow-up test report.
+YES: exact published 1.0 -> 427a candidate directly on the device, all original
+saved Biome parameters migrated, other saved objects preserved. See
+DIRECT-1.0-UPDATE-TEST.txt. Owner confirmed the corrected live Density control,
+both file downloads and disconnect. Browser installer steps remain separate.
+No unverified claim that an update from every other firmware is supported.
+
+6. AFTER THE FIRMWARE IS FINISHED — EXPLICITLY DEFERRED
+Private English editor, source and install/return files are prepared; retain 1.0.
+Update the public English website/manual after qualification and acceptance.
+Professional product tutorial/marketing video showing the actual FM-1, actual
+controls and diverse captured firmware audio, calm pleasant English female
+voice, grateful acknowledgement of the community. No generic AI visual filler.
+YouTube Kid Bunka / Instagram package and Sven update email with verified
+features, exact download/source links and preserved credits to Emilie Gillet,
+Mutable Instruments, platform authors and other incorporated components.
+Do not publish the candidate merely because local tests pass.
+
+See FIRMWARE-HUB-AUDIT.txt for rated-project comparison and source decisions.

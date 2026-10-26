@@ -1,0 +1,43 @@
+BANK BACKUP / RESTORE — NEXT FIRMWARE INTEGRATION
+24 October 2026. Investigated, not enabled in the tested binary.
+
+The bundled platform already has a reusable all-or-nothing USB backup/restore
+implementation. Reuse it rather than inventing another unsafe write protocol:
+base/device/backup.c, base/tools/fm1_backup.py, base/web/backup/index.html,
+base/tests/backup_test.c, backup_tool_test.py and backup_page_test.mjs.
+Enable with backup=true in app/fm1.toml and the documented APP_BACKUP_* hooks.
+
+Proposed scope: saved project, saved preferences, sixteen User Biomes and four
+packed User Tone banks. Never include OBJ_PANEL: calibration belongs to the unit.
+Use a Mutable Dreams-specific image magic/version and exact object-ID list.
+The platform validates lengths and CRCs, stages alternate A/B copies and commits
+through a recovery journal. Its journal uses 0xE1000, outside our user-bank map.
+Audit that region against stock/update staging again before enabling.
+
+Memory estimate from source: 3840 bytes in the pool plus metadata. The current
+pool has 13104 bytes spare, so this appears to fit while retaining the builder's
+8192-byte floor; only a linked build can confirm the final total. No continuous
+synth processing is added when inactive. Streaming still needs device stress.
+
+Important contract choices, before implementation:
+- Back up SAVED objects without silently overwriting the startup project. Keep
+  the existing separate live-patch export. Say Save first if desired.
+- Block every app save while the stream holds the objects; block restore while
+  playing OR using external clock. Do not permit a save to race a backup.
+- Restore reloads preferences, clears audio/MIDI gates and reloads the saved
+  project. Validate app objects and versions; preserve unknown future formats.
+- Show exactly what will be replaced and require the platform's physical SEL
+  confirmation. Remote simulated keys are deliberately excluded by the base.
+  Do not bypass that check for automated testing.
+- Exercise truncated/corrupt/wrong-app/cancelled transfers, interrupted staging,
+  journal recovery, blank objects, all 16/64 slots and a real confirmed restore.
+
+Then qualify stock V15 -> exact final 1.1 -> V15 -> 1.1 and restore user data.
+The current project_backup.py --user-banks is a read-only export, not restore.
+The current browser's banks remain separate. No public restore support is claimed.
+
+Evidence from this audit: the platform's own simulated-NOR C suite passed
+with AddressSanitizer/UBSan, including all 122 interrupted-write positions,
+old-or-new atomic recovery and calibration preservation. The matching Python
+backup tool suite passed too. This tests the platform's example object map,
+NOT integration into Mutable Dreams or a real hardware restore.

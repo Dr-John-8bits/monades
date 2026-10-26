@@ -1,0 +1,38 @@
+PROGRESS six-harmonic-live-editor-and-backup 20 84.34
+PROGRESS six-harmonic-live-editor-and-backup 40 84.34
+PROGRESS six-harmonic-live-editor-and-backup 60 84.34
+PROGRESS six-harmonic-live-editor-and-backup 80 84.34
+PROGRESS six-harmonic-live-editor-and-backup 100 84.34
+PROGRESS six-harmonic-live-editor-and-backup 121 84.34
+PROGRESS six-harmonic-live-editor-and-backup 141 84.34
+PASS streaming backup during six-harmonic-live-editor-and-backup
+PROGRESS six-harmonic-live-editor-and-backup 161 84.34
+PROGRESS six-harmonic-live-editor-and-backup 181 84.34
+PROGRESS six-harmonic-live-editor-and-backup 201 84.34
+PROGRESS six-harmonic-live-editor-and-backup 221 84.34
+PROGRESS six-harmonic-live-editor-and-backup 241 84.34
+PROGRESS six-harmonic-live-editor-and-backup 261 84.34
+PROGRESS six-harmonic-live-editor-and-backup 282 84.34
+RESULT six-harmonic-live-editor-and-backup 84.33838731909027 []
+PROGRESS mixed-six-live-editor-and-backup 20 79.31
+PROGRESS mixed-six-live-editor-and-backup 40 79.31
+PROGRESS mixed-six-live-editor-and-backup 60 79.31
+PROGRESS mixed-six-live-editor-and-backup 81 79.31
+PROGRESS mixed-six-live-editor-and-backup 101 79.31
+PROGRESS mixed-six-live-editor-and-backup 121 79.31
+PROGRESS mixed-six-live-editor-and-backup 141 79.31
+PASS streaming backup during mixed-six-live-editor-and-backup
+PROGRESS mixed-six-live-editor-and-backup 161 79.31
+PROGRESS mixed-six-live-editor-and-backup 182 79.31
+PROGRESS mixed-six-live-editor-and-backup 202 79.31
+PROGRESS mixed-six-live-editor-and-backup 222 79.31
+PROGRESS mixed-six-live-editor-and-backup 242 79.31
+PROGRESS mixed-six-live-editor-and-backup 263 79.31
+PROGRESS mixed-six-live-editor-and-backup 283 79.31
+RESULT mixed-six-live-editor-and-backup 79.30737422467264 []
+PROGRESS Mellow Canopy 20 59.55
+RESULT Mellow Canopy 59.54514128187457 []
+PROGRESS Satin River 20 60.41
+RESULT Satin River 60.423845623707784 []
+PROGRESS Velour Dawn 20 60.44
+RESULT Velour Dawn 60.44107512060648 []

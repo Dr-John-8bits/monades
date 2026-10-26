@@ -1,0 +1,19 @@
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3576 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 7005 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 8, 8544 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 8736 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 11760 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 19712 B
+font set barlow: 60569 B (approx)
+words: 1 own + 51 common -> <workspace>/work/mutable-dreams/app/web/words/1384bc7f89.json (1013 B)
+loader: image 8264 B at 0x1c0a800, bss end 0x1c0f540
+loader: ota.bin 6980 B
+  ok    .ram_text: 932 insns, no calls
+  ok    no 64-bit multiply inlined beside a load
+  ok    no soft-double routines (single-precision FPU only)
+  ok    image 183736 B; RAM .data+.bss 22376 B of 98304; pool 296896 B of 344064
+  ok    register access: felucca-bsp only (device/, include/ and the app clean)
+parts    USB audio in  (not built in: Bluetooth MIDI, Bluetooth MIDI devices, WiFi, USB audio out, screen mirroring, backup and restore, velocity and pressure)
+app      <workspace>/work/mutable-dreams/app/build/mutable-dreams.bin  183736 B
+loader   <workspace>/work/mutable-dreams/app/build/loader/ota.bin  6980 B
+package  <workspace>/work/mutable-dreams/app/build/mutable-dreams-1.0.fwsc  610136 B, identity FM-1_710010000

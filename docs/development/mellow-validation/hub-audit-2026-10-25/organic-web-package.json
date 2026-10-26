@@ -1,0 +1,8 @@
+{
+  "html_sha256": "504ff0c5ad9b51f690039b7da2f2a1979d02da0a7857a5b8b6ab24ecef99230d",
+  "wasm_sha256": "3f5dcb75e1ccad3e9619dcc082b65dd4a0d45639ec6fd064b3200e52289fb504",
+  "embedded_current_wasm": true,
+  "embedded_current_screen": true,
+  "unexpanded_markers": false,
+  "interactive_browser_visual_test": false
+}

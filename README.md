@@ -37,9 +37,13 @@ The [published v1.0 release](https://github.com/kidbee85-beep/mutable-dreams/rel
 
 ## Complete corresponding source
 
-Download [Mutable-Dreams-1.1-Source.zip](Mutable-Dreams-1.1-Source.zip) for the complete buildable app, selected upstream DSP, platform/BSP, tools, tests and original notices. This remains a **distribution repository**: GitHub's automatic source download contains this repository; extract the named source ZIP to build the firmware. The combined distribution is **GPL-3.0-only** with original MIT/MPL-2.0 and font notices retained. See [licensing](LICENSING-GPL.txt).
+The full **1.1 source tree is directly browsable in this repository**: [application](app/), [sound engine](app/dsp/), [selected upstream modules](app/third_party/), [platform and BSP](base/), [browser sources](web/), [build tools](tools/), [tests](tests/) and [presets](presets/). Clone the repository and follow [BUILDING.md](BUILDING.md); no source ZIP extraction or submodule checkout is needed.
 
-The archive README documents host/device/WASM builds. Python 3.11+, Pillow and a C/C++ compiler are required; device builds also need the external JieLi pi32v2 compiler and AC79 SDK, while web builds use WASI SDK 34.0. No CI-built badge is claimed.
+All **807 files** from the published [1.1 source archive](Mutable-Dreams-1.1-Source.zip) are preserved byte for byte, with its original README retained under `docs/release-1.1/`. Run `python3 tools/verify_published_source.py` to verify the match. [Source publication and unchanged release hashes](SOURCE-PUBLICATION.md).
+
+The combined distribution is **GPL-3.0-only** with original MIT/MPL-2.0 and font notices retained. See [licensing](LICENSING-GPL.txt). Python 3.11+, Pillow and Clang/Clang++ are required for host builds; device builds also need the external JieLi pi32v2 compiler and AC79 SDK, while web builds use WASI SDK 34.0. No CI-built badge is claimed.
+
+The existing v1.0/v1.1 tags and release assets are unchanged. Their automatic source downloads retain their historical repository layout. Use the current default branch for the expanded tree, or the named release source ZIP for the original snapshot.
 
 Firmware identity: `FM-1_710010100`  
 Firmware SHA-256: `8e039bb0e9681fbbb0504e9b7d251895958fd88ae97f11ff0342b4aef38143d2`
@@ -48,7 +52,7 @@ The [qualification report](Validation-1.1.txt) distinguishes exact-final-file te
 
 ## For The Firmware Hub
 
-[FIRMWARE-HUB.json](FIRMWARE-HUB.json) supplies exact firmware/source URLs, hashes, author, categories, screenshots, installer, recovery and tutorial. Use the named complete source archive. Listing acceptance and integration are the maintainer's decision.
+[FIRMWARE-HUB.json](FIRMWARE-HUB.json) supplies exact firmware/source URLs, hashes, author, categories, screenshots, installer, recovery and tutorial. The current default branch contains the browsable source tree; the named source archive remains available with its original hash. Mutable Dreams 1.1 is listed on [The Firmware Hub](https://thefirmwarehub.com/#fw-mutable).
 
 Native firmware renders: [Live](Screen-1.1-Live.png), [Sound](Screen-1.1-Sound.png), [Mixer](Screen-1.1-Mixer.png), [Grain](Screen-1.1-Grain.png), [Phrase](Screen-1.1-Phrase.png), [Banks](Screen-1.1-Banks.png). These are rendered firmware screens, not camera photographs.
 

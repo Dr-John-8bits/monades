@@ -1,0 +1,137 @@
+HISTORICAL MELLOW CHECKPOINT — retained for provenance.
+The current state is DEVICE-TEST-REPORT.txt and Recovery-1.1.txt.
+Live editor, full restore and exact V15 roundtrip were completed subsequently.
+
+MUTABLE DREAMS 1.1 — MELLOW DEVELOPMENT CHECKPOINT
+25 October 2026. Not a release. Published 1.0 and the developer handoff ZIP are unchanged.
+
+Implemented
+- Elements pickup weights interpolated once per block instead of rebuilding two
+  cosine oscillators per sample. In addition to the FULL-to-ECO guard, multiple
+  Elements slots share 16 modes: 2 slots / 8 each, 3 / 5, 4 / 4, 5 / 3, 6 / 2.
+  A single slot keeps 16 FULL / 8 ECO. No track is silenced. This changes timbre
+  in dense patches and is not a measured hardware-performance guarantee.
+- Mellow Drift: two gently drifting sine oscillators, finite odd harmonics for a
+  triangle-like contour, mild second harmonic. No new delay buffers, no global EQ.
+- 64 additional presets (IDs 160–223): Mellow, Velvet Bass, Hearth VA and Satin.
+  Twelve new musical Biomes (65–76). Existing IDs and Blank (64) stay in place.
+  Totals: 12 engines, 224 sounds, 76 musical Biomes plus Blank, six mono tracks.
+- Original Satin Morph: interpolated, band-limited sine/triangle/reed/rounded-saw
+  tables, gentle drift and smooth spectral controls. No additional delay memory.
+- Named banks: 16 user Biomes, 64 user tones. GLO cycles to USER BANKS. K1 slot,
+  K2 Biome/Tone, K3 right loads, K4 name cursor, PRESET changes its character.
+  SAVE writes explicitly while stopped and in internal-clock mode; existing slots
+  require a second press within three seconds. Names: up to 23 ASCII characters.
+  Tone recall preserves rhythm, note, levels and sends. Biomes preserve full patch.
+  Browser has the same banks, name field and file export/import; browser storage
+  is independent of the physical device. Direct browser-to-device patch transfer
+  is not implemented. Export files before clearing browser data.
+- Sequence mode OFF / EUCLID / STEP: STEP plays the editable 16-note/rest phrase
+  without hidden Euclidean hit gating. Length uses 1–16 steps in STEP mode (longer
+  Rhythm lengths are clamped for this mode); scale, probability, repeats, accent,
+  clock division and six independent phrases remain available. Per-step velocity,
+  gate, ties, realtime recording, 32/64 steps and chaining are not implemented.
+- MIDI input, at most 16 packets per audio block: channels 1–6, exact notes 24–96
+  by default, optional scale snap; monophonic last-note priority. Velocity,
+  melodic note-off / velocity-zero off, sustain, smoothed +/-2-semitone bend,
+  expression, CC7 level, CC10 pan, CC74 cutoff, CC71 resonance, CC5 glide,
+  CC91 room, custom CC12 delay / CC13 grain. CC120 silence, CC123 release,
+  CC121 reset performance controls. Bank MSB (CC0) + Program selects factory
+  tones (bank*128+program); LSB is reserved/ignored. Channel 16 CC16–19 macros.
+  USB or TRS external 24-PPQN clock, Start/Continue/Stop, approximate smoothed
+  tempo tracking and two-second clock-loss stop. INT is default. MIDI settings
+  are session settings, not saved in a patch. No MPE, MIDI output, Song Position
+  Pointer, realtime record/overdub or live-device editor protocol is claimed.
+  Repeated held notes do not form a polyphonic stack. A 20-second, 10,800-message
+  USB flood passed on the device; longer floods, real-clock jitter and physical
+  TRS cabling still need qualification.
+- Rounded control cards, page-specific organic contours/ferns, slow margin pollen
+  and subpixel live blooms using cached geometry;
+  motion-off still works, long-hold help remains separate from short actions.
+
+Patch and storage
+Current patch version is 6, size still 1292 bytes. v5 is imported without changing
+its fields; v1–v4 migrations remain. Older firmware does not accept new v6 patches.
+Bank objects append to IDs 0–2 (unchanged): 16 Biome pairs at 0x98000..0xB7FFF and
+four packed tone pairs at 0xB8000..0xBFFFF. Mutable Dreams uses no sample banks.
+Existing patch/panel/preferences, updater staging and calibration regions remain
+separate. Do not interpret this as migration of another firmware's sample data.
+
+Validation completed
+Native address/undefined-behavior sanitized feature tests, full DSP catalogue/
+stress tests, granular window sweep, actual WASM worklet, 19 pages, patch roundtrip,
+legacy import, invalid-patch rejection, user bank recall/overwrite/reboot and
+64 new warm presets; hardware UI simulator checks including long holds.
+Real storage algorithm tested against simulated NOR with interruption injection
+across all 20 new bank objects; committed payload survives tested interruptions.
+Three 24-second WAV examples are offline renders, not device recordings.
+See current logs in docs/development/mellow-validation; earlier logs elsewhere
+refer to earlier candidates and must not be treated as current qualification.
+
+DEVICE BUILD REPAIRED / CURRENT DEVICE WORK
+The Apple Silicon Blink guest heap-page mismatch is fixed. The target compiler
+now runs with -m -j (interpreter mode); see BUILD-ENVIRONMENT-FIX.txt. Builds pass
+container CRC/payload validation, app-size/RAM/pool limits and target hazards.
+A private live/saved-project backup was made before updating. The device was
+already on an older 1.1-dev (FM-1_710010100), not 1.0. Preserve that provenance.
+
+Physical-device tests passed for named Biome save/recall, full custom phrases,
+64th sound slot, overwrite confirmation, refusal to save during playback, sound
+recall preserving mix/patterns, all fourteen held-key help actions, and no short
+key action on release after a hold. User Biome and sound objects survived the
+firmware update/restart byte-for-byte, as did the immediately preceding saved
+project. That saved project differs from the first backup only in version 5->6
+and track-1 mute 0->1. Both backups are retained; the cause of that earlier change
+was not established. No claim that the initial saved bytes remained untouched.
+
+Physical USB MIDI verified: independent channels 1/2, CC74, bank/program address
+208, Start/Clock, and two-second clock-loss stop. TRS cabling, longer MIDI floods
+and all CC combinations still need device qualification. See the new report for
+the completed six-channel 10,800-message USB flood. Warm audio captures and
+current CPU results belong to the dated device report, not older test logs.
+
+Performance work: Elements/Rings pickup work per tile, unchanged-coefficient
+caching, 64-frame internal DSP tiles and block processing for filters, Rings and
+Snare. DSP loop optimization uses O3 without fast-math; floating-point contraction
+remains disabled. The complete change was sample-identical across 6,144,000 native float samples
+covering all 12 engines, all 4 filter modes and changing notes/envelopes/cutoff.
+Snare also passed 465,000 reference samples across 10,000 changing-parameter
+blocks and eight block sizes. These are correctness checks, not device speed claims. The subsequent Plectrum
+integration fix intentionally changes rapid plucks; it is not sample-identical.
+Do not enable the second core based
+on another firmware's success; see SECOND-CORE-AND-REFERENCE-REVIEW.txt.
+
+REMAINING RELEASE GATES
+Use the latest DEVICE-TEST-REPORT.txt for the installed binary hash and measured
+limits. Earlier candidates failed six-Snare/FM/Rings/Harmonic extreme tests; do
+not present them as a blanket six-track pass. Require zero faults and at least
+15% worst-case reserve for supported configurations, plus longer qualification.
+User listening remains necessary; digital peak/finite checks cannot certify
+subjective warmth or every possible click. Verify official stock V15 installation
+and return with the exact eventual release package. No arbitrary-firmware update
+claim, no public 1.1 publication yet. Published 1.0 and the handoff stay unchanged.
+
+Named banks: save-as/overwrite and read-only device export exist. Dedicated
+rename/delete/copy, bank upload/restore and live browser/device exchange are not
+yet implemented. The browser supports individual Biome JSON export/import;
+keep external copies, as clearing browser data erases its local slots. User names
+appear on User Banks; LIVE still displays the factory-origin Biome name.
+
+The update-video and Sven-email requirements are saved in UPDATE-VIDEO-BRIEF.txt.
+Use real FM-1 footage, measured features and real recorded firmware audio, calm
+English narration, useful walkthroughs and sincere thanks to the community.
+
+HUB AUDIT ADDENDUM — 25 OCTOBER
+Higher contrast, label backplates, build-time Nunito rasterization, selected-track
+meters; subsequently translucent leaf panels, curved bud sliders, tapered mixer
+reservoirs and seven flowing contour trails; unchanged 80 ms animation ceiling.
+Context help corrected on newer pages, external-clock main Save blocked, and
+Elements K3 now names its exciter. Cached SVF coefficients, fused Snare filter/mix
+and local oscillator/mixer state passed exact-sample checks before the separate
+Plectrum correction. Plectrum now delivers its main pulse before fast ratchets.
+256-frame callbacks improve measured reserve at the cost of a longer callback
+quantum (5.80 ms vs 2.90 ms); DSP tiles remain 64. Acoustic latency is unmeasured.
+The twelve-engine stress matrix passed on build 8fd3. The e59b Plectrum fix
+and final 976a organic interface each have separate targeted results in
+DEVICE-TEST-REPORT.txt. Never mix these hashes.
+No full hardware-bank restore or live hardware browser editor is claimed.

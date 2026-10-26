@@ -1,0 +1,20 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import {createHash,webcrypto} from 'node:crypto';
+const html=fs.readFileSync(process.argv[2],'utf8'),firmware=fs.readFileSync(process.argv[3]);
+assert(!/\{\{[A-Z_]+\}\}|\/\*(?:LIB|META)\*\//.test(html));
+const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]);assert.equal(scripts.length,1);
+new vm.Script(scripts[0]);
+const elements=new Map(),element=id=>{if(!elements.has(id))elements.set(id,{textContent:'',value:0,disabled:false,addEventListener(){},setAttribute(){}});return elements.get(id);};
+const ctx=vm.createContext({document:{getElementById:element,querySelectorAll:()=>[],documentElement:{}},window:{addEventListener(){}},navigator:{},setTimeout:fn=>setTimeout(fn,0),clearTimeout,performance,crypto:webcrypto,atob,Uint8Array,console});
+vm.runInContext(scripts[0],ctx);
+const meta=vm.runInContext('meta',ctx),raw=Buffer.from(meta.data,'base64');assert(raw.equals(firmware));assert.equal(meta.product,'FM-1_710010100');assert.equal(meta.sha256,createHash('sha256').update(raw).digest('hex'));
+assert.equal(vm.runInContext('productOf(Uint8Array.from(atob(meta.data),c=>c.charCodeAt(0)))',ctx),meta.product);
+assert.equal(vm.runInContext('STOCK_SHA256',ctx),'db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a');
+assert(html.includes('Returning to V15 erases User Banks and preferences'));
+// No hardware writes: isolated permission/restart paths with a fake updater.
+vm.runInContext('image=new Uint8Array([1]); navigator.requestMIDIAccess=async()=>{throw Error("permission denied")}',ctx);
+await vm.runInContext('run(image,meta.product,false)',ctx);assert.equal(vm.runInContext('writing',ctx),false);assert.equal(element('go').disabled,false);
+vm.runInContext('navigator.requestMIDIAccess=async()=>({}); Updater=class {async find(){return {link:{close(){}}}} async resume(){return true} async waitFor(){return {link:{close(){}},id:{text:"WRONG"}}}}',ctx);
+await vm.runInContext('run(image,meta.product,true)',ctx);assert.equal(vm.runInContext('lastKey',ctx),'mismatch');assert.equal(vm.runInContext('writing',ctx),false);
+vm.runInContext('Updater.prototype.waitFor=async()=>({link:{close(){}},id:{text:meta.product}})',ctx);
+await vm.runInContext('run(image,meta.product,false)',ctx);assert.equal(vm.runInContext('lastKey',ctx),'done');assert.equal(element('bar').value,100);
+console.log('PASS private installer: embedded firmware exact hash/identity, V15 hash restriction, complete JS syntax, denied permission recovery, resumed-update identity mismatch rejected, successful restart confirmed. Isolated JavaScript only; no browser GUI or hardware write.');

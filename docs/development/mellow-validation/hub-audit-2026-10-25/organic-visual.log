@@ -1,0 +1,4 @@
+  ok playing == 0
+  ok invalid == 0
+  ok queue_drops == 0
+host: 8821 ms simulated, 666 blits, render 0.3% of real time (host CPU)

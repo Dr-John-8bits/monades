@@ -1,0 +1,16 @@
+before-any-test 8
+after-read-only-live-snapshot 8
+after-two-read-only-full-backups 8
+stopped-internal 8
+live-upload-1 8
+live-upload-2 8
+live-upload-3 8
+live-upload-4 8
+live-upload-5 8
+live-upload-6 8
+after-all-pages 8
+factory-biome-1 8
+factory-biome-2 8
+factory-biome-3 8
+original-live-restored 8
+PASS fresh backup twice identical, initial phase observations saved.

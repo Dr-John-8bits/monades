@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "pages": 17,
+  "patchBytes": 1292,
+  "legacyImport": true,
+  "invalidPatchUnchanged": true,
+  "exportRoundTrip": true,
+  "newDemos": 5,
+  "tone159": true,
+  "peak": 0.07221651077270508,
+  "wasmMemory": 4194304,
+  "hardwareTest": false
+}

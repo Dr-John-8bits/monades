@@ -1,0 +1,61 @@
+{
+  "physical_power_cycle_confirmed": true,
+  "status": {
+    "element_modes": 16,
+    "motion": 1,
+    "boot_sound": 1,
+    "page": 0,
+    "help": -1,
+    "intro": 0,
+    "quality_reductions": 0,
+    "master": 1942,
+    "protocol": 2,
+    "ms": 20625,
+    "cpu": 22,
+    "cpu_peak": 22,
+    "xruns": 0,
+    "overloads": 0,
+    "frames": 891648,
+    "nonfinite": 0,
+    "dropped": 0,
+    "quality": 1,
+    "playing": 0,
+    "events": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "models": [
+      8,
+      0,
+      9,
+      7,
+      7,
+      7
+    ],
+    "filters": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "memory": 333728,
+    "patch_version": 6,
+    "grain_writes": 891648,
+    "freeze": 0,
+    "peak": 0.0,
+    "voice_quanta": 0,
+    "skipped_quanta": 83592,
+    "tempo": 80,
+    "callback_peak_us": 1638,
+    "callback_budget_us": 5804
+  },
+  "saved_startup_project_exact": true,
+  "all_22_saved_objects_exact": true,
+  "firmware_sha256": "427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534"
+}

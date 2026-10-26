@@ -1,0 +1,36 @@
+{
+  "pass_": true,
+  "firmware_sha256": "75008881683cbeb3515e24cfd7830136b90eb293f0752dc66b203b7f2ee7cd9f",
+  "stock_sha256": "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a",
+  "final_identity": "FM-1_710010000",
+  "steps": [
+    {
+      "step": "install-same-version",
+      "package_sha256": "75008881683cbeb3515e24cfd7830136b90eb293f0752dc66b203b7f2ee7cd9f",
+      "started": "2026-10-18T21:27:47+0200",
+      "identity_observed": "FM-1_710010000  [running]  port: X0X FM-1",
+      "pass_": true
+    },
+    {
+      "step": "install-stock",
+      "package_sha256": "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a",
+      "started": "2026-10-18T21:28:51+0200",
+      "identity_observed": "FM-1_015  [running]  port: FM-1",
+      "pass_": true,
+      "port_name_after_restart": "FM-1",
+      "harness_note": "Installer succeeded; follow-up query was retried after replacing the obsolete X0X port selector."
+    },
+    {
+      "step": "install-from-stock",
+      "package_sha256": "75008881683cbeb3515e24cfd7830136b90eb293f0752dc66b203b7f2ee7cd9f",
+      "started": "2026-10-18T21:31:30+0200",
+      "identity_observed": "FM-1_710010000  [running]  port: X0X FM-1",
+      "pass_": true
+    }
+  ],
+  "same_version_saved_patch_and_preferences_preserved": true,
+  "stock_roundtrip_saved_patch_preserved": true,
+  "stock_roundtrip_preferences_reset_to_defaults": true,
+  "installer": "Python USB-MIDI updater; exact release package",
+  "port_name_change": "Stock V15 changed X0X FM-1 to FM-1; follow-up harness query retried using the current port. The installer itself handled the change."
+}

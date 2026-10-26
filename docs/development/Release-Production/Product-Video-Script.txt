@@ -1,0 +1,94 @@
+MUTABLE DREAMS 1.1 — PRODUCT FILM / PRODUCTION SCRIPT
+Private production draft. Target 6:30–7:00. English narration, very calm female
+voice. Allow natural breaths and music-only pauses. No synthetic presenter or
+invented device shots. Do not shorten the pauses simply to fill every second.
+Read at approximately 100–110 words per minute while speaking.
+
+0:00–0:35 — THANK YOU / REAL FM-1, WARM SOUND
+[Begin with 8–10 seconds of real firmware audio. Real FM-1 and readable display.]
+“Thank you for making Mutable Dreams part of your music. Your recordings,
+questions, and thoughtful feedback have shaped this update. You asked for warmer
+sounds, more room to compose, and a way to keep your own Biomes. Version one point
+one brings those ideas together, on the same small instrument.”
+[Pause. Let the warm sound continue without narration.]
+
+0:35–1:25 — WARMTH / SOURCE FIRST, THEN FILTER AND ENVELOPE
+[Show Satin River or Mellow Canopy. Identify the real engine and edited control.]
+“Start with a Biome, then make it yours. Each of the six tracks can use any of
+twelve engines. Explore a soft Satin texture, a drifting melodic voice, a round
+bass, or a struck resonator. Bring the cutoff down for a quieter tone. Let the
+attack open slowly, and give the notes time to fade. Warmth can come from the
+source, the filter, the envelope, and the space between notes.”
+[10 seconds dry-to-shaped audio. Keep the before and after at comparable levels.]
+
+1:25–2:20 — MIXER / BASS / GROOVE
+[Show all six tracks, selected track, mixer volume and individual sends.]
+“The tracks are freely assignable. Build six melodic voices, an entire percussion
+ensemble, or a balance between the two. In the mixer, set a level for each voice
+and choose how much reaches the granular bus, the shared delay, and the room.
+A simple bass phrase can give an evolving texture a clear foundation. Add a few
+percussive events, and the same world begins to move.”
+[Demonstrate ambient, bass-led dub, then a restrained rhythmic contrast.]
+
+2:20–3:15 — GRANULAR / SHARED SPACE
+[Actual controls, original USB capture; annotate exact Grain Size changes.]
+“The granular bus listens to the voices you send into it. Change the fragment
+length and position to find another rhythm inside the sound. Freeze a moment,
+or reverse its direction. Keep some of the original signal present, and bring
+the cloud in gently. Shared delay and room can connect the voices without hiding
+their individual character.”
+[15–20 seconds of music without narration. No narration over the key comparison.]
+
+3:15–4:20 — YOUR PHRASE / YOUR BIOME / HELP
+[Demonstrate from Blank. Actual steps, notes/rests, name, empty slot save/recall.]
+“Blank Biome is a starting point for your own arrangement. Choose a voice, then
+write a phrase of up to sixteen steps. Add notes and rests, adjust the track's
+length and probability, and listen to how it meets the other parts. When you
+want to keep the result, stop playback and use the internal clock. Name your
+Biome and save it to a user slot. There are sixteen Biome slots and sixty-four
+user sound slots. A Biome keeps the six tracks, phrases, mix, and effects.
+Hold a function key whenever you need a reminder of its controls.”
+[Show recall, then an actual held-key hint. Do not display private user content.]
+
+4:20–5:20 — BROWSER / MIDI / TWO DIFFERENT BACKUPS
+[Show independent browser instrument, then actual Connect FM-1 workflow.]
+“You can explore Mutable Dreams in the browser, or connect the FM-1 and edit the
+instrument directly. In live mode, the FM-1 makes the sound. Changes on the device
+and in the editor stay in step. USB MIDI can play the six tracks and provide an
+external clock. Export a live Biome as JSON to keep its current edits. The bank
+backup is a different file: it contains the saved project, preferences, and user
+banks. Keep both when you have work you do not want to lose.”
+[Brief direct audio phrase; show file labels without personal filenames.]
+
+5:20–6:10 — UPDATE / RECOVERY
+[Show clear supported paths and actual installer; no simulated progress as proof.]
+“If you use Mutable Dreams one point zero, you can update directly. Stop and
+save first, and follow the version-specific backup guide. Starting from the
+original M-VAVE V15 firmware is also supported by our device tests. Keep USB
+connected until installation and restart are complete. Returning to V15 erases
+the new user banks and preferences, so make a complete backup beforehand.
+Restoring a bank backup after reinstalling one point one requires confirmation
+with SEL on the FM-1.”
+[On screen: full guide URL added only when the release page is live.]
+
+6:10–6:45 — CREDITS / MUSIC
+[Real FM-1, then concise credits. Give the final phrase time to decay.]
+“Mutable Dreams exists with deep gratitude to Émilie Gillet and Mutable
+Instruments, and to the open-source contributors whose work makes this possible.
+Some engines use selected original algorithms; other tools are our own
+interpretations inspired by that work. This is an independent community project.
+Thank you for listening, sharing, and helping it grow. We look forward to hearing
+the Biomes you create.”
+[15 seconds of direct firmware music. End card: Mutable Dreams 1.1 / Kid Bunka.]
+
+PRODUCTION CHECKS
+Use only the identified final build for release footage/audio. Recorded 427a
+clips are genuine firmware output; they remain raw and need careful level
+matching for the edit. Do not describe 24-bit WAV containers as 24-bit device
+fidelity: USB source precision limits them. No EQ is required for the firmware;
+video speech/music balancing is a separate production task.
+Capture physical device footage after firmware acceptance. Show the actual
+screen and controls, not an imagined replacement interface. Add accurate English
+captions from the final rendered narration and chapter timestamps from the edit.
+Feature claims must match the final qualified package. Physical TRS testing is
+still separate; this script intentionally demonstrates qualified USB MIDI.

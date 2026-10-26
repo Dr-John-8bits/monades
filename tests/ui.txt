@@ -1,0 +1,93 @@
+wait 3300
+wait 100
+shot live.png
+expect playing 0
+press REC
+wait 1000
+expect help 11
+release REC
+wait 30
+expect help 11
+tap HOME
+expect help -1
+expect playing 0
+tap PLAY
+wait 120
+expect playing 1
+spin K1 5
+wait 20
+expect density 600
+tap EDIT
+wait 100
+shot sound.png
+expect page 1
+tap EDIT
+expect page 10
+wait 100
+shot filter.png
+tap EDIT
+expect page 6
+spin K1 10
+wait 20
+expect attack 450
+wait 100
+shot envelope.png
+tap EDIT
+expect page 4
+wait 100
+shot mix.png
+tap SEQ
+wait 100
+shot rhythm.png
+tap SEQ
+expect page 7
+spin K2 2
+wait 20
+expect ratchet 3
+wait 100
+shot groove.png
+tap FX
+wait 100
+shot grain.png
+tap FX
+expect page 8
+wait 100
+shot tape.png
+tap LFO
+wait 20
+expect freeze 1
+press EDIT
+wait 900
+release EDIT
+wait 100
+shot help.png
+expect help 4
+tap HOME
+expect help -1
+spin SELECT 5
+spin ALGO -7
+wait 20
+expect track 5
+expect model 0
+tap GLO
+expect page 9
+spin K2 1
+wait 20
+expect scale 2
+wait 100
+shot harmony.png
+tap GLO
+expect page 5
+wait 100
+shot bench.png
+tap PLAY
+wait 20
+expect playing 0
+tap SAVE
+wait 50
+reboot
+wait 100
+expect density 600
+expect scale 2
+expect invalid 0
+expect queue_drops 0

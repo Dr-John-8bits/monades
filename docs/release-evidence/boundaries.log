@@ -1,0 +1,12 @@
+START four-FM-FULL seconds 15
+RESULT four-FM-FULL PASS 77.02 % []
+START five-FM-requested-FULL seconds 15
+RESULT five-FM-requested-FULL ECO GUARD 63.23 % []
+START four-Harmonic-FULL seconds 15
+RESULT four-Harmonic-FULL PASS 73.85 % []
+START five-Harmonic-requested-FULL seconds 15
+RESULT five-Harmonic-requested-FULL ECO GUARD 65.23 % []
+START two-Rings-FULL seconds 15
+RESULT two-Rings-FULL PASS 65.06 % []
+START three-Rings-requested-FULL seconds 15
+RESULT three-Rings-requested-FULL ECO GUARD 47.93 % []

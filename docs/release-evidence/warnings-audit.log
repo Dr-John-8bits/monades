@@ -1,0 +1,20 @@
+In file included from work/mutable-dreams/app/dsp/dreams.cpp:9:
+work/mutable-dreams/app/third_party/plaits/dsp/engine/fm_engine.h:43:44: warning: unused parameter 'user_data' [-Wunused-parameter]
+   43 |   virtual void LoadUserData(const uint8_t* user_data) { }
+      |                                            ^
+In file included from work/mutable-dreams/app/dsp/dreams.cpp:10:
+work/mutable-dreams/app/third_party/plaits/dsp/engine/virtual_analog_engine.h:47:44: warning: unused parameter 'user_data' [-Wunused-parameter]
+   47 |   virtual void LoadUserData(const uint8_t* user_data) { }
+      |                                            ^
+In file included from work/mutable-dreams/app/dsp/dreams.cpp:13:
+work/mutable-dreams/app/third_party/plaits/dsp/drums/hi_hat.h:57:32: warning: unused parameter 'temp_1' [-Wunused-parameter]
+   57 |   void Render(float f0, float* temp_1, float* temp_2, float* out, size_t size) {
+      |                                ^
+work/mutable-dreams/app/third_party/plaits/dsp/drums/hi_hat.h:57:47: warning: unused parameter 'temp_2' [-Wunused-parameter]
+   57 |   void Render(float f0, float* temp_1, float* temp_2, float* out, size_t size) {
+      |                                               ^
+In file included from work/mutable-dreams/app/dsp/dreams.cpp:15:
+work/mutable-dreams/app/third_party/plaits/dsp/engine/additive_engine.h:48:44: warning: unused parameter 'user_data' [-Wunused-parameter]
+   48 |   virtual void LoadUserData(const uint8_t* user_data) { }
+      |                                            ^
+5 warnings generated.

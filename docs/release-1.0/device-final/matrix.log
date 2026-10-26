@@ -1,0 +1,38 @@
+START six-Kick-ECO seconds 5
+RESULT six-Kick-ECO PASS 60.23 % []
+START six-Snare-ECO seconds 5
+RESULT six-Snare-ECO PASS 82.36 % []
+START six-Hat-ECO seconds 5
+RESULT six-Hat-ECO PASS 53.93 % []
+START six-FM-ECO seconds 5
+RESULT six-FM-ECO PASS 73.05 % []
+START six-VA-ECO seconds 5
+RESULT six-VA-ECO PASS 57.65 % []
+START six-Rings-ECO seconds 5
+RESULT six-Rings-ECO PASS 82.49 % []
+START six-Harmonic-ECO seconds 5
+RESULT six-Harmonic-ECO PASS 75.67 % []
+START six-Choir-ECO seconds 5
+RESULT six-Choir-ECO PASS 52.1 % []
+START six-Kick-FULL seconds 5
+RESULT six-Kick-FULL PASS 63.44 % []
+START six-Snare-FULL seconds 5
+RESULT six-Snare-FULL ECO GUARD 82.36 % []
+START six-Hat-FULL seconds 5
+RESULT six-Hat-FULL PASS 59.89 % []
+START six-FM-FULL seconds 5
+RESULT six-FM-FULL ECO GUARD 73.12 % []
+START six-VA-FULL seconds 5
+RESULT six-VA-FULL PASS 72.81 % []
+START six-Rings-FULL seconds 5
+RESULT six-Rings-FULL ECO GUARD 82.49 % []
+START six-Harmonic-FULL seconds 5
+RESULT six-Harmonic-FULL ECO GUARD 75.67 % []
+START six-Choir-FULL seconds 5
+RESULT six-Choir-FULL PASS 57.93 % []
+START ambient-mixed seconds 5
+RESULT ambient-mixed ECO GUARD 63.03 % []
+START techno-mixed seconds 5
+RESULT techno-mixed ECO GUARD 69.5 % []
+START lpg-mixed seconds 5
+RESULT lpg-mixed ECO GUARD 64.71 % []

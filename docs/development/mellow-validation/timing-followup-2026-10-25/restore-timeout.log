@@ -1,0 +1,8 @@
+RETRY read-only telemetry
+BEFORE 8
+backup: 6088 bytes: 4 of 22 parts hold something
+device: FM-1_710010100  (X0X FM-1)
+sending   0%[Ksending   0%[Ksending   8%[Ksending  16%[Ksending  20%[Ksending  21%[Ksending  21%[Ksending  21%[Ksending  21%[Ksending  21%[Ksending  21%[Ksending  21%[Ksending  22%[Ksending  22%[Ksending  22%[Ksending  22%[Ksending  22%[Ksending  22%[Ksending  22%[Ksending  22%[Ksending  23%[Ksending  23%[Ksending  23%[Ksending  31%[Ksending  39%[Ksending  44%[Ksending  44%[Ksending  44%[Ksending  44%[Ksending  44%[Ksending  52%[Ksending  61%[Ksending  69%[Ksending  77%[Ksending  85%[Ksending  93%[Ksending  99%[Ksending 100%[Kreceived and checked. On the FM-1: RESTORE FROM USB? SEL yes, HOME no[K
+
+not restored: answered no on the FM-1. Nothing changed.
+RESULT 3 timing events during stopped staging/cancellation; all saved objects unchanged

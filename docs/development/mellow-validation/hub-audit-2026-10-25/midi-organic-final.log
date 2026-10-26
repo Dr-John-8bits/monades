@@ -1,0 +1,40 @@
+PASS saved object unchanged across audit updates: FM1-Gespeichertes-Projekt.raw
+PASS saved object unchanged across audit updates: User-Biome-16.raw
+PASS saved object unchanged across audit updates: User-Tones-04.raw
+PASS own named Biome and sequence recall after update
+PASS all six channels received every scheduled Note On
+PASS no new xruns
+PASS no new overloads
+PASS no new nonfinite
+PASS no new dropped
+PASS USB capture finite and uninterrupted
+PASS six-channel MIDI audio audible
+PASS main SAVE refused while external clock selected
+PASS held help 0
+PASS release only, no short action 0
+PASS held help 1
+PASS release only, no short action 1
+PASS held help 2
+PASS release only, no short action 2
+PASS held help 3
+PASS release only, no short action 3
+PASS held help 4
+PASS release only, no short action 4
+PASS held help 5
+PASS release only, no short action 5
+PASS held help 6
+PASS release only, no short action 6
+PASS held help 7
+PASS release only, no short action 7
+PASS held help 8
+PASS release only, no short action 8
+PASS held help 9
+PASS release only, no short action 9
+PASS held help 10
+PASS release only, no short action 10
+PASS held help 11
+PASS release only, no short action 11
+PASS held help 12
+PASS release only, no short action 12
+PASS held help 13
+PASS release only, no short action 13

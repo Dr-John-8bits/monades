@@ -1,0 +1,3 @@
+PASS offline fake transport: exact 652-byte v4 and 1292-byte v5 chunk reconstruction.
+PASS all 65 expected factory patches have v5 layout and disabled extension defaults.
+No MIDI/device imports or calls executed.

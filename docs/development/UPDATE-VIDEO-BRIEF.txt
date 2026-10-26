@@ -1,0 +1,40 @@
+MUTABLE DREAMS 1.1 — UPDATE VIDEO BRIEF
+Owner request recorded 24 October 2026. Produce after audio/device qualification.
+
+Open with sincere thanks for the enthusiastic response to Mutable Dreams so far.
+Use a very calm, pleasant, unhurried English voice; the previous preference was a
+female narrator. Avoid sales shouting, hurried delivery and exaggerated claims.
+The real M-VAVE FM-1 must be clearly visible, with legible shots of the display
+and hands demonstrating the actual released features. Browser views can support
+the story but must not substitute for evidence of the firmware on the device.
+
+Show creating a Biome from Blank, choosing freely assignable voices, editing a
+sequence, naming/saving a User Biome and recalling it. Demonstrate warm sounds,
+Bass, Mixer/sends, shared space, granular textures and MIDI where qualified.
+Show long-press help and the distinctive organic graphics.
+
+All musical backing should come from our firmware. Use a varied musical arc:
+warm mellow ambient, evolving soundscapes, bass-led dub, organic percussion and a
+short techno/rhythm passage, then a soft ending. Leave space under the narration.
+Capture real firmware output and keep provenance/project settings for every cue.
+Do not claim prototype features, CPU limits or hardware operation without tests.
+
+Use Kid Bunka / Mutable Dreams branding and generous Mutable Instruments credits.
+Prepare the main YouTube update video plus vertical Instagram excerpts, captions,
+subtitles and release-page embed when the final feature list is locked.
+No video generation, subscription purchase or publication is triggered by this note.
+
+2026-10-24 additional owner requirements:
+- Close the update with another email to Sven, containing the verified update features, device results, installation/stock-V15 return path, project/release/editor/tutorial links, licence/credits and Firmware Hub submission details. Prepare after results and links are final; do not send an unfinished progress report.
+- Both the website and the video must explicitly thank the community for its positive reception and feedback, and explain how that feedback shaped warmth, user Biomes and stability.
+- The update should be an immediately visible step forward: explore richer organic art and animation while preserving readable controls, the held-key help and audio deadlines.
+- Compare current JIANT FM and OberVave primary source: identify useful architectural/UI/sound ideas and licensing requirements. Maintain Mutable Dreams' own visual identity. Any actual source reuse must retain its original credit and licence.
+
+2026-10-24 product-film direction after community criticism:
+- Produce an informative product film, not a montage of generic AI imagery or unsupported superlatives.
+- Show the actual FM-1 clearly: real device close-ups, legible real screen capture, exact key/encoder actions and before/after sound demonstrations.
+- Use only sounds actually recorded from the identified Mutable Dreams build for the musical soundtrack. Let the music be heard without narration in short sections; keep spoken demonstrations easy to understand.
+- English narration: very calm, pleasant female voice; natural pacing, carefully edited wording, pauses and pronunciation. Human review of all TTS output; no fake presenter or synthetic hardware shots.
+- Credit Mutable Instruments and relevant open-source authors with care, and thank the community for specific feedback on warmth, grain clicks, Biome saving and usability.
+- Structure: short musical opening; what changed; warm engines; mixer/space/grain; own sequence and saved Biome; MIDI; installation/backup/stock-V15 return; clear credits and links. Prefer 6-8 useful minutes for this more detailed update film, with chapters and captions; prepare a separate concise teaser for social media.
+- Claims must match measured results and actual UI. Do not claim dual-core support or arbitrary-firmware upgrades until those paths pass real-device qualification.

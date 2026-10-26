@@ -1,0 +1,20 @@
+PASS resume: prior exact install, complete data restoration and current identity verified
+PASS exact release installed 8e039bb0e9681fbbb0504e9b7d251895958fd88ae97f11ff0342b4aef38143d2
+START Six Harmonic + effects + editor + backup
+PROGRESS Six Harmonic + effects + editor + backup 20 seconds
+PROGRESS Six Harmonic + effects + editor + backup 41 seconds
+RESULT Six Harmonic + effects + editor + backup 84.67 []
+START Six mixed engines + effects + editor + backup
+PROGRESS Six mixed engines + effects + editor + backup 20 seconds
+PROGRESS Six mixed engines + effects + editor + backup 40 seconds
+RESULT Six mixed engines + effects + editor + backup 79.6 []
+START Mellow Canopy
+PROGRESS Mellow Canopy 20 seconds
+RESULT Mellow Canopy 59.75 []
+START Satin River
+PROGRESS Satin River 20 seconds
+RESULT Satin River 60.73 []
+START Velour Dawn
+PROGRESS Velour Dawn 20 seconds
+RESULT Velour Dawn 60.67 []
+PASS release build; all 22 saved objects and unsaved live exact, HOME/stopped/physical controls released.
