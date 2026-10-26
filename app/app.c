@@ -123,6 +123,14 @@ static const float meter_db[24]={0.00398107f,0.00501187f,0.00630957f,0.00794328f
 #define MD_HOT RGB(236,92,82)
 static float meter_hold[11];static uint32_t meter_hold_until[11];
 static int md_segments(float peak){int s=0;while(s<24&&peak>=meter_db[s])s++;return s;}
+// Filter page: magnitude of the SVF low-pass in dB at w = f / fc (two poles, or four for LP 24).
+static float md_lp_db(float w,float q,int four){
+ float w2=w*w,den=(1-w2)*(1-w2)+w2/(q*q);
+ if(four)den*=(1-w2)*(1-w2)+w2*2.0f;
+ return -3.01029996f*fm_log2f(den);
+}
+static int md_db_y(float db){if(db>18)db=18;if(db<-36)db=-36;return 86+(int)((18-db)*46/54);}
+static void md_seconds(float sec,char *s){int tenths=(int)(sec*10+.5f);md_num(tenths/10,s);while(*s)s++;*s++='.';*s++='0'+tenths%10;*s++=' ';*s++='S';*s=0;}
 static void md_meter(int id,int x,int w,float peak,uint16_t c,int muted){
  uint32_t now=plat_ms();
  if(peak>=meter_hold[id]){meter_hold[id]=peak;meter_hold_until[id]=now+1200;}else if(now>meter_hold_until[id])meter_hold[id]*=.85f;
@@ -317,8 +325,21 @@ static void md_draw_all(void) {
    md_value(8,158,"K1 TONE",t->tone/10,col);md_value(124,158,"K2 HARMONICS",t->harm/10,col);if(t->model==MD_ELEMENTS)md_named(8,194,"K3 EXCITER",t->shape<334?"MALLET":t->shape<667?"PLECTRUM":"PARTICLES",col);else md_value(8,194,md_has_envelope(t->model)?"K3 SHAPE":"K3 DECAY",(md_has_envelope(t->model)?t->shape:t->decay)/10,col);md_value(124,194,"K4 LEVEL",t->level/10,col);
   } else if(dream_ui.page==FILTER) {
    static const char *modes[]={"OFF","LP 12 dB","LP 24 dB","LOW PASS GATE"};
-   for(i=0;i<180;i++){float z=(i-t->cutoff*.15f)*.07f;int y=86+(int)(45.0f*(z>0?z/(1+z):0));cv_pset(30+i,y,col);cv_pset(30+i,y+1,col);}
-   md_text(40,137,"SOFT EDGES / SLOW BREATH",MD_DIM);
+   // Real response, 20 Hz..20 kHz (log) by +18..-36 dB: dim = the knobs, colour = what the voice hears now (LFOs, LPG).
+   const md_stats *ms=md_status();int tr=dream_ui.track,four=t->filter==2;
+   float set_fc=(float)md_cutoff_hz(t->cutoff),set_q=.707f+2.0f*(t->resonance*.001f)*(t->resonance*.001f),live_fc=ms->cutoff_now[tr],live_q=ms->q_now[tr];
+   if(live_fc<20)live_fc=set_fc;if(live_q<.5f)live_q=set_q;
+   cv_rect(4,84,232,66,MD_BG);
+   for(i=0;i<5;i++)cv_rect(30,md_db_y(12-12*i),180,1,i==1?MD_EDGE:MD_CARD);
+   for(i=0;i<180;i++){
+    float f=20.0f*fm_exp2f(i*(9.96578428f/179));
+    if(!t->filter){cv_rect(30+i,md_db_y(0),1,2,MD_EDGE);continue;}
+    cv_pset(30+i,md_db_y(md_lp_db(f/set_fc,set_q,four)),MD_EDGE);
+    int y=md_db_y(md_lp_db(f/live_fc,live_q,four));cv_rect(30+i,y,1,2,col);
+   }
+   if(t->filter){int fx=30+(int)(179*fm_log2f(live_fc/20.0f)/9.96578428f);if(fx>=30&&fx<210){cv_rect(fx,86,1,46,md_tint(MD_BG,col,14));md_circle(fx,md_db_y(md_lp_db(1,live_q,four)),3,MD_INK,1);}}
+   else md_text(96,96,"FILTER OFF",MD_DIM);
+   md_text(66,137,"100",MD_DIM);md_text(128,137,"1K",MD_DIM);md_text(186,137,"10K",MD_DIM);md_text(6,md_db_y(0)-6,"0dB",MD_DIM);
    md_value_span(8,158,"K1 CUTOFF Hz",md_cutoff_hz(t->cutoff),60,18000,col);md_value(124,158,"K2 RESONANCE",t->resonance/10,col);
    md_named(8,194,"K3 CHARACTER",modes[t->filter],col);md_value(124,194,"K4 BREATHE",t->breathe/10,col);
   } else if(dream_ui.page==RHYTHM) {
@@ -352,8 +373,18 @@ static void md_draw_all(void) {
    md_text(8,139,"-3 S",MD_DIM);md_text(84,139,tv.freeze?"FROZEN":p->reverse?"< REVERSE":"RECORDING",tv.freeze?ice:MD_INK);md_text(206,139,"NOW",MD_DIM);
    md_value(8,158,"K1 SPACE",p->macro[3]/10,col);md_value(124,158,"K2 GRAIN SIZE",p->grain_size/10,col);md_value(8,194,"K3 POSITION",p->grain_pos/10,col);md_value(124,194,"K4 FEEDBACK",p->feedback/10,col);
   } else if(dream_ui.page==ENVELOPE) {
-   for(i=0;i<180;i++){int split=20+t->attack/10;int y=i<split?133-i*45/split:88+(i-split)*45/(180-split);cv_pset(30+i,y,col);cv_pset(30+i,y+1,col);}
-   md_text(24,139,md_has_envelope(t->model)?"SLOW BLOOM / LONG TAIL":"DRUMS / RINGS: OWN ENVELOPE",MD_DIM);
+   // The engine's own shape: linear attack (8 s x a^2), then exponential decay (tau = 0.06 + 16 s x d^2); the dot is the voice now.
+   cv_rect(4,84,232,66,MD_BG);
+   if(md_has_envelope(t->model)){
+    const md_stats *ms=md_status();int tr=dream_ui.track;
+    float att=8.0f*(t->attack*.001f)*(t->attack*.001f),tau=.06f+16.0f*(t->decay*.001f)*(t->decay*.001f),total=att+3*tau; /* down to -26 dB */
+    cv_rect(30,133,180,1,MD_EDGE);
+    for(i=0;i<180;i++){float tm=i*total/179,a=tm<att?tm/att:1/fm_expf((tm-att)/tau); /* fm_expf only with x >= 0: its 2^n step shifts n */cv_rect(30+i,133-(int)(a*45),1,2,col);}
+    int ax=30+(int)(att/total*179);cv_rect(ax,131,1,5,MD_DIM);
+    float e=ms->env_now[tr];
+    if(e>.002f){float tm=ms->env_attacking[tr]?e*att:att+tau*fm_logf(1/e);if(tm>total)tm=total;md_circle(30+(int)(tm/total*179),133-(int)(e*45),3,MD_INK,1);}
+    md_seconds(total,s);md_text(8,139,"0",MD_DIM);md_text(200-text_w(&FONT_XS,s),139,s,MD_DIM);
+   } else md_text(24,139,"DRUMS / RINGS: OWN ENVELOPE",MD_DIM);
    if(md_has_envelope(t->model)){md_value_span(8,158,"K1 ATTACK ms",8*t->attack*t->attack/1000,0,8000,col);md_value_span(124,158,"K2 DECAY ms",60+16*t->decay*t->decay/1000,60,16060,col);}else{md_named(8,158,"K1 MELODIC ONLY","-",MD_DIM);md_value(124,158,"K2 DECAY",t->decay/10,col);}
    md_value(8,194,"K3 LEVEL",t->level/10,col);md_value(124,194,"K4 SEND",t->send/10,col);
   } else if(dream_ui.page==GROOVE) {

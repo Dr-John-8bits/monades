@@ -23,7 +23,9 @@ typedef struct {
 } md_patch;
 typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; float peak; uint32_t grain_writes,voice_quanta,skipped_quanta; int32_t last_note[6]; uint32_t quality_reductions,element_modes; float track_peak[6];
  /* Monades meters, output-referred like the final mix: grain/delay/room returns, master L/R, pre-limiter peak. */
- float fx_peak[3],out_peak[2],limit_peak; } md_stats;
+ float fx_peak[3],out_peak[2],limit_peak;
+ /* Monades views: actual (modulated) filter cutoff in Hz and Q, envelope level and attack phase per track. */
+ float cutoff_now[6],q_now[6],env_now[6]; int32_t env_attacking[6]; } md_stats;
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);

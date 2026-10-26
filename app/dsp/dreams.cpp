@@ -356,6 +356,7 @@ static void quantum(float *lr,unsigned n) {
   if(t.filter==3)cutoff-=.55f*(1-v.lpg);
   cutoff=fminf(1.0f,fmaxf(0.0f,cutoff));
   v.cut_smooth+=(cutoff-v.cut_smooth)*slew40;v.res_smooth+=(unit(t.resonance)-v.res_smooth)*slew40;
+  stats.cutoff_now[i]=cutoff_hz(v.cut_smooth);stats.q_now[i]=filter_q(v.res_smooth);
   if(t.filter){float fc=cutoff_hz(v.cut_smooth)/MD_RATE;
    v.filter1.set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,filter_q(v.res_smooth));
    if(t.filter==2)v.filter2.set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);}
@@ -395,6 +396,7 @@ static void quantum(float *lr,unsigned n) {
   }
   v.amp=mix_amp;v.fade=mix_fade;v.lpg=mix_lpg;v.warp_smooth=mix_warp_smooth;v.warp_phase=mix_warp_phase;v.expression_smooth=mix_expression_smooth;v.pan_smooth=mix_pan_smooth;v.delay_send_smooth=mix_delay_send_smooth;v.reverb_send_smooth=mix_reverb_send_smooth;
   stats.track_peak[i]=track_peak;
+  stats.env_now[i]=melodic?v.env:0;stats.env_attacking[i]=melodic&&v.attacking;
   if(melodic&&!v.attacking&&v.env<.000001f)v.active=0;
  }
  const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=patch.delay_ms*44.1f;
