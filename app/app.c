@@ -186,7 +186,14 @@ static void md_draw_all(void) {
  if(dream_ui.help<0)md_space();
  cv_rect(0,0,240,39,MD_BG);cv_rect(10,38,220,1,MD_EDGE);cv_rect(10,38,28,1,col);
  cv_rect(0,224,240,16,MD_BG);
- cv_text(10,5,&FONT_B,"MONADES",MD_INK);md_circle(226,12,3,md_playing()?dream_colors[2]:MD_DIM,1);
+ cv_text(10,5,&FONT_B,"MONADES",MD_INK);
+ // Transport: a rocket, engine off when stopped; while playing its flame flares on every beat.
+ {int on=md_playing(),beat=on&&md_status()->step%4==0,fl=on?(beat?7:3):0;
+  cv_rect(225,6,3,9,on?MD_INK:MD_DIM);cv_pset(226,4,on?MD_INK:MD_DIM);cv_pset(226,5,on?MD_INK:MD_DIM);cv_rect(223,12,1,4,MD_EDGE);cv_rect(229,12,1,4,MD_EDGE);
+  for(int k=0;k<fl;k++)cv_rect(225+(k>3),16+k,3-(k>3)*2,1,md_tint(MD_BG,k<2?MD_INK:dream_colors[1],(unsigned)(30-k*3)));}
+ // A shooting star crosses under the title each time the seed changes: a new variation (REC, or every 32 steps unlocked).
+ {static uint32_t seed_seen,seed_at;uint32_t sd=p->seed,now=plat_ms();if(sd!=seed_seen){if(seed_seen)seed_at=now;seed_seen=sd;}
+  if(seed_at&&dream_prefs.motion&&now-seed_at<700){float hx=232-(now-seed_at)*.31f;for(int tl=0;tl<26;tl++){float x=hx+tl,y=33+tl*.12f;if(x>=0&&x<240){uint16_t c=md_tint(MD_BG,tl<4?MD_INK:dream_colors[1],(unsigned)(32-tl));md_soft_point(x,y,c);if(tl<10)md_soft_point(x,y+1,c);}}}}
  md_text(10,25,dream_pages[dream_ui.page],col);md_num(p->tempo,s);md_text(186,25,s,MD_INK);md_text(211,25,"BPM",MD_DIM);
  if(intro_until&&plat_ms()<intro_until&&dream_ui.help<0){
   float progress=(plat_ms()-intro_start)/3200.0f;
@@ -248,7 +255,13 @@ static void md_draw_all(void) {
     static const char *ports[3]={"USB","BLE","TRS"};md_text(80,74,"IN",MD_DIM);md_text(140,74,"OUT",MD_DIM);
     for(i=0;i<3;i++){int y=92+i*16;md_text(12,y-5,ports[i],MD_DIM);
      for(int o=0;o<2;o++){uint32_t ago=plat_midi_ago(i,o);md_circle(86+o*60,y,4,ago<200?MD_INK:MD_CARD,1);char n[12];md_num((int)plat_midi_count(i,o),n);md_text(96+o*60,y-5,n,MD_EDGE);}}
-    md_text(12,139,"CC7 LEVEL / 74 FILTER / 91 ROOM",MD_DIM);}
+    md_text(12,139,"CC7 LEVEL / 74 FILTER / 91 ROOM",MD_DIM);
+    // A satellite for MIDI out: each message sent (USB or Bluetooth) leaves as a widening wave for 600 ms.
+    {const int sx=206,sy=104;uint32_t ago=plat_midi_ago(0,1),b=plat_midi_ago(1,1);if(b<ago)ago=b;int live=dream_prefs.midi.mode||dream_prefs.midi.clock;
+     cv_rect(sx-3,sy-3,6,6,live?MD_DIM:MD_EDGE);cv_rect(sx-14,sy-1,9,3,MD_EDGE);cv_rect(sx+5,sy-1,9,3,MD_EDGE);cv_pset(sx,sy-5,MD_DIM);cv_pset(sx,sy-6,MD_DIM);
+     if(live&&ago<600)for(int ring=0;ring<3;ring++){float r=6+ago*.03f+ring*5;unsigned mix=(unsigned)(26-ago/30-ring*6);if((int)mix<4)continue;
+      for(int n=-10;n<=10;n++){float a=n*.08f-1.5707963f;md_soft_point(sx+fm_cosf(a)*r,sy-6+fm_sinf(a)*r*.8f,md_tint(MD_BG,col,mix));}}
+     md_text(sx-14,sy+8,live?"OUT":"OUT OFF",live?MD_DIM:MD_EDGE);}}
    md_named(8,158,"K1 CLOCK IN",md_clock_source()==0?"INTERNAL":md_clock_source()==1?"USB":"TRS",col);md_named(124,158,"K2 SCALE SNAP",md_midi_quantize()?"ON":"OFF",col);
    static const char *out_modes[3]={"OFF","TRACKS 1-6","ZONES"};
    md_named(8,194,"K3 NOTES OUT",out_modes[dream_prefs.midi.mode],col);md_named(124,194,"K4 CLOCK OUT",!dream_prefs.midi.clock?"OFF":md_clock_source()?"EXT: OFF":"ON",col);
@@ -386,11 +399,13 @@ static void md_draw_all(void) {
    const md_stats *ms=md_status();cv_rect(4,44,232,108,MD_BG);static const char *names[4]={"CALM","BUILD","PEAK","RELEASE"};
    const int x0=12,sw=54,base=110;unsigned cyc=p->form?ms->form_cycle:0;
    for(i=0;i<4;i++){int x=x0+i*sw,h=(int)(md_form_tension(i)*40),cur=p->form&&md_playing()&&(int)ms->form_section==i;
-    cv_rect(x+2,base-h,sw-6,h,!p->form?MD_CARD:cur?col:md_tint(MD_BG,col,10));
+    // A planet per section: its size is the tension; the one the song is in is lit.
+    {int pr=3+h/4,pcx=x+sw/2-2,pcy=base-22;md_circle(pcx,pcy,pr,!p->form?MD_CARD:cur?col:md_tint(MD_BG,col,10),1);md_circle(pcx,pcy,pr,!p->form?MD_EDGE:cur?MD_INK:md_tint(MD_BG,col,18),0);
+     if(i==2){for(int k=-pr-5;k<=pr+5;k++)if(k<-pr+1||k>pr-1)cv_pset(pcx+k,pcy+k/4,!p->form?MD_EDGE:cur?MD_INK:md_tint(MD_BG,col,18));}} /* the peak wears a ring */
     md_text(x+2,base+4,names[i],cur?MD_INK:MD_DIM);
     unsigned mask=md_form_mask(cyc,i);
     for(int tk=0;tk<6;tk++){uint16_t c=p->track[tk].mute?MD_CARD:(mask>>tk)&1?MD_EDGE:dream_colors[tk];md_circle(x+5+tk*8,base+24,3,c,1);}
-    if(cur){int cx=x+2+(int)(ms->form_pos*(sw-6));cv_rect(cx,base-44,1,46,MD_INK);}}
+    if(cur){int cx=x+2+(int)(ms->form_pos*(sw-6));cv_rect(cx,base+1,1,3,MD_INK);cv_rect(x+2,base,cx-x-2,1,col);}} /* progress through the section */
    {char lab[28];md_num(md_form_bars(),lab);char *q=lab;while(*q)q++;const char *a=" BARS EACH";while(*a)*q++=*a++;*q=0;
     md_text(x0,48,!p->form?"FORM OFF: SONG STAYS FLAT":lab,!p->form?MD_HOT:MD_DIM);}
    md_value(8,158,"K1 DEPTH",p->form/10,col);{char b[12];md_num(md_form_bars(),b);char *q=b;while(*q)q++;*q++=' ';*q++='B';*q++='A';*q++='R';*q++='S';*q=0;md_named(124,158,"K2 SECTION",b,col);}
@@ -454,12 +469,15 @@ static void md_draw_all(void) {
    float fb=p->delay_fb*.001f,decay=.45f+.5f*p->reverb_time*.001f,lnd=fm_logf(decay);
    {int ph=hmax;for(int px=0;px<w;px++){float tm=px*span/(w-1);int h=(int)(hmax/fm_expf(-lnd*tm/.025f)); /* decay^(t/25 ms); fm_expf only with x >= 0 */
     if(h>0||ph>0)cv_rect(x0+px,base-ph,1,ph-h+1,room_ink);ph=h;}}
-   float amp=1;for(int k=1;k<64&&amp>.01f;k++,amp*=fb){float tm=k*md_echo_ms()*.001f;if(tm>span)break;int x=x0+(int)(tm/span*(w-1)),h=(int)(hmax*amp);cv_rect(x-1,base-h,3,h,echo_ink);}
+   // Echoes as radio waves from a ship at the left: one arc per repeat (radius = its time), arc height = Feedback^k.
+   {const float sy=base-hmax*.5f;md_ship((float)x0+2,sy,0,5,echo_ink,1,0,echo_ink);
+    float amp=1;for(int k=1;k<64&&amp>.01f;k++,amp*=fb){float tm=k*md_echo_ms()*.001f;if(tm>span)break;float r=tm/span*(w-1),h=hmax*.5f*amp;if(h<3)h=3;
+     unsigned mix=(unsigned)(16+amp*16);for(int n=-24;n<=24;n++){float y=n*h/24,xx=r*r-y*y;if(xx<0)continue;md_soft_point(x0+fm_sqrtf(xx),sy+y,p->fx_level?md_tint(MD_BG,col,mix):MD_EDGE);md_soft_point(x0+fm_sqrtf(xx)+1,sy+y,p->fx_level?md_tint(MD_BG,col,mix/2):MD_EDGE);}}}
    md_meter(7,214,8,ms->fx_peak[1],MD_DIM,0);md_meter(8,226,8,ms->fx_peak[2],MD_DIM,0);
    md_text(215,139,"D",MD_DIM);md_text(227,139,"R",MD_DIM);
    md_text(x0,139,"0",MD_DIM);md_text(x0+w/2-12,139,"0.7 S",MD_DIM);md_text(x0+w-30,139,"1.4 S",MD_DIM);
    int sends=0;for(i=0;i<6;i++)sends+=p->ext[i].delay_send+p->ext[i].reverb_send;
-   md_text(x0,48,!p->fx_level?"RETURN 0: NOTHING HEARD":!sends?"NO TRACK SENDS: SEE MIXER":"BARS: ECHOES  CURVE: ROOM",p->fx_level&&sends?MD_DIM:MD_HOT);
+   md_text(x0,48,!p->fx_level?"RETURN 0: NOTHING HEARD":!sends?"NO TRACK SENDS: SEE MIXER":"WAVES: ECHOES  CURVE: ROOM",p->fx_level&&sends?MD_DIM:MD_HOT);
    if(p->echo_sync){char nm[16];const char *a=md_echo_sync_name(p->echo_sync);int k=0;while(a[k]){nm[k]=a[k];k++;}nm[k]=0;md_named(8,158,"K1 ECHO (SYNCED)",nm,col);}else md_value_span(8,158,"K1 ECHO ms",p->delay_ms,40,350,col);md_value(124,158,"K2 FEEDBACK",p->delay_fb/10,col);md_value(8,194,"K3 ROOM TAIL",p->reverb_time/10,col);md_value(124,194,"K4 RETURN",p->fx_level/10,col);
   }else if(dream_ui.page==MODULATION){
    // Tides: one cycle of its triangle (height = amount) and the dot where this track is now.
