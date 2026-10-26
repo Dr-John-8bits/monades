@@ -11,7 +11,7 @@ static void cmd(int c,int t,int v){assert(md_command(c,t,v));run(1);}
 static md_patch blank(int model){md_init();cmd(MD_SCENE,0,64);md_patch p=*md_state();p.track[0].mute=0;p.track[0].model=model;p.track[0].note=36;p.track[0].level=650;p.track[0].decay=200;p.track[0].attack=0;p.track[0].hits=16;p.track[0].length=16;p.track[0].prob=1000;p.macro[0]=500;p.macro[1]=0;p.macro[2]=500;p.macro[3]=0;return p;}
 static uint64_t hash(const md_patch &p){md_init();assert(md_load(&p));cmd(MD_PLAY,0,1);uint64_t h=1469598103934665603ull;for(int b=0;b<2200;b++){md_render(audio,128);for(float x:audio){uint32_t u;memcpy(&u,&x,4);h=(h^u)*1099511628211ull;}}return h;}
 int main(){
- static_assert(sizeof(md_patch)==1496,"Browser patch size must match");
+ static_assert(sizeof(md_patch)==1512,"Browser patch size must match");
  auto p=blank(MD_BASS);assert(md_load(&p));cmd(MD_TRIGGER,0,36);assert(run(300)>1);puts("PASS round bass audible");
  uint8_t legacy[652];memcpy(legacy,&p,652);uint32_t v=4;memcpy(legacy+4,&v,4);assert(md_import(legacy,sizeof legacy));assert(md_state()->version==7&&md_state()->fx_level==0);puts("PASS 1.0 migration retains old fields and disables additions");
  p=*md_state();p.fx_level=1001;assert(!md_load(&p));p=*md_state();p.ext[0].notes[15]=25;assert(!md_load(&p));
@@ -123,6 +123,26 @@ int main(){
   {float full=echo(0);assert(full>0&&echo(1000)<full*.5f);}
   assert(md_send_hp_hz(0)==0&&md_send_hp_hz(1)>=20&&md_send_hp_hz(1000)==2000);
   puts("PASS filters: HP / BP / notch, 12 dB send high-pass on the echo and room");
+ }
+ {
+  // HP 24 is steeper than HP 12 at the same cutoff.
+  auto energy=[&](int mode){md_patch r=blank(MD_VA);r.track[0].filter=mode;r.track[0].cutoff=800;r.track[0].resonance=0;r.track[0].breathe=0;assert(md_load(&r));cmd(MD_PLAY,0,1);double e=run(400);cmd(MD_PLAY,0,0);return e;};
+  assert(energy(7)<energy(4)*.8);
+  // Sample & hold on NOTES: generated notes jump around but always stay in the scale (major, root C).
+  md_patch q=blank(MD_VA);q.scale=1;q.root=0;q.track[0].note=60;q.lfo[0][0]={10,MD_LFO_SAMPLE_HOLD,MD_TO_NOTES,1000};assert(md_load(&q));cmd(MD_PLAY,0,1);
+  unsigned mask=md_scale_mask(1),seen=0;for(int b=0;b<1500;b++){md_render(audio,128);int nt=md_status()->last_note[0];if(nt>0){assert((mask>>(nt%12))&1);seen|=1u<<(nt%12);}}
+  cmd(MD_PLAY,0,0);int distinct=0;for(int k=0;k<12;k++)distinct+=(seen>>k)&1;assert(distinct>=4);
+  // HITS: a negative square removes hits for half of each bar.
+  auto events=[&](int depth){md_patch r=blank(MD_VA);r.lfo[0][1]={3,MD_LFO_SQUARE,MD_TO_HITS,depth};assert(md_load(&r));cmd(MD_PLAY,0,1);run(1500);cmd(MD_PLAY,0,0);return md_status()->events[0];};
+  assert(events(-1000)<events(0)*3/4);
+  // Echo sync: 1/8 at 120 BPM = 250 ms; 1/4 at 60 BPM (1 s) is halved twice to fit the 371 ms line.
+  q=blank(MD_VA);q.tempo=120;q.echo_sync=6;assert(md_load(&q));assert(fabsf(md_echo_ms()-250)<.01f);
+  q.tempo=60;q.echo_sync=9;assert(md_load(&q));assert(fabsf(md_echo_ms()-250)<.01f);q.echo_sync=0;q.delay_ms=123;assert(md_load(&q));assert(md_echo_ms()==123);
+  q.echo_sync=MD_ECHO_SYNCS;assert(!md_validate(&q));
+  // Chorus and room diffusion change the sound and stay finite.
+  auto out=[&](int chorus,int diffusion){md_patch r=blank(MD_VA);r.chorus=chorus;r.chorus_depth=800;r.room_diffusion=diffusion;r.ext[0].reverb_send=800;r.fx_level=800;return hash(r);};
+  uint64_t plain=out(0,0);assert(out(1000,0)!=plain&&out(0,1000)!=plain);
+  puts("PASS lot 4: HP24, notes in scale from S&H, hits LFO, echo sync, chorus, room diffusion");
  }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

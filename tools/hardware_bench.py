@@ -71,7 +71,7 @@ class Device:
    time.sleep(.04)
  def patch(self):
   first=self.call(4,[0,0]);magic,version=struct.unpack_from('<II',first);assert magic==0x4D445231
-  size={1:392,2:500,3:620,4:652,5:1292,6:1292,7:1496}[version]
+  size={1:392,2:500,3:620,4:652,5:1292,6:1292,7:1512}[version]
   data=first+b''.join(self.call(4,[off&127,off>>7]) for off in range(224,size,224));assert len(data)==size
   return data
  def remote(self,p):

@@ -11,8 +11,8 @@ static void chunks(const md_patch *p,unsigned token){for(unsigned off=0;off<size
 int main(void){
  boot();run_ms(100);dream_dismiss_intro();md_patch initial=*md_state(),desired=initial;desired.tempo=92;
  assert(!req(7,0,0)&&response_n==32);assert(!req(9,0,0)&&response_n==208);
- assert(!req(8,0,0));assert(md_stored_size==1496);assert(!memcmp(md_stored_snapshot,&initial,1496));
- dream_cmd(MD_TEMPO,0,110);run_ms(20);assert(!memcmp(md_stored_snapshot,&initial,1496));
+ assert(!req(8,0,0));assert(md_stored_size==1512);assert(!memcmp(md_stored_snapshot,&initial,1512));
+ dream_cmd(MD_TEMPO,0,110);run_ms(20);assert(!memcmp(md_stored_snapshot,&initial,1512));
  assert(app_backup_validate(0,&initial,sizeof initial));
  md_patch legacy=initial;legacy.version=4;assert(app_backup_validate(0,&legacy,652));
  legacy.version=5;assert(app_backup_validate(0,&legacy,1292));legacy.version=6;assert(app_backup_validate(0,&legacy,1292));assert(!app_backup_validate(0,&legacy,sizeof legacy));

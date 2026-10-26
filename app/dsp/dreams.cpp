@@ -18,6 +18,7 @@
 #include "plaits/dsp/oscillator/sine_oscillator.h"
 #include "stmlib/dsp/filter.h"
 #include "stmlib/utils/random.h"
+#include "rings/dsp/fx/chorus.h"
 #ifndef PLAT_HOST
 #define POOL __attribute__((section(".pool")))
 #else
@@ -51,9 +52,13 @@ static int16_t room[4][1201];
 static bool fx_active;
 static unsigned echo_head,room_head[4];
 static float echo_lp,room_lp[4],fx_smooth,delay_smooth=8820,fx_highpass_in,fx_highpass_out;
-static stmlib::Svf send_hp_filter[2]; // Monades: 12 dB high-pass on the echo and room sends
-static void reset_fx(){send_hp_filter[0].Init();send_hp_filter[1].Init();fx_active=false;memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
-static void v7_defaults(md_patch &p){p.version=7;p.send_hp=0;p.echo_tone=p.room_tone=500;for(int i=0;i<6;i++)for(int s=0;s<2;s++)p.lfo[i][s]={3,MD_LFO_SINE,s?MD_TO_PAN:MD_TO_CUTOFF,0};}
+static stmlib::Svf send_hp_filter[2];
+// Monades: Rings chorus on the dry mix (4 KiB line), and Dattorro / Griesinger input diffusion before the room
+// (four allpasses, 1210 samples). Both are skipped entirely at 0.
+static uint16_t chorus_line[2048] POOL;static rings::Chorus chorus;
+static int16_t diffuser[1210];static unsigned diffuser_head[4];static const unsigned diffuser_len[4]={150,214,319,527}; // Monades: 12 dB high-pass on the echo and room sends
+static void reset_fx(){send_hp_filter[0].Init();send_hp_filter[1].Init();memset(chorus_line,0,sizeof chorus_line);chorus.Init(chorus_line);memset(diffuser,0,sizeof diffuser);memset(diffuser_head,0,sizeof diffuser_head);fx_active=false;memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
+static void v7_defaults(md_patch &p){p.version=7;p.send_hp=0;p.echo_tone=p.room_tone=500;p.echo_sync=p.room_diffusion=p.chorus=0;p.chorus_depth=500;for(int i=0;i<6;i++)for(int s=0;s<2;s++)p.lfo[i][s]={3,MD_LFO_SINE,s?MD_TO_PAN:MD_TO_CUTOFF,0};}
 static void extension_defaults(md_patch &p){v7_defaults(p);p.delay_ms=200;p.delay_fb=300;p.reverb_time=450;p.fx_level=0;memset(p.ext,0,sizeof p.ext);for(int i=0;i<6;i++){p.ext[i].tides_rate=250;for(int j=0;j<16;j++)p.ext[i].notes[j]=(j%4==0?0:j%4==2?7:-1);}}
 
 struct Grain { float pos,phase,inc,pan,rate,gain; unsigned life,age; };
@@ -203,11 +208,11 @@ static float lfo_shape(int shape,unsigned track,unsigned slot,uint32_t cycle,flo
  }
 }
 // Modulation for this quantum: per track and target, plus the two shared targets.
-static float lfo_mod[6][MD_LFO_TARGETS],lfo_echo_time,lfo_grain_pos;
+static float lfo_mod[6][MD_LFO_TARGETS],lfo_echo_time,lfo_grain_pos,lfo_echo_fb,lfo_grain_size;
 static void lfo_update(unsigned n){
  beat+=n*patch.tempo*4.0f/(60.0f*MD_RATE);if(playing&&beat>beat_limit)beat=beat_limit; // never run past the next step
  if(beat>=384){beat-=384;beat_limit-=384;beat_wraps++;}
- memset(lfo_mod,0,sizeof lfo_mod);lfo_echo_time=lfo_grain_pos=0;
+ memset(lfo_mod,0,sizeof lfo_mod);lfo_echo_time=lfo_grain_pos=lfo_echo_fb=lfo_grain_size=0;
  for(unsigned i=0;i<6;i++)for(unsigned s=0;s<2;s++){const md_lfo &l=patch.lfo[i][s];float ph;uint32_t cycle;
   if(l.rate<MD_LFO_SYNCED){float len=lfo_sync[l.rate],pos=beat/len;uint32_t whole=(uint32_t)pos;ph=pos-whole;cycle=beat_wraps*(uint32_t)(384/len+.5f)+whole;}
   else{float &f=lfo_free_phase[i][s];f+=n*lfo_free_hz(l.rate)/MD_RATE;while(f>=1){f-=1;lfo_free_cycle[i][s]++;}ph=f;cycle=lfo_free_cycle[i][s];}
@@ -215,11 +220,18 @@ static void lfo_update(unsigned n){
   if(!l.depth)continue;
   float m=v*l.depth*.001f;
   if(l.target==MD_TO_LEVEL)m=-fabsf(l.depth*.001f)*(1-(l.depth<0?-v:v))*.5f; // tremolo: 0 at the top, -depth at the bottom
-  if(l.target==MD_TO_ECHO_TIME)lfo_echo_time+=m;else if(l.target==MD_TO_GRAIN_POS)lfo_grain_pos+=m;else lfo_mod[i][l.target]+=m;
+  if(l.target==MD_TO_ECHO_TIME)lfo_echo_time+=m;else if(l.target==MD_TO_GRAIN_POS)lfo_grain_pos+=m;else if(l.target==MD_TO_ECHO_FEEDBACK)lfo_echo_fb+=m;else if(l.target==MD_TO_GRAIN_SIZE)lfo_grain_size+=m;else lfo_mod[i][l.target]+=m;
  }
 }
 static float clamp01(float x){return x<0?0:x>1?1:x;}
 // Echo / room damping: 500 keeps Mutable Dreams' exact coefficient.
+static const float echo_sync_len[MD_ECHO_SYNCS]={0,.5f,2/3.0f,1,4/3.0f,1.5f,2,8/3.0f,3,4}; // sixteenths
+static float echo_ms_now(){
+ if(!patch.echo_sync)return (float)patch.delay_ms;
+ float ms=echo_sync_len[bound(patch.echo_sync,1,MD_ECHO_SYNCS-1)]*15000.0f/patch.tempo;
+ while(ms>350)ms*=.5f;while(ms<40)ms*=2; // the line holds 371 ms: a slow tempo plays half the division (still on the grid)
+ return ms;
+}
 static float tone_coef(int v,float lo,float mid,float hi){return v==500?mid:v<500?lo+(mid-lo)*v*.002f:mid+(hi-mid)*(v-500)*.002f;}
 static void fire(unsigned i,float note,float velocity) {
  Voice &v=voices[i];v.trigger=1;v.midi_gate=0;v.target_note=note;if(!patch.ext[i].glide||!v.active)v.note=note;v.velocity=velocity;v.active=1;
@@ -296,6 +308,10 @@ static void apply(Command e) {
  case MD_SEND_HP:patch.send_hp=bound(v,0,1000);break;
  case MD_ECHO_TONE:patch.echo_tone=bound(v,0,1000);break;
  case MD_ROOM_TONE:patch.room_tone=bound(v,0,1000);break;
+ case MD_ECHO_SYNC:patch.echo_sync=bound(v,0,MD_ECHO_SYNCS-1);break;
+ case MD_ROOM_DIFFUSION:patch.room_diffusion=bound(v,0,1000);break;
+ case MD_CHORUS:patch.chorus=bound(v,0,1000);break;
+ case MD_CHORUS_DEPTH:patch.chorus_depth=bound(v,0,1000);break;
  case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
  }
 }
@@ -306,7 +322,7 @@ static void tick() {
  for(unsigned i=0;i<6;i++) {
   const md_track &t=patch.track[i];if(step%(unsigned)t.speed)continue;
   unsigned local=step/t.speed;
-  int hits=bound(t.hits+(patch.macro[0]-500)*t.length/1500,0,t.length);
+  int hits=bound(t.hits+(patch.macro[0]-500)*t.length/1500+(int)floorf(lfo_mod[i][MD_TO_HITS]*t.length+.5f),0,t.length);
   unsigned roll=random_word(seqrng);
   {const uint32_t bit=1u<<(local%(unsigned)t.length);const bool hit=patch.ext[i].bass_mode==2||md_hit(local,hits,t.length,t.rotate);
    stats.step_played[i]&=~bit;stats.step_skipped[i]&=~bit;if(hit&&!t.mute){if(roll%1000<(unsigned)t.prob)stats.step_played[i]|=bit;else stats.step_skipped[i]|=bit;}}
@@ -321,7 +337,7 @@ static void tick() {
    }
    if(t.model>=MD_FM) {
     if(!e.bass_mode&&(roll>>10)%1000<(unsigned)patch.macro[1])note+=degree[(roll>>20)%7];
-    {int target=note+patch.transpose;pitch=quantize_any((float)target,patch.root,patch.scale,target<last_generated[i]);note=(int)floorf(pitch+.5f);last_generated[i]=note;}
+    {int target=note+patch.transpose+(int)floorf(lfo_mod[i][MD_TO_NOTES]*12+.5f); /* LFO steps stay in the scale */pitch=quantize_any((float)target,patch.root,patch.scale,target<last_generated[i]);note=(int)floorf(pitch+.5f);last_generated[i]=note;}
    }
    float velocity=.8f+unit(t.accent)*((local%t.length)==0?.2f:-.25f);
    if(t.model<MD_FM)pitch=(float)note;
@@ -339,6 +355,7 @@ static void quantum(float *lr,unsigned n) {
  if(patch.quality){static const unsigned weight[MD_MODELS]={8,13,8,18,10,26,17,8,8,30,10,12};unsigned cost=12;
   // Provisional additional weights, pending physical-device measurement.
   if(fx_active||patch.fx_level)cost+=10;
+  if(patch.chorus)cost+=3;if(patch.send_hp||patch.room_diffusion)cost+=2; // Monades estimates, pending FM-1 measurement
   for(unsigned j=0;j<6;j++)if(!patch.track[j].mute&&patch.ext[j].warps)cost+=2;
   for(unsigned i=0;i<6;i++)if(voices[i].active||!patch.track[i].mute)cost+=weight[patch.track[i].model];
   if(cost>85){patch.quality=0;stats.quality_reductions++;for(unsigned i=0;i<6;i++){voices[i].eco_phase=0;voices[i].eco_previous=voices[i].eco_next=0;voices[i].fade=0;}}
@@ -372,6 +389,7 @@ static void quantum(float *lr,unsigned n) {
   const md_extension &e=patch.ext[i];const float *lm=lfo_mod[i];
   // LFO targets; with depth 0 every value below is exactly the knob's.
   const float harm=lm[MD_TO_HARMONICS]?clamp01(unit(t.harm)+lm[MD_TO_HARMONICS]*.5f):unit(t.harm),shp=lm[MD_TO_SHAPE]?clamp01(unit(t.shape)+lm[MD_TO_SHAPE]*.5f):unit(t.shape);
+  const float decay_u=lm[MD_TO_DECAY]?clamp01(unit(t.decay)+lm[MD_TO_DECAY]*.5f):unit(t.decay),att=lm[MD_TO_ATTACK]?clamp01(unit(t.attack)+lm[MD_TO_ATTACK]*.5f):unit(t.attack);
   v.note+=(v.target_note-v.note)*(e.glide?n/(float)(n+MD_RATE*.35f*unit(e.glide)):1.0f);
   v.tide_phase+=n/(MD_RATE*(.5f+unit(e.tides_rate)*19.5f));if(v.tide_phase>=1)v.tide_phase-=1;
   stats.tide_phase[i]=v.tide_phase;
@@ -386,9 +404,9 @@ static void quantum(float *lr,unsigned n) {
   unsigned engine_n=eco?(n+(v.eco_phase?0:1))/2:n;
   if(eco)p.note+=12.0f; // same concert pitch at 22.05 kHz; linear reconstruction below.
   switch(t.model) {
-   case MD_KICK:v.kick.Render(false,trig,v.velocity,f,tone,unit(t.decay),harm,.2f,out,n);break;
-   case MD_SNARE:v.snare.Render(false,trig,v.velocity,f,tone,unit(t.decay),harm,out,n);break;
-   case MD_HAT:v.hat.Render(false,trig,v.velocity,f,tone,unit(t.decay),harm,tmp,exc,out,n);break;
+   case MD_KICK:v.kick.Render(false,trig,v.velocity,f,tone,decay_u,harm,.2f,out,n);break;
+   case MD_SNARE:v.snare.Render(false,trig,v.velocity,f,tone,decay_u,harm,out,n);break;
+   case MD_HAT:v.hat.Render(false,trig,v.velocity,f,tone,decay_u,harm,tmp,exc,out,n);break;
    case MD_FM:if(engine_n)v.fm.Render(p,out,nullptr,engine_n,&done);break;
    case MD_VA:if(engine_n)v.va.Render(p,out,nullptr,engine_n,&done);break;
    case MD_HARMONIC:if(engine_n)v.additive.Render(p,out,nullptr,engine_n,&done);break;
@@ -402,7 +420,7 @@ static void quantum(float *lr,unsigned n) {
     // four-ratchet rolls (17 ms spacing), leaving only the tiny primer audible.
     strike.set_parameter(t.shape>=334&&t.shape<667?.05f+.15f*(t.shape-334)/332.0f:.1f+.8f*shp);
     strike.set_timbre(fminf(.95f,tone));strike.Process(strike_flags,exc,n);
-    body.set_frequency(f);body.set_geometry(fminf(.999f,harm));body.set_brightness(tone);body.set_damping(unit(t.decay)*.8f);body.set_position(.3f);body.set_resolution(element_modes);
+    body.set_frequency(f);body.set_geometry(fminf(.999f,harm));body.set_brightness(tone);body.set_damping(decay_u*.8f);body.set_position(.3f);body.set_resolution(element_modes);
     memset(tmp,0,sizeof tmp);body.Process(tmp,exc,out,aux,n);break;}
    case MD_SATIN:{
     // Original rounded wavetable oscillator. Reduce harmonics continuously
@@ -456,7 +474,7 @@ static void quantum(float *lr,unsigned n) {
     }break;}
    case MD_RINGS:
     v.rings.set_frequency(f);v.rings.set_structure(harm*.999f);v.rings.set_brightness(tone);
-    v.rings.set_damping(unit(t.decay)*.9f);v.rings.set_position(.35f);v.rings.set_resolution(patch.quality?24:8);
+    v.rings.set_damping(decay_u*.9f);v.rings.set_position(.35f);v.rings.set_resolution(patch.quality?24:8);
     for(unsigned k=0;k<n;k++){exc[k]=noise()*v.excite*.65f*v.velocity;v.excite*=.985f;}
     v.rings.Process(exc,out,aux,n);break;
   }
@@ -471,10 +489,10 @@ static void quantum(float *lr,unsigned n) {
   stats.cutoff_now[i]=cutoff_hz(v.cut_smooth);stats.q_now[i]=filter_q(v.res_smooth);
   if(t.filter){float fc=cutoff_hz(v.cut_smooth)/MD_RATE;
    v.filter1.set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,filter_q(v.res_smooth));
-   if(t.filter==2)v.filter2.set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);}
+   if(t.filter==2||t.filter==7)v.filter2.set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);}
   float target=t.mute?0:unit(t.level)*.24f*(1+lm[MD_TO_LEVEL]);
-  float pan=clamp01(unit(t.pan)+lm[MD_TO_PAN]*.5f),dec=1.0f-1.0f/(MD_RATE*(.06f+unit(t.decay)*unit(t.decay)*16.0f));
-  float attackstep=1.0f/(1+MD_RATE*8.0f*unit(t.attack)*unit(t.attack)),sendlevel=clamp01(unit(t.send)+lm[MD_TO_GRAIN_SEND]*.5f);
+  float pan=clamp01(unit(t.pan)+lm[MD_TO_PAN]*.5f),dec=1.0f-1.0f/(MD_RATE*(.06f+decay_u*decay_u*16.0f));
+  float attackstep=1.0f/(1+MD_RATE*8.0f*att*att),sendlevel=clamp01(unit(t.send)+lm[MD_TO_GRAIN_SEND]*.5f);
   const bool melodic=md_has_envelope(t.model);
   const float velocity=melodic?v.velocity:1,warp_target=unit(e.warps),ds=clamp01(unit(e.delay_send)+lm[MD_TO_ECHO_SEND]*.5f),rs=clamp01(unit(e.reverb_send)+lm[MD_TO_ROOM_SEND]*.5f),expr=expression[i];
   float track_peak=stats.track_peak[i];
@@ -485,7 +503,7 @@ static void quantum(float *lr,unsigned n) {
    if(melodic){if(v.midi_gate<0){v.env*=.9975f;v.attacking=0;}else if(v.attacking){v.env+=attackstep;if(v.env>=1){v.env=1;v.attacking=0;}}else if(v.midi_gate==0)v.env*=dec;x*=v.env;}
    out[k]=x;
   }
-  if(t.filter==4)v.filter1.Process<stmlib::FILTER_MODE_HIGH_PASS>(out,out,n);
+  if(t.filter==4||t.filter==7){v.filter1.Process<stmlib::FILTER_MODE_HIGH_PASS>(out,out,n);if(t.filter==7)v.filter2.Process<stmlib::FILTER_MODE_HIGH_PASS>(out,out,n);}
   else if(t.filter==5)v.filter1.Process<stmlib::FILTER_MODE_BAND_PASS_NORMALIZED>(out,out,n);
   else if(t.filter==6){v.filter1.Process<stmlib::FILTER_MODE_BAND_PASS_NORMALIZED>(out,tmp,n);for(unsigned k=0;k<n;k++)out[k]-=tmp[k];} // notch = input - band
   else if(t.filter){v.filter1.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);if(t.filter==2)v.filter2.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);}
@@ -517,9 +535,15 @@ static void quantum(float *lr,unsigned n) {
   stats.env_now[i]=melodic?v.env:0;stats.env_attacking[i]=melodic&&v.attacking;
   if(melodic&&!v.attacking&&v.env<.000001f)v.active=0;
  }
- const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=fminf(15435.0f,fmaxf(1764.0f,patch.delay_ms*44.1f*(1+lfo_echo_time*.5f)));
+ const float echo_feedback=lfo_echo_fb?fminf(.8f,clamp01(unit(patch.delay_fb)+lfo_echo_fb*.5f)):unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=fminf(15435.0f,fmaxf(1764.0f,(patch.echo_sync?echo_ms_now():(float)patch.delay_ms)*44.1f*(1+lfo_echo_time*.5f)));
  const float echo_glide=lfo_echo_time?.002f:.00005f,echo_tone=tone_coef(patch.echo_tone,.04f,.25f,.9f),room_tone=tone_coef(patch.room_tone,.05f,.3f,.85f);
+ const float diffusion=patch.room_diffusion*.0007f; // up to 0.7, Dattorro uses 0.625-0.75
  const bool send_hp=patch.send_hp>0;if(send_hp){float fc=md_send_hp_hz(patch.send_hp)/(float)MD_RATE;send_hp_filter[0].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);send_hp_filter[1].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);}
+ if(patch.chorus){ // de-interleave in place through the scratch buffers: no extra memory
+  for(unsigned k=0;k<n;k++){out[k]=lr[2*k];aux[k]=lr[2*k+1];}
+  chorus.set_amount(patch.chorus*.001f);chorus.set_depth(patch.chorus_depth*.001f);chorus.Process(out,aux,n);
+  for(unsigned k=0;k<n;k++){lr[2*k]=out[k];lr[2*k+1]=aux[k];}
+ }
  unsigned maxgrains=patch.quality?4:2;
  float fx_peak[3]={stats.fx_peak[0],stats.fx_peak[1],stats.fx_peak[2]},out_peak[2]={stats.out_peak[0],stats.out_peak[1]},limit_peak=stats.limit_peak;
  for(unsigned k=0;k<n;k++) {
@@ -529,7 +553,7 @@ static void quantum(float *lr,unsigned n) {
    for(unsigned j=0;j<4;j++){if(grains[j].life&&grains[j].age<grains[j].life)active++;else if(slot<0)slot=(int)j;}
    grainclock=32; // Defer rather than truncate a grain after a size/quality change.
    if(slot>=0&&active<maxgrains){
-    unsigned life=2205+(unsigned)(unit(patch.grain_size)*11025);
+    unsigned life=2205+(unsigned)(clamp01(unit(patch.grain_size)+lfo_grain_size*.5f)*11025);
     float travel=((patch.freeze?0.0f:1.0f)-grainrate)*life;
     float lo=260+fmaxf(0.0f,-travel),hi=(float)tape_valid-260-fmaxf(0.0f,travel);
     if(hi>lo){
@@ -572,6 +596,7 @@ static void quantum(float *lr,unsigned n) {
   if(send_hp){echo_in=send_hp_filter[0].Process<stmlib::FILTER_MODE_HIGH_PASS>(echo_in);room_input=send_hp_filter[1].Process<stmlib::FILTER_MODE_HIGH_PASS>(room_input);}
   echo[echo_head]=int16_t(clip(echo_in+echo_lp*echo_feedback)*32767);echo_head=(echo_head+1)&16383;
   float hp=room_input-fx_highpass_in+.985f*fx_highpass_out;fx_highpass_in=room_input;fx_highpass_out=hp;
+  if(diffusion>0){float x=hp;unsigned base=0;for(unsigned j=0;j<4;j++){int16_t &cell=diffuser[base+diffuser_head[j]];float d=cell*(1.0f/32768.0f),y=d-diffusion*x;cell=int16_t(clip(x+diffusion*y)*32767);if(++diffuser_head[j]>=diffuser_len[j])diffuser_head[j]=0;base+=diffuser_len[j];x=y;}hp=x;} // smears the room's attack
   static const unsigned lens[4]={887,1013,1151,1201};float rv[4],sum=0;
   for(unsigned j=0;j<4;j++){rv[j]=room[j][room_head[j]]/32768.0f;room_lp[j]+=(rv[j]-room_lp[j])*room_tone;sum+=room_lp[j];}
   for(unsigned j=0;j<4;j++){float value=hp*.3f+(sum*.5f-room_lp[j])*room_decay;room[j][room_head[j]]=int16_t(clip(value)*32767);if(++room_head[j]>=lens[j])room_head[j]=0;}
@@ -692,11 +717,12 @@ int md_validate(const md_patch *p) {
  for(int i=0;i<6;i++){const md_extension &e=p->ext[i];const int values[]={e.delay_send,e.reverb_send,e.glide,e.marbles,e.tides,e.tides_rate,e.warps};for(int v:values)if(v<0||v>1000)return 0;if(e.bass_mode<0||e.bass_mode>2||e.pattern<0||e.pattern>3||e.edit_step<0||e.edit_step>15)return 0;for(int v:e.notes)if(v< -1||v>24)return 0;}
  if(p->delay_ms<40||p->delay_ms>350||p->delay_fb<0||p->delay_fb>800||p->reverb_time<0||p->reverb_time>850||p->fx_level<0||p->fx_level>1000)return 0;
  if(p->send_hp<0||p->send_hp>1000||p->echo_tone<0||p->echo_tone>1000||p->room_tone<0||p->room_tone>1000)return 0;
+ if(p->echo_sync<0||p->echo_sync>=MD_ECHO_SYNCS||p->room_diffusion<0||p->room_diffusion>1000||p->chorus<0||p->chorus>1000||p->chorus_depth<0||p->chorus_depth>1000)return 0;
  for(int i=0;i<6;i++)for(int s=0;s<2;s++){const md_lfo &l=p->lfo[i][s];if(l.rate<0||l.rate>=MD_LFO_RATES||l.shape<0||l.shape>=MD_LFO_SHAPES||l.target<0||l.target>=MD_LFO_TARGETS||l.depth< -1000||l.depth>1000)return 0;}
  return 1;
 }
 int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
-unsigned md_memory_bytes(){return sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
+unsigned md_memory_bytes(){return sizeof chorus_line+sizeof chorus+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
  if(bytes==sizeof(md_patch)){md_patch p;memcpy(&p,data,sizeof p);if(!md_validate(&p))return 0;*out=p;return 1;}
@@ -757,7 +783,10 @@ float md_lfo_sixteenths(int rate){return rate>=0&&rate<MD_LFO_SYNCED?lfo_sync[ra
 float md_lfo_hz(int rate,int tempo){rate=bound(rate,0,MD_LFO_RATES-1);return rate<MD_LFO_SYNCED?tempo/15.0f/lfo_sync[rate]:lfo_free_hz(rate);}
 const char *md_lfo_rate_name(int rate){rate=bound(rate,0,MD_LFO_RATES-1);return rate<MD_LFO_SYNCED?lfo_sync_names[rate]:"FREE";}
 const char *md_lfo_shape_name(int s){static const char *const n[MD_LFO_SHAPES]={"SINE","TRIANGLE","RAMP UP","RAMP DOWN","SQUARE","SAMPLE & HOLD","SMOOTH RANDOM"};return n[bound(s,0,MD_LFO_SHAPES-1)];}
-const char *md_lfo_target_name(int t){static const char *const n[MD_LFO_TARGETS]={"CUTOFF","RESONANCE","LEVEL","PAN","PITCH","TONE","HARMONICS","SHAPE","ECHO SEND","ROOM SEND","GRAIN SEND","ECHO TIME","GRAIN POS"};return n[bound(t,0,MD_LFO_TARGETS-1)];}
+const char *md_lfo_target_name(int t){static const char *const n[MD_LFO_TARGETS]={"CUTOFF","RESONANCE","LEVEL","PAN","PITCH","TONE","HARMONICS","SHAPE","ECHO SEND","ROOM SEND","GRAIN SEND","ECHO TIME","GRAIN POS","ATTACK","DECAY","ECHO FEEDBACK","GRAIN SIZE","NOTES IN SCALE","HITS"};return n[bound(t,0,MD_LFO_TARGETS-1)];}
+float md_echo_ms(void){return echo_ms_now();}
+float md_echo_sync_len16(int s){return echo_sync_len[bound(s,0,MD_ECHO_SYNCS-1)];}
+const char *md_echo_sync_name(int s){static const char *const n[MD_ECHO_SYNCS]={"OFF","1/32","1/16 T","1/16","1/8 T","1/16 .","1/8","1/4 T","1/8 .","1/4"};return n[bound(s,0,MD_ECHO_SYNCS-1)];}
 int md_send_hp_hz(int v){return v>0?(int)(20.0f*stmlib::SemitonesToRatio(bound(v,0,1000)*.0797262f)+.5f):0;}
 void md_set_custom_scale(unsigned mask){custom_scale=(uint16_t)((mask&0xfff)|1u);}
 const char *md_model_name(int m){static const char *names[]={"PLAITS KICK","PLAITS SNARE","PLAITS HAT","PLAITS FM","PLAITS VA","RINGS MODAL","PLAITS HARMONIC","SINE CHOIR","ROUND BASS","ELEMENTS STRIKE","MELLOW DRIFT","SATIN MORPH"};return names[bound(m,0,MD_MODELS-1)];}

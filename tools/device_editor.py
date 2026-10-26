@@ -43,11 +43,11 @@ class Editor:
  def ui(self,c,t,v):
   z=v+8192;return self.call(10,[c,t,z&127,z>>7])
  def snapshot(self):
-  size,crc,token=struct.unpack('<III',self.call(8));assert size==1496
+  size,crc,token=struct.unpack('<III',self.call(8));assert size==1512
   p=b''.join(self.call(5,[off&127,off>>7,token]) for off in range(0,size,224));assert len(p)==size and zlib.crc32(p)==crc
   return p
  def upload(self,p):
-  assert len(p)==1496
+  assert len(p)==1512
   token=self.call(11,pack(struct.pack('<II',len(p),zlib.crc32(p))))[0]
   try:
    for off in range(0,len(p),196):self.call(12,[token,off&127,off>>7,*pack(p[off:off+196])])
@@ -63,7 +63,7 @@ class Editor:
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['info','export','import']);p.add_argument('file',nargs='?');p.add_argument('--port',default='X0X FM-1');a=p.parse_args();d=Editor(a.port)
  try:
-  cap=struct.unpack('<8I',d.call(7));assert cap[:3]==(1,7,1496)
+  cap=struct.unpack('<8I',d.call(7));assert cap[:3]==(1,7,1512)
   if a.action=='info':print(json.dumps(dict(protocol=cap[0],patch_bytes=cap[2],biomes=cap[4],sounds=cap[5]),indent=2))
   elif a.action=='export':Path(a.file).write_text(json.dumps(dict(format='mutable-dreams-patch',version=1,firmware='1.1',name='FM-1 Live Biome',patch=list(d.snapshot())),indent=2)+'\n')
   else:

@@ -51,6 +51,8 @@ tap HOME
 tap FX
 expect page 22
 tap FX
+expect page 23
+tap FX
 expect page 15
 spin K1 20
 spin K2 20
@@ -81,6 +83,7 @@ tap FX
 tap FX
 tap FX
 expect page 22
+tap FX
 tap FX
 tap FX
 expect page 20

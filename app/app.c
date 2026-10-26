@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT OR GPL-3.0-only */
 #include "dsp/dreams.h"
 #include "fastmath.h"
-enum { LIVE,SOUND,RHYTHM,GRAIN,MIX,SYSTEM,ENVELOPE,GROOVE,TAPE,HARMONY,FILTER,APPEARANCE,MIXER,BASSLINE,SPACE,MODULATION,PHRASE,MIDI,BANKS,ZONES,LFO_A,LFO_B,SPACE_TONE };
+enum { LIVE,SOUND,RHYTHM,GRAIN,MIX,SYSTEM,ENVELOPE,GROOVE,TAPE,HARMONY,FILTER,APPEARANCE,MIXER,BASSLINE,SPACE,MODULATION,PHRASE,MIDI,BANKS,ZONES,LFO_A,LFO_B,SPACE_TONE,ECHO_CHORUS };
 static struct { int page,track,help,dirty,octave; uint32_t btn,keys,down[NB],held,next; char msg[32]; uint32_t msg_until; } dream_ui;
 static int dream_store_hold;
 static volatile int dream_reloading;
@@ -27,7 +27,7 @@ static const uint16_t dream_colors[6]={RGB(238,151,135),RGB(219,185,105),RGB(135
 #define MD_INK RGB(250,245,233)
 #define MD_DIM RGB(183,196,205)
 #define MD_EDGE RGB(66,85,96)
-static const char *dream_pages[]={"LIVE BIOME","SOUND","RHYTHM","GRANULAR BUS","MIX / NOTES","QUALITY / SYSTEM","ENVELOPE / BLOOM","GROOVE / REPEATS","TAPE / MOTION","HARMONY / GLOBAL","VELVET FILTER","LOOK / STARTUP","GLOBAL MIXER","BASS / MOTIFS","SHARED SPACE","MARBLES / TIDES / WARPS","PHRASE / NOTES","MIDI / PERFORMANCE","USER BANKS","MIDI OUT ZONES","LFO A","LFO B","SPACE TONE"};
+static const char *dream_pages[]={"LIVE BIOME","SOUND","RHYTHM","GRANULAR BUS","MIX / NOTES","QUALITY / SYSTEM","ENVELOPE / BLOOM","GROOVE / REPEATS","TAPE / MOTION","HARMONY / GLOBAL","VELVET FILTER","LOOK / STARTUP","GLOBAL MIXER","BASS / MOTIFS","SHARED SPACE","MARBLES / TIDES / WARPS","PHRASE / NOTES","MIDI / PERFORMANCE","USER BANKS","MIDI OUT ZONES","LFO A","LFO B","SPACE TONE","ECHO SYNC / CHORUS"};
 static const char *help_title[NB]={"GRANULAR BUS","MUTE A TRACK","RETURN","FREEZE","CHOOSE A VOICE","SYSTEM","LIVE MACROS","SAVE","LOCK THE SEED","GENERATE RHYTHMS","PLAY / STOP","MUTATE","LOWER OCTAVE","HIGHER OCTAVE"};
 static const char *help_lines[NB][5]={
  {"FX: Grain > Tape > Space > Mod","K1 Mix / K2 Grain length","K3 Position / K4 Feedback","Tape: pitch and direction","Duck: source track and amount"},
@@ -48,7 +48,7 @@ static const char *help_lines[NB][5]={
 static int md_context_help(void){
  int p=dream_ui.page,b=dream_ui.help;
  return (p==MIXER&&b==B_EDIT)||((p==BASSLINE||p==PHRASE)&&b==B_SEQ)||
-        ((p==SPACE||p==MODULATION||p==LFO_A||p==LFO_B||p==SPACE_TONE)&&b==B_FX)||
+        ((p==SPACE||p==MODULATION||p==LFO_A||p==LFO_B||p==SPACE_TONE||p==ECHO_CHORUS)&&b==B_FX)||
         ((p==MIDI||p==BANKS)&&b==B_GLO)||(p==BANKS&&b==B_SAVE);
 }
 static int dream_cmd(int c,int t,int v){uint32_t f=plat_lock();int r=md_command(c,t,v);plat_unlock(f);return r;}
@@ -145,6 +145,7 @@ static float md_filter_db(float w,float q,int mode){
  float w2=w*w,den=(1-w2)*(1-w2)+w2/(q*q),num=1;
  if(mode==2)den*=(1-w2)*(1-w2)+w2*2.0f;
  else if(mode==4)num=w2*w2;
+ else if(mode==7){num=w2*w2*w2*w2;den*=(1-w2)*(1-w2)+w2*2.0f;}
  else if(mode==5)num=w2/(q*q);
  else if(mode==6){num=(1-w2)*(1-w2);if(num<1e-7f)num=1e-7f;}
  return 3.01029996f*fm_log2f(num/den);
@@ -239,7 +240,7 @@ static void md_draw_all(void) {
   static const char *lookhelp[]={"K1: animation on / off","K2: startup sound on / off","K3: replay startup animation","K4: reset measured CPU peak","Stop + SAVE: keep preferences"};
   static const char *systemhelp[]={"K1: Tempo / K2: ECO or FULL","K3: ducking recovery","K4: reset measured CPU peak","REC: panic / clear tape","GLO: animation and startup"};
   static const char *harmonyhelp[]={"K1: root note C to B","K2: one of eight scales","K3: transpose +/-24 semitones","K4: tempo for all tracks","GLO: continue to System"};
-  static const char *filterhelp[]={"K1: cutoff, 60 to 18000 Hz","K2: resonance at the cutoff","K3: LP12/LP24/LPG/HP/BP/NOTCH","K4: slow filter movement","LPG darkens with the decay"};
+  static const char *filterhelp[]={"K1: cutoff, 60 to 18000 Hz","K2: resonance at the cutoff","K3: LP / LPG / HP / BP / NOTCH","K4: slow filter movement","LPG darkens with the decay"};
   static const char *envhelp[]={"K1: attack up to 8 seconds","K2: decay up to 16 seconds","FM / VA / Harmonic / Choir","K3: level / K4: grain send","Drums and Rings: engine decay"};
   static const char *groovehelp[]={"K1: global swing (0-60)","K2: 1-4 repeats per hit","K3: accent / K4: clock division","Repeats divide one step.","SEQ: return to hits / length"};
   static const char *tapehelp[]={"K1: grain pitch +/-24","K2: forward / reverse","K3: duck source; 0 means off","K4: attenuate other tracks","The source stays unchanged."};
@@ -252,7 +253,7 @@ static void md_draw_all(void) {
   if(dream_ui.help==B_EDIT&&dream_ui.page==ENVELOPE)lines=envhelp;
   if(dream_ui.help==B_SEQ&&dream_ui.page==GROOVE)lines=groovehelp;
   if(dream_ui.help==B_FX&&dream_ui.page==TAPE)lines=tapehelp;
-  static const char *newhelp[11][5]={
+  static const char *newhelp[12][5]={
    {"SELECT: track / SEL: mute","K1 level / K2 grain send","K3 delay send / K4 reverb send","FX: SPACE sets effect return","Sends follow track level."},
    {"K1 OFF / EUCLID / STEP","K2 motif / K3 glide / K4 note","SEQ again: edit phrase notes","Marbles varies offbeat notes.","All tracks remain assignable."},
    {"K1 delay time: 40-350 ms","K2 echo feedback / K3 room tail","K4 shared effect return","Mixer: individual track sends","PANIC clears all effect tails."},
@@ -263,7 +264,8 @@ static void md_draw_all(void) {
    {"","","","",""},
    {"K1 rate: synced 8 bars-1/32, free Hz","K2 shape: sine to sample & hold","K3 target: filter, level, pitch...","K4 depth; negative inverts","Synced LFOs restart with PLAY."},
    {"K1 rate: synced 8 bars-1/32, free Hz","K2 shape: sine to sample & hold","K3 target: filter, level, pitch...","K4 depth; negative inverts","Two LFOs per track: A and B."},
-   {"K1 high-pass on echo + room sends","K2 echo tone: darker repeats","K3 room tone: darker tail","K4 shared effect return","Curves: what reaches the effects."}};
+   {"K1 high-pass on echo + room sends","K2 echo tone / K3 room tone","K4 room diffusion: softer onset","Curves: what reaches the effects.","Strip: the room onset, smeared."},
+   {"K1 echo synced to the tempo","Slow tempo: half the division.","K2 echo feedback","K3 chorus mix / K4 sweep depth","Chorus acts on the dry tracks."}};
   if(md_context_help())lines=newhelp[dream_ui.page-MIXER];
   for(i=0;i<5;i++)md_text(14,80+i*22,lines[i],MD_INK);
   md_text(14,197,"Release, then tap any key to close.",MD_DIM);return;
@@ -320,16 +322,18 @@ static void md_draw_all(void) {
    {const char *warn=0;int tg=l->target;
     if(!l->depth)warn="DEPTH 0: THIS LFO IS OFF";
     else if((tg==MD_TO_CUTOFF||tg==MD_TO_RESONANCE)&&!t->filter)warn="NEEDS A TRACK FILTER";
-    else if((tg==MD_TO_ECHO_SEND||tg==MD_TO_ROOM_SEND||tg==MD_TO_ECHO_TIME)&&!p->fx_level)warn="RETURN 0: SEE SPACE";
-    else if(tg==MD_TO_GRAIN_SEND||tg==MD_TO_GRAIN_POS){if(!p->macro[3])warn="GRAIN MIX 0: SEE GRANULAR";}
+    else if((tg==MD_TO_ECHO_SEND||tg==MD_TO_ROOM_SEND||tg==MD_TO_ECHO_TIME||tg==MD_TO_ECHO_FEEDBACK)&&!p->fx_level)warn="RETURN 0: SEE SPACE";
+    else if(tg==MD_TO_NOTES&&t->model<MD_FM)warn="DRUM ENGINE: NO NOTES";
+    else if(tg==MD_TO_ATTACK&&!md_has_envelope(t->model))warn="THIS ENGINE HAS NO ATTACK";
+    else if(tg==MD_TO_GRAIN_SEND||tg==MD_TO_GRAIN_POS||tg==MD_TO_GRAIN_SIZE){if(!p->macro[3])warn="GRAIN MIX 0: SEE GRANULAR";}
     if(warn)md_text(x0,139,warn,MD_HOT);
     else{char now[24]="NOW ",*q=now+4;float v=ms->lfo_value[tr][sl]*l->depth*.001f;
      if(tg==MD_TO_CUTOFF){md_num((int)ms->cutoff_now[tr],q);while(*q)q++;*q++=' ';*q++='H';*q++='Z';*q=0;}
-     else{int x=(int)(v*(tg==MD_TO_PITCH?120:tg==MD_TO_LEVEL?100:50)+(v<0?-.5f:.5f)); /* tenths of a semitone, or % of the knob range */
+     else{int x=(int)(v*(tg==MD_TO_PITCH?120:tg==MD_TO_NOTES?12:tg==MD_TO_LEVEL?100:50)+(v<0?-.5f:.5f)); /* tenths of a semitone, steps, or % of the knob range */
       if(tg==MD_TO_LEVEL)x=(int)(-(l->depth<0?-l->depth:l->depth)*.05f*(1-(l->depth<0?-ms->lfo_value[tr][sl]:ms->lfo_value[tr][sl]))-.5f);
       if(x<0){*q++='-';x=-x;}else *q++='+';
       if(tg==MD_TO_PITCH){md_num(x/10,q);while(*q)q++;*q++='.';*q++='0'+x%10;*q=0;}else md_num(x,q);
-      while(*q)q++;const char *u=tg==MD_TO_PITCH?" ST":" %";while(*u)*q++=*u++;*q=0;}
+      while(*q)q++;const char *u=tg==MD_TO_PITCH||tg==MD_TO_NOTES?" ST":tg==MD_TO_HITS?" % HITS":" %";while(*u)*q++=*u++;*q=0;}
      md_text(x0,139,now,MD_DIM);}}
    md_named(8,158,"K1 RATE",l->rate<MD_LFO_SYNCED?md_lfo_rate_name(l->rate):"FREE",col);md_named(124,158,"K2 SHAPE",md_lfo_shape_name(l->shape),col);
    md_named(8,194,"K3 TARGET",md_lfo_target_name(l->target),col);md_value_span(124,194,"K4 DEPTH",l->depth/10,-100,100,col);
@@ -350,7 +354,33 @@ static void md_draw_all(void) {
    md_text(66,137,"100",MD_DIM);md_text(128,137,"1K",MD_DIM);md_text(186,137,"10K",MD_DIM);md_text(6,md_db_y(0)-6,"0dB",MD_DIM);
    md_meter(7,214,8,ms->fx_peak[1],MD_DIM,0);md_meter(8,226,8,ms->fx_peak[2],MD_DIM,0);
    {char hz[16];if(hp>0){md_num((int)hp,hz);char *q=hz;while(*q)q++;*q++=' ';*q++='H';*q++='Z';*q=0;}else{hz[0]='O';hz[1]='F';hz[2]='F';hz[3]=0;}md_named(8,158,"K1 SEND HIGH-PASS",hz,col);}
-   md_value(124,158,"K2 ECHO TONE",p->echo_tone/10,col);md_value(8,194,"K3 ROOM TONE",p->room_tone/10,col);md_value(124,194,"K4 RETURN",p->fx_level/10,col);
+   // Room onset: an impulse through the four input allpasses as the engine runs them (27 ms), loudest sample per column.
+   {static float line[1210];static unsigned head[4];static const unsigned len[4]={150,214,319,527};float g=p->room_diffusion*.0007f;
+    memset(line,0,sizeof line);memset(head,0,sizeof head);cv_rect(30,84,180,1,MD_CARD);
+    if(g<=0)cv_rect(30,68,2,16,MD_DIM);else /* off: the room hears the send directly */
+    for(int col_i=0,smp=0;col_i<180;col_i++){float pk=0;for(int k=0;k<7&&smp<1260;k++,smp++){float x=smp==0?1.0f:0.0f;unsigned base=0;
+      for(int j=0;j<4;j++){float d=line[base+head[j]],y=d-g*x;line[base+head[j]]=x+g*y;if(++head[j]>=len[j])head[j]=0;base+=len[j];x=y;}
+      if(x<0)x=-x;if(x>pk)pk=x;}
+     int h=(int)(fm_sqrtf(pk)*22);if(h>16)h=16;if(h)cv_rect(30+col_i,84-h,1,h,col);}
+    md_text(6,72,"IN",MD_DIM);}
+   md_value(124,158,"K2 ECHO TONE",p->echo_tone/10,col);md_value(8,194,"K3 ROOM TONE",p->room_tone/10,col);md_value(124,194,"K4 DIFFUSION",p->room_diffusion/10,col);
+  }else if(dream_ui.page==ECHO_CHORUS){
+   // One bar of sixteenths: echo taps at the time in use (height = feedback^k); synced, they fall on the grid.
+   // Chorus: the two delay taps of each side sweep these ranges (centre 18 / 27 ms, width = depth), brightness = mix.
+   cv_rect(4,44,232,108,MD_BG);const int x0=16,w=208,base=100;float bar=60000.0f/p->tempo*4;
+   for(i=0;i<=16;i++){int x=x0+i*(w-1)/16;cv_rect(x,base+2,1,i%4==0?6:3,i%4==0?MD_DIM:MD_EDGE);}
+   cv_rect(x0,base,w,1,MD_EDGE);
+   {float ms=md_echo_ms(),amp=1,fb=p->delay_fb*.001f;uint16_t ink=p->fx_level?col:MD_EDGE;
+    for(int k=1;k<64&&amp>.02f;k++,amp*=fb){float tm=k*ms;if(tm>bar)break;int x=x0+(int)(tm/bar*(w-1)),h=(int)(40*amp);cv_rect(x-1,base-h,3,h,ink);}
+    char lab[24];md_num((int)(ms+.5f),lab);char *q=lab;while(*q)q++;const char *u=" MS";while(*u)*q++=*u++;*q=0;md_text(x0+w-text_w(&FONT_XS,lab),48,lab,MD_DIM);
+    {int halved=p->echo_sync&&ms<md_echo_sync_len16(p->echo_sync)*15000.0f/p->tempo-1;
+     md_text(x0,48,!p->fx_level?"RETURN 0: SEE SPACE":halved?"SLOW TEMPO: HALF DIVISION":p->echo_sync?"ECHOES ON THE GRID":"FREE ECHO (ms)",p->fx_level?MD_DIM:MD_HOT);}}
+   {const int cy=124;float depth=p->chorus_depth*.001f*384/44.1f; /* ms */
+    cv_rect(x0,cy,w,1,MD_CARD);uint16_t ink=p->chorus?md_tint(MD_BG,col,(unsigned)(8+p->chorus*24/1000)):MD_EDGE;
+    for(int c=0;c<2;c++){float centre=c?27.2f:18.1f;int a=x0+(int)((centre-depth)/46.4f*(w-1)),z=x0+(int)((centre+depth)/46.4f*(w-1)),y=cy-6+c*8;cv_rect(a,y,z-a+1,4,ink);cv_rect(x0+(int)(centre/46.4f*(w-1)),y-1,1,6,MD_DIM);}
+    md_text(x0,139,p->chorus?"CHORUS: DELAY SWEEP 0-46 ms":"CHORUS OFF",p->chorus?MD_DIM:MD_EDGE);}
+   md_named(8,158,"K1 ECHO SYNC",md_echo_sync_name(p->echo_sync),col);md_value(124,158,"K2 FEEDBACK",p->delay_fb/10,col);
+   md_value(8,194,"K3 CHORUS MIX",p->chorus/10,col);md_value(124,194,"K4 CHORUS DEPTH",p->chorus_depth/10,col);
   }else if(dream_ui.page==BANKS){
    md_text(12,66,"KEEP YOUR OWN SMALL WORLDS",MD_INK);md_text(12,96,bank_name,col);char prefix[24];memcpy(prefix,bank_name,bank_char);prefix[bank_char]=0;cv_rect(12+text_w(&FONT_XS,prefix),113,5,1,col);md_text(12,121,"STOP FIRST / INTERNAL CLOCK",MD_DIM);
    md_value_span(8,158,"K1 USER SLOT",bank_slot+1,1,bank_kind?64:16,col);md_named(124,158,"K2 BANK",bank_kind?"SOUNDS":"BIOMES",col);md_named(8,194,"K3 TURN RIGHT","LOAD",col);md_value_span(124,194,"K4 NAME CURSOR",bank_char+1,1,23,col);
@@ -386,13 +416,13 @@ static void md_draw_all(void) {
    float fb=p->delay_fb*.001f,decay=.45f+.5f*p->reverb_time*.001f,lnd=fm_logf(decay);
    {int ph=hmax;for(int px=0;px<w;px++){float tm=px*span/(w-1);int h=(int)(hmax/fm_expf(-lnd*tm/.025f)); /* decay^(t/25 ms); fm_expf only with x >= 0 */
     if(h>0||ph>0)cv_rect(x0+px,base-ph,1,ph-h+1,room_ink);ph=h;}}
-   float amp=1;for(int k=1;k<64&&amp>.01f;k++,amp*=fb){float tm=k*p->delay_ms*.001f;if(tm>span)break;int x=x0+(int)(tm/span*(w-1)),h=(int)(hmax*amp);cv_rect(x-1,base-h,3,h,echo_ink);}
+   float amp=1;for(int k=1;k<64&&amp>.01f;k++,amp*=fb){float tm=k*md_echo_ms()*.001f;if(tm>span)break;int x=x0+(int)(tm/span*(w-1)),h=(int)(hmax*amp);cv_rect(x-1,base-h,3,h,echo_ink);}
    md_meter(7,214,8,ms->fx_peak[1],MD_DIM,0);md_meter(8,226,8,ms->fx_peak[2],MD_DIM,0);
    md_text(215,139,"D",MD_DIM);md_text(227,139,"R",MD_DIM);
    md_text(x0,139,"0",MD_DIM);md_text(x0+w/2-12,139,"0.7 S",MD_DIM);md_text(x0+w-30,139,"1.4 S",MD_DIM);
    int sends=0;for(i=0;i<6;i++)sends+=p->ext[i].delay_send+p->ext[i].reverb_send;
    md_text(x0,48,!p->fx_level?"RETURN 0: NOTHING HEARD":!sends?"NO TRACK SENDS: SEE MIXER":"BARS: ECHOES  CURVE: ROOM",p->fx_level&&sends?MD_DIM:MD_HOT);
-   md_value_span(8,158,"K1 ECHO ms",p->delay_ms,40,350,col);md_value(124,158,"K2 FEEDBACK",p->delay_fb/10,col);md_value(8,194,"K3 ROOM TAIL",p->reverb_time/10,col);md_value(124,194,"K4 RETURN",p->fx_level/10,col);
+   if(p->echo_sync){char nm[16];const char *a=md_echo_sync_name(p->echo_sync);int k=0;while(a[k]){nm[k]=a[k];k++;}nm[k]=0;md_named(8,158,"K1 ECHO (SYNCED)",nm,col);}else md_value_span(8,158,"K1 ECHO ms",p->delay_ms,40,350,col);md_value(124,158,"K2 FEEDBACK",p->delay_fb/10,col);md_value(8,194,"K3 ROOM TAIL",p->reverb_time/10,col);md_value(124,194,"K4 RETURN",p->fx_level/10,col);
   }else if(dream_ui.page==MODULATION){
    // Tides: one cycle of its triangle (height = amount) and the dot where this track is now.
    // Marbles: which phrase steps vary for the current seed (same rule as the sequencer). Warps: ring blend depth.
@@ -517,7 +547,7 @@ static void md_draw_all(void) {
    md_text(8,139,"ZOOM FOLLOWS PITCH / AUTO GAIN",MD_DIM);
    md_value(8,158,"K1 TONE",t->tone/10,col);md_value(124,158,"K2 HARMONICS",t->harm/10,col);if(t->model==MD_ELEMENTS)md_named(8,194,"K3 EXCITER",t->shape<334?"MALLET":t->shape<667?"PLECTRUM":"PARTICLES",col);else md_value(8,194,md_has_envelope(t->model)?"K3 SHAPE":"K3 DECAY",(md_has_envelope(t->model)?t->shape:t->decay)/10,col);md_value(124,194,"K4 LEVEL",t->level/10,col);
   } else if(dream_ui.page==FILTER) {
-   static const char *modes[]={"OFF","LP 12 dB","LP 24 dB","LOW PASS GATE","HIGH PASS","BAND PASS","NOTCH"};
+   static const char *modes[]={"OFF","LP 12 dB","LP 24 dB","LOW PASS GATE","HIGH PASS","BAND PASS","NOTCH","HP 24 dB"};
    // Real response, 20 Hz..20 kHz (log) by +18..-36 dB: dim = the knobs, colour = what the voice hears now (LFOs, LPG).
    const md_stats *ms=md_status();int tr=dream_ui.track,mode=t->filter;
    float set_fc=(float)md_cutoff_hz(t->cutoff),set_q=.707f+2.0f*(t->resonance*.001f)*(t->resonance*.001f),live_fc=ms->cutoff_now[tr],live_q=ms->q_now[tr];
@@ -688,7 +718,7 @@ static void md_tap(int b) {
  case B_HOME:dream_ui.page=LIVE;break;
  case B_EDIT:dream_ui.page=dream_ui.page==SOUND?FILTER:dream_ui.page==FILTER?ENVELOPE:dream_ui.page==ENVELOPE?MIX:dream_ui.page==MIX?MIXER:SOUND;break;
  case B_SEQ:dream_ui.page=dream_ui.page==RHYTHM?GROOVE:dream_ui.page==GROOVE?BASSLINE:dream_ui.page==BASSLINE?PHRASE:RHYTHM;break;
- case B_FX:dream_ui.page=dream_ui.page==GRAIN?TAPE:dream_ui.page==TAPE?SPACE:dream_ui.page==SPACE?SPACE_TONE:dream_ui.page==SPACE_TONE?MODULATION:dream_ui.page==MODULATION?LFO_A:dream_ui.page==LFO_A?LFO_B:GRAIN;break;
+ case B_FX:dream_ui.page=dream_ui.page==GRAIN?TAPE:dream_ui.page==TAPE?SPACE:dream_ui.page==SPACE?SPACE_TONE:dream_ui.page==SPACE_TONE?ECHO_CHORUS:dream_ui.page==ECHO_CHORUS?MODULATION:dream_ui.page==MODULATION?LFO_A:dream_ui.page==LFO_A?LFO_B:GRAIN;break;
  case B_GLO:dream_ui.page=dream_ui.page==HARMONY?SYSTEM:dream_ui.page==SYSTEM?APPEARANCE:dream_ui.page==APPEARANCE?MIDI:dream_ui.page==MIDI?ZONES:dream_ui.page==ZONES?BANKS:HARMONY;break;
  case B_SEL:dream_cmd(MD_MUTE,dream_ui.track,!p->track[dream_ui.track].mute);break;
  case B_PLAY:dream_cmd(MD_PLAY,0,!md_playing());break;case B_ARP:dream_cmd(MD_LOCK,0,!p->locked);break;
@@ -730,10 +760,12 @@ void app_input_only(void) {
   else if(dream_ui.page>=MIXER){const md_extension *e=&p->ext[tr];
    if(dream_ui.page==MIXER){const int cs[]={MD_LEVEL,MD_SEND,MD_DELAY_SEND,MD_REVERB_SEND},vs[]={t->level,t->send,e->delay_send,e->reverb_send};c=cs[b];v=vs[b]+d*20;}
    else if(dream_ui.page==BASSLINE){const int cs[]={MD_BASS_MODE,MD_BASS_PATTERN,MD_GLIDE,MD_NOTE},vs[]={e->bass_mode,e->pattern,e->glide,t->note};c=cs[b];v=vs[b]+d*(b==2?20:1);}
-   else if(dream_ui.page==SPACE){const int cs[]={MD_DELAY_TIME,MD_DELAY_FB,MD_REVERB_TIME,MD_FX_LEVEL},vs[]={p->delay_ms,p->delay_fb,p->reverb_time,p->fx_level};c=cs[b];v=vs[b]+d*(b==0?5:20);}
+   else if(dream_ui.page==SPACE){const int cs[]={MD_DELAY_TIME,MD_DELAY_FB,MD_REVERB_TIME,MD_FX_LEVEL},vs[]={p->delay_ms,p->delay_fb,p->reverb_time,p->fx_level};c=cs[b];v=vs[b]+d*(b==0?5:20);
+    if(b==0&&p->echo_sync){c=MD_ECHO_SYNC;v=clamp(p->echo_sync+d,1,MD_ECHO_SYNCS-1);}} /* synced: K1 picks the division */
    else if(dream_ui.page==MODULATION){const int cs[]={MD_MARBLES,MD_TIDES,MD_TIDES_RATE,MD_WARPS},vs[]={e->marbles,e->tides,e->tides_rate,e->warps};c=cs[b];v=vs[b]+d*20;}
    else if(dream_ui.page==LFO_A||dream_ui.page==LFO_B){const md_lfo *l=&p->lfo[tr][dream_ui.page==LFO_B];const int cs[]={MD_LFO_RATE,MD_LFO_SHAPE,MD_LFO_TARGET,MD_LFO_DEPTH},vs[]={l->rate,l->shape,l->target,l->depth};c=cs[b];v=vs[b]+d*(b==3?10:1);tr+=dream_ui.page==LFO_B?6:0;}
-   else if(dream_ui.page==SPACE_TONE){const int cs[]={MD_SEND_HP,MD_ECHO_TONE,MD_ROOM_TONE,MD_FX_LEVEL},vs[]={p->send_hp,p->echo_tone,p->room_tone,p->fx_level};c=cs[b];v=vs[b]+d*20;}
+   else if(dream_ui.page==SPACE_TONE){const int cs[]={MD_SEND_HP,MD_ECHO_TONE,MD_ROOM_TONE,MD_ROOM_DIFFUSION},vs[]={p->send_hp,p->echo_tone,p->room_tone,p->room_diffusion};c=cs[b];v=vs[b]+d*20;}
+   else if(dream_ui.page==ECHO_CHORUS){const int cs[]={MD_ECHO_SYNC,MD_DELAY_FB,MD_CHORUS,MD_CHORUS_DEPTH},vs[]={p->echo_sync,p->delay_fb,p->chorus,p->chorus_depth};c=cs[b];v=vs[b]+d*(b==0?1:20);}
    else{const int cs[]={MD_BASS_STEP,MD_BASS_VALUE,MD_ACCENT,MD_PROB},vs[]={e->edit_step,e->notes[e->edit_step],t->accent,t->prob};c=cs[b];v=vs[b]+d*(b<2?1:20);}
   }
   else if(dream_ui.page==SOUND){const int cmds[]={MD_TONE,MD_HARM,(md_has_envelope(t->model)||t->model==MD_ELEMENTS)?MD_SHAPE:MD_DECAY,MD_LEVEL};const int vals[]={t->tone,t->harm,(md_has_envelope(t->model)||t->model==MD_ELEMENTS)?t->shape:t->decay,t->level};c=cmds[b];v=vals[b]+d*20;}

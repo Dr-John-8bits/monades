@@ -68,7 +68,9 @@ Vérifier qu'aucun firmware FM-1 ne porte déjà le nom (The Firmware Hub, aweso
    - **passe-haut 12 dB sur les envois** echo et room (20 Hz à 2 kHz, OFF par défaut), **couleur de l'écho et de la room** (page SPACE TONE) ;
    - **deux LFO par piste** (pages LFO A et LFO B) : 15 divisions synchronisées (8 mesures … 1/32, pointées, triolets) qui redémarrent avec PLAY et suivent l'horloge MIDI, ou 16 vitesses libres de 0,02 à 20 Hz ; 7 formes dont S&H et aléatoire lissé, tirés de la graine ; profondeur ±. Cibles : cutoff, résonance, niveau (trémolo), pan, hauteur, tone, harmonics, shape, envois echo / room / grain, temps d'écho, position du grain ;
    - patchs v7 : les patchs, biomes utilisateur et sauvegardes de Mutable Dreams 1.1 se chargent avec tout cela au neutre.
-   **Reste** : HP24, cibles enveloppe / feedback / taille du grain, S&H de hauteur quantifié sur la gamme, plusieurs cibles par LFO, redémarrage à chaque note.
+   **Fait ensuite (branche `monades/effets-2`)** : HP24 ; cibles LFO attaque, decay, feedback de l'écho, taille du grain, **notes dans la gamme** (S&H = notes aléatoires quantifiées, aussi en sortie MIDI) et **hits** (densité) ; **écho synchronisé** (1/32 … 1/4, pointées, triolets ; divisé par deux tant qu'il dépasse les 371 ms de la ligne) ; **chorus** de Rings sur les pistes sèches ; **diffusion** Dattorro (4 allpass) devant la room. Page ECHO SYNC / CHORUS.
+   **Pas fait, faute de mémoire** : la vraie réverbe Dattorro de Rings demande 64 Ko, et le « pool » du FM-1 n'avait que 9 Ko libres en 1.1 (le chorus en prend 4). Il faudrait raccourcir la bande granulaire (256 Ko) ou trouver de la place après mesure sur l'appareil. Tides synchronisé : couvert par les LFO synchronisés sur le cutoff. Second cœur : impossible sans la chaîne de compilation JieLi et l'appareil.
+   **Reste** : plusieurs cibles par LFO, redémarrage à chaque note.
 16. Activer le **second cœur** pour faire de la place (actuellement désactivé, pics à 85 % sur un cœur).
 
 ### Lot UI — Lisibilité : chaque écran montre ce qu'on règle

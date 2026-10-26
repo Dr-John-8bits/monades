@@ -1882,6 +1882,7 @@ tap FX
 tap FX
 tap FX
 tap FX
+tap FX
 expect page 15
 press FX
 wait 900
