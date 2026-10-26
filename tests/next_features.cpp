@@ -59,5 +59,18 @@ int main(){
   md_set_midi_routing(&t1);md_midi(0x90,60,100,0);run(10);md_midi(0x80,60,0,0);run(10);drain();for(int c=0;c<16;c++)assert(on[c]==0);
   puts("PASS MIDI out off sends nothing; notes received over MIDI are never echoed");
  }
+ {
+  // Monades scales: 1.1 indices unchanged, raga ascent / descent, custom scale, browsing order covers every scale.
+  const unsigned legacy[8]={0xfff,0x5ad,0xab5,0x6ad,0x4a9,0x295,0x555,0x5ab};
+  for(int i=0;i<8;i++)assert(md_scale_mask(i)==legacy[i]&&md_scale_mask_down(i)==legacy[i]);
+  int khamaj=-1;for(int i=0;i<md_scale_count();i++)if(!strcmp(md_scale_name(i),"KHAMAJ"))khamaj=i;assert(khamaj>0);
+  assert(md_scale_mask(khamaj)==((1u<<0)|(1u<<4)|(1u<<5)|(1u<<7)|(1u<<9)|(1u<<11)));
+  assert(md_scale_mask_down(khamaj)==((1u<<0)|(1u<<2)|(1u<<4)|(1u<<5)|(1u<<7)|(1u<<9)|(1u<<10)));
+  md_set_custom_scale(0x004);assert(md_scale_mask(md_scale_custom())==0x005);
+  assert(md_quantize(63,0,md_scale_custom())==62);
+  bool seen[128]={};for(int k=0;k<md_scale_count();k++){int sc=md_scale_at(k);assert(!seen[sc]);seen[sc]=true;assert(md_scale_position(sc)==k);}
+  md_patch q=blank(MD_BASS);q.scale=md_scale_count()-1;assert(md_validate(&q));q.scale=md_scale_count();assert(!md_validate(&q));
+  printf("PASS %d scales: 1.1 order kept, raga ascent/descent, custom scale, browsing order complete\n",md_scale_count());
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

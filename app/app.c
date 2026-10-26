@@ -6,7 +6,7 @@ static struct { int page,track,help,dirty,octave; uint32_t btn,keys,down[NB],hel
 static int dream_store_hold;
 static volatile int dream_reloading;
 static float md_audio[256],md_gain;static uint32_t midi_link;
-static struct { uint32_t magic; int32_t motion,boot_sound; md_midi_routing midi; } dream_prefs; /* 1.1 saved only the first three words */
+static struct { uint32_t magic; int32_t motion,boot_sound; md_midi_routing midi; int32_t custom_scale; } dream_prefs; /* 1.1 saved only the first three words */
 static int dream_midi_ok(const md_midi_routing *r){
  if(r->mode<0||r->mode>2||r->clock<0||r->clock>1)return 0;
  for(int z=0;z<8;z++)if(r->zone[z].lo<0||r->zone[z].lo>127||r->zone[z].hi<0||r->zone[z].hi>127||r->zone[z].ch<0||r->zone[z].ch>16)return 0;
@@ -406,14 +406,16 @@ static void md_draw_all(void) {
   static const char *notes[]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
   // Circle of the 12 pitch classes, C at the top: lit = in the scale, coloured rings = notes the tracks play now.
   cv_rect(4,44,232,108,MD_BG);
-  cv_text(16,58,&FONT_M,notes[p->root],col);cv_text(16,96,&FONT_B,md_scale_name(p->scale),MD_INK);
+  cv_text(16,50,&FONT_M,notes[p->root],col);md_text(16,80,md_scale_family(p->scale),MD_DIM);cv_text(16,95,text_w(&FONT_B,md_scale_name(p->scale))>118?&FONT_XS:&FONT_B,md_scale_name(p->scale),MD_INK);
   {char tr[20]="TRANSPOSE +";md_num(p->transpose,tr+(p->transpose>0?11:10));md_text(16,120,tr,MD_DIM);}
-  md_text(16,139,"RINGS: NOTES PLAYING",MD_DIM);
+  int custom=p->scale==md_scale_custom();unsigned down=md_scale_mask_down(p->scale);
+  md_text(16,139,custom?"KEYS: ADD / REMOVE NOTES":down!=md_scale_mask(p->scale)?"HOLLOW: DESCENT ONLY":"RINGS: NOTES PLAYING",custom?col:MD_DIM);
   const md_stats *ms=md_status();unsigned mask=md_scale_mask(p->scale);const int cx=176,cy=100;
   for(i=0;i<12;i++){
    float a=i*.523598776f;int x=cx+(int)(fm_sinf(a)*28),y=cy-(int)(fm_cosf(a)*28);
-   int in=(mask>>((i-p->root+12)%12))&1,root=i==p->root;
-   if(root){md_circle(x,y,6,col,1);md_circle(x,y,7,MD_INK,0);}else if(in)md_circle(x,y,5,MD_INK,1);else md_circle(x,y,2,MD_EDGE,1);
+   int iv=(i-p->root+12)%12,up=(mask>>iv)&1,dn=(down>>iv)&1,in=up||dn,root=i==p->root;
+   // Filled = in both directions, small filled = ascent only, hollow = descent only.
+   if(root){md_circle(x,y,6,col,1);md_circle(x,y,7,MD_INK,0);}else if(up&&dn)md_circle(x,y,5,MD_INK,1);else if(up)md_circle(x,y,3,MD_INK,1);else if(dn)md_circle(x,y,5,MD_INK,0);else md_circle(x,y,2,MD_EDGE,1);
    int lx=cx+(int)(fm_sinf(a)*42),ly=cy-(int)(fm_cosf(a)*42);md_text(lx-text_w(&FONT_XS,notes[i])/2,ly-6,notes[i],in?MD_DIM:MD_EDGE);
   }
   for(int tk=0;tk<6;tk++){
@@ -574,11 +576,12 @@ void app_say(const char *a,const char *b) {unsigned i=0;(void)b;while(a&&a[i]&&i
 void app_init(void) {
  md_patch saved;md_init();midi_link=plat_midi_out_link();overloads=cpu_peak=quality_notice=0;
  dream_prefs.magic=0x4D445046;dream_prefs.motion=1;dream_prefs.boot_sound=1;dream_midi_defaults(&dream_prefs.midi);
- {static struct {uint32_t magic;int32_t motion,boot_sound;md_midi_routing midi;} prefs;memset(&prefs,0,sizeof prefs);
+ dream_prefs.custom_scale=0x091;
+ {static struct {uint32_t magic;int32_t motion,boot_sound;md_midi_routing midi;int32_t custom_scale;} prefs;memset(&prefs,0,sizeof prefs);
   int got=plat_store_load(OBJ_PREFS,&prefs,sizeof prefs);
   if((got==12||got==(int)sizeof prefs)&&prefs.magic==0x4D445046&&prefs.motion>=0&&prefs.motion<=1&&prefs.boot_sound>=0&&prefs.boot_sound<=1){
-   dream_prefs.motion=prefs.motion;dream_prefs.boot_sound=prefs.boot_sound;if(got==(int)sizeof prefs&&dream_midi_ok(&prefs.midi))dream_prefs.midi=prefs.midi;}}
- md_set_midi_routing(&dream_prefs.midi);
+   dream_prefs.motion=prefs.motion;dream_prefs.boot_sound=prefs.boot_sound;if(got==(int)sizeof prefs&&dream_midi_ok(&prefs.midi)&&prefs.custom_scale>=0&&prefs.custom_scale<=0xfff){dream_prefs.midi=prefs.midi;dream_prefs.custom_scale=prefs.custom_scale;}}}
+ md_set_midi_routing(&dream_prefs.midi);md_set_custom_scale((unsigned)dream_prefs.custom_scale);
  intro_pending=1;intro_until=chime_left=0;md_gain=0;memset(&dream_ui,0,sizeof dream_ui);dream_ui.help=-1;
  int bytes=plat_store_load(OBJ_PATCH,&saved,sizeof saved);if(bytes>0)md_import(&saved,(unsigned)bytes);
 }
@@ -663,11 +666,15 @@ void app_input_only(void) {
   else if(dream_ui.page==ENVELOPE){const int cmds[]={MD_ATTACK,MD_DECAY,MD_LEVEL,MD_SEND};const int vals[]={t->attack,t->decay,t->level,t->send};c=cmds[b];v=vals[b]+d*20;}
   else if(dream_ui.page==GROOVE){const int cmds[]={MD_SWING,MD_RATCHET,MD_ACCENT,MD_SPEED};const int vals[]={p->swing,t->ratchet,t->accent,t->speed};c=cmds[b];v=vals[b]+d*((b==0||b==2)?20:1);}
   else if(dream_ui.page==TAPE){const int cmds[]={MD_GRAIN_PITCH,MD_REVERSE,MD_DUCK_SOURCE,MD_DUCK};const int vals[]={p->grain_pitch,p->reverse,p->duck_source,p->duck_amount};c=cmds[b];v=vals[b]+d*(b==3?20:1);}
+  else if(dream_ui.page==HARMONY&&b==1){c=MD_SCALE;v=md_scale_at(clamp(md_scale_position(p->scale)+d,0,md_scale_count()-1));d=0;}
   else if(dream_ui.page==HARMONY){const int cmds[]={MD_ROOT,MD_SCALE,MD_TRANSPOSE,MD_TEMPO};const int vals[]={p->root,p->scale,p->transpose,p->tempo};c=cmds[b];v=vals[b]+d;}
   else {if(b==3){cpu_peak=0;plat_audio_peak_reset();continue;}const int cmds[]={MD_TEMPO,MD_QUALITY,MD_DUCK_RELEASE};const int vals[]={p->tempo,p->quality,p->duck_release};c=cmds[b];v=vals[b]+d*(b==2?20:1);}
   dream_cmd(c,tr,v);
  }
- for(b=0;b<27;b++)if((keys>>b&1)&&!(dream_ui.keys>>b&1)){dream_dismiss_intro();if(dream_ui.help<0)dream_cmd(MD_TRIGGER,dream_ui.track,53+b+dream_ui.octave*12);}
+ for(b=0;b<27;b++)if((keys>>b&1)&&!(dream_ui.keys>>b&1)){dream_dismiss_intro();
+  // On HARMONY with the CUSTOM scale, a key toggles its note in the scale instead of playing (the root stays).
+  if(dream_ui.help<0&&dream_ui.page==HARMONY&&p->scale==md_scale_custom()){int iv=((53+b)%12-p->root+12)%12;if(iv){dream_prefs.custom_scale^=1<<iv;uint32_t f=plat_lock();md_set_custom_scale((unsigned)dream_prefs.custom_scale);plat_unlock(f);}}
+  else if(dream_ui.help<0)dream_cmd(MD_TRIGGER,dream_ui.track,53+b+dream_ui.octave*12);}
  dream_ui.keys=keys;
  /* The printed SEL key mutes; EDIT cycles sound, envelope, mix, avoiding a hidden modifier. */
 }

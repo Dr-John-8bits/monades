@@ -64,7 +64,14 @@ const char *md_tone_name(int id);
 int md_tone_model(int id);
 const char *md_scale_name(int scale);
 int md_quantize(int note,int root,int scale);
-unsigned md_scale_mask(int scale);
+unsigned md_scale_mask(int scale); /* ascent set; bit k = k semitones above the root */
+unsigned md_scale_mask_down(int scale); /* descent set (differs for some ragas and classical melodic minor) */
+const char *md_scale_family(int scale);
+int md_scale_count(void);
+int md_scale_custom(void); /* index of the CUSTOM scale */
+int md_scale_at(int position); /* browsing order, grouped by family */
+int md_scale_position(int scale);
+void md_set_custom_scale(unsigned mask); /* audio owner; the root is always kept */
 #ifdef __cplusplus
 }
 #endif

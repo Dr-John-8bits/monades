@@ -25,6 +25,7 @@
 #endif
 namespace {
 #include "satin_tables.inc"
+#include "scale_table.inc"
 constexpr unsigned Q=64, GN=131072, GM=GN-1;
 struct Voice {
  plaits::AdditiveEngine additive; plaits::SineOscillator choir[3]; stmlib::Svf filter1,filter2;
@@ -77,6 +78,18 @@ static volatile unsigned qread,qwrite;
 static inline void fence() { __asm__ volatile("" ::: "memory"); }
 static int bound(int x,int a,int b) { return x<a?a:x>b?b:x; }
 static float unit(int x) { return bound(x,0,1000)*.001f; }
+static uint16_t custom_scale=0x091; /* CUSTOM: root, major third, fifth until the player edits it */
+static int last_generated[6]; /* per track, for ascent / descent sets */
+// Ascending into a note uses the ascent set, descending the descent set (ragas such as Desh or Jaunpuri, classical melodic minor).
+static unsigned scale_mask_for(int scale,int down){scale=bound(scale,0,SCALE_COUNT-1);if(scale==SCALE_CUSTOM)return custom_scale|1u;return down?scale_defs[scale].down:scale_defs[scale].up;}
+static int quantize_mask(int note,int root,unsigned mask){
+ note=bound(note,24,96);root=bound(root,0,11);
+ for(int delta=0;delta<12;delta++){
+  int low=note-delta,high=note+delta;
+  if(low>=24&&(mask&(1u<<((low-root+12)%12))))return low;
+  if(high<=96&&(mask&(1u<<((high-root+12)%12))))return high;
+ }return note;
+}
 static unsigned random_word(unsigned &r) { r^=r<<13;r^=r>>17;r^=r<<5;return r; }
 static float noise() { return (random_word(rng)>>8)*(1.0f/8388608.0f)-1.0f; }
 // Linear at ordinary levels; only excess peaks enter the soft safety knee.
@@ -193,7 +206,7 @@ static void apply(Command e) {
  case MD_ACCENT:t.accent=bound(v,0,1000);break;
  case MD_SWING:patch.swing=bound(v,0,600);break;
  case MD_ROOT:patch.root=bound(v,0,11);break;
- case MD_SCALE:patch.scale=bound(v,0,7);break;
+ case MD_SCALE:patch.scale=bound(v,0,SCALE_COUNT-1);break;
  case MD_TRANSPOSE:patch.transpose=bound(v,-24,24);break;
  case MD_GRAIN_PITCH:patch.grain_pitch=bound(v,-24,24);break;
  case MD_REVERSE:patch.reverse=!!v;break;
@@ -242,7 +255,7 @@ static void tick() {
    }
    if(t.model>=MD_FM) {
     if(!e.bass_mode&&(roll>>10)%1000<(unsigned)patch.macro[1])note+=degree[(roll>>20)%7];
-    note=md_quantize(note+patch.transpose,patch.root,patch.scale);
+    {int target=note+patch.transpose;note=quantize_mask(target,patch.root,scale_mask_for(patch.scale,target<last_generated[i]));last_generated[i]=note;}
    }
    float velocity=.8f+unit(t.accent)*((local%t.length)==0?.2f:-.25f);
    fire(i,(float)note,velocity);out_note(i,(float)note,velocity,duration*.5f/t.ratchet);
@@ -510,6 +523,7 @@ void md_init() {
  voices=reinterpret_cast<Voice*>(voices_raw);memset(voices_raw,0,sizeof voices_raw);memset(tape,0,sizeof tape);memset(grains,0,sizeof grains);
  memset(&stats,0,sizeof stats);memset(smooth,0,sizeof smooth);memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);
  out_r=out_w=owed_n=0;memset(&routing,0,sizeof routing);clock_left=0;
+ for(int i=0;i<6;i++)last_generated[i]=60;
  memset(midi_bank,0,sizeof midi_bank);qread=qwrite=writehead=grainclock=tape_valid=0;feedback_lp=0;rng=0x88888;stmlib::Random::Seed(rng);scene(0);playing=0;clock_source=midi_quantize=clock_pulse=0;clock_age=clock_last=0;clock_interval=0;
 }
 void md_set_midi_routing(const md_midi_routing *r){
@@ -594,7 +608,7 @@ int md_validate(const md_patch *p) {
  for(int j=0;j<4;j++)if(p->macro[j]<0||p->macro[j]>1000)return 0;
  if(p->locked<0||p->locked>1||p->freeze<0||p->freeze>1||p->quality<0||p->quality>1)return 0;
  if(p->grain_size<0||p->grain_size>1000||p->grain_pos<0||p->grain_pos>1000||p->feedback<0||p->feedback>850)return 0;
- if(p->root<0||p->root>11||p->scale<0||p->scale>7||p->transpose< -24||p->transpose>24||p->swing<0||p->swing>600||p->grain_pitch< -24||p->grain_pitch>24||p->reverse<0||p->reverse>1||p->duck_source< -1||p->duck_source>5||p->duck_amount<0||p->duck_amount>1000||p->duck_release<0||p->duck_release>1000)return 0;
+ if(p->root<0||p->root>11||p->scale<0||p->scale>=SCALE_COUNT||p->transpose< -24||p->transpose>24||p->swing<0||p->swing>600||p->grain_pitch< -24||p->grain_pitch>24||p->reverse<0||p->reverse>1||p->duck_source< -1||p->duck_source>5||p->duck_amount<0||p->duck_amount>1000||p->duck_release<0||p->duck_release>1000)return 0;
  for(int i=0;i<6;i++){const md_track &t=p->track[i];if(t.attack<0||t.attack>1000||t.ratchet<1||t.ratchet>4||t.accent<0||t.accent>1000)return 0;if(t.model<0||t.model>=MD_MODELS||t.length<1||t.length>32||t.hits<0||t.hits>t.length||t.rotate<0||t.rotate>=t.length||t.note<24||t.note>96||t.mute<0||t.mute>1||t.speed<1||t.speed>8)return 0;
  if(t.filter<0||t.filter>3)return 0;const int q[]={t.tone,t.harm,t.decay,t.level,t.send,t.shape,t.cutoff,t.resonance,t.breathe};for(int j=0;j<9;j++)if(q[j]<0||q[j]>1000)return 0;if(t.prob<0||t.prob>1000||t.pan<0||t.pan>1000)return 0;}
  for(int i=0;i<6;i++){const md_extension &e=p->ext[i];const int values[]={e.delay_send,e.reverb_send,e.glide,e.marbles,e.tides,e.tides_rate,e.warps};for(int v:values)if(v<0||v>1000)return 0;if(e.bass_mode<0||e.bass_mode>2||e.pattern<0||e.pattern>3||e.edit_step<0||e.edit_step>15)return 0;for(int v:e.notes)if(v< -1||v>24)return 0;}
@@ -640,16 +654,15 @@ int md_tone_model(int id){return tone_bank[bound(id,0,MD_TONE_PRESETS-1)].model;
 int md_has_envelope(int model){return model==MD_FM||model==MD_VA||model==MD_HARMONIC||model==MD_CHOIR||model==MD_BASS||model==MD_MELLOW||model==MD_SATIN;}
 int md_cutoff_hz(int value){return (int)cutoff_hz(unit(value));}
 
-static const unsigned scale_masks[]={0xfff,0x5ad,0xab5,0x6ad,0x4a9,0x295,0x555,0x5ab}; /* bit k: k semitones above the root */
-unsigned md_scale_mask(int scale){return scale_masks[bound(scale,0,7)];}
-int md_quantize(int note,int root,int scale){
- note=bound(note,24,96);root=bound(root,0,11);unsigned mask=scale_masks[bound(scale,0,7)];
- for(int delta=0;delta<12;delta++){
-  int low=note-delta,high=note+delta;
-  if(low>=24&&(mask&(1u<<((low-root+12)%12))))return low;
-  if(high<=96&&(mask&(1u<<((high-root+12)%12))))return high;
- }return note;
-}
-const char *md_scale_name(int s){static const char *names[]={"CHROMATIC","MINOR","MAJOR","DORIAN","MINOR PENT","MAJOR PENT","WHOLE TONE","PHRYGIAN"};return names[bound(s,0,7)];}
+unsigned md_scale_mask(int scale){return scale_mask_for(scale,0);}
+unsigned md_scale_mask_down(int scale){return scale_mask_for(scale,1);}
+int md_quantize(int note,int root,int scale){return quantize_mask(note,root,scale_mask_for(scale,0));}
+const char *md_scale_name(int s){return scale_defs[bound(s,0,SCALE_COUNT-1)].name;}
+const char *md_scale_family(int s){return scale_families[scale_defs[bound(s,0,SCALE_COUNT-1)].family];}
+int md_scale_count(void){return SCALE_COUNT;}
+int md_scale_custom(void){return SCALE_CUSTOM;}
+int md_scale_at(int position){return scale_order[bound(position,0,SCALE_COUNT-1)];}
+int md_scale_position(int scale){for(int k=0;k<SCALE_COUNT;k++)if(scale_order[k]==scale)return k;return 0;}
+void md_set_custom_scale(unsigned mask){custom_scale=(uint16_t)((mask&0xfff)|1u);}
 const char *md_model_name(int m){static const char *names[]={"PLAITS KICK","PLAITS SNARE","PLAITS HAT","PLAITS FM","PLAITS VA","RINGS MODAL","PLAITS HARMONIC","SINE CHOIR","ROUND BASS","ELEMENTS STRIKE","MELLOW DRIFT","SATIN MORPH"};return names[bound(m,0,MD_MODELS-1)];}
 }

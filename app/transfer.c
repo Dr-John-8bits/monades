@@ -25,7 +25,7 @@ int app_backup_validate(unsigned obj,const void *data,unsigned n){
  if(obj==OBJ_PREFS){
   uint32_t p[3];if(n!=sizeof p&&n!=sizeof dream_prefs)return 0;memcpy(p,data,sizeof p);
   if(p[0]!=0x4d445046||p[1]>1||p[2]>1)return 0;
-  if(n==sizeof dream_prefs){md_midi_routing r;memcpy(&r,(const uint8_t *)data+sizeof p,sizeof r);return dream_midi_ok(&r);}
+  if(n==sizeof dream_prefs){md_midi_routing r;int32_t custom;memcpy(&r,(const uint8_t *)data+sizeof p,sizeof r);memcpy(&custom,(const uint8_t *)data+sizeof p+sizeof r,sizeof custom);return dream_midi_ok(&r)&&custom>=0&&custom<=0xfff;}
   return 1; /* a 1.1 backup: MIDI out keeps its defaults */
  }
  if(obj==OBJ_PATCH){
