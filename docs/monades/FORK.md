@@ -120,6 +120,7 @@ Se démarquer visuellement de Mutable Dreams : remplacer son univers végétal (
 - Garder la règle de design : **rien de décoratif sans information**. Par exemple : les six voix en six vaisseaux sur la page Live, des étoiles qui s'allument sur les coups joués, un fond qui avance au tempo.
 - Nouvelle palette et nouvel écran de démarrage, nom MONADES.
 - Remplacer les cartes « feuille » des réglages K1–K4 par un style propre à Monades.
+- Le site web passera aussi à l'interface spatiale, en temps utile.
 - Pas tout de suite : après le lot UI, une fois les écrans fonctionnels validés sur le FM-1.
 
 ### Lot Web — Site Monades
