@@ -32,9 +32,9 @@ int app_backup_validate(unsigned obj,const void *data,unsigned n){
   return md_decode(&bank_patch_io,data,n);
  }
  if(obj>=OBJ_USER&&obj<OBJ_TONES){
-  if(n!=sizeof(UserBiome))return 0;memcpy(&user_biome_io,data,n);
+  if(n!=sizeof(UserBiome)&&n!=USER_BIOME_1_1)return 0;memcpy(&user_biome_io,data,n);
   if(user_biome_io.magic!=0x4d445542||!dream_name_valid(user_biome_io.name))return 0;
-  return md_validate(&user_biome_io.patch);
+  return md_decode(&bank_patch_io,&user_biome_io.patch,n-28);
  }
  if(obj>=OBJ_TONES){
   if(n!=sizeof(ToneBank))return 0;memcpy(&tone_bank_io,data,n);

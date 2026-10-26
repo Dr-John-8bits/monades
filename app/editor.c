@@ -65,7 +65,7 @@ static int editor_reply(const uint8_t *p,unsigned n,uint8_t *raw,uint32_t *len){
   bank_kind=kind;bank_slot=slot;dream_ui.track=track;bank_armed=-1;
   if(action==0){
    if(kind){int ok=bank_read_tones();if(ok<0)return 6;if(!ok||!(tone_bank_io.used&(1u<<(slot%16))))return 3;memcpy(raw,tone_bank_io.tone[slot%16].name,24);}
-   else{if(plat_store_size(bank_object())<=0)return 3;if(plat_store_load(bank_object(),&user_biome_io,sizeof user_biome_io)!=sizeof user_biome_io||user_biome_io.magic!=0x4d445542)return 6;memcpy(raw,user_biome_io.name,24);}
+   else{if(plat_store_size(bank_object())<=0)return 3;{int got=plat_store_load(bank_object(),&user_biome_io,sizeof user_biome_io);if((got!=sizeof user_biome_io&&got!=USER_BIOME_1_1)||user_biome_io.magic!=0x4d445542)return 6;}memcpy(raw,user_biome_io.name,24);}
    *len=24;return 0;
   }
   if(action>=2)memcpy(bank_name,p+9,24);

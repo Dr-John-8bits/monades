@@ -51,8 +51,10 @@ static int16_t room[4][1201];
 static bool fx_active;
 static unsigned echo_head,room_head[4];
 static float echo_lp,room_lp[4],fx_smooth,delay_smooth=8820,fx_highpass_in,fx_highpass_out;
-static void reset_fx(){fx_active=false;memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
-static void extension_defaults(md_patch &p){p.version=6;p.delay_ms=200;p.delay_fb=300;p.reverb_time=450;p.fx_level=0;memset(p.ext,0,sizeof p.ext);for(int i=0;i<6;i++){p.ext[i].tides_rate=250;for(int j=0;j<16;j++)p.ext[i].notes[j]=(j%4==0?0:j%4==2?7:-1);}}
+static stmlib::Svf send_hp_filter[2]; // Monades: 12 dB high-pass on the echo and room sends
+static void reset_fx(){send_hp_filter[0].Init();send_hp_filter[1].Init();fx_active=false;memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
+static void v7_defaults(md_patch &p){p.version=7;p.send_hp=0;p.echo_tone=p.room_tone=500;for(int i=0;i<6;i++)for(int s=0;s<2;s++)p.lfo[i][s]={3,MD_LFO_SINE,s?MD_TO_PAN:MD_TO_CUTOFF,0};}
+static void extension_defaults(md_patch &p){v7_defaults(p);p.delay_ms=200;p.delay_fb=300;p.reverb_time=450;p.fx_level=0;memset(p.ext,0,sizeof p.ext);for(int i=0;i<6;i++){p.ext[i].tides_rate=250;for(int j=0;j<16;j++)p.ext[i].notes[j]=(j%4==0?0:j%4==2?7:-1);}}
 
 struct Grain { float pos,phase,inc,pan,rate,gain; unsigned life,age; };
 struct Repeat { float left,spacing,note,velocity; unsigned remaining; };
@@ -181,6 +183,44 @@ static void out_note(unsigned track,float note,float velocity,float gate){
 static void out_advance(unsigned z){
  for(unsigned j=0;j<owed_n;){owed[j].left-=z;if(owed[j].left<=0){out_push(0x80|owed[j].ch,owed[j].note,0);owed[j]=owed[--owed_n];}else j++;}
 }
+// Monades LFOs. Synced ones read the sequencer's position in sixteenths, so they restart with PLAY and follow
+// an external MIDI clock; free ones keep their own phase. Random shapes come from the seed, cycle by cycle.
+static const float lfo_sync[MD_LFO_SYNCED]={128,64,32,16,8,6,16/3.0f,4,3,8/3.0f,2,4/3.0f,1,2/3.0f,.5f};
+static const char *const lfo_sync_names[MD_LFO_SYNCED]={"8 BARS","4 BARS","2 BARS","1 BAR","1/2","1/4 .","1/2 T","1/4","1/8 .","1/4 T","1/8","1/8 T","1/16","1/16 T","1/32"};
+static float beat,beat_limit;static uint32_t beat_wraps; // sixteenths, wrapped every 384 (a multiple of every synced cycle)
+static float lfo_free_phase[6][2];static uint32_t lfo_free_cycle[6][2];
+static float lfo_free_hz(int rate){return .02f*stmlib::SemitonesToRatio((rate-MD_LFO_SYNCED)*119.589f/15.0f);} // 0.02..20 Hz
+static float lfo_random(unsigned track,unsigned slot,uint32_t cycle){unsigned r=patch.seed^(track*0x9e3779b9u)^(slot*0x7f4a7c15u)^(cycle*0x85ebca6bu);random_word(r);random_word(r);return (r>>8)*(1.0f/8388608.0f)-1.0f;}
+static float lfo_shape(int shape,unsigned track,unsigned slot,uint32_t cycle,float ph){
+ switch(shape){
+  case MD_LFO_TRIANGLE:return ph<.25f?4*ph:ph<.75f?2-4*ph:4*ph-4;
+  case MD_LFO_RAMP_UP:return 2*ph-1;
+  case MD_LFO_RAMP_DOWN:return 1-2*ph;
+  case MD_LFO_SQUARE:return ph<.5f?1.0f:-1.0f;
+  case MD_LFO_SAMPLE_HOLD:return lfo_random(track,slot,cycle);
+  case MD_LFO_SMOOTH_RANDOM:{float a=lfo_random(track,slot,cycle),b=lfo_random(track,slot,cycle+1);return a+(b-a)*(.5f-.5f*plaits::Sine(ph*.5f+.25f));}
+  default:return plaits::Sine(ph);
+ }
+}
+// Modulation for this quantum: per track and target, plus the two shared targets.
+static float lfo_mod[6][MD_LFO_TARGETS],lfo_echo_time,lfo_grain_pos;
+static void lfo_update(unsigned n){
+ beat+=n*patch.tempo*4.0f/(60.0f*MD_RATE);if(playing&&beat>beat_limit)beat=beat_limit; // never run past the next step
+ if(beat>=384){beat-=384;beat_limit-=384;beat_wraps++;}
+ memset(lfo_mod,0,sizeof lfo_mod);lfo_echo_time=lfo_grain_pos=0;
+ for(unsigned i=0;i<6;i++)for(unsigned s=0;s<2;s++){const md_lfo &l=patch.lfo[i][s];float ph;uint32_t cycle;
+  if(l.rate<MD_LFO_SYNCED){float len=lfo_sync[l.rate],pos=beat/len;uint32_t whole=(uint32_t)pos;ph=pos-whole;cycle=beat_wraps*(uint32_t)(384/len+.5f)+whole;}
+  else{float &f=lfo_free_phase[i][s];f+=n*lfo_free_hz(l.rate)/MD_RATE;while(f>=1){f-=1;lfo_free_cycle[i][s]++;}ph=f;cycle=lfo_free_cycle[i][s];}
+  float v=lfo_shape(l.shape,i,s,cycle,ph);stats.lfo_phase[i][s]=ph;stats.lfo_cycle[i][s]=cycle;stats.lfo_value[i][s]=v;
+  if(!l.depth)continue;
+  float m=v*l.depth*.001f;
+  if(l.target==MD_TO_LEVEL)m=-fabsf(l.depth*.001f)*(1-(l.depth<0?-v:v))*.5f; // tremolo: 0 at the top, -depth at the bottom
+  if(l.target==MD_TO_ECHO_TIME)lfo_echo_time+=m;else if(l.target==MD_TO_GRAIN_POS)lfo_grain_pos+=m;else lfo_mod[i][l.target]+=m;
+ }
+}
+static float clamp01(float x){return x<0?0:x>1?1:x;}
+// Echo / room damping: 500 keeps Mutable Dreams' exact coefficient.
+static float tone_coef(int v,float lo,float mid,float hi){return v==500?mid:v<500?lo+(mid-lo)*v*.002f:mid+(hi-mid)*(v-500)*.002f;}
 static void fire(unsigned i,float note,float velocity) {
  Voice &v=voices[i];v.trigger=1;v.midi_gate=0;v.target_note=note;if(!patch.ext[i].glide||!v.active)v.note=note;v.velocity=velocity;v.active=1;
  stats.events[i]++;stats.last_note[i]=(int)note;stats.last_pitch[i]=note;
@@ -204,7 +244,7 @@ static void apply(Command e) {
  } else switch(e.c) {
  case MD_MACRO:patch.macro[bound(e.t,0,3)]=bound(v,0,1000);break;
  case MD_TEMPO:patch.tempo=bound(v,30,220);break;
- case MD_PLAY:{int was=playing;playing=!!v;memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;}
+ case MD_PLAY:{int was=playing;playing=!!v;memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;beat=0;beat_limit=1;beat_wraps=0;}
   if(routing.clock&&!clock_source&&playing!=was){out_push(playing?0xfa:0xfc,0,0);clock_left=0;}if(!playing)out_all_off();}break;
  case MD_LOCK:patch.locked=!!v;break;
  case MD_MUTATE: previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
@@ -222,7 +262,7 @@ static void apply(Command e) {
  case MD_SHAPE:t.shape=bound(v,0,1000);break;
  case MD_CUTOFF:t.cutoff=bound(v,0,1000);break;
  case MD_RESONANCE:t.resonance=bound(v,0,1000);break;
- case MD_FILTER:if(t.filter!=bound(v,0,3)){v=bound(v,0,3);t.filter=v;voices[i].filter1.Reset();voices[i].filter2.Reset();voices[i].fade=0;}break;
+ case MD_FILTER:if(t.filter!=bound(v,0,MD_FILTER_MODES-1)){v=bound(v,0,MD_FILTER_MODES-1);t.filter=v;voices[i].filter1.Reset();voices[i].filter2.Reset();voices[i].fade=0;}break;
  case MD_BREATHE:t.breathe=bound(v,0,1000);break;
  case MD_ACCENT:t.accent=bound(v,0,1000);break;
  case MD_SWING:patch.swing=bound(v,0,600);break;
@@ -251,6 +291,11 @@ static void apply(Command e) {
  case MD_WARPS:patch.ext[i].warps=bound(v,0,1000);break;
  case MD_BASS_STEP:patch.ext[i].edit_step=bound(v,0,15);break;
  case MD_BASS_VALUE:patch.ext[i].notes[patch.ext[i].edit_step]=bound(v,-1,24);break;
+ case MD_LFO_RATE:case MD_LFO_SHAPE:case MD_LFO_TARGET:case MD_LFO_DEPTH:{md_lfo &l=patch.lfo[bound(e.t,0,11)%6][bound(e.t,0,11)/6];
+  if(e.c==MD_LFO_RATE)l.rate=bound(v,0,MD_LFO_RATES-1);else if(e.c==MD_LFO_SHAPE)l.shape=bound(v,0,MD_LFO_SHAPES-1);else if(e.c==MD_LFO_TARGET)l.target=bound(v,0,MD_LFO_TARGETS-1);else l.depth=bound(v,-1000,1000);break;}
+ case MD_SEND_HP:patch.send_hp=bound(v,0,1000);break;
+ case MD_ECHO_TONE:patch.echo_tone=bound(v,0,1000);break;
+ case MD_ROOM_TONE:patch.room_tone=bound(v,0,1000);break;
  case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
  }
 }
@@ -284,6 +329,7 @@ static void tick() {
    repeats[i]={(duration/t.ratchet),duration/t.ratchet,pitch,velocity,(unsigned)t.ratchet-1};
   }
  }
+ beat_wraps=step/384;beat=(float)(step%384);beat_limit=beat+1;
  stats.step=step++;untilstep+=duration;
 }
 static void quantum(float *lr,unsigned n) {
@@ -310,6 +356,7 @@ static void quantum(float *lr,unsigned n) {
  for(unsigned i=0;i<6;i++)stats.track_peak[i]*=n>32?.984064f:.992f;
  {const float meter_decay=n>32?.984064f:.992f;for(unsigned j=0;j<3;j++)stats.fx_peak[j]*=meter_decay;stats.out_peak[0]*=meter_decay;stats.out_peak[1]*=meter_decay;stats.limit_peak*=meter_decay;}
  for(unsigned j=0;j<4;j++)smooth[j]+=(unit(patch.macro[j])-smooth[j])*slew25;
+ lfo_update(n);
  float delay_send[Q]={},room_send[Q]={};
  float send[Q]={},out[Q],aux[Q],tmp[Q],exc[Q],duck[Q];memset(lr,0,n*2*sizeof(float));
  float duckdec=1.0f-1.0f/(MD_RATE*(.04f+unit(patch.duck_release)*1.46f));
@@ -322,47 +369,49 @@ static void quantum(float *lr,unsigned n) {
   if(trig) {v.active=1;v.attacking=t.attack>0; if(!v.attacking)v.env=1;v.excite=1;v.lpg=1;}
   /* Only FM/VA have an observable final envelope. Never cut resonator/drum tails. */
   if(!v.active){stats.skipped_quanta++;continue;}stats.voice_quanta++;
-  const md_extension &e=patch.ext[i];
+  const md_extension &e=patch.ext[i];const float *lm=lfo_mod[i];
+  // LFO targets; with depth 0 every value below is exactly the knob's.
+  const float harm=lm[MD_TO_HARMONICS]?clamp01(unit(t.harm)+lm[MD_TO_HARMONICS]*.5f):unit(t.harm),shp=lm[MD_TO_SHAPE]?clamp01(unit(t.shape)+lm[MD_TO_SHAPE]*.5f):unit(t.shape);
   v.note+=(v.target_note-v.note)*(e.glide?n/(float)(n+MD_RATE*.35f*unit(e.glide)):1.0f);
   v.tide_phase+=n/(MD_RATE*(.5f+unit(e.tides_rate)*19.5f));if(v.tide_phase>=1)v.tide_phase-=1;
   stats.tide_phase[i]=v.tide_phase;
   float tidal=(1.0f-4.0f*fabsf(v.tide_phase-.5f))*unit(e.tides);
-  float tone=fminf(.98f,fmaxf(t.model==MD_HARMONIC?0.0f:.02f,unit(t.tone)+(smooth[2]-.5f)*.65f));
+  float tone=fminf(.98f,fmaxf(t.model==MD_HARMONIC?0.0f:.02f,unit(t.tone)+(smooth[2]-.5f)*.65f+lm[MD_TO_TONE]*.5f));
   bend_smooth[i]+=(bend[i]-bend_smooth[i])*slew40;
-  float played_note=v.note+bend_smooth[i];
+  float played_note=v.note+bend_smooth[i]+lm[MD_TO_PITCH]*12.0f;
   float f=440.0f*stmlib::SemitonesToRatio(played_note-69.0f)/MD_RATE;
-  plaits::EngineParameters p={trig?1:0,played_note,tone,unit(t.shape),unit(t.harm)*.999f,v.velocity};bool done=false;
+  plaits::EngineParameters p={trig?1:0,played_note,tone,shp,harm*.999f,v.velocity};bool done=false;
   memset(out,0,sizeof out);memset(aux,0,sizeof aux);
   bool eco=patch.quality==0&&(t.model==MD_FM||t.model==MD_VA||t.model==MD_HARMONIC);
   unsigned engine_n=eco?(n+(v.eco_phase?0:1))/2:n;
   if(eco)p.note+=12.0f; // same concert pitch at 22.05 kHz; linear reconstruction below.
   switch(t.model) {
-   case MD_KICK:v.kick.Render(false,trig,v.velocity,f,tone,unit(t.decay),unit(t.harm),.2f,out,n);break;
-   case MD_SNARE:v.snare.Render(false,trig,v.velocity,f,tone,unit(t.decay),unit(t.harm),out,n);break;
-   case MD_HAT:v.hat.Render(false,trig,v.velocity,f,tone,unit(t.decay),unit(t.harm),tmp,exc,out,n);break;
+   case MD_KICK:v.kick.Render(false,trig,v.velocity,f,tone,unit(t.decay),harm,.2f,out,n);break;
+   case MD_SNARE:v.snare.Render(false,trig,v.velocity,f,tone,unit(t.decay),harm,out,n);break;
+   case MD_HAT:v.hat.Render(false,trig,v.velocity,f,tone,unit(t.decay),harm,tmp,exc,out,n);break;
    case MD_FM:if(engine_n)v.fm.Render(p,out,nullptr,engine_n,&done);break;
    case MD_VA:if(engine_n)v.va.Render(p,out,nullptr,engine_n,&done);break;
    case MD_HARMONIC:if(engine_n)v.additive.Render(p,out,nullptr,engine_n,&done);break;
    case MD_ELEMENTS:{
     elements::Exciter &strike=element_strike[i];elements::Resonator &body=element_body[i];
-    if(trig)v.strike_gate=MD_RATE*(.03f+.5f*unit(t.shape));
+    if(trig)v.strike_gate=MD_RATE*(.03f+.5f*shp);
     unsigned strike_flags=(trig?elements::EXCITER_FLAG_RISING_EDGE:0)|(v.strike_gate>0?elements::EXCITER_FLAG_GATE:0);v.strike_gate=fmaxf(0,v.strike_gate-n);
     strike.set_model(t.shape<334?elements::EXCITER_MODEL_MALLET:t.shape<667?elements::EXCITER_MODEL_PLECTRUM:elements::EXCITER_MODEL_PARTICLES);
     // In the Plectrum region, keep its main pulse 1.7-5.2 ms after the primer.
     // The original 14-38 ms mapping was continually restarted by 220 BPM
     // four-ratchet rolls (17 ms spacing), leaving only the tiny primer audible.
-    strike.set_parameter(t.shape>=334&&t.shape<667?.05f+.15f*(t.shape-334)/332.0f:.1f+.8f*unit(t.shape));
+    strike.set_parameter(t.shape>=334&&t.shape<667?.05f+.15f*(t.shape-334)/332.0f:.1f+.8f*shp);
     strike.set_timbre(fminf(.95f,tone));strike.Process(strike_flags,exc,n);
-    body.set_frequency(f);body.set_geometry(fminf(.999f,unit(t.harm)));body.set_brightness(tone);body.set_damping(unit(t.decay)*.8f);body.set_position(.3f);body.set_resolution(element_modes);
+    body.set_frequency(f);body.set_geometry(fminf(.999f,harm));body.set_brightness(tone);body.set_damping(unit(t.decay)*.8f);body.set_position(.3f);body.set_resolution(element_modes);
     memset(tmp,0,sizeof tmp);body.Process(tmp,exc,out,aux,n);break;}
    case MD_SATIN:{
     // Original rounded wavetable oscillator. Reduce harmonics continuously
     // before Nyquist; interpolate phase and waveform, with no oversampling RAM.
-    v.satin_morph+=(unit(t.harm)*2.999f-v.satin_morph)*slew35;
+    v.satin_morph+=(harm*2.999f-v.satin_morph)*slew35;
     v.satin_tone+=(tone-v.satin_tone)*slew35;
     int shape=(int)v.satin_morph;float morph=v.satin_morph-shape;
     v.mellow_drift+=n/(MD_RATE*(9.0f+i));if(v.mellow_drift>=1)v.mellow_drift-=1;
-    float f2=f*stmlib::SemitonesToRatio(.13f*unit(t.shape)*plaits::Sine(v.mellow_drift));
+    float f2=f*stmlib::SemitonesToRatio(.13f*shp*plaits::Sine(v.mellow_drift));
     int band=3;float highest=fmaxf(f,f2);
     while(band>0&&highest*(1<<band)>.45f)band--;
     float fade=band?fminf(1.0f,fmaxf(0.0f,(.45f-highest*(1<<band))/.1125f)):1;
@@ -385,28 +434,28 @@ static void quantum(float *lr,unsigned n) {
     // Finite odd-harmonic triangle blend: no discontinuous saw/square aliasing.
     // Small, slow independent drift; Tone adds rounded harmonics, Shape detune.
     v.mellow_drift+=n/(MD_RATE*(8.0f+i));if(v.mellow_drift>=1)v.mellow_drift-=1;
-    float detune=stmlib::SemitonesToRatio(.10f*unit(t.shape)*plaits::Sine(v.mellow_drift));
+    float detune=stmlib::SemitonesToRatio(.10f*shp*plaits::Sine(v.mellow_drift));
     for(unsigned k=0;k<n;k++){
      v.sub_phase+=f;if(v.sub_phase>=1)v.sub_phase-=1;
      v.mellow_phase+=f*detune;if(v.mellow_phase>=1)v.mellow_phase-=1;
      float a=plaits::Sine(v.sub_phase),b=plaits::Sine(v.mellow_phase);
      float tri=(f*5<.45f?plaits::Sine(v.sub_phase*5)*.04f:0)-(f*3<.45f?plaits::Sine(v.sub_phase*3)/9:0);
-     out[k]=.38f*(a+b)+tone*.25f*tri+.08f*unit(t.harm)*plaits::Sine(v.sub_phase*2);
+     out[k]=.38f*(a+b)+tone*.25f*tri+.08f*harm*plaits::Sine(v.sub_phase*2);
     }break;}
    case MD_BASS:
     for(unsigned k=0;k<n;k++){v.sub_phase+=f*.5f;if(v.sub_phase>=1)v.sub_phase-=1;
-     out[k]=.65f*plaits::Sine(v.sub_phase*2)+.2f*unit(t.harm)*plaits::Sine(v.sub_phase)+.12f*tone*plaits::Sine(v.sub_phase*4);}
+     out[k]=.65f*plaits::Sine(v.sub_phase*2)+.2f*harm*plaits::Sine(v.sub_phase)+.12f*tone*plaits::Sine(v.sub_phase*4);}
     break;
    case MD_CHOIR:{
     static const int chord[4][3]={{0,3,7},{0,4,7},{0,5,7},{0,7,12}};
     int ci=bound(t.harm*4/1001,0,3);
     for(int j=0;j<3;j++){
      int note=md_quantize((int)played_note+chord[ci][j],patch.root,patch.scale);
-     float hz=440.0f*stmlib::SemitonesToRatio(note-69.0f+(j-1)*unit(t.shape)*.20f)/MD_RATE;
+     float hz=440.0f*stmlib::SemitonesToRatio(note-69.0f+(j-1)*shp*.20f)/MD_RATE;
      v.choir[j].Render(hz,j?(.25f+.12f*tone):.45f,out,n);
     }break;}
    case MD_RINGS:
-    v.rings.set_frequency(f);v.rings.set_structure(unit(t.harm)*.999f);v.rings.set_brightness(tone);
+    v.rings.set_frequency(f);v.rings.set_structure(harm*.999f);v.rings.set_brightness(tone);
     v.rings.set_damping(unit(t.decay)*.9f);v.rings.set_position(.35f);v.rings.set_resolution(patch.quality?24:8);
     for(unsigned k=0;k<n;k++){exc[k]=noise()*v.excite*.65f*v.velocity;v.excite*=.985f;}
     v.rings.Process(exc,out,aux,n);break;
@@ -415,19 +464,19 @@ static void quantum(float *lr,unsigned n) {
    for(unsigned k=0;k<n;k++){if(!v.eco_phase){v.eco_previous=v.eco_next;v.eco_next=tmp[j++];out[k]=(v.eco_previous+v.eco_next)*.5f;}else out[k]=v.eco_next;v.eco_phase^=1;}
   }
   v.breath_phase+=n/(MD_RATE*(7.0f+i*2.3f));if(v.breath_phase>=1)v.breath_phase-=1;
-  float cutoff=unit(t.cutoff)+tidal*.2f+unit(t.breathe)*.13f*plaits::Sine(v.breath_phase)+(smooth[2]-.5f)*.18f;
+  float cutoff=unit(t.cutoff)+tidal*.2f+unit(t.breathe)*.13f*plaits::Sine(v.breath_phase)+(smooth[2]-.5f)*.18f+lm[MD_TO_CUTOFF]*.5f;
   if(t.filter==3)cutoff-=.55f*(1-v.lpg);
   cutoff=fminf(1.0f,fmaxf(0.0f,cutoff));
-  v.cut_smooth+=(cutoff-v.cut_smooth)*slew40;v.res_smooth+=(unit(t.resonance)-v.res_smooth)*slew40;
+  v.cut_smooth+=(cutoff-v.cut_smooth)*slew40;v.res_smooth+=(clamp01(unit(t.resonance)+lm[MD_TO_RESONANCE]*.5f)-v.res_smooth)*slew40;
   stats.cutoff_now[i]=cutoff_hz(v.cut_smooth);stats.q_now[i]=filter_q(v.res_smooth);
   if(t.filter){float fc=cutoff_hz(v.cut_smooth)/MD_RATE;
    v.filter1.set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,filter_q(v.res_smooth));
    if(t.filter==2)v.filter2.set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);}
-  float target=t.mute?0:unit(t.level)*.24f;
-  float pan=unit(t.pan),dec=1.0f-1.0f/(MD_RATE*(.06f+unit(t.decay)*unit(t.decay)*16.0f));
-  float attackstep=1.0f/(1+MD_RATE*8.0f*unit(t.attack)*unit(t.attack)),sendlevel=unit(t.send);
+  float target=t.mute?0:unit(t.level)*.24f*(1+lm[MD_TO_LEVEL]);
+  float pan=clamp01(unit(t.pan)+lm[MD_TO_PAN]*.5f),dec=1.0f-1.0f/(MD_RATE*(.06f+unit(t.decay)*unit(t.decay)*16.0f));
+  float attackstep=1.0f/(1+MD_RATE*8.0f*unit(t.attack)*unit(t.attack)),sendlevel=clamp01(unit(t.send)+lm[MD_TO_GRAIN_SEND]*.5f);
   const bool melodic=md_has_envelope(t.model);
-  const float velocity=melodic?v.velocity:1,warp_target=unit(e.warps),ds=unit(e.delay_send),rs=unit(e.reverb_send),expr=expression[i];
+  const float velocity=melodic?v.velocity:1,warp_target=unit(e.warps),ds=clamp01(unit(e.delay_send)+lm[MD_TO_ECHO_SEND]*.5f),rs=clamp01(unit(e.reverb_send)+lm[MD_TO_ROOM_SEND]*.5f),expr=expression[i];
   float track_peak=stats.track_peak[i];
   // Keep the exact envelope -> filter -> gain order, but let the SVF retain
   // coefficients and state in registers across a tile instead of the mixer.
@@ -436,7 +485,10 @@ static void quantum(float *lr,unsigned n) {
    if(melodic){if(v.midi_gate<0){v.env*=.9975f;v.attacking=0;}else if(v.attacking){v.env+=attackstep;if(v.env>=1){v.env=1;v.attacking=0;}}else if(v.midi_gate==0)v.env*=dec;x*=v.env;}
    out[k]=x;
   }
-  if(t.filter){v.filter1.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);if(t.filter==2)v.filter2.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);}
+  if(t.filter==4)v.filter1.Process<stmlib::FILTER_MODE_HIGH_PASS>(out,out,n);
+  else if(t.filter==5)v.filter1.Process<stmlib::FILTER_MODE_BAND_PASS_NORMALIZED>(out,out,n);
+  else if(t.filter==6){v.filter1.Process<stmlib::FILTER_MODE_BAND_PASS_NORMALIZED>(out,tmp,n);for(unsigned k=0;k<n;k++)out[k]-=tmp[k];} // notch = input - band
+  else if(t.filter){v.filter1.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);if(t.filter==2)v.filter2.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);}
   {unsigned stride=(unsigned)(1.0f/(f*32.0f));stride=stride<1?1:stride>32?32:stride;unsigned ph=scope_phase[i],ps=scope_pos[i];
    for(unsigned k=0;k<n;k++)if(++ph>=stride){ph=0;float y=out[k]*8192.0f;scope_buf[i][ps]=(int16_t)(y>32767?32767:y<-32767?-32767:y);ps=(ps+1)&127;}
    scope_phase[i]=ph;scope_pos[i]=ps;}
@@ -465,7 +517,9 @@ static void quantum(float *lr,unsigned n) {
   stats.env_now[i]=melodic?v.env:0;stats.env_attacking[i]=melodic&&v.attacking;
   if(melodic&&!v.attacking&&v.env<.000001f)v.active=0;
  }
- const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=patch.delay_ms*44.1f;
+ const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=fminf(15435.0f,fmaxf(1764.0f,patch.delay_ms*44.1f*(1+lfo_echo_time*.5f)));
+ const float echo_glide=lfo_echo_time?.002f:.00005f,echo_tone=tone_coef(patch.echo_tone,.04f,.25f,.9f),room_tone=tone_coef(patch.room_tone,.05f,.3f,.85f);
+ const bool send_hp=patch.send_hp>0;if(send_hp){float fc=md_send_hp_hz(patch.send_hp)/(float)MD_RATE;send_hp_filter[0].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);send_hp_filter[1].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);}
  unsigned maxgrains=patch.quality?4:2;
  float fx_peak[3]={stats.fx_peak[0],stats.fx_peak[1],stats.fx_peak[2]},out_peak[2]={stats.out_peak[0],stats.out_peak[1]},limit_peak=stats.limit_peak;
  for(unsigned k=0;k<n;k++) {
@@ -480,7 +534,7 @@ static void quantum(float *lr,unsigned n) {
     float lo=260+fmaxf(0.0f,-travel),hi=(float)tape_valid-260-fmaxf(0.0f,travel);
     if(hi>lo){
      Grain &g=grains[slot];g.life=life;g.age=0;g.phase=0;g.inc=1.0f/life;
-     float delay=lo+unit(patch.grain_pos)*(hi-lo);
+     float delay=lo+clamp01(unit(patch.grain_pos)+lfo_grain_pos*.5f)*(hi-lo);
      delay=fminf(hi,fmaxf(lo,delay+noise()*250));
      g.pos=(float)writehead-delay;while(g.pos<0)g.pos+=GN;
      g.pan=.5f+noise()*.4f;g.rate=grainrate;g.gain=2.0f/maxgrains;
@@ -510,14 +564,16 @@ static void quantum(float *lr,unsigned n) {
   if(patch.fx_level)fx_active=true;
   if(fx_active){
   // Full-rate independent echo, interpolated time movement, bounded feedback.
-  delay_smooth+=(echo_target-delay_smooth)*.00005f;
+  delay_smooth+=(echo_target-delay_smooth)*echo_glide;
   float read=echo_head+16384.0f-delay_smooth;unsigned ri=(unsigned)read;float frac=read-ri;
   float delayed=(echo[ri&16383]*(1-frac)+echo[(ri+1)&16383]*frac)/32768.0f;
-  echo_lp+=(delayed-echo_lp)*.25f;
-  echo[echo_head]=int16_t(clip(delay_send[k]+echo_lp*echo_feedback)*32767);echo_head=(echo_head+1)&16383;
-  float room_input=room_send[k];float hp=room_input-fx_highpass_in+.985f*fx_highpass_out;fx_highpass_in=room_input;fx_highpass_out=hp;
+  echo_lp+=(delayed-echo_lp)*echo_tone;
+  float echo_in=delay_send[k],room_input=room_send[k];
+  if(send_hp){echo_in=send_hp_filter[0].Process<stmlib::FILTER_MODE_HIGH_PASS>(echo_in);room_input=send_hp_filter[1].Process<stmlib::FILTER_MODE_HIGH_PASS>(room_input);}
+  echo[echo_head]=int16_t(clip(echo_in+echo_lp*echo_feedback)*32767);echo_head=(echo_head+1)&16383;
+  float hp=room_input-fx_highpass_in+.985f*fx_highpass_out;fx_highpass_in=room_input;fx_highpass_out=hp;
   static const unsigned lens[4]={887,1013,1151,1201};float rv[4],sum=0;
-  for(unsigned j=0;j<4;j++){rv[j]=room[j][room_head[j]]/32768.0f;room_lp[j]+=(rv[j]-room_lp[j])*.3f;sum+=room_lp[j];}
+  for(unsigned j=0;j<4;j++){rv[j]=room[j][room_head[j]]/32768.0f;room_lp[j]+=(rv[j]-room_lp[j])*room_tone;sum+=room_lp[j];}
   for(unsigned j=0;j<4;j++){float value=hp*.3f+(sum*.5f-room_lp[j])*room_decay;room[j][room_head[j]]=int16_t(clip(value)*32767);if(++room_head[j]>=lens[j])room_head[j]=0;}
   fx_smooth+=(effect_return-fx_smooth)*.002f;
   effect[0]=fx_smooth*(delayed*.5f+(rv[0]+rv[2])*.35f);effect[1]=fx_smooth*(delayed*.5f+(rv[1]+rv[3])*.35f);
@@ -577,7 +633,7 @@ void md_midi(unsigned st,unsigned a,unsigned b,int port){
  a&=127;b&=127;
  if(st>=0xf8){
   if(!clock_source||port!=(clock_source==1?0:2))return;
-  if(st==0xfa){step=0;seqrng=patch.seed;clock_pulse=0;playing=1;clock_age=0;clock_last=stats.frames;clock_interval=0;memset(repeats,0,sizeof repeats);}
+  if(st==0xfa){step=0;seqrng=patch.seed;clock_pulse=0;playing=1;beat=0;beat_limit=1;beat_wraps=0;clock_age=0;clock_last=stats.frames;clock_interval=0;memset(repeats,0,sizeof repeats);}
   else if(st==0xfb){playing=1;clock_age=0;}
   else if(st==0xfc){playing=0;memset(repeats,0,sizeof repeats);out_all_off();}
   else if(st==0xf8&&playing){unsigned delta=stats.frames-clock_last;clock_last=stats.frames;
@@ -624,7 +680,7 @@ void md_render(float *lr,unsigned n) {
 }
 const md_patch *md_state(){return &patch;}const md_stats *md_status(){return &stats;}int md_playing(){return playing;}
 int md_validate(const md_patch *p) {
- if(!p||p->magic!=0x4D445231||p->version!=6||!p->seed||p->tempo<30||p->tempo>220)return 0;
+ if(!p||p->magic!=0x4D445231||p->version!=7||!p->seed||p->tempo<30||p->tempo>220)return 0;
  if(p->biome_id< -1||p->biome_id>=MD_BIOMES||p->edited_mask>127)return 0;
  for(int i=0;i<6;i++)if(p->tone_preset[i]< -1||p->tone_preset[i]>=MD_TONE_PRESETS)return 0;
  for(int j=0;j<4;j++)if(p->macro[j]<0||p->macro[j]>1000)return 0;
@@ -632,16 +688,20 @@ int md_validate(const md_patch *p) {
  if(p->grain_size<0||p->grain_size>1000||p->grain_pos<0||p->grain_pos>1000||p->feedback<0||p->feedback>850)return 0;
  if(p->root<0||p->root>11||p->scale<0||p->scale>=SCALE_COUNT||p->transpose< -24||p->transpose>24||p->swing<0||p->swing>600||p->grain_pitch< -24||p->grain_pitch>24||p->reverse<0||p->reverse>1||p->duck_source< -1||p->duck_source>5||p->duck_amount<0||p->duck_amount>1000||p->duck_release<0||p->duck_release>1000)return 0;
  for(int i=0;i<6;i++){const md_track &t=p->track[i];if(t.attack<0||t.attack>1000||t.ratchet<1||t.ratchet>4||t.accent<0||t.accent>1000)return 0;if(t.model<0||t.model>=MD_MODELS||t.length<1||t.length>32||t.hits<0||t.hits>t.length||t.rotate<0||t.rotate>=t.length||t.note<24||t.note>96||t.mute<0||t.mute>1||t.speed<1||t.speed>8)return 0;
- if(t.filter<0||t.filter>3)return 0;const int q[]={t.tone,t.harm,t.decay,t.level,t.send,t.shape,t.cutoff,t.resonance,t.breathe};for(int j=0;j<9;j++)if(q[j]<0||q[j]>1000)return 0;if(t.prob<0||t.prob>1000||t.pan<0||t.pan>1000)return 0;}
+ if(t.filter<0||t.filter>=MD_FILTER_MODES)return 0;const int q[]={t.tone,t.harm,t.decay,t.level,t.send,t.shape,t.cutoff,t.resonance,t.breathe};for(int j=0;j<9;j++)if(q[j]<0||q[j]>1000)return 0;if(t.prob<0||t.prob>1000||t.pan<0||t.pan>1000)return 0;}
  for(int i=0;i<6;i++){const md_extension &e=p->ext[i];const int values[]={e.delay_send,e.reverb_send,e.glide,e.marbles,e.tides,e.tides_rate,e.warps};for(int v:values)if(v<0||v>1000)return 0;if(e.bass_mode<0||e.bass_mode>2||e.pattern<0||e.pattern>3||e.edit_step<0||e.edit_step>15)return 0;for(int v:e.notes)if(v< -1||v>24)return 0;}
  if(p->delay_ms<40||p->delay_ms>350||p->delay_fb<0||p->delay_fb>800||p->reverb_time<0||p->reverb_time>850||p->fx_level<0||p->fx_level>1000)return 0;
+ if(p->send_hp<0||p->send_hp>1000||p->echo_tone<0||p->echo_tone>1000||p->room_tone<0||p->room_tone>1000)return 0;
+ for(int i=0;i<6;i++)for(int s=0;s<2;s++){const md_lfo &l=p->lfo[i][s];if(l.rate<0||l.rate>=MD_LFO_RATES||l.shape<0||l.shape>=MD_LFO_SHAPES||l.target<0||l.target>=MD_LFO_TARGETS||l.depth< -1000||l.depth>1000)return 0;}
  return 1;
 }
 int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
 unsigned md_memory_bytes(){return sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
- if(bytes==sizeof(md_patch)){md_patch p;memcpy(&p,data,sizeof p);if(p.version==5)p.version=6;if(!md_validate(&p))return 0;*out=p;return 1;}
+ if(bytes==sizeof(md_patch)){md_patch p;memcpy(&p,data,sizeof p);if(!md_validate(&p))return 0;*out=p;return 1;}
+ // Mutable Dreams 1.1 (v5 / v6, 1292 bytes): everything Monades added starts neutral.
+ if(bytes==offsetof(md_patch,send_hp)){md_patch p;memcpy(&p,data,bytes);if(p.version!=5&&p.version!=6)return 0;v7_defaults(p);if(!md_validate(&p))return 0;*out=p;return 1;}
  struct OldTrack{int32_t values[14];};
  struct OldPatch{uint32_t magic,version,seed;int32_t macro[4],tempo,locked,freeze,grain_size,grain_pos,feedback,quality;OldTrack track[6];};
  struct V2Track{int32_t values[17];};
@@ -692,6 +752,13 @@ int md_scale_count(void){return SCALE_COUNT;}
 int md_scale_custom(void){return SCALE_CUSTOM;}
 int md_scale_at(int position){return scale_order[bound(position,0,SCALE_COUNT-1)];}
 int md_scale_position(int scale){for(int k=0;k<SCALE_COUNT;k++)if(scale_order[k]==scale)return k;return 0;}
+float md_lfo_wave(int track,int slot,uint32_t cycle,float phase){track=bound(track,0,5);slot=bound(slot,0,1);return lfo_shape(patch.lfo[track][slot].shape,track,slot,cycle,phase-floorf(phase));}
+float md_lfo_sixteenths(int rate){return rate>=0&&rate<MD_LFO_SYNCED?lfo_sync[rate]:0;}
+float md_lfo_hz(int rate,int tempo){rate=bound(rate,0,MD_LFO_RATES-1);return rate<MD_LFO_SYNCED?tempo/15.0f/lfo_sync[rate]:lfo_free_hz(rate);}
+const char *md_lfo_rate_name(int rate){rate=bound(rate,0,MD_LFO_RATES-1);return rate<MD_LFO_SYNCED?lfo_sync_names[rate]:"FREE";}
+const char *md_lfo_shape_name(int s){static const char *const n[MD_LFO_SHAPES]={"SINE","TRIANGLE","RAMP UP","RAMP DOWN","SQUARE","SAMPLE & HOLD","SMOOTH RANDOM"};return n[bound(s,0,MD_LFO_SHAPES-1)];}
+const char *md_lfo_target_name(int t){static const char *const n[MD_LFO_TARGETS]={"CUTOFF","RESONANCE","LEVEL","PAN","PITCH","TONE","HARMONICS","SHAPE","ECHO SEND","ROOM SEND","GRAIN SEND","ECHO TIME","GRAIN POS"};return n[bound(t,0,MD_LFO_TARGETS-1)];}
+int md_send_hp_hz(int v){return v>0?(int)(20.0f*stmlib::SemitonesToRatio(bound(v,0,1000)*.0797262f)+.5f):0;}
 void md_set_custom_scale(unsigned mask){custom_scale=(uint16_t)((mask&0xfff)|1u);}
 const char *md_model_name(int m){static const char *names[]={"PLAITS KICK","PLAITS SNARE","PLAITS HAT","PLAITS FM","PLAITS VA","RINGS MODAL","PLAITS HARMONIC","SINE CHOIR","ROUND BASS","ELEMENTS STRIKE","MELLOW DRIFT","SATIN MORPH"};return names[bound(m,0,MD_MODELS-1)];}
 }

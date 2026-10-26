@@ -11,15 +11,25 @@ enum { MD_MODEL, MD_TONE, MD_HARM, MD_DECAY, MD_LEVEL, MD_SEND, MD_HITS,
  MD_MACRO, MD_TEMPO, MD_PLAY, MD_LOCK, MD_MUTATE, MD_RETURN, MD_SCENE,
  MD_FREEZE, MD_GRAIN_SIZE, MD_GRAIN_POS, MD_FEEDBACK, MD_QUALITY, MD_TRIGGER, MD_PANIC,
  MD_ATTACK,MD_SWING,MD_RATCHET,MD_ROOT,MD_SCALE,MD_TRANSPOSE,MD_GRAIN_PITCH,
- MD_REVERSE,MD_DUCK_SOURCE,MD_DUCK,MD_DUCK_RELEASE,MD_ACCENT,MD_SHAPE,MD_CUTOFF,MD_RESONANCE,MD_FILTER,MD_BREATHE,MD_TONE_PRESET,MD_DELAY_SEND,MD_REVERB_SEND,MD_DELAY_TIME,MD_DELAY_FB,MD_REVERB_TIME,MD_FX_LEVEL,MD_BASS_MODE,MD_BASS_PATTERN,MD_GLIDE,MD_MARBLES,MD_TIDES,MD_TIDES_RATE,MD_WARPS,MD_BASS_STEP,MD_BASS_VALUE,MD_CLOCK_SOURCE,MD_MIDI_QUANTIZE,MD_COMMAND_COUNT };
+ MD_REVERSE,MD_DUCK_SOURCE,MD_DUCK,MD_DUCK_RELEASE,MD_ACCENT,MD_SHAPE,MD_CUTOFF,MD_RESONANCE,MD_FILTER,MD_BREATHE,MD_TONE_PRESET,MD_DELAY_SEND,MD_REVERB_SEND,MD_DELAY_TIME,MD_DELAY_FB,MD_REVERB_TIME,MD_FX_LEVEL,MD_BASS_MODE,MD_BASS_PATTERN,MD_GLIDE,MD_MARBLES,MD_TIDES,MD_TIDES_RATE,MD_WARPS,MD_BASS_STEP,MD_BASS_VALUE,MD_CLOCK_SOURCE,MD_MIDI_QUANTIZE,
+ MD_LFO_RATE,MD_LFO_SHAPE,MD_LFO_TARGET,MD_LFO_DEPTH,MD_SEND_HP,MD_ECHO_TONE,MD_ROOM_TONE,MD_COMMAND_COUNT }; /* LFO commands: track argument = track + 6 * slot (A, B) */
 typedef struct { int32_t model,tone,harm,decay,level,send,hits,length,rotate,prob,note,pan,mute,speed,attack,ratchet,accent,shape,cutoff,resonance,filter,breathe; } md_track;
 typedef struct { int32_t delay_send,reverb_send,bass_mode,pattern,glide,marbles,tides,tides_rate,warps,edit_step; int32_t notes[16]; } md_extension;
+/* Monades LFO, two per track. rate: 0..14 synced to the tempo (8 bars .. 1/32), 15..30 free 0.02..20 Hz.
+ * depth -1000..1000 (0 = off, negative inverts). Filter modes: 0 off, 1 LP12, 2 LP24, 3 LPG, 4 HP12, 5 BP, 6 notch. */
+enum { MD_LFO_SYNCED=15, MD_LFO_RATES=31, MD_LFO_SHAPES=7, MD_LFO_TARGETS=13, MD_FILTER_MODES=7 };
+enum { MD_LFO_SINE, MD_LFO_TRIANGLE, MD_LFO_RAMP_UP, MD_LFO_RAMP_DOWN, MD_LFO_SQUARE, MD_LFO_SAMPLE_HOLD, MD_LFO_SMOOTH_RANDOM };
+enum { MD_TO_CUTOFF, MD_TO_RESONANCE, MD_TO_LEVEL, MD_TO_PAN, MD_TO_PITCH, MD_TO_TONE, MD_TO_HARMONICS, MD_TO_SHAPE,
+ MD_TO_ECHO_SEND, MD_TO_ROOM_SEND, MD_TO_GRAIN_SEND, MD_TO_ECHO_TIME, MD_TO_GRAIN_POS };
+typedef struct { int32_t rate,shape,target,depth; } md_lfo;
 typedef struct {
  uint32_t magic,version,seed; int32_t macro[4],tempo,locked,freeze,grain_size,grain_pos,feedback,quality;
  md_track track[MD_TRACKS];
  int32_t root,scale,transpose,swing,grain_pitch,reverse,duck_source,duck_amount,duck_release;
  int32_t biome_id,tone_preset[6]; uint32_t edited_mask;
  md_extension ext[6]; int32_t delay_ms,delay_fb,reverb_time,fx_level;
+ /* Monades v7: high-pass on the echo and room sends (0 = off), echo / room tone (500 = Mutable Dreams), LFOs. */
+ int32_t send_hp,echo_tone,room_tone; md_lfo lfo[6][2];
 } md_patch;
 typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; float peak; uint32_t grain_writes,voice_quanta,skipped_quanta; int32_t last_note[6]; uint32_t quality_reductions,element_modes; float track_peak[6];
  /* Monades meters, output-referred like the final mix: grain/delay/room returns, master L/R, pre-limiter peak. */
@@ -29,7 +39,8 @@ typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; floa
  float duck_gain,tide_phase[6]; /* ducking gain now (1 = none), Tides cycle position 0..1 per track */
  uint32_t step_played[6],step_skipped[6]; /* per track, bit = step of its cycle: last pass played / hit refused by Chance */
  uint32_t midi_out_notes,midi_out_dropped; /* Monades MIDI out: note-ons queued, messages lost to a full queue */
- float last_pitch[6]; /* last note fired per track, fractional for microtonal scales */ } md_stats;
+ float last_pitch[6]; /* last note fired per track, fractional for microtonal scales */
+ float lfo_phase[6][2],lfo_value[6][2]; uint32_t lfo_cycle[6][2]; /* where each LFO is: phase 0..1 in cycle n, output -1..1 */ } md_stats;
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);
@@ -75,6 +86,13 @@ int md_scale_position(int scale);
 void md_set_custom_scale(unsigned mask); /* audio owner; the root is always kept */
 float md_quantize_pitch(float note,int root,int scale); /* fractional MIDI note for microtonal scales */
 int md_scale_cents(int scale,float *degrees,int max,float *period); /* degrees in cents, root first; returns the count */
+float md_lfo_wave(int track,int slot,uint32_t cycle,float phase); /* the LFO's shape (-1..1) at any cycle, random shapes included */
+float md_lfo_sixteenths(int rate); /* cycle length in sixteenth notes for a synced rate, 0 for a free one */
+float md_lfo_hz(int rate,int tempo);
+const char *md_lfo_rate_name(int rate);
+const char *md_lfo_shape_name(int shape);
+const char *md_lfo_target_name(int target);
+int md_send_hp_hz(int value); /* 0 = off */
 #ifdef __cplusplus
 }
 #endif

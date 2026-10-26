@@ -11,9 +11,9 @@ static void cmd(int c,int t,int v){assert(md_command(c,t,v));run(1);}
 static md_patch blank(int model){md_init();cmd(MD_SCENE,0,64);md_patch p=*md_state();p.track[0].mute=0;p.track[0].model=model;p.track[0].note=36;p.track[0].level=650;p.track[0].decay=200;p.track[0].attack=0;p.track[0].hits=16;p.track[0].length=16;p.track[0].prob=1000;p.macro[0]=500;p.macro[1]=0;p.macro[2]=500;p.macro[3]=0;return p;}
 static uint64_t hash(const md_patch &p){md_init();assert(md_load(&p));cmd(MD_PLAY,0,1);uint64_t h=1469598103934665603ull;for(int b=0;b<2200;b++){md_render(audio,128);for(float x:audio){uint32_t u;memcpy(&u,&x,4);h=(h^u)*1099511628211ull;}}return h;}
 int main(){
- static_assert(sizeof(md_patch)==1292,"Browser patch size must match");
+ static_assert(sizeof(md_patch)==1496,"Browser patch size must match");
  auto p=blank(MD_BASS);assert(md_load(&p));cmd(MD_TRIGGER,0,36);assert(run(300)>1);puts("PASS round bass audible");
- uint8_t legacy[652];memcpy(legacy,&p,652);uint32_t v=4;memcpy(legacy+4,&v,4);assert(md_import(legacy,sizeof legacy));assert(md_state()->version==6&&md_state()->fx_level==0);puts("PASS 1.0 migration retains old fields and disables additions");
+ uint8_t legacy[652];memcpy(legacy,&p,652);uint32_t v=4;memcpy(legacy+4,&v,4);assert(md_import(legacy,sizeof legacy));assert(md_state()->version==7&&md_state()->fx_level==0);puts("PASS 1.0 migration retains old fields and disables additions");
  p=*md_state();p.fx_level=1001;assert(!md_load(&p));p=*md_state();p.ext[0].notes[15]=25;assert(!md_load(&p));
  p=blank(MD_BASS);p.ext[0].bass_mode=1;for(int &n:p.ext[0].notes)n=-1;assert(md_load(&p));cmd(MD_PLAY,0,1);assert(run(3000)==0&&md_status()->events[0]==0);puts("PASS phrase rests do not trigger");
  p=blank(MD_BASS);p.ext[0].bass_mode=1;p.ext[0].marbles=1000;p.locked=1;assert(hash(p)==hash(p));auto a=hash(p);p.ext[0].marbles=0;assert(a!=hash(p));puts("PASS Marbles remembered variation deterministic and audible");
@@ -91,6 +91,38 @@ int main(){
   cmd(MD_PLAY,0,1);for(int b=0;b<300;b++){md_render(audio,128);while(md_midi_take(m)){if((m[0]&0xf0)==0xe0)bends++;if((m[0]&0xf0)==0x90)on++;}}cmd(MD_PLAY,0,0);
   assert(on>0&&bends==0);
   puts("PASS microtonal: Rast quarter tones, Bohlen-Pierce tritave, 22 shrutis, pitch bend per track, nearest note in zones");
+ }
+ {
+  // Patch v7: a Mutable Dreams 1.1 patch (v6, 1292 bytes) loads with every Monades addition neutral.
+  md_patch q=blank(MD_VA);uint8_t old[1292];memcpy(old,&q,1292);uint32_t v6=6;memcpy(old+4,&v6,4);
+  assert(md_import(old,sizeof old));const md_patch *s=md_state();assert(s->version==7&&s->send_hp==0&&s->echo_tone==500&&s->room_tone==500);
+  for(int i=0;i<6;i++)for(int k=0;k<2;k++)assert(s->lfo[i][k].depth==0);
+  uint32_t v7=7;memcpy(old+4,&v7,4);assert(!md_import(old,sizeof old));
+  q=blank(MD_VA);q.lfo[2][1].rate=MD_LFO_RATES;assert(!md_validate(&q));q=blank(MD_VA);q.lfo[0][0].depth=1001;assert(!md_validate(&q));q=blank(MD_VA);q.track[0].filter=MD_FILTER_MODES;assert(!md_validate(&q));
+  // Synced LFO: a 1/4 cycle starts again exactly every four steps, from PLAY.
+  q=blank(MD_VA);q.tempo=120;q.lfo[0][0]={7,MD_LFO_SINE,MD_TO_CUTOFF,500};assert(md_load(&q));cmd(MD_PLAY,0,1);
+  bool seen=false;for(int b=0;b<400&&!seen;b++){md_render(audio,128);if(md_status()->step==8){seen=true;assert(md_status()->lfo_cycle[0][0]==2&&md_status()->lfo_phase[0][0]<.02f);}}
+  assert(seen);cmd(MD_PLAY,0,0);
+  // Square LFO on the cutoff: the filter really moves; with depth 0 it does not.
+  auto swing=[&](int depth){md_patch r=blank(MD_VA);r.track[0].filter=1;r.track[0].cutoff=500;r.track[0].breathe=0;r.ext[0].tides=0;r.lfo[0][0]={10,MD_LFO_SQUARE,MD_TO_CUTOFF,depth};assert(md_load(&r));cmd(MD_PLAY,0,1);
+   float lo=1e9f,hi=0;for(int b=0;b<600;b++){md_render(audio,128);if(b>100){float c=md_status()->cutoff_now[0];lo=fminf(lo,c);hi=fmaxf(hi,c);}}cmd(MD_PLAY,0,0);return hi/lo;};
+  assert(swing(0)<1.01f&&swing(1000)>8);
+  // Sample & hold: one value per cycle, the one the screen draws, and it changes from cycle to cycle.
+  q=blank(MD_VA);q.lfo[1][0]={14,MD_LFO_SAMPLE_HOLD,MD_TO_PITCH,300};assert(md_load(&q));cmd(MD_PLAY,0,1);int changes=0;float last=2;
+  for(int b=0;b<600;b++){md_render(audio,128);const md_stats *m=md_status();float v=m->lfo_value[1][0];assert(fabsf(v-md_lfo_wave(1,0,m->lfo_cycle[1][0],.7f))<1e-6f);if(v!=last)changes++;last=v;}
+  cmd(MD_PLAY,0,0);assert(changes>10);
+  // Tremolo never raises the level.
+  auto peak=[&](int depth){md_patch r=blank(MD_VA);r.lfo[0][0]={10,MD_LFO_SINE,MD_TO_LEVEL,depth};assert(md_load(&r));cmd(MD_PLAY,0,1);float pk=0;for(int b=0;b<500;b++){md_render(audio,128);pk=fmaxf(pk,md_status()->track_peak[0]);}cmd(MD_PLAY,0,0);return pk;};
+  {float flat=peak(0);assert(peak(1000)<=flat*1.02f&&peak(-1000)<=flat*1.02f);}
+  puts("PASS LFOs: 1.1 patches migrate, synced phase restarts with PLAY, cutoff moves, sample & hold matches the view, tremolo never boosts");
+  // Filter modes: high-pass thins a low note, band and notch stay finite and audible.
+  auto energy=[&](int mode,int cutoff){md_patch r=blank(MD_VA);r.track[0].filter=mode;r.track[0].cutoff=cutoff;r.track[0].resonance=0;r.track[0].breathe=0;assert(md_load(&r));cmd(MD_PLAY,0,1);double e=run(400);cmd(MD_PLAY,0,0);return e;};
+  {double dry=energy(0,500);assert(energy(4,850)<dry*.5);assert(energy(5,600)>0&&energy(6,600)>0&&energy(6,600)<dry*1.2);}
+  // Send high-pass: a kick through the echo loses most of its body.
+  auto echo=[&](int hp){md_patch r=blank(MD_KICK);r.ext[0].delay_send=1000;r.fx_level=1000;r.send_hp=hp;assert(md_load(&r));cmd(MD_PLAY,0,1);float pk=0;for(int b=0;b<500;b++){md_render(audio,128);pk=fmaxf(pk,md_status()->fx_peak[1]);}cmd(MD_PLAY,0,0);return pk;};
+  {float full=echo(0);assert(full>0&&echo(1000)<full*.5f);}
+  assert(md_send_hp_hz(0)==0&&md_send_hp_hz(1)>=20&&md_send_hp_hz(1000)==2000);
+  puts("PASS filters: HP / BP / notch, 12 dB send high-pass on the echo and room");
  }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

@@ -11,11 +11,11 @@ static void chunks(const md_patch *p,unsigned token){for(unsigned off=0;off<size
 int main(void){
  boot();run_ms(100);dream_dismiss_intro();md_patch initial=*md_state(),desired=initial;desired.tempo=92;
  assert(!req(7,0,0)&&response_n==32);assert(!req(9,0,0)&&response_n==208);
- assert(!req(8,0,0));assert(md_stored_size==1292);assert(!memcmp(md_stored_snapshot,&initial,1292));
- dream_cmd(MD_TEMPO,0,110);run_ms(20);assert(!memcmp(md_stored_snapshot,&initial,1292));
+ assert(!req(8,0,0));assert(md_stored_size==1496);assert(!memcmp(md_stored_snapshot,&initial,1496));
+ dream_cmd(MD_TEMPO,0,110);run_ms(20);assert(!memcmp(md_stored_snapshot,&initial,1496));
  assert(app_backup_validate(0,&initial,sizeof initial));
  md_patch legacy=initial;legacy.version=4;assert(app_backup_validate(0,&legacy,652));
- legacy.version=5;assert(app_backup_validate(0,&legacy,sizeof legacy));
+ legacy.version=5;assert(app_backup_validate(0,&legacy,1292));legacy.version=6;assert(app_backup_validate(0,&legacy,1292));assert(!app_backup_validate(0,&legacy,sizeof legacy));
  assert(md_state()->tempo==110); /* validation never loads the old project */assert(!app_backup_validate(1,&initial,sizeof initial));assert(!app_backup_validate(0,&initial,20));
  md_patch bad=initial;bad.version=77;assert(!app_backup_validate(0,&bad,sizeof bad));bad=initial;bad.track[2].model=99;assert(!app_backup_validate(0,&bad,sizeof bad));
  for(unsigned obj=0;obj<23;obj++)if(obj!=1)assert(app_backup_validate(obj,0,0));
@@ -27,6 +27,8 @@ int main(void){
  uint32_t writes=store_writes;app_backup_hold(1);bank_slot=15;bank_kind=0;assert(bank_action(1)==4);md_tap(B_SAVE);assert(store_writes==writes);app_backup_flush();assert(store_writes==writes);app_backup_hold(0);
  for(int kind=0;kind<2;kind++)for(int slot=0;slot<(kind?64:16);slot++){bank_kind=kind;bank_slot=slot;assert(!bank_action(2));int obj=bank_object();assert(app_backup_validate(obj,store[obj],store_len[obj]));}
  bank_kind=0;bank_slot=15;writes=store_writes;bank_armed=-1;assert(bank_action(1)==5&&store_writes==writes);assert(!bank_action(1));
+ {UserBiome old=user_biome_io;old.patch.version=6;assert(app_backup_validate(18,&old,USER_BIOME_1_1));
+  int obj=OBJ_USER+3;memcpy(store[obj],&old,USER_BIOME_1_1);store_len[obj]=USER_BIOME_1_1;bank_kind=0;bank_slot=3;assert(!bank_action(0));assert(md_state()->version==7&&md_state()->lfo[0][0].depth==0);} /* a slot saved by 1.1 still loads */
  UserBiome u=user_biome_io;u.name[23]='x';assert(!app_backup_validate(18,&u,sizeof u));
  ToneBank tones=tone_bank_io;tones.used=0x10000;assert(!app_backup_validate(22,&tones,sizeof tones));
  tones=tone_bank_io;tones.tone[15].ext.notes[2]=99;assert(!app_backup_validate(22,&tones,sizeof tones));

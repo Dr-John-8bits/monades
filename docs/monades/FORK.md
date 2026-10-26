@@ -63,6 +63,12 @@ Vérifier qu'aucun firmware FM-1 ne porte déjà le nom (The Firmware Hub, aweso
    - calcul une fois par bloc de 64 échantillons : coût CPU négligeable ;
    - redémarrage de phase : libre, à chaque note, ou à chaque mesure.
    Garder le mode libre actuel comme option « organique ». Penser à la migration des patchs, car `md_validate` borne aujourd'hui `filter` à 0–3.
+   **Fait (branche `monades/tempo-effets`)** :
+   - filtres **HP12, BP, Notch** en plus de LP12 / LP24 / LPG ;
+   - **passe-haut 12 dB sur les envois** echo et room (20 Hz à 2 kHz, OFF par défaut), **couleur de l'écho et de la room** (page SPACE TONE) ;
+   - **deux LFO par piste** (pages LFO A et LFO B) : 15 divisions synchronisées (8 mesures … 1/32, pointées, triolets) qui redémarrent avec PLAY et suivent l'horloge MIDI, ou 16 vitesses libres de 0,02 à 20 Hz ; 7 formes dont S&H et aléatoire lissé, tirés de la graine ; profondeur ±. Cibles : cutoff, résonance, niveau (trémolo), pan, hauteur, tone, harmonics, shape, envois echo / room / grain, temps d'écho, position du grain ;
+   - patchs v7 : les patchs, biomes utilisateur et sauvegardes de Mutable Dreams 1.1 se chargent avec tout cela au neutre.
+   **Reste** : HP24, cibles enveloppe / feedback / taille du grain, S&H de hauteur quantifié sur la gamme, plusieurs cibles par LFO, redémarrage à chaque note.
 16. Activer le **second cœur** pour faire de la place (actuellement désactivé, pics à 85 % sur un cœur).
 
 ### Lot UI — Lisibilité : chaque écran montre ce qu'on règle

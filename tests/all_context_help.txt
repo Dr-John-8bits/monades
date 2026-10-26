@@ -1881,6 +1881,7 @@ tap FX
 tap FX
 tap FX
 tap FX
+tap FX
 expect page 15
 press FX
 wait 900
@@ -2601,6 +2602,7 @@ expect playing 0
 tap HOME
 expect help -1
 tap HOME
+tap GLO
 tap GLO
 tap GLO
 tap GLO
