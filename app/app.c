@@ -291,7 +291,21 @@ static void md_draw_all(void) {
    md_text(15,65,"MEMORY / TIDES / RING BLEND",MD_INK);md_text(15,94,"INSPIRED BY MUTABLE INSTRUMENTS",MD_DIM);md_text(15,121,"TIDES NEEDS A TRACK FILTER",MD_DIM);
    md_value(8,158,"K1 MARBLES",e->marbles/10,col);md_value(124,158,"K2 TIDES",e->tides/10,col);md_value(8,194,"K3 CYCLE",e->tides_rate/10,col);md_value(124,194,"K4 WARPS",e->warps/10,col);
   }else{
-   for(i=0;i<16;i++){int x=12+(i%8)*28,y=62+(i/8)*36;md_num(e->notes[i],s);md_text(x,y,s,i==e->edit_step?MD_INK:col);if(i==e->edit_step)cv_rect(x,y+14,20,2,col);}
+   // Mini piano-roll: 16 steps by 0..+24 semitones above the base note; rests as dashes on the floor.
+   // Brightness follows Chance, step 1 grows with Accent, the frame marks the step K1 edits, the bar the step playing.
+   const int x0=36,cw=12,base=128;cv_rect(4,46,232,106,MD_BG);
+   for(i=0;i<=24;i+=12){cv_rect(x0,base-i*3,cw*16,1,i?MD_CARD:MD_EDGE);char lab[6]="+";md_num(i,lab+(i?1:0));md_text(8,base-i*3-6,lab,MD_DIM);}
+   int active=e->bass_mode!=0,len=e->bass_mode==2?(t->length>16?16:t->length):16,playing=-1;
+   if(active&&md_playing())playing=(int)((md_status()->step/(unsigned)(t->speed>0?t->speed:1))%(unsigned)len);
+   unsigned mix=(unsigned)(10+t->prob*22/1000);
+   for(i=0;i<16;i++){int x=x0+i*cw,v=e->notes[i];
+    if(i==playing)cv_rect(x,50,cw-1,base-49,md_tint(MD_BG,col,6));
+    if(i>=len){cv_rect(x+3,base+3,cw-7,1,MD_CARD);continue;}
+    if(v<0)cv_rect(x+3,base-1,cw-7,1,MD_DIM);
+    else{int h=3+(i==0?t->accent*4/1000:0);cv_rect(x+1,base-v*3-h+2,cw-3,h,active?md_tint(MD_BG,col,mix):MD_EDGE);}
+    if(i==e->edit_step){cv_rect(x,base+5,cw-1,2,MD_INK);}
+   }
+   md_text(x0,139,!active?"PHRASE OFF: ENABLE ON BASS PAGE":e->bass_mode==2?"STEP MODE":"EUCLID MODE: RHYTHM GATES NOTES",active?MD_DIM:MD_HOT);
    md_value_span(8,158,"K1 STEP",e->edit_step+1,1,16,col);md_value_span(124,158,"K2 NOTE / REST",e->notes[e->edit_step],-1,24,col);md_value(8,194,"K3 ACCENT",t->accent/10,col);md_value(124,194,"K4 CHANCE",t->prob/10,col);
   }
  }else if(dream_ui.page==LIVE) {
