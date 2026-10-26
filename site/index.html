@@ -7,11 +7,11 @@
 <meta name="description" content="Monades : la flotte sans fenêtres de S.A.R.L. Napoléon d&#39;Artagnan qui presse la limonade de la Galaxie. Firmware génératif pour M-VAVE FM-1 pour Flash Dog Duke Silver (fork de Mutable Dreams).">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#fcfcfa; --ink:#141414; --muted:#6a6a64; --rule:#dcdcd6; --mark:#f0e13c; --lit:#141414; --off:#d6d6cf;
-  --serif:"EB Garamond",Garamond,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){
@@ -20,7 +20,7 @@
 :root[data-theme="dark"]{--paper:#0f0f0e;--ink:#ebeae4;--muted:#93928a;--rule:#2c2c29;--mark:#e9d92e;--lit:#ebeae4;--off:#2f2f2c}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 20px/1.55 var(--serif);font-feature-settings:"onum","liga"}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17.5px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
 a:hover{text-decoration-color:var(--mark);text-decoration-thickness:3px}
 .wrap{max-width:1080px;margin:0 auto;padding:0 16px}
@@ -29,31 +29,31 @@ header.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;pa
 header.top nav a{margin-left:18px;text-decoration:none}
 header.top nav a:hover{text-decoration:underline}
 .title{padding:56px 0 8px}
-h1{font-weight:400;font-size:clamp(64px,15vw,184px);line-height:.86;letter-spacing:.02em;margin:0;text-transform:uppercase}
-.lede{font-style:italic;font-size:clamp(22px,3vw,30px);margin:22px 0 0;max-width:30ch}
+h1{font-weight:600;font-size:clamp(60px,14vw,170px);line-height:.88;letter-spacing:-.035em;margin:0;text-transform:uppercase}
+.lede{font-size:clamp(20px,2.6vw,27px);line-height:1.35;margin:22px 0 0;max-width:34ch}
 .hl{background:linear-gradient(transparent 58%,var(--mark) 58%,var(--mark) 92%,transparent 92%);padding:0 .08em}
 figure.monads{margin:44px 0 0;padding:20px 0 14px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 figure.monads svg{display:block;width:100%;height:auto}
-figure.monads figcaption{margin-top:10px;color:var(--muted);font-size:16px;font-style:italic;max-width:62ch}
+figure.monads figcaption{margin-top:10px;color:var(--muted);font-size:15px;max-width:62ch}
 .prop{display:grid;grid-template-columns:110px minmax(0,1fr) 230px;gap:0 32px;padding:42px 0;border-bottom:1px solid var(--rule)}
-.num{font-family:var(--serif);font-size:44px;line-height:1;color:var(--ink)}
+.num{font-family:var(--sans);font-weight:500;font-size:40px;line-height:1;letter-spacing:-.02em;color:var(--ink)}
 .num small{display:block;margin-top:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-h2{font-weight:500;font-size:30px;line-height:1.15;margin:0 0 14px}
+h2{font-weight:600;font-size:26px;line-height:1.2;letter-spacing:-.01em;margin:0 0 14px}
 .prop p{margin:0 0 14px;max-width:64ch}
-.side{font-size:15.5px;line-height:1.45;color:var(--muted);border-left:1px solid var(--rule);padding-left:14px;align-self:start}
+.side{font-size:14.5px;line-height:1.45;color:var(--muted);border-left:1px solid var(--rule);padding-left:14px;align-self:start}
 .side p{margin:0 0 10px}
 .side code,.prop code{font-family:var(--mono);font-size:.78em;color:var(--ink)}
 ol.items{list-style:none;margin:6px 0 0;padding:0;counter-reset:it}
 ol.items>li{counter-increment:it;position:relative;padding:9px 0 9px 34px;border-top:1px dotted var(--rule)}
 ol.items>li:first-child{border-top:0}
-ol.items>li::before{content:counter(it,lower-alpha) ".";position:absolute;left:0;top:9px;font-style:italic;color:var(--muted)}
-ol.items>li b{font-weight:500}
+ol.items>li::before{content:counter(it,lower-alpha) ".";position:absolute;left:0;top:9px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+ol.items>li b{font-weight:600}
 .st{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
 .st::before{content:"[ "}.st::after{content:" ]"}
 .st.done{color:var(--ink);background:var(--mark);padding:0 4px}
 .st.done::before,.st.done::after{content:""}
 .status-line{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 16px}
-table.pages{width:100%;border-collapse:collapse;font-size:16.5px;margin:10px 0 4px}
+table.pages{width:100%;border-collapse:collapse;font-size:15.5px;margin:10px 0 4px}
 table.pages th,table.pages td{text-align:left;vertical-align:top;padding:8px 10px 8px 0;border-top:1px solid var(--rule)}
 table.pages th{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--ink)}
 table.pages td:first-child{font-family:var(--mono);font-size:12px;letter-spacing:.03em;white-space:nowrap;padding-top:10px}
@@ -70,7 +70,7 @@ footer{padding:34px 0 60px;display:flex;justify-content:space-between;gap:16px;f
   .order{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:560px){
-  body{font-size:18px}
+  body{font-size:16.5px}
   .prop{grid-template-columns:minmax(0,1fr);padding:32px 0}
   .side{grid-column:1}
   .num{margin-bottom:10px}
