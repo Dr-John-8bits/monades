@@ -1,7 +1,7 @@
-name = "Mutable-Dreams"
-id_prefix = "FM-1_710"
-usb_manufacturer = "Mutable Dreams Project"
-usb_product = "Mutable Dreams FM-1"
+name = "Monades"
+id_prefix = "FM-1_714"
+usb_manufacturer = "Monades Project"
+usb_product = "Monades FM-1"
 ble = false
 backup = true
 usb_audio_in = true

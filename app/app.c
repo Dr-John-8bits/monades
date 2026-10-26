@@ -182,7 +182,7 @@ static void md_draw_all(void) {
  if(dream_ui.help<0)md_organic();
  cv_rect(0,0,240,39,MD_BG);cv_rect(10,38,220,1,MD_EDGE);cv_rect(10,38,28,1,col);
  cv_rect(0,224,240,16,MD_BG);
- cv_text(10,5,&FONT_B,"MUTABLE DREAMS",MD_INK);md_circle(226,12,3,md_playing()?dream_colors[2]:MD_DIM,1);
+ cv_text(10,5,&FONT_B,"MONADES",MD_INK);md_circle(226,12,3,md_playing()?dream_colors[2]:MD_DIM,1);
  md_text(10,25,dream_pages[dream_ui.page],col);md_num(p->tempo,s);md_text(186,25,s,MD_INK);md_text(211,25,"BPM",MD_DIM);
  if(intro_until&&plat_ms()<intro_until&&dream_ui.help<0){
   float progress=(plat_ms()-intro_start)/3200.0f;
@@ -265,7 +265,7 @@ static void md_draw_all(void) {
   md_text(12,141,md_tone_name(p->tone_preset[dream_ui.track]),col);md_text(140,141,md_biome_family(p->biome_id),MD_DIM);
   const char *labels[]={"K1 DENSITY","K2 MOTION","K3 COLOUR","K4 SPACE"};for(i=0;i<4;i++)md_value(8+(i%2)*116,158+(i/2)*36,labels[i],p->macro[i]/10,dream_colors[i]);
  } else if(dream_ui.page==SYSTEM) {
-  md_text(10,48,"MUTABLE DREAMS 1.1",MD_INK);md_text(10,69,p->quality?"FULL  24 MODES / 4 GRAINS":"ECO / ADAPTIVE MODES / 2 GRAINS",col);
+  md_text(10,48,"MONADES 0.1 / MD 1.1",MD_INK);md_text(10,69,p->quality?"FULL  24 MODES / 4 GRAINS":"ECO / ADAPTIVE MODES / 2 GRAINS",col);
   md_text(10,93,"LOAD / MAX %",MD_DIM);
 #ifdef PLAT_HOST
   md_text(139,93,"HOST ONLY",MD_INK);

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 #pragma once
 #include "plat.h"
-#define APP_NAME "MUTABLE DREAMS"
+#define APP_NAME "MONADES"
 #define APP_SPLASH_RGB RGB(216,160,163)
 #define APP_BLOCK 256u /* 5.80 ms audio half; DSP tiles remain 64 frames. */
 #define APP_CANVAS_PX (240u*40u)
