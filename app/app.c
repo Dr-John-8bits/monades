@@ -271,7 +271,21 @@ static void md_draw_all(void) {
    for(i=0;i<16;i++)md_circle(15+i*14,107-e->notes[i],e->notes[i]<0?1:3,col,e->notes[i]>=0);
    md_named(8,158,"K1 PHRASE",e->bass_mode==2?"STEP":e->bass_mode?"EUCLID":"OFF",col);md_value_span(124,158,"K2 MOTIF",e->pattern+1,1,4,col);md_value(8,194,"K3 GLIDE",e->glide/10,col);md_value_span(124,194,"K4 BASE NOTE",t->note,24,96,col);
   }else if(dream_ui.page==SPACE){
-   md_text(18,70,"ONE ROOM / SIX SMALL WORLDS",MD_INK);md_text(18,100,"MIXER SETS EACH TRACK SEND",MD_DIM);
+   // One timeline, 0..1.4 s: bars = echoes (spacing = Echo ms, height = Feedback^k), curve = room tail
+   // (its four ~25 ms lines lose 1 - Room Tail factor per pass). Dim when Return is 0. Live D / R returns at right.
+   const md_stats *ms=md_status();const int x0=12,w=192,base=128,hmax=72;const float span=1.4f;
+   const uint16_t echo_ink=p->fx_level?col:MD_EDGE,room_ink=p->fx_level?MD_DIM:MD_EDGE;
+   cv_rect(4,46,232,106,MD_BG);cv_rect(x0,base,w,1,MD_EDGE);
+   for(i=1;i<4;i++)cv_rect(x0+w*i/4,base+1,1,3,MD_EDGE);
+   float fb=p->delay_fb*.001f,decay=.45f+.5f*p->reverb_time*.001f,lnd=fm_logf(decay);
+   {int ph=hmax;for(int px=0;px<w;px++){float tm=px*span/(w-1);int h=(int)(hmax/fm_expf(-lnd*tm/.025f)); /* decay^(t/25 ms); fm_expf only with x >= 0 */
+    if(h>0||ph>0)cv_rect(x0+px,base-ph,1,ph-h+1,room_ink);ph=h;}}
+   float amp=1;for(int k=1;k<64&&amp>.01f;k++,amp*=fb){float tm=k*p->delay_ms*.001f;if(tm>span)break;int x=x0+(int)(tm/span*(w-1)),h=(int)(hmax*amp);cv_rect(x-1,base-h,3,h,echo_ink);}
+   md_meter(7,214,8,ms->fx_peak[1],MD_DIM,0);md_meter(8,226,8,ms->fx_peak[2],MD_DIM,0);
+   md_text(215,139,"D",MD_DIM);md_text(227,139,"R",MD_DIM);
+   md_text(x0,139,"0",MD_DIM);md_text(x0+w/2-12,139,"0.7 S",MD_DIM);md_text(x0+w-30,139,"1.4 S",MD_DIM);
+   int sends=0;for(i=0;i<6;i++)sends+=p->ext[i].delay_send+p->ext[i].reverb_send;
+   md_text(x0,48,!p->fx_level?"RETURN 0: NOTHING HEARD":!sends?"NO TRACK SENDS: SEE MIXER":"BARS: ECHOES  CURVE: ROOM",p->fx_level&&sends?MD_DIM:MD_HOT);
    md_value_span(8,158,"K1 ECHO ms",p->delay_ms,40,350,col);md_value(124,158,"K2 FEEDBACK",p->delay_fb/10,col);md_value(8,194,"K3 ROOM TAIL",p->reverb_time/10,col);md_value(124,194,"K4 RETURN",p->fx_level/10,col);
   }else if(dream_ui.page==MODULATION){
    md_text(15,65,"MEMORY / TIDES / RING BLEND",MD_INK);md_text(15,94,"INSPIRED BY MUTABLE INSTRUMENTS",MD_DIM);md_text(15,121,"TIDES NEEDS A TRACK FILTER",MD_DIM);
