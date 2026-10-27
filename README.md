@@ -31,7 +31,7 @@ python tools/package_emu.py
 python -m http.server 8100 --directory app/build/emu
 ```
 
-Puis ouvrir `http://localhost:8100/`. La page est `app/web/emu/index.html` (MPL-2.0, d'après fm1-base).
+Puis ouvrir `http://localhost:8100/`. La page est `app/web/emu/index.html` (MPL-2.0, d'après fm1-base). Le site en publie une copie : après un changement du firmware, refaire `python tools/package_emu.py site/simulateur`.
 
 ## Audio USB
 - **Enregistrer le FM-1 dans l'ordinateur par le câble USB** : activé (`usb_audio_in = true` dans `app/fm1.toml`), 44,1 kHz stéréo. Mutable Dreams 1.1 l'a vérifié sur un FM-1.
