@@ -141,6 +141,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>MIDI</td><td>Entrée seulement.</td><td>Sortie des notes générées par USB, un canal par piste ou jusqu'à 8 zones de notes. Horloge en sortie (clock, start, stop). Vélocité qui suit les accents. Pages MIDI et MIDI OUT ZONES. <a href="#mpc">Avec la MPC</a>.</td></tr>
       <tr><td>DICE</td><td>—</td><td>REC tire au sort le son, le rythme ou les effets selon la page, sans toucher la gamme ni le tempo. ENV annule.</td></tr>
       <tr><td>Écrans</td><td>Plusieurs pages décoratives ou en texte seul.</td><td>Chaque page montre ce qu'on règle&nbsp;: bande granulaire, réponse du filtre, enveloppe, échos, piano-roll, cercle des notes. Un message dit ce qu'a fait chaque appui sur ENV, LFO, ARP et REC.</td></tr>
+      <tr><td>Morphing</td><td>—</td><td>Passage progressif du Monde en cours vers un autre Monde, à la main ou sur 4 à 64 mesures. Les nombres glissent (tempo, filtres, niveaux, effets, densité), les choix basculent à mi-chemin (moteurs, gamme, formes de LFO). L'écran montre les deux Mondes et la flotte qui va de l'un à l'autre. Page MORPH (HOME deux fois). <a href="#morph">Mode d'emploi</a>.</td></tr>
       <tr><td>Scènes</td><td>76 Biomes, sans aucune des nouveautés.</td><td>Mondes, affichés avec leur numéro et leur famille. En plus, 14 Mondes FDDS qui utilisent les nouveautés&nbsp;: LFO, générateurs, forme, gamakas, gammes microtonales. <a href="#fdds">La liste</a>.</td></tr>
     </table>
   </div>
@@ -177,10 +178,13 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>91 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/jardiniers.html">JARDINIERS</a></td><td>LYDIAN · F · 98&nbsp;BPM</td><td>générateur MOTIF piste 3 · écho 1/8 · chorus</td></tr>
     </table>
     <!-- /fdds -->
+    <h3 id="morph">Le morphing</h3>
+    <p>HOME, puis HOME encore&nbsp;: page MORPH. Le Monde en cours est A. K1 ou PRESET choisit le Monde B&nbsp;; rien ne change tant que K2 est à 0. K2 va de A vers B. Les nombres glissent&nbsp;: tempo, filtres, niveaux, envois, effets, densité, notes de base. Les choix basculent à 50&nbsp;%, au trait du milieu&nbsp;: moteurs, modes de filtre, gamme et note de base, formes et cibles des LFO, générateurs, gamakas. K3 confie le passage à la lecture, sur 4 à 64 mesures. K4 limite ce qui change&nbsp;: tout, le son, le rythme ou les effets&nbsp;; le reste reste sur A.</p>
+    <p>À l'écran&nbsp;: A à gauche s'éteint, B à droite s'allume, la flotte du son en cours voyage de l'un à l'autre. Dessous&nbsp;: le tempo de A, le tempo en cours et celui de B, les deux gammes (celle qui joue est claire), et les six moteurs (carré plein&nbsp;: ce moteur a basculé vers celui de B). REC garde le mélange et termine le morphing. ENV revient à A. Charger un autre Monde avec PRESET sur une autre page termine le morphing.</p>
     <h3>Les pages</h3>
     <table class="manual">
       <tr><th>Bouton</th><th>Pages, dans l'ordre</th></tr>
-      <tr><td>HOME</td><td>LIVE MONDE</td></tr>
+      <tr><td>HOME</td><td>LIVE MONDE → MORPH</td></tr>
       <tr><td>EDIT</td><td>SOUND → VELVET FILTER → ENVELOPE → MIX → GLOBAL MIXER</td></tr>
       <tr><td>SEQ</td><td>RHYTHM → GROOVE → BASS / MOTIFS → PHRASE → GENERATOR → FORM</td></tr>
       <tr><td>FX</td><td>GRANULAR BUS → TAPE → SHARED SPACE → SPACE TONE → ECHO SYNC / CHORUS → MARBLES / TIDES / WARPS → LFO A → LFO B</td></tr>
@@ -194,7 +198,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>ALGO</td><td>Change le moteur sonore de la piste (12 moteurs).</td></tr>
       <tr><td>PRESET</td><td>Sur les pages d'une piste&nbsp;: un des 224 sons. Ailleurs&nbsp;: un des 90 Mondes, ou le Blank. L'écran affiche son numéro et sa famille (MIST, DRONE, RESONANCE, TECHNO, BROKEN, ORGANIC, PERCUSSION, MELODY), ou son nom pour un Monde FDDS.</td></tr>
       <tr><td>PLAY</td><td>Lance ou arrête la séquence.</td></tr>
-      <tr><td>REC</td><td>N'enregistre rien. Sur HOME et GLO&nbsp;: nouvelle variation. Sur les pages EDIT&nbsp;: DICE, nouveaux réglages tirés au sort pour le son de la piste choisie. Sur les pages SEQ&nbsp;: DICE pour son rythme. Sur les pages FX&nbsp;: DICE pour les effets, toujours audible (un retour d'effets à 0 remonte&nbsp;; sans aucun envoi, la piste choisie reçoit de l'écho et de la room). Le DICE ne change jamais la gamme, la note de base, la transposition, le tempo, le niveau, les mutes, le moteur ni le MIDI. Sur SYSTEM et MIDI&nbsp;: panique. Sur GENERATOR&nbsp;: efface le motif.</td></tr>
+      <tr><td>REC</td><td>N'enregistre rien. Sur MORPH&nbsp;: garde le mélange en cours. Sur LIVE et GLO&nbsp;: nouvelle variation. Sur les pages EDIT&nbsp;: DICE, nouveaux réglages tirés au sort pour le son de la piste choisie. Sur les pages SEQ&nbsp;: DICE pour son rythme. Sur les pages FX&nbsp;: DICE pour les effets, toujours audible (un retour d'effets à 0 remonte&nbsp;; sans aucun envoi, la piste choisie reçoit de l'écho et de la room). Le DICE ne change jamais la gamme, la note de base, la transposition, le tempo, le niveau, les mutes, le moteur ni le MIDI. Sur SYSTEM et MIDI&nbsp;: panique. Sur GENERATOR&nbsp;: efface le motif.</td></tr>
       <tr><td>ENV</td><td>Revient à l'état d'avant la dernière variation ou le dernier DICE.</td></tr>
       <tr><td>ARP</td><td>Verrouille la graine&nbsp;: la même variation se répète.</td></tr>
       <tr><td>LFO</td><td>Fige la bande granulaire (Freeze).</td></tr>
@@ -208,6 +212,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
     <table class="manual">
       <tr><th>Page</th><th>K1 · K2 · K3 · K4</th></tr>
       <tr><td>LIVE</td><td>Density · Motion · Colour · Space (les quatre macros)</td></tr>
+      <tr><td>MORPH</td><td>Monde B (aussi avec PRESET) · Position de A vers B · Automatique sur 4 à 64 mesures pendant la lecture · Ce qui change&nbsp;: tout, le son, le rythme ou les effets</td></tr>
       <tr><td>SOUND</td><td>Tone · Harmonics · Shape (Decay pour les batteries) · Level</td></tr>
       <tr><td>FILTER</td><td>Cutoff · Résonance · Mode (LP 12, LP 24, LPG, HP 12, HP 24, BP, Notch) · Breathe</td></tr>
       <tr><td>ENVELOPE</td><td>Attack · Decay · Level · Envoi grain</td></tr>
@@ -461,6 +466,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <li>Les Biomes deviennent des Mondes, numérotés avec leur famille. <span class="st done">fait</span></li>
       <li>DICE sur REC&nbsp;: son, rythme ou effets selon la page, annulable avec ENV. <span class="st done">fait</span></li>
       <li>14 Mondes FDDS qui utilisent les nouveautés, tirés du wiki de Flash Dog Duke Silver. <span class="st done">fait</span></li>
+      <li>Morphing d'un Monde vers un autre, à la main ou sur 4 à 64 mesures, page MORPH. <span class="st done">fait</span></li>
     </ol>
   </div>
   <aside class="side"></aside>

@@ -1,0 +1,43 @@
+wait 3400
+tap HOME
+expect page 0
+tap HOME
+expect page 0
+wait 1600
+tap HOME
+expect page 27
+expect morph_on 0
+tap REC
+expect morph_on 0
+spin PRESET 80
+wait 30
+expect morph_on 1
+expect morph_target 80
+expect morph_pos 0
+expect biome 0
+spin K2 25
+wait 30
+expect morph_pos 500
+expect biome -1
+spin K3 1
+spin K4 2
+wait 30
+expect morph_bars 1
+expect morph_scope 2
+spin K4 -2
+spin K2 25
+wait 30
+expect morph_pos 1000
+expect biome 80
+tap ENV
+wait 30
+expect morph_pos 0
+expect biome 0
+spin K2 50
+wait 30
+tap REC
+wait 30
+expect morph_on 0
+expect biome 80
+tap HOME
+expect page 0

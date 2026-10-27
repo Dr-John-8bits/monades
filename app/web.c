@@ -8,7 +8,7 @@
 #define EXPORT static
 #endif
 EXPORT void dream_command(int c,int t,int v){dream_dismiss_intro();if(c==111){bank_slot=clamp(v,0,bank_kind?63:15);bank_armed=-1;}else if(c==112){bank_kind=clamp(v,0,1);bank_slot=clamp(bank_slot,0,bank_kind?63:15);bank_armed=-1;}else if(c==115)bank_char=clamp(v,0,22);else if(c==116){bank_name[bank_char]=clamp(v,0,126);bank_name[23]=0;}else if(c==113)bank_action(0);else if(c==114)bank_action(1);else if(c==103)dream_prefs.motion=clamp(v,0,1);else if(c==104)dream_prefs.boot_sound=clamp(v,0,1);else if(c==105)dream_intro();else if(c==106){cpu_peak=0;plat_audio_peak_reset();}else dream_cmd(c,t,v);}
-EXPORT void dream_page(int p){dream_dismiss_intro();dream_ui.page=clamp(p,0,RAGA);dream_ui.help=-1;dream_ui.dirty=1;}
+EXPORT void dream_page(int p){dream_dismiss_intro();dream_ui.page=clamp(p,0,MORPH);dream_ui.help=-1;dream_ui.dirty=1;}
 EXPORT void dream_track(int t){dream_ui.track=clamp(t,0,5);dream_ui.dirty=1;}
 EXPORT int dream_value(int c,int t){const md_patch *p=md_state();const md_track *v=&p->track[clamp(t,0,5)];switch(c){case 107:return dream_ui.octave;case 108:return dream_ui.help;case 109:return md_status()->last_note[clamp(t,0,5)];case 110:return md_status()->events[clamp(t,0,5)];case 100:return dream_ui.page;case 101:return dream_ui.track;case 102:return p->edited_mask;case 103:return dream_prefs.motion;case 104:return dream_prefs.boot_sound;case MD_SCENE:return p->biome_id;case MD_TONE_PRESET:return p->tone_preset[clamp(t,0,5)];case MD_MODEL:return v->model;case MD_MUTE:return v->mute;case MD_MACRO:return p->macro[clamp(t,0,3)];case MD_PLAY:return md_playing();case MD_TEMPO:return p->tempo;case MD_LOCK:return p->locked;case MD_FREEZE:return p->freeze;case MD_QUALITY:return p->quality;default:return 0;}}
 

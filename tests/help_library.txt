@@ -131,7 +131,7 @@ expect help 13
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
+expect page 0
 spin PRESET 64
 wait 30
 expect biome 64

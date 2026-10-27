@@ -153,10 +153,15 @@ static void clear_audio() {
  memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);feedback_lp=duckenv=0;
 }
 static void gen_reset();
-static void scene(int id) {
- patch=biome_bank[bound(id,0,MD_BIOMES-1)].patch;
+static int morph_on; /* a morph is under way (morph.inc); a new Monde ends it */
+static md_patch bank_patch(int id) {
+ md_patch p=biome_bank[bound(id,0,MD_BIOMES-1)].patch;
  // Mutable Dreams Mondes are 1.1 patches: Monades additions neutral. FDDS Mondes are complete v10 patches.
- if(patch.version!=10){extension_defaults(patch);if(id>=65){patch.fx_level=340;patch.reverb_time=550;for(int i=0;i<6;i++)patch.ext[i].reverb_send=300;}}
+ if(p.version!=10){extension_defaults(p);if(id>=65){p.fx_level=340;p.reverb_time=550;for(int i=0;i<6;i++)p.ext[i].reverb_send=300;}}
+ return p;
+}
+static void scene(int id) {
+ patch=bank_patch(id);morph_on=0;
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
  gen_reset();memset(motion_held,0,sizeof motion_held); // a new Biome starts with empty generator registers
@@ -174,6 +179,7 @@ switch(c){case MD_MODEL:return &t.model;case MD_TONE:return &t.tone;case MD_HARM
 #include "lfo.inc"
 static float clamp01(float x){return x<0?0:x>1?1:x;}
 #include "generative.inc"
+#include "morph.inc"
 // Echo sync: the division in sixteenths.
 static const float echo_sync_len[MD_ECHO_SYNCS]={0,.5f,2/3.0f,1,4/3.0f,1.5f,2,8/3.0f,3,4}; // sixteenths
 static float echo_ms_now(){
@@ -214,7 +220,7 @@ static void dice(int i,int scope){
 static void apply(Command e) {
  int i=bound(e.t,0,5),v=e.v;md_track &t=patch.track[i];
  // Playback, preview notes and emergency silence do not change a preset.
- if(e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_DICE)patch.edited_mask|=1u;
+ if(e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_DICE&&(e.c<MD_MORPH_TO||e.c>MD_MORPH_KEEP))patch.edited_mask|=1u;
  if(e.c==MD_MODEL||e.c==MD_TONE||e.c==MD_HARM||e.c==MD_DECAY||e.c==MD_ATTACK||(e.c>=MD_SHAPE&&e.c<=MD_BREATHE))patch.edited_mask|=2u<<i;
  if(e.c<=MD_SPEED) {
   int32_t *p=track_field(t,e.c);
@@ -233,7 +239,7 @@ static void apply(Command e) {
   if(routing.clock&&!clock_source&&playing!=was){out_push(playing?0xfa:0xfc,0,0);clock_left=0;}if(!playing)out_all_off();}break;
  case MD_LOCK:patch.locked=!!v;break;
  case MD_MUTATE: previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
- case MD_RETURN:patch=previous;seqrng=patch.seed;for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
+ case MD_RETURN:patch=previous;seqrng=patch.seed;morph_back();for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
  case MD_SCENE:scene(v);break;
  case MD_DICE:dice(i,bound(v,MD_DICE_SOUND,MD_DICE_FX));break;
  case MD_TONE_PRESET:tone_preset(i,v);break;
@@ -299,6 +305,11 @@ static void apply(Command e) {
  case MD_GAMAKA_AMOUNT:patch.gamaka_amount[i]=bound(v,0,1000);break;
  case MD_VADI:patch.vadi=bound(v,-1,11);break;
  case MD_MOTION_EVERY:patch.motion_every=bound(v,0,4);break;
+ case MD_MORPH_TO:morph_to(bound(v,0,MD_BIOMES-1));break;
+ case MD_MORPH:if(morph_on){morph_pos=bound(v,0,1000);morph_f=(float)morph_pos;morph_apply();}break;
+ case MD_MORPH_BARS:morph_bars=bound(v,0,5);break;
+ case MD_MORPH_SCOPE:morph_scope=bound(v,0,MD_MORPH_SCOPES-1);if(morph_on)morph_apply();break;
+ case MD_MORPH_KEEP:morph_keep();break;
  case MD_CLEAR_PHRASE:for(int k=0;k<16;k++)patch.ext[i].notes[k]=-1;patch.ext[i].edit_step=0;break;
  case MD_SAMVADI:patch.samvadi=bound(v,-1,11);break;
  case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
@@ -354,6 +365,7 @@ static void tick() {
   }
  }
  beat_wraps=step/384;beat=(float)(step%384);beat_limit=beat+1;
+ morph_step();
  stats.step=step++;untilstep+=duration;
 }
 static void quantum(float *lr,unsigned n) {
@@ -737,7 +749,7 @@ int md_validate(const md_patch *p) {
  return 1;
 }
 int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
-unsigned md_memory_bytes(){return sizeof chorus_line+64+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
+unsigned md_memory_bytes(){return sizeof morph_a+sizeof morph_b+sizeof morph_kind+sizeof chorus_line+64+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
  if(bytes==sizeof(md_patch)){md_patch p;memcpy(&p,data,sizeof p);if(!md_validate(&p))return 0;*out=p;return 1;}
@@ -806,6 +818,10 @@ const char *md_lfo_rate_name(int rate){rate=bound(rate,0,MD_LFO_RATES-1);return 
 const char *md_lfo_shape_name(int s){static const char *const n[MD_LFO_SHAPES]={"SINE","TRIANGLE","RAMP UP","RAMP DOWN","SQUARE","SAMPLE & HOLD","SMOOTH RANDOM"};return n[bound(s,0,MD_LFO_SHAPES-1)];}
 const char *md_lfo_target_name(int t){static const char *const n[MD_LFO_TARGETS]={"CUTOFF","RESONANCE","LEVEL","PAN","PITCH","TONE","HARMONICS","SHAPE","ECHO SEND","ROOM SEND","GRAIN SEND","ECHO TIME","GRAIN POS","ATTACK","DECAY","ECHO FEEDBACK","GRAIN SIZE","NOTES IN SCALE","HITS"};return n[bound(t,0,MD_LFO_TARGETS-1)];}
 float md_echo_ms(void){return echo_ms_now();}
+int md_morph_bars_len(int bars){return morph_len(bars);}
+void md_morph_view(md_morph_state *s,const md_patch **a,const md_patch **b){
+ s->on=morph_on;s->target=morph_target;s->pos=morph_pos;s->bars=morph_bars;s->scope=morph_scope;if(a)*a=&morph_a;if(b)*b=&morph_b;
+}
 int md_can_return(void){return memcmp(&previous,&patch,sizeof patch)!=0;}
 unsigned md_form_mask(unsigned c,unsigned s){return form_mask(c,s);}
 float md_form_tension(unsigned s){return form_tension_of[s&3];}

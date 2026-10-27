@@ -258,5 +258,24 @@ int main(){
   cmd(MD_SCENE,0,3);for(int i=0;i<6;i++)assert(md_state()->lfo[i][0].depth==0&&md_state()->gen[i].source==0);assert(md_state()->fx_level==0);
   puts("PASS FDDS Mondes: 14 complete v10 patches with LFOs, generators, gamakas, form, microtonal scales; all audible");
  }
+ {
+  // Morph MACHIN (78) -> CHRISTELE (81): numbers glide, choices switch half way, every step valid; ENV back to A.
+  cmd(MD_SCENE,0,77);const md_patch A=*md_state();md_patch B;{cmd(MD_SCENE,0,80);B=*md_state();cmd(MD_SCENE,0,77);}
+  md_morph_state ms;cmd(MD_MORPH_TO,0,80);md_morph_view(&ms,0,0);assert(ms.on&&ms.target==80&&ms.pos==0&&md_state()->tempo==A.tempo);
+  for(int pos=0;pos<=1000;pos+=50){cmd(MD_MORPH,0,pos);const md_patch *p=md_state();assert(md_validate(p));
+   assert(p->tempo==A.tempo+(int)floorf((float)(B.tempo-A.tempo)*(pos*.001f)+.5f));
+   assert(p->track[0].model==(pos>=500?B.track[0].model:A.track[0].model)&&p->scale==(pos>=500?B.scale:A.scale));}
+  cmd(MD_MORPH,0,1000);assert(md_state()->biome_id==80&&md_state()->lfo[0][0].depth==B.lfo[0][0].depth&&md_state()->gamaka[0]==B.gamaka[0]);
+  cmd(MD_RETURN,0,0);assert(!memcmp(md_state(),&A,sizeof A));md_morph_view(&ms,0,0);assert(ms.on&&ms.pos==0);
+  // Scope RHYTHM: the tempo moves, the engines stay on A.
+  cmd(MD_MORPH_SCOPE,0,MD_MORPH_RHYTHM);cmd(MD_MORPH,0,1000);assert(md_state()->tempo==B.tempo&&md_state()->track[0].model==A.track[0].model&&md_state()->biome_id==-1);
+  cmd(MD_MORPH_SCOPE,0,MD_MORPH_ALL);
+  // PLAY carries it over 4 bars (64 steps), then REC keeps it; a new Monde ends a morph.
+  cmd(MD_RETURN,0,0);cmd(MD_MORPH_BARS,0,1);cmd(MD_PLAY,0,1);while(md_status()->step<70)md_render(audio,128);
+  md_morph_view(&ms,0,0);assert(ms.pos==1000&&md_state()->tempo==B.tempo);cmd(MD_PLAY,0,0);
+  cmd(MD_MORPH_KEEP,0,0);md_morph_view(&ms,0,0);assert(!ms.on&&md_state()->tempo==B.tempo);
+  cmd(MD_MORPH_TO,0,3);cmd(MD_SCENE,0,5);md_morph_view(&ms,0,0);assert(!ms.on);cmd(MD_MORPH_BARS,0,0);
+  puts("PASS morph: glide and half-way switch, valid all along, scope, 4-bar auto morph, keep, ENV back to A");
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }
