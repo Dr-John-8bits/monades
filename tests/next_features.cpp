@@ -233,21 +233,24 @@ int main(){
   puts("PASS review fixes: Stop on clock change, one-command phrase clear, Biome resets generators, bend never retunes a held note");
  }
  {
-  // Dice: each scope moves its own parameters, within range; scale, root, transpose, tempo, level, mute and engine stay; ENV undoes.
-  md_patch q=blank(MD_VA);q.root=4;q.scale=7;q.transpose=-5;q.tempo=97;q.track[2].level=640;q.track[2].mute=0;q.track[2].length=12;assert(md_load(&q));
-  for(int r=0;r<60;r++){md_patch before=*md_state();cmd(MD_DICE,2,r%3);const md_patch *p=md_state();assert(md_validate(p));
-   assert(p->root==4&&p->scale==7&&p->transpose==-5&&p->tempo==97&&p->track[2].level==640&&p->track[2].mute==0&&p->track[2].model==before.track[2].model&&p->track[2].length==12);
-   assert(r%3!=0||p->track[2].cutoff>=400);assert(r%3!=1||p->track[2].hits>=1);assert(r%3!=2||(p->delay_fb<=600&&p->feedback<=600));
-   for(int i=0;i<6;i++)if(i!=2)assert(!memcmp(&p->track[i],&before.track[i],sizeof(md_track)));
-   if(r%3!=2)assert(p->grain_size==before.grain_size&&p->delay_fb==before.delay_fb);
-   if(r%3==2)assert(!memcmp(&p->track[2],&before.track[2],sizeof(md_track)));
-   assert(memcmp(p,&before,sizeof before));assert(p->seed==before.seed);
-   cmd(MD_RETURN,0,0);assert(!memcmp(md_state(),&before,sizeof before));cmd(MD_DICE,2,r%3);}
+  // Dice, page by page: each roll changes something, stays valid, keeps scale / root / transpose / tempo / mutes / engines,
+  // touches no other track, keeps the level except on the mixer, and ENV undoes it exactly.
+  md_patch q=blank(MD_VA);q.root=4;q.scale=7;q.transpose=-5;q.tempo=97;q.track[2].level=640;q.track[2].mute=0;q.track[2].length=12;q.track[2].filter=0;assert(md_load(&q));
+  for(int page=0;page<MD_DICE_PAGES;page++)for(int r=0;r<30;r++){md_patch before=*md_state();cmd(MD_DICE,2,page);const md_patch *p=md_state();assert(md_validate(p));
+   assert(p->root==4&&p->scale==7&&p->transpose==-5&&p->tempo==97&&p->track[2].mute==0);
+   for(int j=0;j<6;j++){assert(p->track[j].model==before.track[j].model);if(j!=2)assert(!memcmp(&p->track[j],&before.track[j],sizeof(md_track)));}
+   if(page!=MD_DICE_MIXER)assert(p->track[2].level==before.track[2].level);else assert(p->track[2].level>=300);
+   if(page==MD_DICE_FILTER)assert(p->track[2].filter>0&&(p->track[2].filter==4||p->track[2].filter==7||p->track[2].filter==5||p->track[2].cutoff>=400));
+   if(page==MD_DICE_LFO_A){const md_lfo &l=p->lfo[2][0];assert(p->track[2].filter||(l.target!=MD_TO_CUTOFF&&l.target!=MD_TO_RESONANCE));assert(l.depth);if(l.target==MD_TO_PITCH)assert(abs(l.depth)<=300);}
+   if(page==MD_DICE_SPACE||page==MD_DICE_SPACE_TONE||page==MD_DICE_ECHO)assert(p->fx_level>=250);
+   if(page==MD_DICE_PHRASE)assert(p->ext[2].notes[0]>=0);
+   assert(p->delay_fb<=600&&p->feedback<=600);
+   assert(memcmp(p,&before,sizeof before));cmd(MD_RETURN,0,0);assert(!memcmp(md_state(),&before,sizeof before));cmd(MD_DICE,2,page);}
   // An effects roll is heard: a silent return comes up; with no send anywhere, the track gets echo and room.
   q=blank(MD_VA);q.fx_level=0;for(int i=0;i<6;i++){q.ext[i].delay_send=0;q.ext[i].reverb_send=0;}assert(md_load(&q));
-  cmd(MD_DICE,4,MD_DICE_FX);assert(md_state()->fx_level>=400&&md_state()->ext[4].delay_send>0&&md_state()->ext[4].reverb_send>0&&md_state()->ext[1].delay_send==0);
-  q.ext[1].reverb_send=300;q.fx_level=600;assert(md_load(&q));cmd(MD_DICE,4,MD_DICE_FX);assert(md_state()->fx_level==600&&md_state()->ext[4].delay_send==0);
-  puts("PASS dice: sound / rhythm / effects in range, protected settings kept, ENV undoes, effects always heard");
+  cmd(MD_DICE,4,MD_DICE_SPACE_TONE);assert(md_state()->fx_level>=400&&md_state()->ext[4].delay_send>0&&md_state()->ext[4].reverb_send>0&&md_state()->ext[1].delay_send==0);
+  q.ext[1].reverb_send=300;q.fx_level=600;assert(md_load(&q));cmd(MD_DICE,4,MD_DICE_SPACE_TONE);assert(md_state()->fx_level==600&&md_state()->ext[4].delay_send==0);
+  puts("PASS dice: every page in range, protected settings kept, other tracks untouched, ENV undoes, effects always heard");
  }
  {
   // FDDS Mondes keep their Monades settings (a 1.1 Monde loads them neutral); each one validates and sounds.

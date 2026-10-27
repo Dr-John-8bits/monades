@@ -206,17 +206,43 @@ static void fire(unsigned i,float note,float velocity) {
 }
 static unsigned dice_rng=0x2545f491u; // its own generator: a dice roll leaves the sequencer's chance untouched
 static int dice_in(int lo,int hi){return lo+(int)(random_word(dice_rng)%(unsigned)(hi-lo+1));}
-static void dice(int i,int scope){
- if(!drift_on)previous=patch; /* during DERIVE, ENV goes home */patch.edited_mask|=1u;dice_rng^=stats.frames|1u;md_track &t=patch.track[i];
- if(scope==MD_DICE_SOUND){t.tone=dice_in(0,1000);t.harm=dice_in(0,1000);t.shape=dice_in(0,1000);t.decay=dice_in(150,900);t.attack=dice_in(0,350);
-  t.cutoff=dice_in(400,1000);t.resonance=dice_in(0,650);t.breathe=dice_in(0,600);patch.tone_preset[i]=-1;patch.edited_mask|=2u<<i;} // never closed, never screaming
- else if(scope==MD_DICE_RHYTHM){t.hits=dice_in(1,t.length*3/4>1?t.length*3/4:1);t.rotate=dice_in(0,t.length-1);t.prob=dice_in(550,1000);t.accent=dice_in(0,800);t.ratchet=dice_in(0,5)?1:2;} // at least one hit, rarely a repeat
- else{patch.grain_size=dice_in(100,900);patch.grain_pos=dice_in(0,1000);patch.feedback=dice_in(0,600);patch.delay_fb=dice_in(0,600);patch.reverb_time=dice_in(200,800);
-  if(!patch.echo_sync)patch.delay_ms=dice_in(80,350);patch.echo_tone=dice_in(200,800);patch.room_tone=dice_in(200,800);patch.room_diffusion=dice_in(0,1000);patch.chorus=dice_in(0,600);patch.chorus_depth=dice_in(0,1000);
-  // An effects roll must be heard: a silent return comes up, and with no send at all the track gets echo and room.
-  if(patch.fx_level<250)patch.fx_level=dice_in(400,700);
-  int sends=0;for(int j=0;j<6;j++)sends+=patch.ext[j].delay_send+patch.ext[j].reverb_send;
-  if(!sends){patch.ext[i].delay_send=dice_in(200,500);patch.ext[i].reverb_send=dice_in(200,500);}} // feedback stays far from runaway
+// Dice: the page's own settings, each within a range that keeps the track audible and the effects tame (filter never
+// shut, feedback far from runaway, pitch LFOs shallow). The effects pages also make sure the effects can be heard.
+static void dice_audible_fx(int i){
+ if(patch.fx_level<250)patch.fx_level=dice_in(400,700);
+ int sends=0;for(int j=0;j<6;j++)sends+=patch.ext[j].delay_send+patch.ext[j].reverb_send;
+ if(!sends){patch.ext[i].delay_send=dice_in(200,500);patch.ext[i].reverb_send=dice_in(200,500);}
+}
+static void dice(int i,int page){
+ if(!drift_on)previous=patch; /* during DERIVE, ENV goes home */patch.edited_mask|=1u;dice_rng^=stats.frames|1u;md_track &t=patch.track[i];md_extension &x=patch.ext[i];
+ switch(page){
+ case MD_DICE_SOUND:t.tone=dice_in(0,1000);t.harm=dice_in(0,1000);if(md_has_envelope(t.model)||t.model==MD_ELEMENTS)t.shape=dice_in(0,1000);else t.decay=dice_in(150,900);break;
+ case MD_DICE_FILTER:{static const int modes[]={1,1,2,2,3,4,5,6,7};t.filter=modes[dice_in(0,8)];t.resonance=dice_in(0,650);t.breathe=dice_in(0,600);
+  t.cutoff=t.filter==4||t.filter==7?dice_in(0,450):t.filter==5?dice_in(300,800):dice_in(400,1000);break;} // high-pass low, band-pass in the middle
+ case MD_DICE_ENVELOPE:if(md_has_envelope(t.model))t.attack=dice_in(0,350);t.decay=dice_in(150,900);t.send=dice_in(0,600);break;
+ case MD_DICE_MIX:t.send=dice_in(0,600);t.pan=dice_in(150,850);t.speed=dice_in(1,4);break;
+ case MD_DICE_MIXER:t.level=dice_in(300,800);t.send=dice_in(0,600);x.delay_send=dice_in(0,600);x.reverb_send=dice_in(0,600);break;
+ case MD_DICE_RHYTHM:t.length=dice_in(5,16);t.hits=dice_in(1,t.length*3/4>1?t.length*3/4:1);t.rotate=dice_in(0,t.length-1);t.prob=dice_in(550,1000);break;
+ case MD_DICE_GROOVE:patch.swing=dice_in(0,400);t.ratchet=dice_in(0,4)?1:2;t.accent=dice_in(0,800);t.speed=dice_in(1,4);break;
+ case MD_DICE_BASS:x.pattern=dice_in(0,3);x.glide=dice_in(0,600);break;
+ case MD_DICE_PHRASE:for(int k=0;k<16;k++)x.notes[k]=dice_in(0,9)<4?-1:dice_in(0,12);if(x.notes[0]<0)x.notes[0]=0;t.accent=dice_in(0,800);t.prob=dice_in(550,1000);break; // the first step sounds
+ case MD_DICE_FORM:patch.form=dice_in(300,1000);patch.form_bars=dice_in(0,3);patch.form_drops=dice_in(0,3);patch.motion_every=dice_in(0,4);break;
+ case MD_DICE_GRAIN:patch.macro[3]=dice_in(150,700);patch.grain_size=dice_in(100,900);patch.grain_pos=dice_in(0,1000);patch.feedback=dice_in(0,600);break;
+ case MD_DICE_TAPE:{static const int pitch[]={-12,-7,-5,0,0,0,5,7,12};const int was_pitch=patch.grain_pitch,was_reverse=patch.reverse; // few choices: draw until one moves
+  for(int tries=0;tries<8&&patch.grain_pitch==was_pitch&&patch.reverse==was_reverse;tries++){patch.grain_pitch=pitch[dice_in(0,8)];patch.reverse=dice_in(0,3)==0;}
+  if(patch.duck_source>=0)patch.duck_amount=dice_in(0,600);break;}
+ case MD_DICE_SPACE:if(patch.echo_sync)patch.echo_sync=dice_in(1,MD_ECHO_SYNCS-1);else patch.delay_ms=dice_in(80,350);patch.delay_fb=dice_in(0,600);patch.reverb_time=dice_in(200,850);patch.fx_level=dice_in(300,700);dice_audible_fx(i);break;
+ case MD_DICE_SPACE_TONE:patch.send_hp=dice_in(0,500);patch.echo_tone=dice_in(200,800);patch.room_tone=dice_in(200,800);patch.room_diffusion=dice_in(0,1000);dice_audible_fx(i);break;
+ case MD_DICE_ECHO:patch.echo_sync=dice_in(0,MD_ECHO_SYNCS-1);patch.delay_fb=dice_in(0,600);patch.chorus=dice_in(0,600);patch.chorus_depth=dice_in(0,1000);dice_audible_fx(i);break;
+ case MD_DICE_MODULATION:x.marbles=dice_in(0,800);x.tides=dice_in(0,800);x.tides_rate=dice_in(0,1000);x.warps=dice_in(0,600);break;
+ case MD_DICE_LFO_A:case MD_DICE_LFO_B:{md_lfo &l=patch.lfo[i][page==MD_DICE_LFO_B];l.rate=dice_in(0,20);l.shape=dice_in(0,MD_LFO_SHAPES-1);
+  do l.target=dice_in(0,MD_LFO_TARGETS-1);while(!t.filter&&(l.target==MD_TO_CUTOFF||l.target==MD_TO_RESONANCE)); // the filter targets need a filter
+  const int depth=l.target==MD_TO_PITCH?dice_in(50,300):dice_in(200,700);l.depth=dice_in(0,1)?depth:-depth;break;} // rate: synced, or free up to a few Hz
+ case MD_DICE_RAGA:{const unsigned mask=scale_mask_for(patch.scale,0);int notes[12],n=0;for(int k=1;k<12;k++)if((mask>>k)&1)notes[n++]=k;
+  patch.vadi=n?notes[dice_in(0,n-1)]:-1;patch.samvadi=dice_in(0,2)?0:n?notes[dice_in(0,n-1)]:-1;if(patch.samvadi==patch.vadi)patch.samvadi=0;
+  patch.gamaka[i]=dice_in(0,MD_GAMAKAS-1);patch.gamaka_amount[i]=dice_in(200,900);break;}
+ }
+ if(page<=MD_DICE_ENVELOPE){patch.tone_preset[i]=-1;patch.edited_mask|=2u<<i;}
 }
 static void apply_command(Command e) {
  int i=bound(e.t,0,5),v=e.v;md_track &t=patch.track[i];
@@ -242,7 +268,7 @@ static void apply_command(Command e) {
  case MD_MUTATE: if(!drift_on)previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
  case MD_RETURN:patch=drift_on?drift_home:previous;seqrng=patch.seed;morph_back();drift_back();for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
  case MD_SCENE:scene(v);break;
- case MD_DICE:dice(i,bound(v,MD_DICE_SOUND,MD_DICE_FX));break;
+ case MD_DICE:dice(i,bound(v,0,MD_DICE_PAGES-1));break;
  case MD_TONE_PRESET:tone_preset(i,v);break;
  case MD_FREEZE:patch.freeze=!!v;break;
  case MD_GRAIN_SIZE:patch.grain_size=bound(v,0,1000);break;

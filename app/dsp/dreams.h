@@ -35,9 +35,11 @@ typedef struct { int32_t rate,shape,target,depth; } md_lfo;
 enum { MD_GEN_OFF, MD_GEN_RANDOM, MD_GEN_MARKOV, MD_GEN_MOTIF, MD_GEN_SOURCES, MD_FORM_SECTIONS=4 }; /* MOTIF: walks the phrase in order, spread = variation */
 /* Gamakas (raga ornaments) on melodic tracks: kan = grace from the upper scale note, meend = glide from the previous
  * note, andolan = slow sway towards the lower scale note, mix = one of them per note, chosen from the seed. */
-/* Dice (track, scope): new values drawn within musical ranges; scale, root, transpose, tempo, level, mute, engine and
- * MIDI never change. ENV undoes it like a variation. */
-enum { MD_DICE_SOUND, MD_DICE_RHYTHM, MD_DICE_FX };
+/* Dice (track, page): new values for what that page's K1-K4 set, drawn within musical ranges. Scale, root, transpose,
+ * tempo, mutes, engines and MIDI never change; a track's level changes only on the mixer. ENV undoes it like a variation. */
+enum { MD_DICE_SOUND, MD_DICE_FILTER, MD_DICE_ENVELOPE, MD_DICE_MIX, MD_DICE_MIXER, MD_DICE_RHYTHM, MD_DICE_GROOVE, MD_DICE_BASS,
+ MD_DICE_PHRASE, MD_DICE_FORM, MD_DICE_GRAIN, MD_DICE_TAPE, MD_DICE_SPACE, MD_DICE_SPACE_TONE, MD_DICE_ECHO, MD_DICE_MODULATION,
+ MD_DICE_LFO_A, MD_DICE_LFO_B, MD_DICE_RAGA, MD_DICE_PAGES };
 enum { MD_GAMAKA_OFF, MD_GAMAKA_KAN, MD_GAMAKA_MEEND, MD_GAMAKA_ANDOLAN, MD_GAMAKA_MIX, MD_GAMAKAS };
 typedef struct { int32_t source,dejavu,loop,spread; } md_gen;
 typedef struct {

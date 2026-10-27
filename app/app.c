@@ -32,7 +32,7 @@ static const uint16_t dream_colors[6]={RGB(255,140,118),RGB(255,198,104),RGB(124
 static const char *dream_pages[]={"LIVE MONDE","SOUND","RHYTHM","GRANULAR BUS","MIX / NOTES","QUALITY / SYSTEM","ENVELOPE / BLOOM","GROOVE / REPEATS","TAPE / MOTION","HARMONY / GLOBAL","VELVET FILTER","LOOK / STARTUP","GLOBAL MIXER","BASS / MOTIFS","SHARED SPACE","MARBLES / TIDES / WARPS","PHRASE / NOTES","MIDI / PERFORMANCE","USER BANKS","MIDI OUT ZONES","LFO A","LFO B","SPACE TONE","ECHO SYNC / CHORUS","GENERATOR / DEJA VU","FORM","RAGA / GAMAKA","MORPH","DERIVE"};
 static const char *help_title[NB]={"GRANULAR BUS","MUTE A TRACK","RETURN","FREEZE","CHOOSE A VOICE","GLOBAL","LIVE MACROS","SAVE","LOCK THE SEED","GENERATE RHYTHMS","PLAY / STOP","VARY / DICE","LOWER OCTAVE","HIGHER OCTAVE"};
 static const char *help_lines[NB][5]={
- {"FX: Grain > Tape > Space >","Space Tone > Echo / Chorus >","Marbles / Tides > LFO A > LFO B","Grain: K1 mix / K2 length","REC: dice the effects"},
+ {"FX: Grain > Tape > Space >","Space Tone > Echo / Chorus >","Marbles / Tides > LFO A > LFO B","Grain: K1 mix / K2 length","REC: dice this page"},
  {"SEL: mute / unmute this track","SELECT: choose one of six tracks","ALGO: change sound engine","Every engine fits every track.","EDIT + PRESET: sound library"},
  {"ENV: undo the last variation","REC: make a new variation","One previous variation is kept.","Choosing a Monde starts fresh.","SAVE: store the current patch"},
  {"LFO: freeze the granular memory","The cloud keeps playing.","Tracks remain live and playable.","LFO again: resume recording","FX: edit the cloud and tape"},
@@ -41,9 +41,9 @@ static const char *help_lines[NB][5]={
  {"K1 DENSITY: number of events","K2 MOTION: melodic movement","K3 COLOUR: brighter / darker","K4 SPACE: granular level","PRESET: 90 Mondes + Blank"},
  {"Stop PLAY; use internal clock.","SAVE stores Monde and preferences.","GLO > BANKS: 16 Mondes / 64 tones","Factory Mondes stay available.","Granular audio is not stored."},
  {"ARP: lock the random seed","The same seed repeats.","REC: create a new variation","ENV: undo the last variation","Unequal lengths keep cycling."},
- {"SEQ: Rhythm > Groove > Bass >","Phrase > Generator > Form","Rhythm: hits / length / rotation","K4: event probability","REC: dice this track's rhythm"},
+ {"SEQ: Rhythm > Groove > Bass >","Phrase > Generator > Form","Rhythm: hits / length / rotation","K4: event probability","REC: dice this page"},
  {"PLAY: start / stop","Stop lets the sound decay.","SYSTEM + REC: silence all","Keyboard: play the selected track","Start restarts the sequence."},
- {"HOME: REC varies seed / rhythms","EDIT / SEQ / FX: dice that page","Scale, tempo, level stay put.","ENV: undo / SYSTEM, MIDI: PANIC","Holding opens help only."},
+ {"LIVE / GLO: new variation","Other pages: dice what you see","Scale, tempo, mutes stay put.","ENV: undo / SYSTEM, MIDI: PANIC","Holding opens help only."},
  {"OCT-: keyboard one octave down","Sequence notes stay unchanged.","MIX K2: the track base note","The first hardware key is F3.","HOME: return to live controls"},
  {"OCT+: keyboard one octave up","Sequence notes stay unchanged.","MIX K2: the track base note","HOME + PRESET: whole Monde","EDIT + PRESET: single sound"}
 };
@@ -848,11 +848,15 @@ static void md_tap(int b) {
   dream_cmd(MD_MORPH_KEEP,0,0);app_say(ms.pos==1000&&!ms.scope?"KEPT: NOW IN MONDE B":"KEPT: THE MIX STAYS","");break;}
   if(dream_ui.page==GENERATOR){app_say(dream_cmd(MD_CLEAR_PHRASE,dream_ui.track,0)?"MOTIF CLEARED":"BUSY: TRY AGAIN","");motif_at=-1;break;} /* one command: all or nothing */
  {int pg=dream_ui.page,panic=pg==SYSTEM||pg==MIDI;
-  // Dice: EDIT pages roll the selected track's sound, SEQ pages its rhythm, FX pages the effects; ENV undoes it.
-  int scope=pg==SOUND||pg==FILTER||pg==ENVELOPE||pg==MIX||pg==MIXER?MD_DICE_SOUND:pg==RHYTHM||pg==GROOVE||pg==BASSLINE||pg==PHRASE||pg==FORM?MD_DICE_RHYTHM:
-   pg==GRAIN||pg==TAPE||pg==SPACE||pg==SPACE_TONE||pg==ECHO_CHORUS||pg==MODULATION||pg==LFO_A||pg==LFO_B?MD_DICE_FX:-1;
-  if(scope>=0){static char m[32];const char *f=scope==MD_DICE_SOUND?"DICE: SOUND, TRACK ":scope==MD_DICE_RHYTHM?"DICE: RHYTHM, TRACK ":"DICE: EFFECTS";int k=0;while(f[k]){m[k]=f[k];k++;}
-   if(scope!=MD_DICE_FX)m[k++]='1'+dream_ui.track;m[k]=0;app_say(dream_cmd(MD_DICE,dream_ui.track,scope)?m:"BUSY: TRY AGAIN","");}
+  // Dice: REC rolls the settings of the page shown (its K1-K4); ENV undoes it. LIVE and the GLO pages keep the new variation.
+  static const int dice_pages[][2]={{SOUND,MD_DICE_SOUND},{FILTER,MD_DICE_FILTER},{ENVELOPE,MD_DICE_ENVELOPE},{MIX,MD_DICE_MIX},{MIXER,MD_DICE_MIXER},
+   {RHYTHM,MD_DICE_RHYTHM},{GROOVE,MD_DICE_GROOVE},{BASSLINE,MD_DICE_BASS},{PHRASE,MD_DICE_PHRASE},{FORM,MD_DICE_FORM},{GRAIN,MD_DICE_GRAIN},{TAPE,MD_DICE_TAPE},
+   {SPACE,MD_DICE_SPACE},{SPACE_TONE,MD_DICE_SPACE_TONE},{ECHO_CHORUS,MD_DICE_ECHO},{MODULATION,MD_DICE_MODULATION},{LFO_A,MD_DICE_LFO_A},{LFO_B,MD_DICE_LFO_B},{RAGA,MD_DICE_RAGA}};
+  static const char *const dice_names[MD_DICE_PAGES]={"SOUND","FILTER","ENVELOPE","MIX","MIXER","RHYTHM","GROOVE","BASS","PHRASE","FORM","GRAIN","TAPE","SPACE","SPACE TONE","ECHO / CHORUS","MODULATION","LFO A","LFO B","RAGA"};
+  int scope=-1;for(unsigned k=0;k<sizeof dice_pages/sizeof dice_pages[0];k++)if(dice_pages[k][0]==pg)scope=dice_pages[k][1];
+  if(scope>=0){static char m[32];const char *f="DICE: ";int k=0;while(*f)m[k++]=*f++;for(f=dice_names[scope];*f;)m[k++]=*f++;
+   const int shared=scope==MD_DICE_FORM||(scope>=MD_DICE_GRAIN&&scope<=MD_DICE_ECHO); // these pages are not a track's
+   if(!shared){m[k++]=' ';m[k++]='T';m[k++]='1'+dream_ui.track;}m[k]=0;app_say(dream_cmd(MD_DICE,dream_ui.track,scope)?m:"BUSY: TRY AGAIN","");}
   else {dream_cmd(panic?MD_PANIC:MD_MUTATE,0,0);app_say(panic?"PANIC: ALL SILENT":"REC: NEW VARIATION","");}}break;
  case B_ENV:if(md_can_return()){dream_cmd(MD_RETURN,0,0);app_say("ENV: PREVIOUS VARIATION","");}else app_say("ENV: NOTHING TO UNDO YET","");break;
  case B_LFO:dream_cmd(MD_FREEZE,0,!p->freeze);app_say(p->freeze?"LFO: GRAIN TAPE RUNS":"LFO: GRAIN TAPE FROZEN","");break;

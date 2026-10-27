@@ -141,7 +141,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>Filtres</td><td>LP12, LP24, LPG.</td><td>En plus&nbsp;: HP12, HP24, passe-bande, notch. Page VELVET FILTER.</td></tr>
       <tr><td>Effets</td><td>Grain, écho, room.</td><td>En plus&nbsp;: chorus, écho synchronisé au tempo, diffusion de la room, couleur de l'écho et de la room, passe-haut sur les envois. Pages SPACE TONE et ECHO SYNC / CHORUS.</td></tr>
       <tr><td>MIDI</td><td>Entrée seulement.</td><td>Sortie des notes générées par USB, un canal par piste ou jusqu'à 8 zones de notes. Horloge en sortie (clock, start, stop). Vélocité qui suit les accents. Pages MIDI et MIDI OUT ZONES. <a href="#mpc">Avec la MPC</a>.</td></tr>
-      <tr><td>DICE</td><td>—</td><td>REC tire au sort le son, le rythme ou les effets selon la page, sans toucher la gamme ni le tempo. ENV annule.</td></tr>
+      <tr><td>DICE</td><td>—</td><td>REC tire au sort les réglages de la page affichée (ses quatre potards), sans toucher la gamme ni le tempo. ENV annule.</td></tr>
       <tr><td>Écrans</td><td>Plusieurs pages décoratives ou en texte seul.</td><td>Chaque page montre ce qu'on règle&nbsp;: bande granulaire, réponse du filtre, enveloppe, échos, piano-roll, cercle des notes. Un message dit ce qu'a fait chaque appui sur ENV, LFO, ARP et REC.</td></tr>
       <tr><td>Morphing</td><td>—</td><td>Passage progressif du Monde en cours vers un autre Monde, à la main ou sur 4 à 64 mesures. Les nombres glissent (tempo, filtres, niveaux, effets, densité)&nbsp;; les choix (moteurs, formes de LFO) basculent piste après piste, chacune dans un fondu, et la gamme à mi-chemin. L'écran montre les deux Mondes et la flotte qui va de l'un à l'autre. Page MORPH (HOME deux fois). <a href="#morph">Mode d'emploi</a>.</td></tr>
       <tr><td>Dérive</td><td>—</td><td>Le Monde change tout seul pendant la lecture, pendant des minutes ou des heures&nbsp;: il glisse vers des variantes de lui-même tirées autour de son état de départ, des pistes se taisent puis reviennent, de nouvelles notes arrivent, et il peut visiter d'autres Mondes. La gamme ne bouge pas. Page DERIVE (HOME trois fois). <a href="#derive">Mode d'emploi</a>.</td></tr>
@@ -206,7 +206,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>ALGO</td><td>Change le moteur sonore de la piste (12 moteurs).</td></tr>
       <tr><td>PRESET</td><td>Sur les pages d'une piste&nbsp;: un des 224 sons. Ailleurs&nbsp;: un des 90 Mondes, ou le Blank. L'écran affiche son numéro et sa famille (MIST, DRONE, RESONANCE, TECHNO, BROKEN, ORGANIC, PERCUSSION, MELODY), ou son nom pour un Monde FDDS.</td></tr>
       <tr><td>PLAY</td><td>Lance ou arrête la séquence.</td></tr>
-      <tr><td>REC</td><td>N'enregistre rien. Sur MORPH&nbsp;: garde le mélange en cours. Sur DERIVE&nbsp;: l'état actuel devient la maison. Sur LIVE et GLO&nbsp;: nouvelle variation. Sur les pages EDIT&nbsp;: DICE, nouveaux réglages tirés au sort pour le son de la piste choisie. Sur les pages SEQ&nbsp;: DICE pour son rythme. Sur les pages FX&nbsp;: DICE pour les effets, toujours audible (un retour d'effets à 0 remonte&nbsp;; sans aucun envoi, la piste choisie reçoit de l'écho et de la room). Le DICE ne change jamais la gamme, la note de base, la transposition, le tempo, le niveau, les mutes, le moteur ni le MIDI. Sur SYSTEM et MIDI&nbsp;: panique. Sur GENERATOR&nbsp;: efface le motif.</td></tr>
+      <tr><td>REC</td><td>N'enregistre rien. Sur les pages EDIT, SEQ, FX et RAGA&nbsp;: DICE, les réglages K1 à K4 de la page affichée sont tirés au sort, sans toucher la gamme, la note de base, la transposition, le tempo, les mutes, les moteurs ni le MIDI. Sur GENERATOR&nbsp;: efface le motif. Sur LIVE et les autres pages GLO&nbsp;: nouvelle variation. Sur SYSTEM et MIDI&nbsp;: panique. Sur MORPH&nbsp;: garde le mélange en cours. Sur DERIVE&nbsp;: l'état actuel devient la maison.</td></tr>
       <tr><td>ENV</td><td>Revient à l'état d'avant la dernière variation ou le dernier DICE.</td></tr>
       <tr><td>ARP</td><td>Verrouille la graine&nbsp;: la même variation se répète.</td></tr>
       <tr><td>LFO</td><td>Fige la bande granulaire (Freeze).</td></tr>
@@ -474,7 +474,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <li>Macro Motion liée au tempo. <span class="st done">fait</span></li>
       <li>Découpage progressif du moteur en modules lisibles. <span class="st">en partie</span></li>
       <li>Les Biomes deviennent des Mondes, numérotés avec leur famille. <span class="st done">fait</span></li>
-      <li>DICE sur REC&nbsp;: son, rythme ou effets selon la page, annulable avec ENV. <span class="st done">fait</span></li>
+      <li>DICE sur REC&nbsp;: les réglages de la page affichée, annulable avec ENV. <span class="st done">fait</span></li>
       <li>14 Mondes FDDS qui utilisent les nouveautés, tirés du wiki de Flash Dog Duke Silver. <span class="st done">fait</span></li>
       <li>Morphing d'un Monde vers un autre, à la main ou sur 4 à 64 mesures, page MORPH. <span class="st done">fait</span></li>
       <li>Dérive&nbsp;: le Monde change tout seul pendant des minutes ou des heures, page DERIVE. <span class="st done">fait</span></li>

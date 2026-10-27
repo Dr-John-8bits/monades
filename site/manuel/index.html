@@ -209,11 +209,9 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
   <p class="path">Bouton · DICE</p><h3>REC</h3>
   <p>N'enregistre rien. Son effet dépend de la page&nbsp;:</p>
   <div class="tablewrap"><table><tr><th>Page</th><th>REC</th></tr>
-    <tr><td>LIVE, pages GLO</td><td>Nouvelle variation&nbsp;: nouvelle graine et rythmes décalés («&nbsp;REC: NEW VARIATION&nbsp;»).</td></tr>
-    <tr><td>Pages EDIT</td><td><a href="#dice">DICE</a> du son de la piste choisie.</td></tr>
-    <tr><td>Pages SEQ</td><td>DICE du rythme de la piste choisie.</td></tr>
+    <tr><td>LIVE, HARMONY, SYSTEM… (pages GLO sauf RAGA)</td><td>Nouvelle variation&nbsp;: nouvelle graine et rythmes décalés («&nbsp;REC: NEW VARIATION&nbsp;»).</td></tr>
+    <tr><td>Pages EDIT, SEQ, FX, RAGA</td><td><a href="#dice">DICE</a>&nbsp;: les réglages K1 à K4 de la page affichée.</td></tr>
     <tr><td>GENERATOR</td><td>Efface le motif («&nbsp;MOTIF CLEARED&nbsp;»).</td></tr>
-    <tr><td>Pages FX</td><td>DICE des effets.</td></tr>
     <tr><td>SYSTEM, MIDI</td><td>Panique&nbsp;: tout se tait, la bande et les traînes d'effets sont effacées («&nbsp;PANIC: ALL SILENT&nbsp;»).</td></tr>
     <tr><td>MORPH</td><td>Garde le mélange et termine le morphing.</td></tr>
     <tr><td>DERIVE</td><td>L'état actuel devient la maison.</td></tr>
@@ -230,14 +228,31 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 </div>
 <div class="entry" id="dice">
   <h3>DICE</h3>
-  <p>REC sur une page EDIT, SEQ ou FX tire au sort de nouveaux réglages dans des plages musicales.</p>
+  <p>REC tire au sort les réglages de la page affichée&nbsp;: ceux que montrent ses cadres K1 à K4, pour la piste choisie quand la page est celle d'une piste. Les valeurs bougent dans les cadres, l'écran affiche «&nbsp;DICE: LFO A T3&nbsp;» par exemple. ENV annule le dernier DICE.</p>
   <div class="tablewrap"><table>
-    <tr><th>Pages</th><th>Ce qui est tiré au sort</th></tr>
-    <tr><td>EDIT</td><td>Le son de la piste choisie&nbsp;: Tone, Harmonics, Shape, Decay, Attack, Cutoff (jamais fermé), Resonance, Breathe.</td></tr>
-    <tr><td>SEQ (sauf GENERATOR)</td><td>Le rythme de la piste choisie&nbsp;: nombre de coups (au moins un), rotation, Chance, accent, repeats.</td></tr>
-    <tr><td>FX</td><td>Les effets&nbsp;: grain, écho, room, couleurs, diffusion, chorus. Un retour d'effets à 0 remonte&nbsp;; sans aucun envoi, la piste choisie reçoit de l'écho et de la room.</td></tr>
+    <tr><th>Page</th><th>Ce qui est tiré au sort</th></tr>
+    <tr><td>SOUND</td><td>Tone, Harmonics, et Shape ou Decay selon le moteur.</td></tr>
+    <tr><td>FILTER</td><td>Mode (jamais OFF), coupure (basse en passe-haut, au milieu en passe-bande, jamais fermée en passe-bas), résonance, Breathe.</td></tr>
+    <tr><td>ENVELOPE</td><td>Attaque (moteurs mélodiques), déclin, envoi grain.</td></tr>
+    <tr><td>MIX</td><td>Envoi grain, panoramique, division d'horloge (1 à 4).</td></tr>
+    <tr><td>GLOBAL MIXER</td><td>Niveau de la piste (30 à 80), envois grain, écho, room.</td></tr>
+    <tr><td>RHYTHM</td><td>Longueur (5 à 16), nombre de coups (au moins un), rotation, Chance.</td></tr>
+    <tr><td>GROOVE</td><td>Swing, repeats, accent, division d'horloge.</td></tr>
+    <tr><td>BASS / MOTIFS</td><td>Motif et glide (le mode de phrase et la note de base restent).</td></tr>
+    <tr><td>PHRASE</td><td>Les 16 notes (silences compris, le premier pas sonne), accent, Chance. La phrase s'entend si elle est activée sur BASS.</td></tr>
+    <tr><td>GENERATOR</td><td>Pas de DICE&nbsp;: REC efface le motif.</td></tr>
+    <tr><td>FORM</td><td>Profondeur, longueur des sections, pistes au repos, Motion.</td></tr>
+    <tr><td>GRANULAR BUS</td><td>Niveau du grain, taille, position, réinjection.</td></tr>
+    <tr><td>TAPE</td><td>Hauteur (octave, quinte, quarte ou rien), sens, et quantité de ducking si une source est choisie.</td></tr>
+    <tr><td>SHARED SPACE</td><td>Temps d'écho (ou division s'il est synchronisé), réinjection, longueur de la room, retour.</td></tr>
+    <tr><td>SPACE TONE</td><td>Passe-haut des envois, couleur de l'écho et de la room, diffusion.</td></tr>
+    <tr><td>ECHO SYNC / CHORUS</td><td>Division d'écho, réinjection, chorus, profondeur.</td></tr>
+    <tr><td>MARBLES / TIDES / WARPS</td><td>Les quatre réglages de la piste.</td></tr>
+    <tr><td>LFO A, LFO B</td><td>Vitesse (synchronisée ou libre jusqu'à quelques Hz), forme, cible (pas le filtre si la piste n'en a pas), profondeur (faible sur la hauteur).</td></tr>
+    <tr><td>RAGA</td><td>Vadi et samvadi (des notes de la gamme), gamaka et quantité de la piste.</td></tr>
+    <tr><td>LIVE, pages GLO</td><td>Pas de DICE&nbsp;: REC tire une nouvelle variation (SYSTEM et MIDI&nbsp;: panique).</td></tr>
   </table></div>
-  <p>Ne changent jamais&nbsp;: la gamme, la note de base, la transposition, le tempo, le niveau, les mutes, le moteur, le MIDI. ENV annule le dernier DICE.</p>
+  <p>Ne changent jamais&nbsp;: la gamme, la note de base, la transposition, le tempo, les mutes, les moteurs, le MIDI, les autres pistes. Le niveau d'une piste ne change que sur GLOBAL MIXER. Réinjections loin du larsen. Sur SHARED SPACE, SPACE TONE et ECHO SYNC / CHORUS, un retour d'effets à 0 remonte, et sans aucun envoi la piste choisie reçoit de l'écho et de la room.</p>
 </div>
 
 <h2 id="encodeurs">Encodeurs et clavier</h2>
