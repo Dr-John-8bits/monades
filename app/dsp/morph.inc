@@ -59,8 +59,9 @@ static void morph_apply(bool fade=true){
   if(voices[j].model!=tr.model)reset_voice(j);} // an engine switch starts a fresh voice, as ENV does
  patch.biome_id=morph_pos==0?morph_a.biome_id:morph_pos==1000&&!morph_scope?morph_target:-1;if(morph_pos)patch.edited_mask|=1u;
 }
-static void morph_begin(const md_patch &b,int id){morph_table();morph_a=patch;morph_b=b;morph_target=id;morph_pos=0;morph_f=0;morph_on=1;morph_seed_side=0;morph_apply();}
-static void morph_to(int id){drift_on=0;drift_slow=0;morph_span=0;previous=patch;morph_begin(bank_patch(id),id);} // ENV goes back to A
+// morph_b already holds the destination; A is the patch as it is.
+static void morph_begin(int id){morph_table();morph_a=patch;morph_target=id;morph_pos=0;morph_f=0;morph_on=1;morph_seed_side=0;morph_apply();}
+static void morph_to(int id){drift_on=0;drift_slow=0;morph_span=0;previous=patch;bank_patch(morph_b,id);morph_begin(id);} // ENV goes back to A
 static void morph_keep(){if(morph_on)morph_apply(false);morph_on=0;} // the patch stays as it is, at full level; previous is still A
 static void morph_back(){if(morph_on){morph_pos=0;morph_f=0;}} // after ENV: the morph restarts from A
 static int morph_len(int bars){static const int len[6]={0,4,8,16,32,64};return len[bound(bars,0,5)];}

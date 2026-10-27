@@ -154,14 +154,14 @@ static void clear_audio() {
 }
 static void gen_reset();
 static int morph_on,drift_on,drift_slow; /* a morph is under way (morph.inc), driven by DERIVE (drift.inc); a new Monde ends both */
-static md_patch bank_patch(int id) {
- md_patch p=biome_bank[bound(id,0,MD_BIOMES-1)].patch;
+// A factory Monde into p, in place: the audio thread has no stack to spare for a 1680-byte copy.
+static void bank_patch(md_patch &p,int id) {
+ p=biome_bank[bound(id,0,MD_BIOMES-1)].patch;
  // Mutable Dreams Mondes are 1.1 patches: Monades additions neutral. FDDS Mondes are complete v10 patches.
  if(p.version!=10){extension_defaults(p);if(id>=65){p.fx_level=340;p.reverb_time=550;for(int i=0;i<6;i++)p.ext[i].reverb_send=300;}}
- return p;
 }
 static void scene(int id) {
- patch=bank_patch(id);morph_on=0;drift_on=0;drift_slow=0;
+ bank_patch(patch,id);morph_on=0;drift_on=0;drift_slow=0;
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
  gen_reset();memset(motion_held,0,sizeof motion_held); // a new Biome starts with empty generator registers
