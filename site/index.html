@@ -108,7 +108,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 
 <header class="top mono">
   <div>Monades · 0.1 · Firmware génératif pour M-VAVE FM-1 pour Flash Dog Duke Silver</div>
-  <nav><a href="#jouer">Jouer</a><a href="#mode">Mode d'emploi</a><a href="#mpc">MIDI</a><a href="#installer">Installer</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
+  <nav><a href="#jouer">Jouer</a><a href="#mode">Mode d'emploi</a><a href="#mpc">MIDI</a><a href="#installer">Installer</a><a href="#lots">Feuille de route</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
 </header>
 
 <section class="title">
@@ -429,6 +429,9 @@ ol.steps>li{padding:6px 0;max-width:64ch}
     var next=dark?'light':'dark';root.setAttribute('data-theme',next);
     try{localStorage.setItem('monades-theme',next);}catch(e){}
   });
+  var lots=document.getElementById('lots'); // the roadmap link unfolds the roadmap
+  if(location.hash==='#lots')lots.open=true;
+  document.querySelector('nav a[href="#lots"]').addEventListener('click',function(){lots.open=true;});
 })();
 </script>
 </body>
