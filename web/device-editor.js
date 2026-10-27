@@ -40,9 +40,9 @@ class Device{
   throw Error('No reply to panel control.');
  });}
  async state(){const b=await this.call(9),w=words(b.slice(0,184));return {type:'state',page:w[0],track:w[1],playing:w[2],octave:w[3],help:w[4],motion:w[5],biome:w[6],edited:w[7],tempo:w[8],locked:w[9],freeze:w[10],bootSound:w[11],bankSlot:w[12],bankKind:w[13],clock:w[14],quantize:w[15],models:w.slice(16,22),tones:w.slice(22,28),muted:w.slice(28,34),knobs:w.slice(34,38),raw:w.slice(38,42),macro:w.slice(42,46),bankName:String.fromCharCode(...b.slice(184,208)).split('\0')[0]};}
- snapshot(){return this.exclusive(async()=>{const h=words(await this._call(8)),b=new Uint8Array(h[0]);if(h[0]!==this.patchSize)throw Error('Unsupported patch size.');for(let off=0;off<b.length;off+=224){const part=await this._call(5,[off&127,off>>7,h[2]]);if(part.length!==Math.min(224,b.length-off))throw Error('Incomplete patch.');b.set(part,off);}if(PB.crc32(b)!==(h[1]>>>0))throw Error('The patch failed its checksum.');return Array.from(b);});}
+ snapshot(){return this.exclusive(async()=>{const h=words(await this._call(8)),b=new Uint8Array(h[0]);if(this.patchSize&&h[0]!==this.patchSize)throw Error('Unsupported patch size.');for(let off=0;off<b.length;off+=224){const part=await this._call(5,[off&127,off>>7,h[2]]);if(part.length!==Math.min(224,b.length-off))throw Error('Incomplete patch.');b.set(part,off);}if(PB.crc32(b)!==(h[1]>>>0))throw Error('The patch failed its checksum.');return Array.from(b);});}
  upload(bytes){return this.exclusive(async()=>{
-  if(!Array.isArray(bytes)||bytes.length!==this.patchSize||bytes.some(v=>!Number.isInteger(v)||v<0||v>255))throw Error('Load older patches in the browser first, then transfer the current patch.');
+  if(!Array.isArray(bytes)||(this.patchSize&&bytes.length!==this.patchSize)||bytes.some(v=>!Number.isInteger(v)||v<0||v>255))throw Error('Load older patches in the browser first, then transfer the current patch.');
   const token=(await this._call(11,pack([...u32(bytes.length),...u32(PB.crc32(bytes))])))[0];
   try{for(let off=0;off<bytes.length;off+=196)await this._call(12,[token,off&127,off>>7,...pack(bytes.slice(off,off+196))]);await this._call(13,[token]);}
   catch(e){try{await this._call(14,[token]);}catch{}throw e;}

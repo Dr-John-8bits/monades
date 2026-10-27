@@ -8,7 +8,7 @@ globalThis.fm1App={message(f,m){const e=f.ex;if(m.cmd==='patch-export'||m.cmd===
    f.port.postMessage({type:'patch-result',id:m.id,bytes});
   }else{
    if(e.dream_value(16,0))throw Error('Stop playback before importing a patch.');
-   if(!Array.isArray(m.bytes)||![652,n].includes(m.bytes.length)||m.bytes.some(v=>!Number.isInteger(v)||v<0||v>255))throw Error('This patch file is not valid.');
+   if(!Array.isArray(m.bytes)||![652,1292,1512,1620,1676,n].includes(m.bytes.length)||m.bytes.some(v=>!Number.isInteger(v)||v<0||v>255))throw Error('This patch file is not valid.');
    new Uint8Array(f.mem.buffer,e.dream_patch_buffer(),n).set(m.bytes);
    if(!e.dream_patch_apply(m.bytes.length))throw Error('This patch contains invalid or unsupported values.');
    f.port.postMessage({type:'patch-result',id:m.id,loaded:true});

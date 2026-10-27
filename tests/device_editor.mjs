@@ -1,5 +1,5 @@
-import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import path from 'node:path';
-const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
+import {fileURLToPath} from 'node:url';import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import path from 'node:path';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 vm.runInThisContext(fs.readFileSync(root+'/web/device-backup.js','utf8'));
 vm.runInThisContext(fs.readFileSync(root+'/web/device-editor.js','utf8'));
 const {PB}=DreamsBackup,{Device,pack,unpack}=DreamsDevice;

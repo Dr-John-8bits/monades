@@ -1,5 +1,5 @@
-import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import path from 'node:path';
-const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');let Processor;globalThis.currentTime=0;const messages=[];
+import {fileURLToPath} from 'node:url';import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import path from 'node:path';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');let Processor;globalThis.currentTime=0;const messages=[];
 globalThis.AudioWorkletProcessor=class{constructor(){this.port={postMessage:m=>messages.push(m)}}};globalThis.registerProcessor=(name,p)=>{Processor=p};
 vm.runInThisContext(fs.readFileSync(root+'/web/app_worklet.js','utf8'));vm.runInThisContext(fs.readFileSync(root+'/web/worklet.js','utf8').replace('import "./app_worklet.js";',''));
 const f=new Processor();await f.onMessage({type:'load',wasm:fs.readFileSync(root+'/app/build/wasm/dreams.wasm'),master:2400,store:{}});assert(messages.some(m=>m.type==='ready'));const out=[[new Float32Array(128),new Float32Array(128)]];let peak=0;
@@ -7,7 +7,7 @@ function render(n){for(let b=0;b<n;b++){globalThis.currentTime+=128/44100;f.proc
 render(1200);
 for(let page=0;page<19;page++){await f.onMessage({type:'app',cmd:'page',v:page});render(35);assert.equal(f.ex.dream_value(100,0),page);for(let k=0;k<4;k++)assert(Number.isFinite(f.ex.dream_raw_knob(page,0,k)))}
 assert.equal(f.ex.dream_patch_size(),1680);
-for(let demo=0;demo<5;demo++){const bytes=[...fs.readFileSync(root+`/docs/development/audio/${demo}.patch`)];await f.onMessage({type:'app',cmd:'patch-import',bytes,id:demo});render(2);assert(messages.some(m=>m.type==='patch-result'&&m.id===demo&&m.loaded));await f.onMessage({type:'app',cmd:'command',c:16,t:0,v:1});render(1400);await f.onMessage({type:'app',cmd:'command',c:16,t:0,v:0});render(2)}
+for(let demo=0;demo<5;demo++){const bytes=[...fs.readFileSync(root+`/docs/development/audio/${demo}.patch`)];await f.onMessage({type:'app',cmd:'patch-import',bytes,id:demo});render(2);if(!messages.some(m=>m.type==="patch-result"&&m.id===demo&&m.loaded))console.log(JSON.stringify(messages.filter(m=>m.type==="patch-result")));assert(messages.some(m=>m.type==="patch-result"&&m.id===demo&&m.loaded));await f.onMessage({type:'app',cmd:'command',c:16,t:0,v:1});render(1400);await f.onMessage({type:'app',cmd:'command',c:16,t:0,v:0});render(2)}
 const p=[...new Uint8Array(f.mem.buffer,f.ex.dream_patch_data(),1680)];await f.onMessage({type:'app',cmd:'patch-export',id:77});render(2);assert.deepEqual(messages.find(m=>m.id===77).bytes,p);
 const bad=p.slice();bad[0]=0;await f.onMessage({type:'app',cmd:'patch-import',id:78,bytes:bad});render(2);assert(messages.find(m=>m.id===78).error);assert.deepEqual([...new Uint8Array(f.mem.buffer,f.ex.dream_patch_data(),1680)],p);
 const old=p.slice(0,652);old[4]=4;await f.onMessage({type:'app',cmd:'patch-import',id:79,bytes:old});render(2);assert(messages.find(m=>m.id===79).loaded);
