@@ -4,7 +4,7 @@
 // never around where the drift has got to. Now and then a track rests and comes back, new notes arrive, or (VOYAGE)
 // the drift visits another Monde. Scale, root, transpose and levels never drift; the tempo stays within 10 % of home.
 static md_patch drift_home;
-static int drift_amount=1,drift_slow,drift_voyage,drift_scope,drift_count,drift_rest=-1,drift_distance;
+static int drift_amount=1,drift_voyage,drift_scope,drift_count,drift_rest=-1,drift_distance;
 static float drift_seconds;static unsigned drift_rng=0x6a09e667u;
 static md_drift_event drift_log[3];
 static int drift_len(int slow){static const int bars[7]={0,8,16,32,64,128,256};return bars[bound(slow,0,6)];}
@@ -28,7 +28,7 @@ static md_patch drift_target(const md_patch &now){
    drift_set(t.attack,o.attack,0,400);drift_set(t.pan,o.pan,150,850);
    for(int s=0;s<2;s++)if(base.lfo[j][s].depth){const int d=base.lfo[j][s].depth;drift_set(b.lfo[j][s].depth,d,d<0?-1000:0,d<0?0:1000);}}
   if(drift_in(R)){drift_set(t.prob,o.prob,550,1000);drift_set(t.accent,o.accent,0,800);
-   t.hits=bound(o.hits+drift_rand(-1-drift_amount,1+drift_amount),1,o.length);}
+   if(o.hits)t.hits=bound(o.hits+drift_rand(-1-drift_amount,1+drift_amount),1,o.length);} // a track left silent stays silent
   if(drift_in(F)){drift_set(t.send,o.send,0,700);drift_set(b.ext[j].delay_send,base.ext[j].delay_send,0,600);drift_set(b.ext[j].reverb_send,base.ext[j].reverb_send,0,600);}
  }
  if(drift_in(S))drift_set(b.macro[2],base.macro[2],200,800);
@@ -54,6 +54,14 @@ static void drift_arm(int slow){
  if(!drift_on){drift_home=patch;previous=patch;drift_on=1;drift_seconds=0;drift_count=0;drift_rest=-1;morph_on=0;morph_scope=0;
   drift_rng=(patch.locked?patch.seed:stats.frames)^0x6a09e667u;if(!drift_rng)drift_rng=1;memset(drift_log,0,sizeof drift_log);}
  drift_slow=slow;if(morph_on)morph_span=drift_len(slow)*16;
+}
+// A change made while a morph runs (a knob, REC, DICE) is written into A and B, so the next step keeps it; during
+// DERIVE, a knob also moves home. morph_before holds the patch from just before the command.
+static md_patch morph_before;
+static void morph_pin(bool to_home){
+ const int32_t *was=reinterpret_cast<const int32_t*>(&morph_before),*now=reinterpret_cast<const int32_t*>(&patch);
+ int32_t *a=reinterpret_cast<int32_t*>(&morph_a),*b=reinterpret_cast<int32_t*>(&morph_b),*h=reinterpret_cast<int32_t*>(&drift_home);
+ for(unsigned k=0;k<sizeof(md_patch)/4;k++)if(now[k]!=was[k]&&(morph_kind[k]&3)!=MK_KEEP){a[k]=b[k]=now[k];if(to_home&&drift_on)h[k]=now[k];}
 }
 static void drift_new_home(){if(!drift_on)return;drift_home=patch;previous=patch;morph_on=0;drift_rest=-1;drift_note(6,-1,0,0);}
 static void drift_back(){if(drift_on){morph_on=0;drift_rest=-1;drift_note(6,-1,0,0);}} // after ENV: home again, the next glide leaves from there

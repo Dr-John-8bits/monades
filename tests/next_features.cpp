@@ -307,5 +307,27 @@ int main(){
   assert(visited);cmd(MD_SCENE,0,3);md_drift_view(&ds,0);assert(!ds.on);cmd(MD_PLAY,0,0);cmd(MD_DRIFT_VOYAGE,0,0);
   puts("PASS derive: 12 minutes on a leash around home, scale kept, tempo within 10 %, rests and new notes, ENV home, REC new home, voyage");
  }
+ {
+  // Review 2: a knob turned during DERIVE stays and moves home; DICE during DERIVE lasts the glide and ENV still goes
+  // home; a new Monde turns K2 back to OFF; a silent track stays silent; an unlocked seed keeps varying during a morph.
+  md_drift_state ds;const md_patch *home;
+  cmd(MD_SCENE,0,80);cmd(MD_DRIFT_SLOW,0,6);cmd(MD_PLAY,0,1);for(int b=0;b<2000;b++)md_render(audio,128);
+  cmd(MD_CUTOFF,2,123);for(int b=0;b<3000;b++)md_render(audio,128);md_drift_view(&ds,&home);
+  assert(md_state()->track[2].cutoff==123&&home->track[2].cutoff==123);
+  const int tone_home=home->track[1].tone;cmd(MD_DICE,1,MD_DICE_SOUND);for(int b=0;b<500;b++)md_render(audio,128);
+  md_drift_view(&ds,&home);assert(home->track[1].tone==tone_home);cmd(MD_RETURN,0,0);assert(!memcmp(md_state(),home,sizeof(md_patch)));
+  cmd(MD_SCENE,0,81);md_drift_view(&ds,0);assert(!ds.on&&ds.slow==0);cmd(MD_PLAY,0,0);
+  // The Blank Monde under a far drift: no track starts playing.
+  cmd(MD_SCENE,0,MD_BLANK_BIOME);cmd(MD_DRIFT_AMOUNT,0,2);cmd(MD_DRIFT_SLOW,0,1);cmd(MD_PLAY,0,1);
+  for(int sec=0;sec<90;sec++){for(int b=0;b<345;b++)md_render(audio,128);for(int j=0;j<6;j++)assert(md_state()->track[j].hits==0);}
+  cmd(MD_DRIFT_SLOW,0,0);cmd(MD_PLAY,0,0);
+  // A knob turned during an auto morph stays.
+  cmd(MD_SCENE,0,77);cmd(MD_MORPH_TO,0,80);cmd(MD_MORPH_BARS,0,3);cmd(MD_PLAY,0,1);for(int b=0;b<1500;b++)md_render(audio,128);
+  cmd(MD_RESONANCE,0,321);for(int b=0;b<1500;b++)md_render(audio,128);assert(md_state()->track[0].resonance==321);
+  // Unlocked: the sequencer changes the seed every 32 steps and the morph no longer puts it back.
+  cmd(MD_PLAY,0,0);cmd(MD_SCENE,0,77);cmd(MD_LOCK,0,0);const unsigned seed0=md_state()->seed;cmd(MD_MORPH_TO,0,80);cmd(MD_MORPH_BARS,0,5);cmd(MD_PLAY,0,1);
+  while(md_status()->step<100)md_render(audio,128);assert(md_state()->seed!=seed0);cmd(MD_PLAY,0,0);cmd(MD_MORPH_BARS,0,0);
+  puts("PASS review 2: knobs stay during DERIVE and auto morph, DICE keeps home, OFF after a new Monde, silent tracks stay silent, unlocked seed varies");
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

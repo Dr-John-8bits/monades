@@ -13,7 +13,7 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 ## 1. Compiler
 - [ ] Chaîne JieLi pi32v2 et SDK AC79NN V1.2.1 installés (voir `BUILDING.md`, section « FM-1 device build »).
 - [ ] `sh tools/build_device.sh` produit un `.fwsc` sous `app/build/`.
-- [ ] **Noter la mémoire affichée** par la compilation : « RAM .data+.bss … of 98304 » et « pool … of 344064 ». Mutable Dreams 1.1 : 71768 et 334800. Si l'un des deux dépasse, la compilation échoue : me donner les chiffres.
+- [ ] **Noter la mémoire affichée** par la compilation : « RAM .data+.bss … of 98304 » et « pool … of 344064 ». Mutable Dreams 1.1 : 71768 et 334800. Si l'un des deux dépasse, la compilation échoue : me donner les chiffres. Estimation sur le Mac pour Monades : environ 88 000 et 339 000.
 
 ## 2. Installer
 - [ ] `python3 base/tools/fm1_install.py --info` voit le FM-1.

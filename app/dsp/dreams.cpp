@@ -153,7 +153,7 @@ static void clear_audio() {
  memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);feedback_lp=duckenv=0;
 }
 static void gen_reset();
-static int morph_on,drift_on; /* a morph is under way (morph.inc), driven by DERIVE (drift.inc); a new Monde ends both */
+static int morph_on,drift_on,drift_slow; /* a morph is under way (morph.inc), driven by DERIVE (drift.inc); a new Monde ends both */
 static md_patch bank_patch(int id) {
  md_patch p=biome_bank[bound(id,0,MD_BIOMES-1)].patch;
  // Mutable Dreams Mondes are 1.1 patches: Monades additions neutral. FDDS Mondes are complete v10 patches.
@@ -161,7 +161,7 @@ static md_patch bank_patch(int id) {
  return p;
 }
 static void scene(int id) {
- patch=bank_patch(id);morph_on=0;drift_on=0;
+ patch=bank_patch(id);morph_on=0;drift_on=0;drift_slow=0;
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
  gen_reset();memset(motion_held,0,sizeof motion_held); // a new Biome starts with empty generator registers
@@ -207,7 +207,7 @@ static void fire(unsigned i,float note,float velocity) {
 static unsigned dice_rng=0x2545f491u; // its own generator: a dice roll leaves the sequencer's chance untouched
 static int dice_in(int lo,int hi){return lo+(int)(random_word(dice_rng)%(unsigned)(hi-lo+1));}
 static void dice(int i,int scope){
- previous=patch;patch.edited_mask|=1u;dice_rng^=stats.frames|1u;md_track &t=patch.track[i];
+ if(!drift_on)previous=patch; /* during DERIVE, ENV goes home */patch.edited_mask|=1u;dice_rng^=stats.frames|1u;md_track &t=patch.track[i];
  if(scope==MD_DICE_SOUND){t.tone=dice_in(0,1000);t.harm=dice_in(0,1000);t.shape=dice_in(0,1000);t.decay=dice_in(150,900);t.attack=dice_in(0,350);
   t.cutoff=dice_in(400,1000);t.resonance=dice_in(0,650);t.breathe=dice_in(0,600);patch.tone_preset[i]=-1;patch.edited_mask|=2u<<i;} // never closed, never screaming
  else if(scope==MD_DICE_RHYTHM){t.hits=dice_in(1,t.length*3/4>1?t.length*3/4:1);t.rotate=dice_in(0,t.length-1);t.prob=dice_in(550,1000);t.accent=dice_in(0,800);t.ratchet=dice_in(0,5)?1:2;} // at least one hit, rarely a repeat
@@ -218,7 +218,7 @@ static void dice(int i,int scope){
   int sends=0;for(int j=0;j<6;j++)sends+=patch.ext[j].delay_send+patch.ext[j].reverb_send;
   if(!sends){patch.ext[i].delay_send=dice_in(200,500);patch.ext[i].reverb_send=dice_in(200,500);}} // feedback stays far from runaway
 }
-static void apply(Command e) {
+static void apply_command(Command e) {
  int i=bound(e.t,0,5),v=e.v;md_track &t=patch.track[i];
  // Playback, preview notes and emergency silence do not change a preset.
  if(e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_DICE&&(e.c<MD_MORPH_TO||e.c>MD_DRIFT_HOME))patch.edited_mask|=1u;
@@ -239,8 +239,8 @@ static void apply(Command e) {
  case MD_PLAY:{int was=playing;playing=!!v;memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;beat=0;beat_limit=1;beat_wraps=0;gen_reset();memset(motion_held,0,sizeof motion_held);}
   if(routing.clock&&!clock_source&&playing!=was){out_push(playing?0xfa:0xfc,0,0);clock_left=0;}if(!playing)out_all_off();}break;
  case MD_LOCK:patch.locked=!!v;break;
- case MD_MUTATE: previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
- case MD_RETURN:patch=previous;seqrng=patch.seed;morph_back();drift_back();for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
+ case MD_MUTATE: if(!drift_on)previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
+ case MD_RETURN:patch=drift_on?drift_home:previous;seqrng=patch.seed;morph_back();drift_back();for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
  case MD_SCENE:scene(v);break;
  case MD_DICE:dice(i,bound(v,MD_DICE_SOUND,MD_DICE_FX));break;
  case MD_TONE_PRESET:tone_preset(i,v);break;
@@ -321,6 +321,14 @@ static void apply(Command e) {
  case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
  }
 }
+// While a morph runs, what a command changes is pinned into A and B (and home, for a knob during DERIVE).
+static int returnable; // ENV has something to go back to; recomputed after commands and each step, read by the UI
+static void apply(Command e) {
+ const bool pin=morph_on&&e.c!=MD_RETURN&&e.c!=MD_SCENE&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&(e.c<MD_MORPH_TO||e.c>MD_DRIFT_HOME);
+ if(pin)morph_before=patch;
+ apply_command(e);
+ if(pin&&morph_on)morph_pin(e.c!=MD_DICE&&e.c!=MD_MUTATE); // REC and DICE last the glide; ENV still goes home
+}
 static void tick() {
  float duration=MD_RATE*60.0f/(patch.tempo*4.0f)*(1+(step%2?-1:1)*unit(patch.swing)*.5f);
  if((step%32)==0) {if(patch.locked)seqrng=patch.seed;else patch.seed=random_word(seqrng)|1;}
@@ -371,7 +379,7 @@ static void tick() {
   }
  }
  beat_wraps=step/384;beat=(float)(step%384);beat_limit=beat+1;
- morph_step();drift_step(duration);
+ morph_step();drift_step(duration);returnable=memcmp(&previous,&patch,sizeof patch)!=0;
  stats.step=step++;untilstep+=duration;
 }
 static void quantum(float *lr,unsigned n) {
@@ -713,7 +721,7 @@ void md_midi(unsigned st,unsigned a,unsigned b,int port){
 unsigned md_command_space(void){return 64-(qwrite-qread);}
 int md_command(int c,int t,int v) {if(c<0||c>=MD_COMMAND_COUNT)return 0;unsigned w=qwrite;if(w-qread>=64){stats.dropped_commands++;return 0;}queue[w&63]={c,t,v};fence();qwrite=w+1;return 1;}
 void md_render(float *lr,unsigned n) {
- while(n){while(qread!=qwrite){fence();Command e=queue[qread&63];apply(e);fence();qread++;}
+ while(n){if(qread!=qwrite){while(qread!=qwrite){fence();Command e=queue[qread&63];apply(e);fence();qread++;}returnable=memcmp(&previous,&patch,sizeof patch)!=0;}
   unsigned z=n<Q?n:Q;
   if(playing){
    if(!clock_source&&untilstep<=0)tick();
@@ -754,8 +762,8 @@ int md_validate(const md_patch *p) {
  for(int i=0;i<6;i++)for(int s=0;s<2;s++){const md_lfo &l=p->lfo[i][s];if(l.rate<0||l.rate>=MD_LFO_RATES||l.shape<0||l.shape>=MD_LFO_SHAPES||l.target<0||l.target>=MD_LFO_TARGETS||l.depth< -1000||l.depth>1000)return 0;}
  return 1;
 }
-int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
-unsigned md_memory_bytes(){return sizeof drift_home+sizeof morph_a+sizeof morph_b+sizeof morph_kind+sizeof chorus_line+64+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
+int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;returnable=0;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
+unsigned md_memory_bytes(){return sizeof drift_home+sizeof morph_before+sizeof morph_a+sizeof morph_b+sizeof morph_kind+sizeof chorus_line+64+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
  if(bytes==sizeof(md_patch)){md_patch p;memcpy(&p,data,sizeof p);if(!md_validate(&p))return 0;*out=p;return 1;}
@@ -836,7 +844,7 @@ unsigned md_morph_changes(void){return morph_changes;}
 void md_morph_view(md_morph_state *s,const md_patch **a,const md_patch **b){
  s->on=morph_on;s->target=morph_target;s->pos=morph_pos;s->bars=morph_bars;s->scope=morph_scope;if(a)*a=&morph_a;if(b)*b=&morph_b;
 }
-int md_can_return(void){return memcmp(&previous,&patch,sizeof patch)!=0;}
+int md_can_return(void){return returnable;}
 unsigned md_form_mask(unsigned c,unsigned s){return form_mask(c,s);}
 float md_form_tension(unsigned s){return form_tension_of[s&3];}
 int md_form_bars(void){return (int)form_bar_len[bound(patch.form_bars,0,3)];}

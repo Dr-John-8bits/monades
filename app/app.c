@@ -819,10 +819,16 @@ void app_panic(void) {dream_cmd(MD_PANIC,0,0);}
 void app_overload(void) {overloads++;dream_cmd(MD_QUALITY,0,0);}
 // Lights say what is in use: the button of the page shown, SEL when the selected track is muted, ARP locked,
 // LFO frozen, PLAY playing (green); ENV glows when there is something to undo.
+// The five page buttons and their pages, in the order each press goes through them.
+static const struct { int button; uint8_t pages[8]; int n; } page_cycles[5]={
+ {B_HOME,{LIVE,MORPH,DRIFT},3},{B_EDIT,{SOUND,FILTER,ENVELOPE,MIX,MIXER},5},{B_SEQ,{RHYTHM,GROOVE,BASSLINE,PHRASE,GENERATOR,FORM},6},
+ {B_FX,{GRAIN,TAPE,SPACE,SPACE_TONE,ECHO_CHORUS,MODULATION,LFO_A,LFO_B},8},{B_GLO,{HARMONY,RAGA,SYSTEM,APPEARANCE,MIDI,ZONES,BANKS},7}};
+static int page_button(int page){for(int c=0;c<5;c++)for(int k=0;k<page_cycles[c].n;k++)if(page_cycles[c].pages[k]==page)return page_cycles[c].button;return B_HOME;}
+// A page button: from one of its pages to the next (the last goes back to the first), from anywhere else to its first page.
+static int page_next(int button,int page){for(int c=0;c<5;c++)if(page_cycles[c].button==button){
+  for(int k=0;k<page_cycles[c].n;k++)if(page_cycles[c].pages[k]==page)return page_cycles[c].pages[(k+1)%page_cycles[c].n];return page_cycles[c].pages[0];}return page;}
 static uint32_t dream_lights(uint32_t *dim){
- const int pg=dream_ui.page;const md_patch *lp=md_state();
- const int page_btn=pg==LIVE||pg==MORPH||pg==DRIFT?B_HOME:pg==SOUND||pg==FILTER||pg==ENVELOPE||pg==MIX||pg==MIXER?B_EDIT:
-  pg==RHYTHM||pg==GROOVE||pg==BASSLINE||pg==PHRASE||pg==GENERATOR||pg==FORM?B_SEQ:pg==HARMONY||pg==RAGA||pg==SYSTEM||pg==APPEARANCE||pg==MIDI||pg==ZONES||pg==BANKS?B_GLO:B_FX;
+ const md_patch *lp=md_state();const int page_btn=page_button(dream_ui.page);
  if(dim)*dim=md_can_return()?1u<<B_ENV:0;
  return (1u<<page_btn)|(md_playing()?LED_PLAY_GREEN:0)|(lp->locked?1u<<B_ARP:0)|(lp->freeze?1u<<B_LFO:0)|(lp->track[dream_ui.track].mute?1u<<B_SEL:0);
 }
@@ -831,15 +837,13 @@ static void morph_choose(int d){md_morph_state ms;md_morph_view(&ms,0,0);int id=
  static char m[40];const char *a="MORPH TO ",*z=monde_label(id)+6;int k=0;while(*a)m[k++]=*a++;while(*z&&k<39)m[k++]=*z++;m[k]=0;app_say(dream_cmd(MD_MORPH_TO,0,id)?m:"BUSY: TRY AGAIN","");}
 static void md_tap(int b) {
  const md_patch *p=md_state();switch(b){
- case B_HOME:dream_ui.page=dream_ui.page==LIVE&&plat_ms()-intro_left_at>1500?MORPH:dream_ui.page==MORPH?DRIFT:LIVE;break; // HOME again: MORPH, then DERIVE
- case B_EDIT:dream_ui.page=dream_ui.page==SOUND?FILTER:dream_ui.page==FILTER?ENVELOPE:dream_ui.page==ENVELOPE?MIX:dream_ui.page==MIX?MIXER:SOUND;break;
- case B_SEQ:dream_ui.page=dream_ui.page==RHYTHM?GROOVE:dream_ui.page==GROOVE?BASSLINE:dream_ui.page==BASSLINE?PHRASE:dream_ui.page==PHRASE?GENERATOR:dream_ui.page==GENERATOR?FORM:RHYTHM;break;
- case B_FX:dream_ui.page=dream_ui.page==GRAIN?TAPE:dream_ui.page==TAPE?SPACE:dream_ui.page==SPACE?SPACE_TONE:dream_ui.page==SPACE_TONE?ECHO_CHORUS:dream_ui.page==ECHO_CHORUS?MODULATION:dream_ui.page==MODULATION?LFO_A:dream_ui.page==LFO_A?LFO_B:GRAIN;break;
- case B_GLO:dream_ui.page=dream_ui.page==HARMONY?RAGA:dream_ui.page==RAGA?SYSTEM:dream_ui.page==SYSTEM?APPEARANCE:dream_ui.page==APPEARANCE?MIDI:dream_ui.page==MIDI?ZONES:dream_ui.page==ZONES?BANKS:HARMONY;break;
+ case B_HOME:dream_ui.page=dream_ui.page==LIVE&&plat_ms()-intro_left_at<=1500?LIVE:page_next(B_HOME,dream_ui.page);break; // the tap that ends the intro stays on LIVE
+ case B_EDIT:case B_SEQ:case B_FX:case B_GLO:dream_ui.page=page_next(b,dream_ui.page);break;
  case B_SEL:dream_cmd(MD_MUTE,dream_ui.track,!p->track[dream_ui.track].mute);break;
  case B_PLAY:dream_cmd(MD_PLAY,0,!md_playing());break;case B_ARP:dream_cmd(MD_LOCK,0,!p->locked);app_say(p->locked?"ARP: SEED FREE, VARIES":"ARP: SEED LOCKED, REPEATS","");break;
  // The printed labels (ENV, LFO, ARP, REC) come from the stock firmware: each press says what it did.
- case B_REC:if(dream_ui.page==DRIFT){md_drift_state ds;md_drift_view(&ds,0);if(!ds.on){app_say("K2: HOW SLOW, THEN PLAY","");break;}dream_cmd(MD_DRIFT_HOME,0,0);app_say("NEW HOME: HERE","");break;}
+ case B_REC:if(dream_ui.page==MORPH){md_drift_state dv;md_drift_view(&dv,0);if(dv.on){app_say("DERIVE IS ON: HOME FOR DERIVE","");break;}}
+  if(dream_ui.page==DRIFT){md_drift_state ds;md_drift_view(&ds,0);if(!ds.on){app_say("K2: HOW SLOW, THEN PLAY","");break;}dream_cmd(MD_DRIFT_HOME,0,0);app_say("NEW HOME: HERE","");break;}
   if(dream_ui.page==MORPH){md_morph_state ms;md_morph_view(&ms,0,0);if(!ms.on){app_say("K1: CHOOSE MONDE B","");break;}
   dream_cmd(MD_MORPH_KEEP,0,0);app_say(ms.pos==1000&&!ms.scope?"KEPT: NOW IN MONDE B":"KEPT: THE MIX STAYS","");break;}
   if(dream_ui.page==GENERATOR){app_say(dream_cmd(MD_CLEAR_PHRASE,dream_ui.track,0)?"MOTIF CLEARED":"BUSY: TRY AGAIN","");motif_at=-1;break;} /* one command: all or nothing */
@@ -877,7 +881,8 @@ void app_input_only(void) {
   dream_dismiss_intro();const md_track *t=&p->track[dream_ui.track];int c=0,v=0,tr=dream_ui.track;
   if(dream_ui.page==DRIFT){md_drift_state ds;md_drift_view(&ds,0);const int cs[4]={MD_DRIFT_AMOUNT,MD_DRIFT_SLOW,MD_DRIFT_VOYAGE,MD_DRIFT_SCOPE},vs[4]={ds.amount,ds.slow,ds.voyage,ds.scope},hi[4]={2,6,2,MD_MORPH_SCOPES-1};
    dream_cmd(cs[b],0,clamp(vs[b]+d,0,hi[b]));continue;}
-  if(dream_ui.page==MORPH){md_morph_state ms;md_morph_view(&ms,0,0);
+  if(dream_ui.page==MORPH){md_morph_state ms;md_morph_view(&ms,0,0);md_drift_state dv;md_drift_view(&dv,0);
+   if(dv.on&&b){app_say("DERIVE IS ON: HOME FOR DERIVE","");continue;} // K1 / PRESET still pick a Monde B, which stops the drift
    if(b==0)morph_choose(d);else if(b==1){if(ms.on)dream_cmd(MD_MORPH,0,clamp(ms.pos+d*20,0,1000));else app_say("K1: CHOOSE MONDE B","");}
    else if(b==2)dream_cmd(MD_MORPH_BARS,0,clamp(ms.bars+d,0,5));else dream_cmd(MD_MORPH_SCOPE,0,clamp(ms.scope+d,0,MD_MORPH_SCOPES-1));continue;}
   if(dream_ui.page==BANKS){if(b==0){bank_slot=clamp(bank_slot+d,0,bank_kind?63:15);bank_armed=-1;}else if(b==1){bank_kind=clamp(bank_kind+d,0,1);bank_slot=clamp(bank_slot,0,bank_kind?63:15);bank_armed=-1;}else if(b==2&&d>0)bank_action(0);else if(b==3)bank_char=clamp(bank_char+d,0,22);continue;}

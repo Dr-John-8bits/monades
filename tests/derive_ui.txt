@@ -24,6 +24,17 @@ spin K4 -1
 spin K3 -1
 tap PLAY
 wait 20000
+tap HOME
+tap HOME
+expect page 27
+tap REC
+wait 30
+expect drift_on 1
+spin K2 3
+wait 30
+expect drift_on 1
+tap HOME
+expect page 28
 tap REC
 wait 30
 tap ENV

@@ -195,7 +195,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 </div>
 <div class="entry" id="b-env">
   <p class="path">Bouton · UNDO</p><h3>ENV</h3>
-  <p>Revient à l'état d'avant la dernière variation (REC) ou le dernier DICE&nbsp;: «&nbsp;ENV: PREVIOUS VARIATION&nbsp;». Une seule étape est gardée&nbsp;; ENV luit faiblement quand il y a quelque chose à annuler&nbsp;; sans rien à annuler&nbsp;: «&nbsp;ENV: NOTHING TO UNDO YET&nbsp;». Sur MORPH, revient au Monde A&nbsp;; sur DERIVE, revient à la maison. Après un changement de Monde, il n'y a rien à annuler. Ne règle pas les enveloppes&nbsp;: voir <a href="#p-envelope">ENVELOPE</a> (EDIT 3 fois).</p>
+  <p>Revient à l'état d'avant la dernière variation (REC) ou le dernier DICE&nbsp;: «&nbsp;ENV: PREVIOUS VARIATION&nbsp;». Une seule étape est gardée&nbsp;; ENV luit faiblement quand il y a quelque chose à annuler&nbsp;; sans rien à annuler&nbsp;: «&nbsp;ENV: NOTHING TO UNDO YET&nbsp;». Sur MORPH, revient au Monde A. Pendant la dérive, revient à la maison, même après un DICE ou un REC. Après un changement de Monde, il n'y a rien à annuler. Ne règle pas les enveloppes&nbsp;: voir <a href="#p-envelope">ENVELOPE</a> (EDIT 3 fois).</p>
 </div>
 <div class="entry" id="b-lfo">
   <p class="path">Bouton · FREEZE</p><h3>LFO</h3>
@@ -286,7 +286,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
     <tr><td>K3 AUTO</td><td>BY HAND, ou 4, 8, 16, 32, 64 BARS&nbsp;: la lecture fait le passage.</td></tr>
     <tr><td>K4 MORPH</td><td>ALL, SOUND, RHYTHM, EFFECTS&nbsp;: ce qui change, le reste reste sur A.</td></tr>
   </table></div>
-  <p>REC garde le mélange et termine le morphing. ENV revient à A. Charger un Monde ailleurs termine le morphing. Les mutes, le verrou de graine et la qualité ne bougent pas.</p>
+  <p>Un réglage tourné pendant le morphing reste jusqu'au bout. REC garde le mélange et termine le morphing. ENV revient à A. Charger un Monde ailleurs termine le morphing. Les mutes, le verrou de graine et la qualité ne bougent pas&nbsp;; graine libre (ARP éteint), la graine continue de varier.</p>
 </div>
 <div class="entry" id="p-derive">
   <p class="path">HOME ×3</p><h3>DERIVE</h3>
@@ -298,7 +298,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
     <tr><td>K3 VOYAGE</td><td>STAY, FAMILY, ANY MONDE&nbsp;: un glissement sur quatre va vers un autre Monde (de la même famille, ou n'importe lequel), le suivant revient. Avec K4 sur ALL seulement.</td></tr>
     <tr><td>K4 DRIFT</td><td>ALL, SOUND, RHYTHM, EFFECTS&nbsp;: ce qui dérive.</td></tr>
   </table></div>
-  <p>REC&nbsp;: l'état actuel devient la maison. ENV&nbsp;: retour à la maison. Avec ARP (graine verrouillée), la même dérive refait le même chemin. Charger un Monde ou choisir un Monde B sur MORPH arrête la dérive.</p>
+  <p>Pendant la dérive, un réglage tourné reste, et la maison le prend aussi. Un DICE ou un REC dure le glissement en cours, puis la dérive repart de la maison. REC (sur DERIVE)&nbsp;: l'état actuel devient la maison. ENV&nbsp;: retour à la maison. Avec ARP (graine verrouillée), la même dérive refait le même chemin. Charger un Monde, ou choisir un Monde B avec K1 ou PRESET sur MORPH, arrête la dérive&nbsp;; K2 à K4 et REC sur MORPH ne font rien tant qu'elle tourne. Charger un Monde remet K2 sur OFF. Une piste sans coup (0) reste muette.</p>
 </div>
 
 <h2 id="edit">Pages EDIT</h2>

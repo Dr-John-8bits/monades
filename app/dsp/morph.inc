@@ -7,12 +7,11 @@
 static md_patch morph_a,morph_b;
 static int morph_pos,morph_bars,morph_scope,morph_target,morph_span;static float morph_f; // span: steps of a drift glide (0: K3 bars)
 enum { MK_KEEP, MK_GLIDE, MK_SWITCH };
-static uint8_t morph_kind[sizeof(md_patch)/4]; // kind | scope << 2 (MD_MORPH_SOUND, _RHYTHM, _FX)
-static uint8_t morph_track[sizeof(md_patch)/4]; // the track a word belongs to, 6 = shared
+static uint8_t morph_kind[sizeof(md_patch)/4]; // kind | scope << 2 (MD_MORPH_SOUND, _RHYTHM, _FX) | track << 4 (6 = shared)
 enum { MORPH_FADE=60 }; // each side of a track's switch point, in thousandths of the morph
 static int morph_point(int track){return track<6?170+track*132:500;} // 170, 302 ... 830; shared choices at 500
 static int mk_track=6;
-static void mk(size_t off,unsigned words,int kind,int scope){for(unsigned k=0;k<words;k++){morph_kind[off/4+k]=(uint8_t)(kind|scope<<2);morph_track[off/4+k]=(uint8_t)mk_track;}}
+static void mk(size_t off,unsigned words,int kind,int scope){for(unsigned k=0;k<words;k++)morph_kind[off/4+k]=(uint8_t)(kind|scope<<2|mk_track<<4);}
 #define MK(field,words,kind,scope) mk(offsetof(md_patch,field),words,kind,scope)
 static void morph_table(){
  static int built;if(built)return;built=1; // unlisted words: MK_KEEP
@@ -44,11 +43,14 @@ static void morph_table(){
 #undef MK
 static float morph_fade(int track,int pos){int d=pos-morph_point(track);d=d<0?-d:d;return d>=MORPH_FADE?1.0f:(float)d/MORPH_FADE;}
 static unsigned morph_changes; // bit per track: one of its choices differs between A and B (in scope): it fades at its point
+static int morph_seed_side; // the seed is written only when the morph crosses half way: in between, the sequencer may change it
 static void morph_apply(bool fade=true){
  const int32_t *a=reinterpret_cast<const int32_t*>(&morph_a),*b=reinterpret_cast<const int32_t*>(&morph_b);int32_t *p=reinterpret_cast<int32_t*>(&patch);
  const float t=morph_pos*.001f;morph_changes=0;
- for(unsigned k=0;k<sizeof(md_patch)/4;k++){const int kind=morph_kind[k]&3,scope=morph_kind[k]>>2,tk=morph_track[k];
-  if(kind==MK_KEEP)continue;if(morph_scope&&scope!=morph_scope){p[k]=a[k];continue;}
+ for(unsigned k=0;k<sizeof(md_patch)/4;k++){const int kind=morph_kind[k]&3,scope=morph_kind[k]>>2&3,tk=morph_kind[k]>>4;
+  if(kind==MK_KEEP)continue;
+  if(k==offsetof(md_patch,seed)/4){if(morph_scope&&scope!=morph_scope)continue;const int side=morph_pos>=morph_point(6);if(side!=morph_seed_side){p[k]=side?b[k]:a[k];morph_seed_side=side;}continue;}
+  if(morph_scope&&scope!=morph_scope){p[k]=a[k];continue;}
   if(kind==MK_SWITCH&&tk<6&&a[k]!=b[k])morph_changes|=1u<<tk;
   p[k]=kind==MK_GLIDE?a[k]+(int32_t)floorf((float)(b[k]-a[k])*t+.5f):morph_pos>=morph_point(tk)?b[k]:a[k];}
  if(fade)for(unsigned j=0;j<6;j++)if((morph_changes>>j)&1)patch.track[j].level=(int32_t)(patch.track[j].level*morph_fade(j,morph_pos)+.5f);
@@ -57,8 +59,8 @@ static void morph_apply(bool fade=true){
   if(voices[j].model!=tr.model)reset_voice(j);} // an engine switch starts a fresh voice, as ENV does
  patch.biome_id=morph_pos==0?morph_a.biome_id:morph_pos==1000&&!morph_scope?morph_target:-1;if(morph_pos)patch.edited_mask|=1u;
 }
-static void morph_begin(const md_patch &b,int id){morph_table();morph_a=patch;morph_b=b;morph_target=id;morph_pos=0;morph_f=0;morph_on=1;morph_apply();}
-static void morph_to(int id){drift_on=0;morph_span=0;previous=patch;morph_begin(bank_patch(id),id);} // ENV goes back to A
+static void morph_begin(const md_patch &b,int id){morph_table();morph_a=patch;morph_b=b;morph_target=id;morph_pos=0;morph_f=0;morph_on=1;morph_seed_side=0;morph_apply();}
+static void morph_to(int id){drift_on=0;drift_slow=0;morph_span=0;previous=patch;morph_begin(bank_patch(id),id);} // ENV goes back to A
 static void morph_keep(){if(morph_on)morph_apply(false);morph_on=0;} // the patch stays as it is, at full level; previous is still A
 static void morph_back(){if(morph_on){morph_pos=0;morph_f=0;}} // after ENV: the morph restarts from A
 static int morph_len(int bars){static const int len[6]={0,4,8,16,32,64};return len[bound(bars,0,5)];}
