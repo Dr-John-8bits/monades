@@ -183,6 +183,7 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
   - aides mises à jour : cycles SEQ, FX et GLO complets, titre GLOBAL au lieu de SYSTEM, HARMONY mène à Raga, 8 modes de filtre, aide propre à MIDI OUT ZONES ;
   - DICE des effets toujours audible : un retour d'effets à 0 remonte, et sans aucun envoi la piste choisie reçoit de l'écho et de la room ;
   - test `help_library` réparé (il comptait les pages GLO d'avant la page RAGA).
+- **Mondes FDDS** (branche `monades/mondes-fdds`) : 14 Mondes numéros 78 à 91, un par lieu ou personnage du wiki FDDS (MACHIN, GADIN, MARTINI, CHRISTELE, SARL, CITRONS, CARGO, VEGA, FENOUIL, CLOUDEE, HENDIATRIQUE, ALCHIMISTE, COGITO, JARDINIERS). Ce sont des patchs v10 complets : LFO, générateurs, forme, gamakas, notes pivots, gammes microtonales, chorus, écho synchronisé. Écrits dans `tools/fdds_mondes.py`, générés par `tools/generate_presets.py` ; les 77 Mondes de Mutable Dreams sont inchangés et se chargent toujours avec les nouveautés coupées. L'écran affiche leur nom (« MONDE 81 CHRISTELE »). Les pistes clairsemées ont Chance à 100 % : avec la graine verrouillée, Chance se répète à chaque tour et une piste à deux coups pouvait ne jamais jouer.
 
 ### Lot 5 — Divers
 17. **Sortie audio USB** (aujourd'hui `usb_audio_out = false`, entrée seulement), si le budget CPU le permet.

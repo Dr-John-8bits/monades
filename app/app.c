@@ -37,7 +37,7 @@ static const char *help_lines[NB][5]={
  {"LFO: freeze the granular memory","The cloud keeps playing.","Tracks remain live and playable.","LFO again: resume recording","FX: edit the cloud and tape"},
  {"EDIT: Sound/Filter/Env/Mix/Mixer","PRESET: 224 sound presets","ALGO: twelve sound engines","Rhythm and notes are preserved.","HOME + PRESET: whole Monde"},
  {"GLO: Harmony > Raga > System >","Look > MIDI > Zones > Banks","Harmony: root / scale / transpose","System: tempo / quality","SAVE stores these preferences."},
- {"K1 DENSITY: number of events","K2 MOTION: melodic movement","K3 COLOUR: brighter / darker","K4 SPACE: granular level","PRESET: 76 Mondes + Blank"},
+ {"K1 DENSITY: number of events","K2 MOTION: melodic movement","K3 COLOUR: brighter / darker","K4 SPACE: granular level","PRESET: 90 Mondes + Blank"},
  {"Stop PLAY; use internal clock.","SAVE stores Monde and preferences.","GLO > BANKS: 16 Mondes / 64 tones","Factory Mondes stay available.","Granular audio is not stored."},
  {"ARP: lock the random seed","The same seed repeats.","REC: create a new variation","ENV: undo the last variation","Unequal lengths keep cycling."},
  {"SEQ: Rhythm > Groove > Bass >","Phrase > Generator > Form","Rhythm: hits / length / rotation","K4: event probability","REC: dice this track's rhythm"},
@@ -59,8 +59,8 @@ static void dream_apply_midi(void){uint32_t f=plat_lock();md_set_midi_routing(&d
 static int dream_install(const void *,unsigned);
 #include "banks.c"
 static void md_num(int v,char *s) {char b[12];int i=0;if(v<0){*s++='-';v=-v;}do{b[i++]='0'+v%10;v/=10;}while(v);while(i)*s++=b[--i];*s=0;}
-// A Monde (Mutable Dreams called it a Biome) shows its number and family; names come later.
-static const char *monde_label(int id) {static char s[32];char *q=s;const char *f;for(f="MONDE ";*f;)*q++=*f++;if(id<0){for(f="USER";*f;)*q++=*f++;*q=0;return s;}md_num(id+1,q);while(*q)q++;*q++=' ';for(f=md_biome_family(id);*f&&q<s+31;)*q++=*f++;*q=0;return s;}
+// A Monde (Mutable Dreams called it a Biome) shows its number and family; an FDDS Monde, its number and name.
+static const char *monde_label(int id) {static char s[32];char *q=s;const char *f;for(f="MONDE ";*f;)*q++=*f++;if(id<0){for(f="USER";*f;)*q++=*f++;*q=0;return s;}md_num(id+1,q);while(*q)q++;*q++=' ';f=md_biome_family(id);if(!strcmp(f,"FDDS"))f=md_biome_name(id);while(*f&&q<s+31)*q++=*f++;*q=0;return s;}
 static void md_text(int x,int y,const char *s,uint16_t c) {
  // Quiet backplates keep the organic field away from small essential labels.
  if(y>=40&&y<155){uint16_t bg=dream_ui.help>=0?MD_CARD:(dream_ui.page==LIVE&&x>=94&&y==46+dream_ui.track*17)?MD_CARD:MD_BG;cv_rect(x-1,y-1,text_w(&FONT_XS,s)+2,14,bg);}
@@ -207,7 +207,7 @@ static void md_draw_all(void) {
   {float e=progress>1?1:progress,arrive=1-(1-e)*(1-e);md_circle(120,100,(int)(2+4*arrive),MD_INK,1);
    md_fleet(120,100,30+(1-arrive)*24,progress*1.2f,md_state(),0);}
   cv_text(120-text_w(&FONT_B,"MONADES")/2,158,&FONT_B,"MONADES",MD_INK);md_text(120-text_w(&FONT_XS,"FLASH DOG DUKE SILVER")/2,180,"FLASH DOG DUKE SILVER",col);
-  md_text(120-text_w(&FONT_XS,"76 MONDES / 224 TONES")/2,200,"76 MONDES / 224 TONES",MD_DIM);
+  md_text(120-text_w(&FONT_XS,"90 MONDES / 224 TONES")/2,200,"90 MONDES / 224 TONES",MD_DIM);
   cv_rect(32,220,(int)(176*progress),2,col);md_text(48,223,"ANY CONTROL TO BEGIN",MD_DIM);return;
  }
  if(dream_ui.help>=0) {

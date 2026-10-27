@@ -248,5 +248,15 @@ int main(){
   q.ext[1].reverb_send=300;q.fx_level=600;assert(md_load(&q));cmd(MD_DICE,4,MD_DICE_FX);assert(md_state()->fx_level==600&&md_state()->ext[4].delay_send==0);
   puts("PASS dice: sound / rhythm / effects in range, protected settings kept, ENV undoes, effects always heard");
  }
+ {
+  // FDDS Mondes keep their Monades settings (a 1.1 Monde loads them neutral); each one validates and sounds.
+  int lfo=0,gen=0,gam=0,form=0,micro=0;
+  for(int id=77;id<MD_BIOMES;id++){cmd(MD_SCENE,0,id);const md_patch *p=md_state();assert(md_validate(p)&&p->biome_id==id&&!strcmp(md_biome_family(id),"FDDS"));
+   for(int i=0;i<6;i++){lfo+=p->lfo[i][0].depth!=0||p->lfo[i][1].depth!=0;gen+=p->gen[i].source!=0;gam+=p->gamaka[i]!=0;}form+=p->form>0;micro+=p->scale>=79;
+   cmd(MD_PLAY,0,1);float peak=0;for(int b=0;b<700;b++){md_render(audio,128);for(int k=0;k<256;k++)peak=fmaxf(peak,fabsf(audio[k]));}cmd(MD_PLAY,0,0);assert(peak>.01f&&peak<1.01f);}
+  assert(lfo>=10&&gen>=12&&gam>=5&&form>=4&&micro>=4);
+  cmd(MD_SCENE,0,3);for(int i=0;i<6;i++)assert(md_state()->lfo[i][0].depth==0&&md_state()->gen[i].source==0);assert(md_state()->fx_level==0);
+  puts("PASS FDDS Mondes: 14 complete v10 patches with LFOs, generators, gamakas, form, microtonal scales; all audible");
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

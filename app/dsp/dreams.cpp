@@ -154,8 +154,9 @@ static void clear_audio() {
 }
 static void gen_reset();
 static void scene(int id) {
- patch=biome_bank[bound(id,0,MD_BIOMES-1)].patch;extension_defaults(patch);
- if(id>=65){patch.fx_level=340;patch.reverb_time=550;for(int i=0;i<6;i++)patch.ext[i].reverb_send=300;}
+ patch=biome_bank[bound(id,0,MD_BIOMES-1)].patch;
+ // Mutable Dreams Mondes are 1.1 patches: Monades additions neutral. FDDS Mondes are complete v10 patches.
+ if(patch.version!=10){extension_defaults(patch);if(id>=65){patch.fx_level=340;patch.reverb_time=550;for(int i=0;i<6;i++)patch.ext[i].reverb_send=300;}}
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
  gen_reset();memset(motion_held,0,sizeof motion_held); // a new Biome starts with empty generator registers
