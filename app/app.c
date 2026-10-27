@@ -817,6 +817,15 @@ void app_render(int32_t *lr,uint32_t n,uint32_t master) {
 }
 void app_panic(void) {dream_cmd(MD_PANIC,0,0);}
 void app_overload(void) {overloads++;dream_cmd(MD_QUALITY,0,0);}
+// Lights say what is in use: the button of the page shown, SEL when the selected track is muted, ARP locked,
+// LFO frozen, PLAY playing (green); ENV glows when there is something to undo.
+static uint32_t dream_lights(uint32_t *dim){
+ const int pg=dream_ui.page;const md_patch *lp=md_state();
+ const int page_btn=pg==LIVE||pg==MORPH||pg==DRIFT?B_HOME:pg==SOUND||pg==FILTER||pg==ENVELOPE||pg==MIX||pg==MIXER?B_EDIT:
+  pg==RHYTHM||pg==GROOVE||pg==BASSLINE||pg==PHRASE||pg==GENERATOR||pg==FORM?B_SEQ:pg==HARMONY||pg==RAGA||pg==SYSTEM||pg==APPEARANCE||pg==MIDI||pg==ZONES||pg==BANKS?B_GLO:B_FX;
+ if(dim)*dim=md_can_return()?1u<<B_ENV:0;
+ return (1u<<page_btn)|(md_playing()?LED_PLAY_GREEN:0)|(lp->locked?1u<<B_ARP:0)|(lp->freeze?1u<<B_LFO:0)|(lp->track[dream_ui.track].mute?1u<<B_SEL:0);
+}
 // MORPH: K1 or PRESET picks Monde B (the morph starts from the patch as it is); REC keeps the mix.
 static void morph_choose(int d){md_morph_state ms;md_morph_view(&ms,0,0);int id=clamp((ms.on?ms.target:md_state()->biome_id)+d,0,MD_BIOMES-1);
  static char m[40];const char *a="MORPH TO ",*z=monde_label(id)+6;int k=0;while(*a)m[k++]=*a++;while(*z&&k<39)m[k++]=*z++;m[k]=0;app_say(dream_cmd(MD_MORPH_TO,0,id)?m:"BUSY: TRY AGAIN","");}
@@ -926,12 +935,14 @@ void app_ui_init(void) {dream_ui.dirty=1;dream_ui.next=0;if(intro_pending){intro
 void app_frame(void) {
  unsigned y;app_input_only();if(md_status()->quality_reductions!=quality_notice){quality_notice=md_status()->quality_reductions;app_say("ECO: DENSE PATCH","");}flower_time=dream_prefs.motion?plat_ms():0;for(int i=0;i<6;i++)if(md_status()->events[i]!=last_events[i]){last_events[i]=md_status()->events[i];pulse_until[i]=plat_ms()+160;}if(plat_ms()<dream_ui.next&&!dream_ui.dirty)return;dream_ui.next=plat_ms()+80;dream_ui.dirty=0;
  for(y=0;y<240;y+=40){cv_begin(240,40,MD_BG);cv_oy=-(int)y;md_draw_all();cv_blit(0,y);}
- plat_lights((1u<<B_HOME)|(md_playing()?LED_PLAY_GREEN:0)|(md_state()->locked?(1u<<B_ARP):0)|(md_state()->freeze?(1u<<B_LFO):0),dream_ui.keys,0,0,1);
+ {uint32_t dim;const uint32_t lit=dream_lights(&dim);plat_lights(lit,dream_ui.keys,dim,0,1);}
  ann_tick(plat_ms());
 }
 #ifdef PLAT_HOST
 int app_expect(const char *what,int *got) {
  if(!strcmp(what,"help_context")){*got=md_context_help();return 1;}
+ if(!strcmp(what,"lights")){*got=(int)(dream_lights(0)&((1u<<NB)-1));return 1;}
+ if(!strcmp(what,"glow")){uint32_t d;dream_lights(&d);*got=(int)d;return 1;}
  if(!strncmp(what,"drift_",6)){md_drift_state ds;md_drift_view(&ds,0);const char *w=what+6;*got=!strcmp(w,"on")?ds.on:!strcmp(w,"slow")?ds.slow:!strcmp(w,"amount")?ds.amount:!strcmp(w,"voyage")?ds.voyage:ds.scope;return 1;}
  if(!strncmp(what,"morph_",6)){md_morph_state ms;md_morph_view(&ms,0,0);const char *w=what+6;*got=!strcmp(w,"on")?ms.on:!strcmp(w,"target")?ms.target:!strcmp(w,"pos")?ms.pos:!strcmp(w,"bars")?ms.bars:ms.scope;return 1;}
  if(!strcmp(what,"motion"))*got=dream_prefs.motion;else if(!strcmp(what,"boot_sound"))*got=dream_prefs.boot_sound;else if(!strcmp(what,"intro"))*got=intro_until&&plat_ms()<intro_until;else if(!strcmp(what,"track"))*got=dream_ui.track;else if(!strcmp(what,"model"))*got=md_state()->track[dream_ui.track].model;else if(!strcmp(what,"help"))*got=dream_ui.help;

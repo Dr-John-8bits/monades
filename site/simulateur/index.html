@@ -43,6 +43,7 @@ a { color: var(--accent); }
 .ctl.knob { cursor: ns-resize; }
 .btnface { transition: fill .06s; }
 .lit .btnface { fill: #f28a5a; }
+.dim .btnface { fill: #6b4a3c; }   /* a soft glow: something can be done (ENV: undo) */
 .lit text.btn { fill: #2a140a; }
 .held .btnface, .held .keyface { stroke: #f28a5a; stroke-width: 3; }
 .latched .btnface, .latched .keyface { stroke: #6fc3ff; stroke-width: 3; }
@@ -521,11 +522,12 @@ function lightName(c, lit, now) {
   const state = recent >= 3 ? "blinking" : lit ? "lit" : "";
   if (state !== c.light) { c.light = state; c.hit.setAttribute("aria-label", c.name + (state ? `, ${state}` : "")); }
 }
-function drawLights(b, k) {
+function drawLights(b, k, dim) {
   const now = performance.now();
   for (const x of Object.values(buttons)) {
     const lit = !!(b & (1 << x.bit));
     x.g.classList.toggle("lit", lit);
+    x.g.classList.toggle("dim", !lit && !!(dim & (1 << x.bit)));
     lightName(x, lit, now);
   }
   keys.forEach((x, i) => {
@@ -669,7 +671,7 @@ async function switchOn() {
         if (m.type === "ready") res();
         else if (m.type === "frame") {
           if (m.fb) drawScreen(m.fb);
-          drawLights(m.buttons, m.keys);
+          drawLights(m.buttons, m.keys, m.dim || 0);
           if (m.said) onSaid(m.said);
           window.emuLast = m;
           if (m.load !== undefined) cpu.textContent = `Monades utilise ${m.load} % du temps de cet ordinateur`;

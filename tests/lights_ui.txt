@@ -1,0 +1,33 @@
+wait 3400
+tap HOME
+expect page 0
+expect lights 320
+expect glow 0
+tap REC
+wait 30
+expect glow 4
+tap ENV
+wait 30
+expect glow 0
+tap EDIT
+expect lights 272
+tap SEL
+wait 30
+expect lights 274
+tap ARP
+wait 30
+expect lights 18
+tap FX
+expect lights 3
+tap SEL
+wait 30
+expect lights 1
+tap SEQ
+expect lights 512
+tap GLO
+expect lights 32
+wait 1600
+tap HOME
+tap HOME
+expect page 27
+expect lights 64
