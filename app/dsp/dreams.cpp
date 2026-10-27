@@ -819,6 +819,8 @@ const char *md_lfo_shape_name(int s){static const char *const n[MD_LFO_SHAPES]={
 const char *md_lfo_target_name(int t){static const char *const n[MD_LFO_TARGETS]={"CUTOFF","RESONANCE","LEVEL","PAN","PITCH","TONE","HARMONICS","SHAPE","ECHO SEND","ROOM SEND","GRAIN SEND","ECHO TIME","GRAIN POS","ATTACK","DECAY","ECHO FEEDBACK","GRAIN SIZE","NOTES IN SCALE","HITS"};return n[bound(t,0,MD_LFO_TARGETS-1)];}
 float md_echo_ms(void){return echo_ms_now();}
 int md_morph_bars_len(int bars){return morph_len(bars);}
+int md_morph_point(int track){return morph_point(track);}
+unsigned md_morph_changes(void){return morph_changes;}
 void md_morph_view(md_morph_state *s,const md_patch **a,const md_patch **b){
  s->on=morph_on;s->target=morph_target;s->pos=morph_pos;s->bars=morph_bars;s->scope=morph_scope;if(a)*a=&morph_a;if(b)*b=&morph_b;
 }

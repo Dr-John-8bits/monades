@@ -128,6 +128,8 @@ enum { MD_MORPH_ALL, MD_MORPH_SOUND, MD_MORPH_RHYTHM, MD_MORPH_FX, MD_MORPH_SCOP
 typedef struct { int32_t on,target,pos,bars,scope; } md_morph_state;
 void md_morph_view(md_morph_state *s,const md_patch **a,const md_patch **b); /* a and b: the two Mondes (UI thread: read only) */
 int md_morph_bars_len(int bars); /* 0, 4, 8, 16, 32, 64 */
+int md_morph_point(int track); /* where a track switches (0..1000; 6 = scale and seed); it fades out and in around it */
+unsigned md_morph_changes(void); /* bit per track: it has something to switch */
 int md_can_return(void); /* 1 if ENV (RETURN) has a previous variation to go back to */
 const char *md_echo_sync_name(int sync);
 unsigned md_form_mask(unsigned cycle,unsigned section); /* tracks the form drops in that section */

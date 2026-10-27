@@ -444,12 +444,16 @@ static void md_draw_all(void) {
     md_text(10,48,monde_label(ma->biome_id)+6,past?MD_DIM:MD_INK);{const char *bn=monde_label(ms.target)+6;md_text(230-text_w(&FONT_XS,bn),48,bn,past?MD_INK:MD_DIM);}
     fleet_mix=32-(unsigned)(tt*24);md_fleet(30,86,12,0,ma,0);fleet_mix=8+(unsigned)(tt*24);md_fleet(210,86,12,0,mb,0);fleet_mix=32;
     md_fleet(30+180*tt,86,18,plat_ms()*.0004f,p,1);
-    cv_rect(20,110,200,1,MD_EDGE);cv_rect(120,107,1,7,MD_DIM);cv_rect(20+(int)(200*tt)-1,106,3,9,col); // the half-way mark: choices switch there
+    const unsigned changes=md_morph_changes();cv_rect(20,110,200,1,MD_EDGE);cv_rect(120,107,1,7,MD_DIM); // half way: scale and seed switch
+    for(i=0;i<6;i++)if((changes>>i)&1)cv_rect(20+md_morph_point(i)/5,107,1,7,dream_colors[i]); // where each track switches, inside its fade
+    cv_rect(20+(int)(200*tt)-1,106,3,9,col);
     char a[12],b[12],lab[40];md_num(ma->tempo,a);md_num(mb->tempo,b);md_text(12,116,a,MD_DIM);md_text(230-text_w(&FONT_XS,b),116,b,MD_DIM);
     md_num(p->tempo,lab);char *q=lab;while(*q)q++;const char *z=" BPM";while(*z)*q++=*z++;*q=0;md_text(120-text_w(&FONT_XS,lab)/2,116,lab,MD_INK);
     md_text(12,129,md_scale_name(ma->scale),past?MD_EDGE:MD_INK);{const char *bs=md_scale_name(mb->scale);md_text(230-text_w(&FONT_XS,bs),129,bs,past?MD_INK:MD_EDGE);}
-    for(i=0;i<6;i++){int x=72+i*16;uint16_t c=dream_colors[i];if(ma->track[i].model==mb->track[i].model)cv_rect(x,144,10,4,MD_CARD);else if(past)cv_rect(x,142,10,8,c);else{cv_rect(x,142,10,1,c);cv_rect(x,149,10,1,c);cv_rect(x,142,1,8,c);cv_rect(x+9,142,1,8,c);}}
-    md_text(12,140,"ENGINES",MD_DIM);}
+    // Per track: hollow = still A, full = switched to B, dim = fading around its switch (nothing to switch: a dash).
+    for(i=0;i<6;i++){int x=72+i*16,d=ms.pos-md_morph_point(i);d=d<0?-d:d;uint16_t c=md_tint(MD_BG,dream_colors[i],d>=60?32u:(unsigned)(4+d*28/60));
+     if(!((changes>>i)&1))cv_rect(x,144,10,4,MD_CARD);else if(ms.pos>=md_morph_point(i))cv_rect(x,142,10,8,c);else{cv_rect(x,142,10,1,c);cv_rect(x,149,10,1,c);cv_rect(x,142,1,8,c);cv_rect(x+9,142,1,8,c);}}
+    md_text(12,140,"TRACKS",MD_DIM);}
    {static const char *const scope[MD_MORPH_SCOPES]={"ALL","SOUND","RHYTHM","EFFECTS"};char bars[12];int n=md_morph_bars_len(ms.bars);if(n){md_num(n,bars);char *q=bars;while(*q)q++;const char *z=" BARS";while(*z)*q++=*z++;*q=0;}
     md_named(8,158,"K1 MONDE B",ms.on?monde_label(ms.target)+6:"-",col);md_value(124,158,"K2 POSITION",ms.on?ms.pos/10:0,col);
     md_named(8,194,"K3 AUTO",n?bars:"BY HAND",col);md_named(124,194,"K4 MORPH",scope[ms.scope],col);}

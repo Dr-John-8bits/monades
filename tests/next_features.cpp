@@ -264,7 +264,14 @@ int main(){
   md_morph_state ms;cmd(MD_MORPH_TO,0,80);md_morph_view(&ms,0,0);assert(ms.on&&ms.target==80&&ms.pos==0&&md_state()->tempo==A.tempo);
   for(int pos=0;pos<=1000;pos+=50){cmd(MD_MORPH,0,pos);const md_patch *p=md_state();assert(md_validate(p));
    assert(p->tempo==A.tempo+(int)floorf((float)(B.tempo-A.tempo)*(pos*.001f)+.5f));
-   assert(p->track[0].model==(pos>=500?B.track[0].model:A.track[0].model)&&p->scale==(pos>=500?B.scale:A.scale));}
+   for(int j=0;j<6;j++)assert(p->track[j].model==(pos>=md_morph_point(j)?B.track[j].model:A.track[j].model));assert(p->scale==(pos>=500?B.scale:A.scale));}
+  // Each track switches at its own point and is silent there, so its old engine has faded out; full level away from it.
+  for(int j=0;j<6;j++){assert(md_morph_point(j)>md_morph_point(j>0?j-1:0)-1);if(A.track[j].model==B.track[j].model)continue;assert((md_morph_changes()>>j)&1);
+   cmd(MD_MORPH,0,md_morph_point(j));assert(md_state()->track[j].level==0);cmd(MD_MORPH,0,md_morph_point(j)+100);
+   assert(md_state()->track[j].level==A.track[j].level+(int)floorf((float)(B.track[j].level-A.track[j].level)*((md_morph_point(j)+100)*.001f)+.5f));}
+  // REC in a fade keeps the track at its full level.
+  {int j=0;while(j<6&&A.track[j].model==B.track[j].model)j++;assert(j<6);cmd(MD_MORPH,0,md_morph_point(j)+10);assert(md_state()->track[j].level<A.track[j].level/2+B.track[j].level/2);
+   cmd(MD_MORPH_KEEP,0,0);assert(md_state()->track[j].level>0);cmd(MD_RETURN,0,0);cmd(MD_MORPH_TO,0,80);}
   cmd(MD_MORPH,0,1000);assert(md_state()->biome_id==80&&md_state()->lfo[0][0].depth==B.lfo[0][0].depth&&md_state()->gamaka[0]==B.gamaka[0]);
   cmd(MD_RETURN,0,0);assert(!memcmp(md_state(),&A,sizeof A));md_morph_view(&ms,0,0);assert(ms.on&&ms.pos==0);
   // Scope RHYTHM: the tempo moves, the engines stay on A.
@@ -275,7 +282,7 @@ int main(){
   md_morph_view(&ms,0,0);assert(ms.pos==1000&&md_state()->tempo==B.tempo);cmd(MD_PLAY,0,0);
   cmd(MD_MORPH_KEEP,0,0);md_morph_view(&ms,0,0);assert(!ms.on&&md_state()->tempo==B.tempo);
   cmd(MD_MORPH_TO,0,3);cmd(MD_SCENE,0,5);md_morph_view(&ms,0,0);assert(!ms.on);cmd(MD_MORPH_BARS,0,0);
-  puts("PASS morph: glide and half-way switch, valid all along, scope, 4-bar auto morph, keep, ENV back to A");
+  puts("PASS morph: glide, tracks switch one after the other inside a fade, valid all along, scope, 4-bar auto morph, keep, ENV back to A");
  }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }
