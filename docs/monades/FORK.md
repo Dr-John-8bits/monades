@@ -176,6 +176,7 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
   - les Biomes s'appellent des **Mondes** à l'écran : « MONDE 12 DRONE », numéro et famille. Les noms viendront plus tard (catalogue `presets/catalog.json`). Le format des patchs ne change pas ;
   - **DICE sur REC** : sur EDIT, le son de la piste choisie ; sur SEQ, son rythme ; sur FX, les effets. Valeurs tirées dans des plages musicales (filtre jamais fermé, au moins un coup, retours d'écho et de grain loin du larsen). Jamais touchés : gamme, note de base, transposition, tempo, niveau, mutes, moteur, MIDI. ENV annule. Le dé a son propre générateur : la séquence ne change pas. Sur HOME et GLO, REC reste la nouvelle variation ;
   - l'aide de HARMONY indique 91 gammes au lieu de huit.
+- **GLOBAL MIXER** (branche `monades/mixer`) : le vumètre M montre le niveau après MASTER (avant, il ignorait le potard, défaut hérité de Mutable Dreams) ; les cadres K1 à K4 affichent la piste réglée (« K1 LEVEL T6 »).
 
 ### Lot 5 — Divers
 17. **Sortie audio USB** (aujourd'hui `usb_audio_out = false`, entrée seulement), si le budget CPU le permet.

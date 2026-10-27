@@ -447,9 +447,11 @@ static void md_draw_all(void) {
    // Returns and master, in the same G / D / R order as the send bars.
    static const char *fx_names[3]={"G","D","R"};
    for(i=0;i<3;i++){md_meter(6+i,178+i*12,8,ms->fx_peak[i],MD_DIM,0);md_text(179+i*12,139,fx_names[i],MD_DIM);}
-   md_meter(9,216,8,ms->out_peak[0],MD_INK,0);md_meter(10,226,8,ms->out_peak[1],MD_INK,0);md_text(222,139,"M",MD_INK);
+   md_meter(9,216,8,ms->out_peak[0]*md_gain,MD_INK,0);md_meter(10,226,8,ms->out_peak[1]*md_gain,MD_INK,0);md_text(222,139,"M",MD_INK); // M: what you hear, after MASTER (LIM watches before it)
    md_text(203,124,"LIM",ms->limit_peak>.8f?MD_HOT:MD_EDGE);
-   md_value(8,158,"K1 LEVEL",t->level/10,col);md_value(124,158,"K2 GRAIN",t->send/10,col);md_value(8,194,"K3 DELAY",e->delay_send/10,col);md_value(124,194,"K4 REVERB",e->reverb_send/10,col);
+   // The four frames set the track chosen with SELECT: its number in each title.
+   {static char lb[4][16];static const char *const nm[4]={"K1 LEVEL T","K2 GRAIN T","K3 DELAY T","K4 REVERB T"};for(int j=0;j<4;j++){int k=0;while(nm[j][k]){lb[j][k]=nm[j][k];k++;}lb[j][k++]='1'+dream_ui.track;lb[j][k]=0;}
+   md_value(8,158,lb[0],t->level/10,col);md_value(124,158,lb[1],t->send/10,col);md_value(8,194,lb[2],e->delay_send/10,col);md_value(124,194,lb[3],e->reverb_send/10,col);}
   }else if(dream_ui.page==BASSLINE){
    md_text(12,62,"ROOTED PHRASES / ROUND LOW END",MD_INK);
    for(i=0;i<16;i++)md_circle(15+i*14,107-e->notes[i],e->notes[i]<0?1:3,col,e->notes[i]>=0);
