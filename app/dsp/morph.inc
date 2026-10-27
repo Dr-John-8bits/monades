@@ -5,7 +5,7 @@
 // before and back in after it, so the old engine is silent when the new one starts. Shared choices (scale, seed)
 // switch half way. A scope keeps everything outside it on A. PLAY can carry the morph over 4 to 64 bars, one step at a time.
 static md_patch morph_a,morph_b;
-static int morph_pos,morph_bars,morph_scope,morph_target;static float morph_f;
+static int morph_pos,morph_bars,morph_scope,morph_target,morph_span;static float morph_f; // span: steps of a drift glide (0: K3 bars)
 enum { MK_KEEP, MK_GLIDE, MK_SWITCH };
 static uint8_t morph_kind[sizeof(md_patch)/4]; // kind | scope << 2 (MD_MORPH_SOUND, _RHYTHM, _FX)
 static uint8_t morph_track[sizeof(md_patch)/4]; // the track a word belongs to, 6 = shared
@@ -57,15 +57,14 @@ static void morph_apply(bool fade=true){
   if(voices[j].model!=tr.model)reset_voice(j);} // an engine switch starts a fresh voice, as ENV does
  patch.biome_id=morph_pos==0?morph_a.biome_id:morph_pos==1000&&!morph_scope?morph_target:-1;if(morph_pos)patch.edited_mask|=1u;
 }
-static void morph_to(int id){
- morph_table();morph_a=patch;morph_b=bank_patch(id);morph_target=id;previous=morph_a; // ENV goes back to A
- morph_pos=0;morph_f=0;morph_on=1;morph_apply();
-}
+static void morph_begin(const md_patch &b,int id){morph_table();morph_a=patch;morph_b=b;morph_target=id;morph_pos=0;morph_f=0;morph_on=1;morph_apply();}
+static void morph_to(int id){drift_on=0;morph_span=0;previous=patch;morph_begin(bank_patch(id),id);} // ENV goes back to A
 static void morph_keep(){if(morph_on)morph_apply(false);morph_on=0;} // the patch stays as it is, at full level; previous is still A
 static void morph_back(){if(morph_on){morph_pos=0;morph_f=0;}} // after ENV: the morph restarts from A
 static int morph_len(int bars){static const int len[6]={0,4,8,16,32,64};return len[bound(bars,0,5)];}
 static void morph_step(){
- if(!morph_on||!morph_bars||morph_pos>=1000)return;
- morph_f+=1000.0f/(morph_len(morph_bars)*16);if(morph_f>1000)morph_f=1000;
+ const int span=morph_span?morph_span:morph_len(morph_bars)*16;
+ if(!morph_on||!span||morph_pos>=1000)return;
+ morph_f+=1000.0f/span;if(morph_f>1000)morph_f=1000;
  if((int)morph_f!=morph_pos){morph_pos=(int)morph_f;morph_apply();}
 }

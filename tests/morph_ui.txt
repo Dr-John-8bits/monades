@@ -40,4 +40,6 @@ wait 30
 expect morph_on 0
 expect biome 80
 tap HOME
+expect page 28
+tap HOME
 expect page 0

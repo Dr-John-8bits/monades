@@ -153,7 +153,7 @@ static void clear_audio() {
  memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);feedback_lp=duckenv=0;
 }
 static void gen_reset();
-static int morph_on; /* a morph is under way (morph.inc); a new Monde ends it */
+static int morph_on,drift_on; /* a morph is under way (morph.inc), driven by DERIVE (drift.inc); a new Monde ends both */
 static md_patch bank_patch(int id) {
  md_patch p=biome_bank[bound(id,0,MD_BIOMES-1)].patch;
  // Mutable Dreams Mondes are 1.1 patches: Monades additions neutral. FDDS Mondes are complete v10 patches.
@@ -161,7 +161,7 @@ static md_patch bank_patch(int id) {
  return p;
 }
 static void scene(int id) {
- patch=bank_patch(id);morph_on=0;
+ patch=bank_patch(id);morph_on=0;drift_on=0;
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
  gen_reset();memset(motion_held,0,sizeof motion_held); // a new Biome starts with empty generator registers
@@ -180,6 +180,7 @@ switch(c){case MD_MODEL:return &t.model;case MD_TONE:return &t.tone;case MD_HARM
 static float clamp01(float x){return x<0?0:x>1?1:x;}
 #include "generative.inc"
 #include "morph.inc"
+#include "drift.inc"
 // Echo sync: the division in sixteenths.
 static const float echo_sync_len[MD_ECHO_SYNCS]={0,.5f,2/3.0f,1,4/3.0f,1.5f,2,8/3.0f,3,4}; // sixteenths
 static float echo_ms_now(){
@@ -220,7 +221,7 @@ static void dice(int i,int scope){
 static void apply(Command e) {
  int i=bound(e.t,0,5),v=e.v;md_track &t=patch.track[i];
  // Playback, preview notes and emergency silence do not change a preset.
- if(e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_DICE&&(e.c<MD_MORPH_TO||e.c>MD_MORPH_KEEP))patch.edited_mask|=1u;
+ if(e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_DICE&&(e.c<MD_MORPH_TO||e.c>MD_DRIFT_HOME))patch.edited_mask|=1u;
  if(e.c==MD_MODEL||e.c==MD_TONE||e.c==MD_HARM||e.c==MD_DECAY||e.c==MD_ATTACK||(e.c>=MD_SHAPE&&e.c<=MD_BREATHE))patch.edited_mask|=2u<<i;
  if(e.c<=MD_SPEED) {
   int32_t *p=track_field(t,e.c);
@@ -239,7 +240,7 @@ static void apply(Command e) {
   if(routing.clock&&!clock_source&&playing!=was){out_push(playing?0xfa:0xfc,0,0);clock_left=0;}if(!playing)out_all_off();}break;
  case MD_LOCK:patch.locked=!!v;break;
  case MD_MUTATE: previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
- case MD_RETURN:patch=previous;seqrng=patch.seed;morph_back();for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
+ case MD_RETURN:patch=previous;seqrng=patch.seed;morph_back();drift_back();for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
  case MD_SCENE:scene(v);break;
  case MD_DICE:dice(i,bound(v,MD_DICE_SOUND,MD_DICE_FX));break;
  case MD_TONE_PRESET:tone_preset(i,v);break;
@@ -310,6 +311,11 @@ static void apply(Command e) {
  case MD_MORPH_BARS:morph_bars=bound(v,0,5);break;
  case MD_MORPH_SCOPE:morph_scope=bound(v,0,MD_MORPH_SCOPES-1);if(morph_on)morph_apply();break;
  case MD_MORPH_KEEP:morph_keep();break;
+ case MD_DRIFT_SLOW:drift_arm(bound(v,0,6));break;
+ case MD_DRIFT_AMOUNT:drift_amount=bound(v,0,2);break;
+ case MD_DRIFT_VOYAGE:drift_voyage=bound(v,0,2);break;
+ case MD_DRIFT_SCOPE:drift_scope=bound(v,0,MD_MORPH_SCOPES-1);break;
+ case MD_DRIFT_HOME:drift_new_home();break;
  case MD_CLEAR_PHRASE:for(int k=0;k<16;k++)patch.ext[i].notes[k]=-1;patch.ext[i].edit_step=0;break;
  case MD_SAMVADI:patch.samvadi=bound(v,-1,11);break;
  case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
@@ -365,7 +371,7 @@ static void tick() {
   }
  }
  beat_wraps=step/384;beat=(float)(step%384);beat_limit=beat+1;
- morph_step();
+ morph_step();drift_step(duration);
  stats.step=step++;untilstep+=duration;
 }
 static void quantum(float *lr,unsigned n) {
@@ -749,7 +755,7 @@ int md_validate(const md_patch *p) {
  return 1;
 }
 int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
-unsigned md_memory_bytes(){return sizeof morph_a+sizeof morph_b+sizeof morph_kind+sizeof chorus_line+64+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
+unsigned md_memory_bytes(){return sizeof drift_home+sizeof morph_a+sizeof morph_b+sizeof morph_kind+sizeof chorus_line+64+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
  if(bytes==sizeof(md_patch)){md_patch p;memcpy(&p,data,sizeof p);if(!md_validate(&p))return 0;*out=p;return 1;}
@@ -819,6 +825,12 @@ const char *md_lfo_shape_name(int s){static const char *const n[MD_LFO_SHAPES]={
 const char *md_lfo_target_name(int t){static const char *const n[MD_LFO_TARGETS]={"CUTOFF","RESONANCE","LEVEL","PAN","PITCH","TONE","HARMONICS","SHAPE","ECHO SEND","ROOM SEND","GRAIN SEND","ECHO TIME","GRAIN POS","ATTACK","DECAY","ECHO FEEDBACK","GRAIN SIZE","NOTES IN SCALE","HITS"};return n[bound(t,0,MD_LFO_TARGETS-1)];}
 float md_echo_ms(void){return echo_ms_now();}
 int md_morph_bars_len(int bars){return morph_len(bars);}
+int md_drift_bars(int slow){return drift_len(slow);}
+void md_drift_view(md_drift_state *s,const md_patch **home){
+ s->on=drift_on;s->slow=drift_slow;s->amount=drift_amount;s->voyage=drift_voyage;s->scope=drift_scope;s->pos=drift_on&&morph_on?morph_pos:0;s->distance=drift_distance;
+ s->seconds=drift_seconds;const int span=drift_len(drift_slow)*16;s->next=drift_on?(1000-s->pos)*.001f*span*60.0f/(patch.tempo*4.0f):0;
+ memcpy(s->events,drift_log,sizeof drift_log);if(home)*home=&drift_home;
+}
 int md_morph_point(int track){return morph_point(track);}
 unsigned md_morph_changes(void){return morph_changes;}
 void md_morph_view(md_morph_state *s,const md_patch **a,const md_patch **b){

@@ -1,0 +1,35 @@
+wait 3400
+tap HOME
+turn PRESET 80
+expect biome 80
+wait 1600
+tap HOME
+tap HOME
+expect page 28
+expect drift_on 0
+tap REC
+expect drift_on 0
+spin K2 1
+wait 30
+expect drift_on 1
+expect drift_slow 1
+spin K1 1
+spin K3 1
+spin K4 1
+wait 30
+expect drift_amount 2
+expect drift_voyage 1
+expect drift_scope 1
+spin K4 -1
+spin K3 -1
+tap PLAY
+wait 20000
+tap REC
+wait 30
+tap ENV
+wait 30
+spin K2 -1
+wait 30
+expect drift_on 0
+tap HOME
+expect page 0

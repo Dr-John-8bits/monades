@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT OR GPL-3.0-only */
 #include "dsp/dreams.h"
 #include "fastmath.h"
-enum { LIVE,SOUND,RHYTHM,GRAIN,MIX,SYSTEM,ENVELOPE,GROOVE,TAPE,HARMONY,FILTER,APPEARANCE,MIXER,BASSLINE,SPACE,MODULATION,PHRASE,MIDI,BANKS,ZONES,LFO_A,LFO_B,SPACE_TONE,ECHO_CHORUS,GENERATOR,FORM,RAGA,MORPH };
+enum { LIVE,SOUND,RHYTHM,GRAIN,MIX,SYSTEM,ENVELOPE,GROOVE,TAPE,HARMONY,FILTER,APPEARANCE,MIXER,BASSLINE,SPACE,MODULATION,PHRASE,MIDI,BANKS,ZONES,LFO_A,LFO_B,SPACE_TONE,ECHO_CHORUS,GENERATOR,FORM,RAGA,MORPH,DRIFT };
 static struct { int page,track,help,dirty,octave; uint32_t btn,keys,down[NB],held,next; char msg[32]; uint32_t msg_until; } dream_ui;
 static int dream_store_hold;
 static volatile int dream_reloading;
@@ -29,7 +29,7 @@ static const uint16_t dream_colors[6]={RGB(255,140,118),RGB(255,198,104),RGB(124
 #define MD_INK RGB(244,242,255)
 #define MD_DIM RGB(172,180,208)
 #define MD_EDGE RGB(60,66,100)
-static const char *dream_pages[]={"LIVE MONDE","SOUND","RHYTHM","GRANULAR BUS","MIX / NOTES","QUALITY / SYSTEM","ENVELOPE / BLOOM","GROOVE / REPEATS","TAPE / MOTION","HARMONY / GLOBAL","VELVET FILTER","LOOK / STARTUP","GLOBAL MIXER","BASS / MOTIFS","SHARED SPACE","MARBLES / TIDES / WARPS","PHRASE / NOTES","MIDI / PERFORMANCE","USER BANKS","MIDI OUT ZONES","LFO A","LFO B","SPACE TONE","ECHO SYNC / CHORUS","GENERATOR / DEJA VU","FORM","RAGA / GAMAKA","MORPH"};
+static const char *dream_pages[]={"LIVE MONDE","SOUND","RHYTHM","GRANULAR BUS","MIX / NOTES","QUALITY / SYSTEM","ENVELOPE / BLOOM","GROOVE / REPEATS","TAPE / MOTION","HARMONY / GLOBAL","VELVET FILTER","LOOK / STARTUP","GLOBAL MIXER","BASS / MOTIFS","SHARED SPACE","MARBLES / TIDES / WARPS","PHRASE / NOTES","MIDI / PERFORMANCE","USER BANKS","MIDI OUT ZONES","LFO A","LFO B","SPACE TONE","ECHO SYNC / CHORUS","GENERATOR / DEJA VU","FORM","RAGA / GAMAKA","MORPH","DERIVE"};
 static const char *help_title[NB]={"GRANULAR BUS","MUTE A TRACK","RETURN","FREEZE","CHOOSE A VOICE","GLOBAL","LIVE MACROS","SAVE","LOCK THE SEED","GENERATE RHYTHMS","PLAY / STOP","VARY / DICE","LOWER OCTAVE","HIGHER OCTAVE"};
 static const char *help_lines[NB][5]={
  {"FX: Grain > Tape > Space >","Space Tone > Echo / Chorus >","Marbles / Tides > LFO A > LFO B","Grain: K1 mix / K2 length","REC: dice the effects"},
@@ -51,7 +51,7 @@ static int md_context_help(void){
  int p=dream_ui.page,b=dream_ui.help;
  return (p==MIXER&&b==B_EDIT)||((p==BASSLINE||p==PHRASE||p==GENERATOR||p==FORM)&&b==B_SEQ)||
         ((p==SPACE||p==MODULATION||p==LFO_A||p==LFO_B||p==SPACE_TONE||p==ECHO_CHORUS)&&b==B_FX)||
-        ((p==MIDI||p==BANKS||p==RAGA||p==ZONES)&&b==B_GLO)||(p==MORPH&&b==B_HOME)||(p==BANKS&&b==B_SAVE);
+        ((p==MIDI||p==BANKS||p==RAGA||p==ZONES)&&b==B_GLO)||((p==MORPH||p==DRIFT)&&b==B_HOME)||(p==BANKS&&b==B_SAVE);
 }
 static int dream_cmd(int c,int t,int v){uint32_t f=plat_lock();int r=md_command(c,t,v);plat_unlock(f);return r;}
 static int zone_sel;
@@ -234,7 +234,7 @@ static void md_draw_all(void) {
   if(dream_ui.help==B_EDIT&&dream_ui.page==ENVELOPE)lines=envhelp;
   if(dream_ui.help==B_SEQ&&dream_ui.page==GROOVE)lines=groovehelp;
   if(dream_ui.help==B_FX&&dream_ui.page==TAPE)lines=tapehelp;
-  static const char *newhelp[16][5]={
+  static const char *newhelp[17][5]={
    {"SELECT: track / SEL: mute","K1 level / K2 grain send","K3 delay send / K4 reverb send","FX: SPACE sets effect return","Sends follow track level."},
    {"K1 OFF / EUCLID / STEP","K2 motif / K3 glide / K4 note","SEQ again: edit phrase notes","Marbles varies offbeat notes.","All tracks remain assignable."},
    {"K1 delay time: 40-350 ms","K2 echo feedback / K3 room tail","K4 shared effect return","Mixer: individual track sends","PANIC clears all effect tails."},
@@ -250,7 +250,8 @@ static void md_draw_all(void) {
    {"K1 off / random / Markov / motif","K2 deja vu: 0 new, 100 frozen","K3 loop / K4 spread or variation","KEYS write the motif, REC clears","Markov and MOTIF read the phrase."},
    {"K1 form depth; 0 is off","K2 section length in bars","K3 tracks resting when calm","K4 Motion: new every N steps","Calm, build, peak, release."},
    {"K1 vadi / K2 samvadi: pivots","Pivots attract notes, accented.","K3 gamaka of this track","K4 gamaka amount","Kan, meend, andolan or mix."},
-   {"K1 / PRESET: Monde B","K2 position A > B","K3 auto: PLAY carries it","K4 what morphs","REC keeps / ENV back to A"}};
+   {"K1 / PRESET: Monde B","K2 position A > B","K3 auto: PLAY carries it","K4 what morphs","REC keeps / ENV back to A"},
+   {"K1 how far from home","K2 glide length; OFF stops","K3 voyage: stay, family, any","K4 what drifts","REC new home / ENV home"}};
   if(md_context_help())lines=newhelp[dream_ui.page-MIXER];
   for(i=0;i<5;i++)md_text(14,80+i*22,lines[i],MD_INK);
   md_text(14,197,"Release, then tap any key to close.",MD_DIM);return;
@@ -439,7 +440,9 @@ static void md_draw_all(void) {
    // Two Mondes and the patch between them: A fades on the left, B lights up on the right, the live fleet travels
    // from one to the other. Under it, what glides (tempo) and what switches half way (scale, engines).
    md_morph_state ms;const md_patch *ma,*mb;md_morph_view(&ms,&ma,&mb);cv_rect(4,44,232,108,MD_BG);
-   if(!ms.on){md_fleet(120,90,20,plat_ms()*.0004f,p,1);md_text(12,48,monde_label(p->biome_id),MD_INK);md_text(12,128,"K1 OR PRESET: MONDE TO MORPH TO",col);}
+   md_drift_state dv;md_drift_view(&dv,0);
+   if(dv.on){md_fleet(120,90,20,plat_ms()*.0004f,p,1);md_text(12,48,"DERIVE DRIVES THE MORPH",col);md_text(12,128,"HOME: SEE THE DERIVE PAGE",MD_DIM);}
+   else if(!ms.on){md_fleet(120,90,20,plat_ms()*.0004f,p,1);md_text(12,48,monde_label(p->biome_id),MD_INK);md_text(12,128,"K1 OR PRESET: MONDE TO MORPH TO",col);}
    else{const float tt=ms.pos*.001f;const int past=ms.pos>=500;
     md_text(10,48,monde_label(ma->biome_id)+6,past?MD_DIM:MD_INK);{const char *bn=monde_label(ms.target)+6;md_text(230-text_w(&FONT_XS,bn),48,bn,past?MD_INK:MD_DIM);}
     fleet_mix=32-(unsigned)(tt*24);md_fleet(30,86,12,0,ma,0);fleet_mix=8+(unsigned)(tt*24);md_fleet(210,86,12,0,mb,0);fleet_mix=32;
@@ -457,6 +460,30 @@ static void md_draw_all(void) {
    {static const char *const scope[MD_MORPH_SCOPES]={"ALL","SOUND","RHYTHM","EFFECTS"};char bars[12];int n=md_morph_bars_len(ms.bars);if(n){md_num(n,bars);char *q=bars;while(*q)q++;const char *z=" BARS";while(*z)*q++=*z++;*q=0;}
     md_named(8,158,"K1 MONDE B",ms.on?monde_label(ms.target)+6:"-",col);md_value(124,158,"K2 POSITION",ms.on?ms.pos/10:0,col);
     md_named(8,194,"K3 AUTO",n?bars:"BY HAND",col);md_named(124,194,"K4 MORPH",scope[ms.scope],col);}
+  }else if(dream_ui.page==DRIFT){
+   // Home, pale, in the centre; the live fleet orbits it on its leash, as far out as the sound has drifted. Under it:
+   // how far the current glide has got, when the next one starts, and the last three things that moved.
+   md_drift_state ds;const md_patch *home;md_drift_view(&ds,&home);cv_rect(4,44,232,108,MD_BG);
+   if(!ds.on){md_fleet(120,88,20,plat_ms()*.0004f,p,1);md_text(12,48,monde_label(p->biome_id),MD_INK);md_text(12,128,"K2: HOW SLOW, THEN PLAY",col);}
+   else{char tm[24];unsigned sec=(unsigned)ds.seconds;
+    if(sec<3600){md_num((int)(sec/60),tm);char *q=tm;while(*q)q++;*q++=':';*q++='0'+sec%60/10;*q++='0'+sec%10;*q=0;}
+    else{md_num((int)(sec/3600),tm);char *q=tm;while(*q)q++;const char *z=" H ";while(*z)*q++=*z++;*q++='0'+sec%3600/600;*q++='0'+sec%600/60;*q=0;}
+    md_text(10,48,"HOME",MD_DIM);md_text(44,48,monde_label(home->biome_id)+6,MD_INK);md_text(230-text_w(&FONT_XS,tm),48,tm,MD_DIM);
+    const float a=ds.seconds*.05f,fx=120+fm_cosf(a)*(30+ds.distance*.07f),fy=84+fm_sinf(a)*(12+ds.distance*.012f); // farther out = farther from home
+    for(int k=1;k<6;k++)cv_rect(120+(int)((fx-120)*k/6),84+(int)((fy-84)*k/6),1,1,MD_DIM); // the leash
+    fleet_mix=9;md_fleet(120,84,11,0,home,0);fleet_mix=32;md_fleet(fx,fy,13,plat_ms()*.0004f,p,1);
+    cv_rect(20,112,200,1,MD_EDGE);cv_rect(20+ds.pos/5-1,109,3,7,col);
+    {unsigned nx=(unsigned)ds.next;char n[20]="NEXT ";md_num((int)(nx/60),n+5);char *q=n;while(*q)q++;*q++=':';*q++='0'+nx%60/10;*q++='0'+nx%10;*q=0;md_text(230-text_w(&FONT_XS,n),116,n,MD_DIM);}
+    static const char *const what[5]={"CUTOFF","TONE","HARMONICS","SHAPE","DECAY"};
+    for(int k=0;k<3;k++){const md_drift_event *e=&ds.events[k];if(!e->kind)continue;char line[40],*q=line;const char *z;
+     if(e->track>=0){*q++='T';*q++='1'+e->track;*q++=' ';}
+     z=e->kind==1?what[e->value%5]:e->kind==2?"RESTS":e->kind==3?"COMES BACK":e->kind==4?"NEW NOTES":e->kind==5?"TO ":"HOME AGAIN";while(*z)*q++=*z++;
+     if(e->kind==1){z=e->up?" UP":" DOWN";while(*z)*q++=*z++;}if(e->kind==5){z=monde_label(e->value)+6;while(*z&&q<line+38)*q++=*z++;}*q=0;
+     md_text(12,116+k*12,line,k?MD_DIM:MD_INK);}}
+   {static const char *const far[3]={"NEAR","MIDDLE","FAR"},*const voyage[3]={"STAY","FAMILY","ANY MONDE"},*const scope[MD_MORPH_SCOPES]={"ALL","SOUND","RHYTHM","EFFECTS"};
+    char g[16];int n=md_drift_bars(ds.slow);if(n){md_num(n,g);char *q=g;while(*q)q++;const char *z=" BARS";while(*z)*q++=*z++;*q=0;}
+    md_named(8,158,"K1 DISTANCE",far[ds.amount],col);md_named(124,158,"K2 GLIDE",n?g:"OFF",col);
+    md_named(8,194,"K3 VOYAGE",voyage[ds.voyage],col);md_named(124,194,"K4 DRIFT",scope[ds.scope],col);}
   }else if(dream_ui.page==BANKS){
    md_text(12,66,"KEEP YOUR OWN SMALL WORLDS",MD_INK);md_text(12,96,bank_name,col);char prefix[24];memcpy(prefix,bank_name,bank_char);prefix[bank_char]=0;cv_rect(12+text_w(&FONT_XS,prefix),113,5,1,col);md_text(12,121,"STOP FIRST / INTERNAL CLOCK",MD_DIM);
    md_value_span(8,158,"K1 USER SLOT",bank_slot+1,1,bank_kind?64:16,col);md_named(124,158,"K2 BANK",bank_kind?"SOUNDS":"MONDES",col);md_named(8,194,"K3 TURN RIGHT","LOAD",col);md_value_span(124,194,"K4 NAME CURSOR",bank_char+1,1,23,col);
@@ -751,6 +778,7 @@ static void md_draw_all(void) {
  else {
   if(dream_ui.page==LIVE){md_text(8,226,monde_label(p->biome_id),MD_INK);if(p->edited_mask&1)md_text(151,226,"*",col);md_text(164,226,p->locked?"LOCK":"RAND",MD_DIM);md_text(203,226,p->freeze?"ICE":"REC",MD_DIM);}
   else if(dream_ui.page==MORPH)md_text(10,226,"PRESET: MONDE B  /  HOLD: HELP",MD_DIM);
+  else if(dream_ui.page==DRIFT)md_text(10,226,"REC: NEW HOME  /  ENV: HOME",MD_DIM);
   else md_text(10,226,(dream_ui.page==SOUND||dream_ui.page==FILTER||dream_ui.page==ENVELOPE||dream_ui.page==MIX||dream_ui.page==MIXER||dream_ui.page==BASSLINE||dream_ui.page==MODULATION||dream_ui.page==PHRASE||dream_ui.page==LFO_A||dream_ui.page==LFO_B||dream_ui.page==GENERATOR)?"PRESET: TONE  /  HOLD: HELP":"PRESET: MONDE  /  HOLD: HELP",MD_DIM);
  }
 }
@@ -794,7 +822,7 @@ static void morph_choose(int d){md_morph_state ms;md_morph_view(&ms,0,0);int id=
  static char m[40];const char *a="MORPH TO ",*z=monde_label(id)+6;int k=0;while(*a)m[k++]=*a++;while(*z&&k<39)m[k++]=*z++;m[k]=0;app_say(dream_cmd(MD_MORPH_TO,0,id)?m:"BUSY: TRY AGAIN","");}
 static void md_tap(int b) {
  const md_patch *p=md_state();switch(b){
- case B_HOME:dream_ui.page=dream_ui.page==LIVE&&plat_ms()-intro_left_at>1500?MORPH:LIVE;break; // HOME again on LIVE: MORPH
+ case B_HOME:dream_ui.page=dream_ui.page==LIVE&&plat_ms()-intro_left_at>1500?MORPH:dream_ui.page==MORPH?DRIFT:LIVE;break; // HOME again: MORPH, then DERIVE
  case B_EDIT:dream_ui.page=dream_ui.page==SOUND?FILTER:dream_ui.page==FILTER?ENVELOPE:dream_ui.page==ENVELOPE?MIX:dream_ui.page==MIX?MIXER:SOUND;break;
  case B_SEQ:dream_ui.page=dream_ui.page==RHYTHM?GROOVE:dream_ui.page==GROOVE?BASSLINE:dream_ui.page==BASSLINE?PHRASE:dream_ui.page==PHRASE?GENERATOR:dream_ui.page==GENERATOR?FORM:RHYTHM;break;
  case B_FX:dream_ui.page=dream_ui.page==GRAIN?TAPE:dream_ui.page==TAPE?SPACE:dream_ui.page==SPACE?SPACE_TONE:dream_ui.page==SPACE_TONE?ECHO_CHORUS:dream_ui.page==ECHO_CHORUS?MODULATION:dream_ui.page==MODULATION?LFO_A:dream_ui.page==LFO_A?LFO_B:GRAIN;break;
@@ -802,7 +830,8 @@ static void md_tap(int b) {
  case B_SEL:dream_cmd(MD_MUTE,dream_ui.track,!p->track[dream_ui.track].mute);break;
  case B_PLAY:dream_cmd(MD_PLAY,0,!md_playing());break;case B_ARP:dream_cmd(MD_LOCK,0,!p->locked);app_say(p->locked?"ARP: SEED FREE, VARIES":"ARP: SEED LOCKED, REPEATS","");break;
  // The printed labels (ENV, LFO, ARP, REC) come from the stock firmware: each press says what it did.
- case B_REC:if(dream_ui.page==MORPH){md_morph_state ms;md_morph_view(&ms,0,0);if(!ms.on){app_say("K1: CHOOSE MONDE B","");break;}
+ case B_REC:if(dream_ui.page==DRIFT){md_drift_state ds;md_drift_view(&ds,0);if(!ds.on){app_say("K2: HOW SLOW, THEN PLAY","");break;}dream_cmd(MD_DRIFT_HOME,0,0);app_say("NEW HOME: HERE","");break;}
+  if(dream_ui.page==MORPH){md_morph_state ms;md_morph_view(&ms,0,0);if(!ms.on){app_say("K1: CHOOSE MONDE B","");break;}
   dream_cmd(MD_MORPH_KEEP,0,0);app_say(ms.pos==1000&&!ms.scope?"KEPT: NOW IN MONDE B":"KEPT: THE MIX STAYS","");break;}
   if(dream_ui.page==GENERATOR){app_say(dream_cmd(MD_CLEAR_PHRASE,dream_ui.track,0)?"MOTIF CLEARED":"BUSY: TRY AGAIN","");motif_at=-1;break;} /* one command: all or nothing */
  {int pg=dream_ui.page,panic=pg==SYSTEM||pg==MIDI;
@@ -837,6 +866,8 @@ void app_input_only(void) {
  }
  for(b=0;b<4;b++)if((d=plat_enc(EN_K1+b))&&dream_ui.help<0) {
   dream_dismiss_intro();const md_track *t=&p->track[dream_ui.track];int c=0,v=0,tr=dream_ui.track;
+  if(dream_ui.page==DRIFT){md_drift_state ds;md_drift_view(&ds,0);const int cs[4]={MD_DRIFT_AMOUNT,MD_DRIFT_SLOW,MD_DRIFT_VOYAGE,MD_DRIFT_SCOPE},vs[4]={ds.amount,ds.slow,ds.voyage,ds.scope},hi[4]={2,6,2,MD_MORPH_SCOPES-1};
+   dream_cmd(cs[b],0,clamp(vs[b]+d,0,hi[b]));continue;}
   if(dream_ui.page==MORPH){md_morph_state ms;md_morph_view(&ms,0,0);
    if(b==0)morph_choose(d);else if(b==1){if(ms.on)dream_cmd(MD_MORPH,0,clamp(ms.pos+d*20,0,1000));else app_say("K1: CHOOSE MONDE B","");}
    else if(b==2)dream_cmd(MD_MORPH_BARS,0,clamp(ms.bars+d,0,5));else dream_cmd(MD_MORPH_SCOPE,0,clamp(ms.scope+d,0,MD_MORPH_SCOPES-1));continue;}
@@ -901,6 +932,7 @@ void app_frame(void) {
 #ifdef PLAT_HOST
 int app_expect(const char *what,int *got) {
  if(!strcmp(what,"help_context")){*got=md_context_help();return 1;}
+ if(!strncmp(what,"drift_",6)){md_drift_state ds;md_drift_view(&ds,0);const char *w=what+6;*got=!strcmp(w,"on")?ds.on:!strcmp(w,"slow")?ds.slow:!strcmp(w,"amount")?ds.amount:!strcmp(w,"voyage")?ds.voyage:ds.scope;return 1;}
  if(!strncmp(what,"morph_",6)){md_morph_state ms;md_morph_view(&ms,0,0);const char *w=what+6;*got=!strcmp(w,"on")?ms.on:!strcmp(w,"target")?ms.target:!strcmp(w,"pos")?ms.pos:!strcmp(w,"bars")?ms.bars:ms.scope;return 1;}
  if(!strcmp(what,"motion"))*got=dream_prefs.motion;else if(!strcmp(what,"boot_sound"))*got=dream_prefs.boot_sound;else if(!strcmp(what,"intro"))*got=intro_until&&plat_ms()<intro_until;else if(!strcmp(what,"track"))*got=dream_ui.track;else if(!strcmp(what,"model"))*got=md_state()->track[dream_ui.track].model;else if(!strcmp(what,"help"))*got=dream_ui.help;
  else if(!strcmp(what,"biome"))*got=md_state()->biome_id;else if(!strcmp(what,"tone_preset"))*got=md_state()->tone_preset[dream_ui.track];

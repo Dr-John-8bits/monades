@@ -16,7 +16,8 @@ enum { MD_MODEL, MD_TONE, MD_HARM, MD_DECAY, MD_LEVEL, MD_SEND, MD_HITS,
  MD_ECHO_SYNC,MD_ROOM_DIFFUSION,MD_CHORUS,MD_CHORUS_DEPTH,
  MD_GEN_SOURCE,MD_GEN_DEJAVU,MD_GEN_LOOP,MD_GEN_SPREAD,MD_FORM,MD_FORM_BARS,MD_FORM_DROPS,
  MD_GAMAKA,MD_GAMAKA_AMOUNT,MD_VADI,MD_SAMVADI,MD_MOTION_EVERY,MD_CLEAR_PHRASE,MD_DICE,
- MD_MORPH_TO,MD_MORPH,MD_MORPH_BARS,MD_MORPH_SCOPE,MD_MORPH_KEEP,MD_COMMAND_COUNT }; /* CLEAR_PHRASE: all 16 steps rest, cursor on step 1 */ /* LFO commands: track argument = track + 6 * slot (A, B) */
+ MD_MORPH_TO,MD_MORPH,MD_MORPH_BARS,MD_MORPH_SCOPE,MD_MORPH_KEEP,
+ MD_DRIFT_SLOW,MD_DRIFT_AMOUNT,MD_DRIFT_VOYAGE,MD_DRIFT_SCOPE,MD_DRIFT_HOME,MD_COMMAND_COUNT }; /* CLEAR_PHRASE: all 16 steps rest, cursor on step 1 */ /* LFO commands: track argument = track + 6 * slot (A, B) */
 typedef struct { int32_t model,tone,harm,decay,level,send,hits,length,rotate,prob,note,pan,mute,speed,attack,ratchet,accent,shape,cutoff,resonance,filter,breathe; } md_track;
 typedef struct { int32_t delay_send,reverb_send,bass_mode,pattern,glide,marbles,tides,tides_rate,warps,edit_step; int32_t notes[16]; } md_extension;
 /* Monades LFO, two per track. rate: 0..14 synced to the tempo (8 bars .. 1/32), 15..30 free 0.02..20 Hz.
@@ -130,6 +131,15 @@ void md_morph_view(md_morph_state *s,const md_patch **a,const md_patch **b); /* 
 int md_morph_bars_len(int bars); /* 0, 4, 8, 16, 32, 64 */
 int md_morph_point(int track); /* where a track switches (0..1000; 6 = scale and seed); it fades out and in around it */
 unsigned md_morph_changes(void); /* bit per track: it has something to switch */
+/* DERIVE: the Monde drifts on its own while PLAY runs, gliding towards variants drawn around its home (the patch when
+ * the drift starts). MD_DRIFT_SLOW 0 = off, 1..6 = each glide lasts 8, 16, 32, 64, 128 or 256 bars. AMOUNT 0..2 near,
+ * middle, far. VOYAGE 0 stay, 1 visit the family, 2 visit any Monde. SCOPE as the morph's. HOME: the patch now becomes
+ * home. ENV goes back home. Events, newest first: 1 a track's number moved (value 0..4: cutoff, tone, harmonics,
+ * shape, decay; up), 2 a track rests, 3 it comes back, 4 new notes, 5 towards a Monde (value), 6 home again. */
+typedef struct { int32_t kind,track,value,up; } md_drift_event;
+typedef struct { int32_t on,slow,amount,voyage,scope,pos,distance; float seconds,next; md_drift_event events[3]; } md_drift_state;
+void md_drift_view(md_drift_state *s,const md_patch **home);
+int md_drift_bars(int slow); /* 0, 8, 16, 32, 64, 128, 256 */
 int md_can_return(void); /* 1 if ENV (RETURN) has a previous variation to go back to */
 const char *md_echo_sync_name(int sync);
 unsigned md_form_mask(unsigned cycle,unsigned section); /* tracks the form drops in that section */

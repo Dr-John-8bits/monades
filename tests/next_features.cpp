@@ -1,6 +1,7 @@
 #include "dsp/dreams.h"
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
@@ -283,6 +284,28 @@ int main(){
   cmd(MD_MORPH_KEEP,0,0);md_morph_view(&ms,0,0);assert(!ms.on&&md_state()->tempo==B.tempo);
   cmd(MD_MORPH_TO,0,3);cmd(MD_SCENE,0,5);md_morph_view(&ms,0,0);assert(!ms.on);cmd(MD_MORPH_BARS,0,0);
   puts("PASS morph: glide, tracks switch one after the other inside a fade, valid all along, scope, 4-bar auto morph, keep, ENV back to A");
+ }
+ {
+  // DERIVE from CHRISTELE: 12 minutes of 8-bar glides. On a leash around home, scale / root / transpose never move,
+  // tempo within 10 %, valid and audible all along; ENV back home exactly, REC a new home, OFF stops where it is.
+  cmd(MD_SCENE,0,80);const md_patch H=*md_state();cmd(MD_DRIFT_AMOUNT,0,2);cmd(MD_DRIFT_SLOW,0,1);cmd(MD_PLAY,0,1);
+  md_drift_state ds;md_drift_view(&ds,0);assert(ds.on&&ds.slow==1);int glides=0,last_pos=0,rests=0,notes=0;
+  for(int sec=0;sec<720;sec++){float peak=0;for(int b=0;b<345;b++){md_render(audio,128);for(int k=0;k<256;k++)peak=fmaxf(peak,fabsf(audio[k]));}
+   const md_patch *p=md_state();assert(md_validate(p)&&p->root==H.root&&p->scale==H.scale&&p->transpose==H.transpose);
+   assert(p->tempo>=H.tempo-H.tempo/10-1&&p->tempo<=H.tempo+H.tempo/10+1);
+   for(int j=0;j<6;j++){assert(abs(p->track[j].tone-H.track[j].tone)<=451&&abs(p->track[j].cutoff-H.track[j].cutoff)<=451);assert(p->track[j].level<=H.track[j].level);}
+   if(sec%10==9)assert(peak>.002f&&peak<1.01f);
+   md_drift_view(&ds,0);if(ds.pos<last_pos)glides++;last_pos=ds.pos;for(auto &e:ds.events){rests+=e.kind==2;notes+=e.kind==4;}}
+  assert(glides>=10&&rests>0&&notes>0&&ds.seconds>700);
+  cmd(MD_RETURN,0,0);assert(!memcmp(md_state(),&H,sizeof H));
+  for(int b=0;b<4000;b++)md_render(audio,128);cmd(MD_DRIFT_HOME,0,0);const md_patch N=*md_state();cmd(MD_RETURN,0,0);assert(!memcmp(md_state(),&N,sizeof N));
+  for(int b=0;b<4000;b++)md_render(audio,128);cmd(MD_DRIFT_SLOW,0,0);const md_patch S=*md_state();for(int b=0;b<4000;b++)md_render(audio,128);
+  assert(!memcmp(md_state(),&S,sizeof S));md_drift_view(&ds,0);assert(!ds.on);
+  // VOYAGE visits other Mondes and still keeps the scale; a new Monde ends the drift.
+  cmd(MD_DRIFT_VOYAGE,0,2);cmd(MD_DRIFT_SLOW,0,1);bool visited=false;
+  for(int b=0;b<345*240;b++){md_render(audio,128);if(b%345==0){assert(md_state()->scale==S.scale);md_drift_view(&ds,0);for(auto &e:ds.events)visited|=e.kind==5;}}
+  assert(visited);cmd(MD_SCENE,0,3);md_drift_view(&ds,0);assert(!ds.on);cmd(MD_PLAY,0,0);cmd(MD_DRIFT_VOYAGE,0,0);
+  puts("PASS derive: 12 minutes on a leash around home, scale kept, tempo within 10 %, rests and new notes, ENV home, REC new home, voyage");
  }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

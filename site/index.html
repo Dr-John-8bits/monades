@@ -142,6 +142,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>DICE</td><td>—</td><td>REC tire au sort le son, le rythme ou les effets selon la page, sans toucher la gamme ni le tempo. ENV annule.</td></tr>
       <tr><td>Écrans</td><td>Plusieurs pages décoratives ou en texte seul.</td><td>Chaque page montre ce qu'on règle&nbsp;: bande granulaire, réponse du filtre, enveloppe, échos, piano-roll, cercle des notes. Un message dit ce qu'a fait chaque appui sur ENV, LFO, ARP et REC.</td></tr>
       <tr><td>Morphing</td><td>—</td><td>Passage progressif du Monde en cours vers un autre Monde, à la main ou sur 4 à 64 mesures. Les nombres glissent (tempo, filtres, niveaux, effets, densité)&nbsp;; les choix (moteurs, formes de LFO) basculent piste après piste, chacune dans un fondu, et la gamme à mi-chemin. L'écran montre les deux Mondes et la flotte qui va de l'un à l'autre. Page MORPH (HOME deux fois). <a href="#morph">Mode d'emploi</a>.</td></tr>
+      <tr><td>Dérive</td><td>—</td><td>Le Monde change tout seul pendant la lecture, pendant des minutes ou des heures&nbsp;: il glisse vers des variantes de lui-même tirées autour de son état de départ, des pistes se taisent puis reviennent, de nouvelles notes arrivent, et il peut visiter d'autres Mondes. La gamme ne bouge pas. Page DERIVE (HOME trois fois). <a href="#derive">Mode d'emploi</a>.</td></tr>
       <tr><td>Scènes</td><td>76 Biomes, sans aucune des nouveautés.</td><td>Mondes, affichés avec leur numéro et leur famille. En plus, 14 Mondes FDDS qui utilisent les nouveautés&nbsp;: LFO, générateurs, forme, gamakas, gammes microtonales. <a href="#fdds">La liste</a>.</td></tr>
     </table>
   </div>
@@ -181,10 +182,14 @@ ol.steps>li{padding:6px 0;max-width:64ch}
     <h3 id="morph">Le morphing</h3>
     <p>HOME, puis HOME encore&nbsp;: page MORPH. Le Monde en cours est A. K1 ou PRESET choisit le Monde B&nbsp;; rien ne change tant que K2 est à 0. K2 va de A vers B. Les nombres glissent&nbsp;: tempo, filtres, niveaux, envois, effets, densité, notes de base. Les choix d'une piste (moteur, mode de filtre, formes et cibles des LFO, générateur, gamaka) basculent à son propre moment, une piste après l'autre, entre 17 et 83&nbsp;%. Autour de ce moment, la piste baisse jusqu'au silence puis remonte&nbsp;: l'ancien moteur s'est tu quand le nouveau commence. La gamme, la note de base et la graine basculent à 50&nbsp;%, au trait du milieu. K3 confie le passage à la lecture, sur 4 à 64 mesures. K4 limite ce qui change&nbsp;: tout, le son, le rythme ou les effets&nbsp;; le reste reste sur A.</p>
     <p>À l'écran&nbsp;: A à gauche s'éteint, B à droite s'allume, la flotte du son en cours voyage de l'un à l'autre. Dessous&nbsp;: le tempo de A, le tempo en cours et celui de B, les deux gammes (celle qui joue est claire), et les six pistes&nbsp;: sur la barre, un trait de couleur marque le moment où chaque piste bascule&nbsp;; dessous, son carré est creux avant, sombre pendant le fondu, plein après (un tiret&nbsp;: rien à basculer). REC garde le mélange et termine le morphing. ENV revient à A. Charger un autre Monde avec PRESET sur une autre page termine le morphing.</p>
+    <h3 id="derive">La dérive</h3>
+    <p>HOME trois fois&nbsp;: page DERIVE. Le Monde en cours devient la maison dès que K2 quitte OFF, et la dérive avance pendant la lecture. Le Monde glisse vers une variante de lui-même, puis vers la suivante&nbsp;; chaque glissement dure de 8 à 256 mesures (K2). Les variantes sont toujours tirées autour de la maison, jamais autour de l'état du moment&nbsp;: même après des heures, le Monde reste près de chez lui. K1 règle la distance permise (près, moyen, loin).</p>
+    <p>Ce qui glisse&nbsp;: timbres, filtres, enveloppes, panoramique, envois, Chance, accents, nombre de coups, LFO déjà actifs, grain, écho, room, chorus, et le tempo dans ±10&nbsp;% de celui de la maison. De temps en temps, une piste (jamais la première) se tait pendant un glissement puis revient, et de nouvelles notes arrivent. Avec K3 sur FAMILY ou ANY MONDE, un glissement sur quatre va vers un autre Monde (de la même famille, ou n'importe lequel), et le suivant revient. Ne bougent jamais&nbsp;: la gamme, la note de base, la transposition, les mutes. K4 limite la dérive au son, au rythme ou aux effets. Avec ARP (graine verrouillée), la même dérive refait le même chemin.</p>
+    <p>À l'écran&nbsp;: la maison, pâle, au centre, et la flotte du son en cours qui tourne autour, d'autant plus loin qu'elle s'en est éloignée&nbsp;; le temps écoulé, l'avancée du glissement en cours, le temps avant le suivant, et les trois derniers changements («&nbsp;T3 DECAY UP&nbsp;», «&nbsp;T5 RESTS&nbsp;», «&nbsp;NEW NOTES&nbsp;»). REC fait de l'état actuel la nouvelle maison. ENV ramène à la maison. K2 sur OFF arrête la dérive là où elle en est. Charger un Monde ou choisir un Monde B sur MORPH l'arrête aussi.</p>
     <h3>Les pages</h3>
     <table class="manual">
       <tr><th>Bouton</th><th>Pages, dans l'ordre</th></tr>
-      <tr><td>HOME</td><td>LIVE MONDE → MORPH</td></tr>
+      <tr><td>HOME</td><td>LIVE MONDE → MORPH → DERIVE</td></tr>
       <tr><td>EDIT</td><td>SOUND → VELVET FILTER → ENVELOPE → MIX → GLOBAL MIXER</td></tr>
       <tr><td>SEQ</td><td>RHYTHM → GROOVE → BASS / MOTIFS → PHRASE → GENERATOR → FORM</td></tr>
       <tr><td>FX</td><td>GRANULAR BUS → TAPE → SHARED SPACE → SPACE TONE → ECHO SYNC / CHORUS → MARBLES / TIDES / WARPS → LFO A → LFO B</td></tr>
@@ -198,7 +203,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>ALGO</td><td>Change le moteur sonore de la piste (12 moteurs).</td></tr>
       <tr><td>PRESET</td><td>Sur les pages d'une piste&nbsp;: un des 224 sons. Ailleurs&nbsp;: un des 90 Mondes, ou le Blank. L'écran affiche son numéro et sa famille (MIST, DRONE, RESONANCE, TECHNO, BROKEN, ORGANIC, PERCUSSION, MELODY), ou son nom pour un Monde FDDS.</td></tr>
       <tr><td>PLAY</td><td>Lance ou arrête la séquence.</td></tr>
-      <tr><td>REC</td><td>N'enregistre rien. Sur MORPH&nbsp;: garde le mélange en cours. Sur LIVE et GLO&nbsp;: nouvelle variation. Sur les pages EDIT&nbsp;: DICE, nouveaux réglages tirés au sort pour le son de la piste choisie. Sur les pages SEQ&nbsp;: DICE pour son rythme. Sur les pages FX&nbsp;: DICE pour les effets, toujours audible (un retour d'effets à 0 remonte&nbsp;; sans aucun envoi, la piste choisie reçoit de l'écho et de la room). Le DICE ne change jamais la gamme, la note de base, la transposition, le tempo, le niveau, les mutes, le moteur ni le MIDI. Sur SYSTEM et MIDI&nbsp;: panique. Sur GENERATOR&nbsp;: efface le motif.</td></tr>
+      <tr><td>REC</td><td>N'enregistre rien. Sur MORPH&nbsp;: garde le mélange en cours. Sur DERIVE&nbsp;: l'état actuel devient la maison. Sur LIVE et GLO&nbsp;: nouvelle variation. Sur les pages EDIT&nbsp;: DICE, nouveaux réglages tirés au sort pour le son de la piste choisie. Sur les pages SEQ&nbsp;: DICE pour son rythme. Sur les pages FX&nbsp;: DICE pour les effets, toujours audible (un retour d'effets à 0 remonte&nbsp;; sans aucun envoi, la piste choisie reçoit de l'écho et de la room). Le DICE ne change jamais la gamme, la note de base, la transposition, le tempo, le niveau, les mutes, le moteur ni le MIDI. Sur SYSTEM et MIDI&nbsp;: panique. Sur GENERATOR&nbsp;: efface le motif.</td></tr>
       <tr><td>ENV</td><td>Revient à l'état d'avant la dernière variation ou le dernier DICE.</td></tr>
       <tr><td>ARP</td><td>Verrouille la graine&nbsp;: la même variation se répète.</td></tr>
       <tr><td>LFO</td><td>Fige la bande granulaire (Freeze).</td></tr>
@@ -213,6 +218,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><th>Page</th><th>K1 · K2 · K3 · K4</th></tr>
       <tr><td>LIVE</td><td>Density · Motion · Colour · Space (les quatre macros)</td></tr>
       <tr><td>MORPH</td><td>Monde B (aussi avec PRESET) · Position de A vers B · Automatique sur 4 à 64 mesures pendant la lecture · Ce qui change&nbsp;: tout, le son, le rythme ou les effets</td></tr>
+      <tr><td>DERIVE</td><td>Distance de la maison (près, moyen, loin) · Durée de chaque glissement (arrêt, 8 à 256 mesures) · Voyage (rester, la famille, n'importe quel Monde) · Ce qui dérive&nbsp;: tout, le son, le rythme ou les effets</td></tr>
       <tr><td>SOUND</td><td>Tone · Harmonics · Shape (Decay pour les batteries) · Level</td></tr>
       <tr><td>FILTER</td><td>Cutoff · Résonance · Mode (LP 12, LP 24, LPG, HP 12, HP 24, BP, Notch) · Breathe</td></tr>
       <tr><td>ENVELOPE</td><td>Attack · Decay · Level · Envoi grain</td></tr>
@@ -467,6 +473,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <li>DICE sur REC&nbsp;: son, rythme ou effets selon la page, annulable avec ENV. <span class="st done">fait</span></li>
       <li>14 Mondes FDDS qui utilisent les nouveautés, tirés du wiki de Flash Dog Duke Silver. <span class="st done">fait</span></li>
       <li>Morphing d'un Monde vers un autre, à la main ou sur 4 à 64 mesures, page MORPH. <span class="st done">fait</span></li>
+      <li>Dérive&nbsp;: le Monde change tout seul pendant des minutes ou des heures, page DERIVE. <span class="st done">fait</span></li>
     </ol>
   </div>
   <aside class="side"></aside>
