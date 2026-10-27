@@ -190,11 +190,15 @@ knob(105, 205, 24, "PRESETS", ENC.PRESETS);
 knob(215, 205, 24, "ALGORITHM", ENC.ALGORITHM);
 for (let i = 0; i < 4; i++) knob(610 + i * 104, 100, 22, `KNOB${i + 1}`, ENC[`KNOB${i + 1}`], `KNOB ${i + 1}`);
 
+// The FM-1 prints the stock firmware's names; under them, in amber, what Monades does with the button.
+const HINTS = { SEL: "MUTE", ENV: "UNDO", LFO: "FREEZE", ARP: "LOCK", REC: "VARY" };
 const buttons = {};
 function button(x, y, w, h, label, two) {
   const g = el("g", { class: "ctl" });
   el("rect", { x, y, width: w, height: h, rx: 9, fill: BTNC, stroke: "#4a4d52", "stroke-width": 1.5, class: "btnface" }, g);
+  const hint = HINTS[label];                                                        // Monades: what the button does here
   if (two) { text(g, x + w / 2, y + h / 2 - 1, label, 12); text(g, x + w / 2, y + h / 2 + 12, two, 12); }
+  else if (hint) { text(g, x + w / 2, y + h / 2 + 1, label, 14); text(g, x + w / 2, y + h / 2 + 15, hint, 10, "#ffc668", 500); }
   else text(g, x + w / 2, y + h / 2 + 5, label, 15);
   buttons[label] = { g, bit: BTN[label], name: { "OCT-": "OCT minus", "OCT+": "OCT plus" }[label] || label, light: "" };
 }

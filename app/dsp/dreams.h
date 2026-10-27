@@ -117,6 +117,7 @@ const char *md_lfo_shape_name(int shape);
 const char *md_lfo_target_name(int target);
 int md_send_hp_hz(int value); /* 0 = off */
 float md_echo_ms(void); /* the echo time in use, synced or not */
+int md_can_return(void); /* 1 if ENV (RETURN) has a previous variation to go back to */
 const char *md_echo_sync_name(int sync);
 unsigned md_form_mask(unsigned cycle,unsigned section); /* tracks the form drops in that section */
 float md_form_tension(unsigned section);

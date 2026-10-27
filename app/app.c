@@ -764,10 +764,12 @@ static void md_tap(int b) {
  case B_FX:dream_ui.page=dream_ui.page==GRAIN?TAPE:dream_ui.page==TAPE?SPACE:dream_ui.page==SPACE?SPACE_TONE:dream_ui.page==SPACE_TONE?ECHO_CHORUS:dream_ui.page==ECHO_CHORUS?MODULATION:dream_ui.page==MODULATION?LFO_A:dream_ui.page==LFO_A?LFO_B:GRAIN;break;
  case B_GLO:dream_ui.page=dream_ui.page==HARMONY?RAGA:dream_ui.page==RAGA?SYSTEM:dream_ui.page==SYSTEM?APPEARANCE:dream_ui.page==APPEARANCE?MIDI:dream_ui.page==MIDI?ZONES:dream_ui.page==ZONES?BANKS:HARMONY;break;
  case B_SEL:dream_cmd(MD_MUTE,dream_ui.track,!p->track[dream_ui.track].mute);break;
- case B_PLAY:dream_cmd(MD_PLAY,0,!md_playing());break;case B_ARP:dream_cmd(MD_LOCK,0,!p->locked);break;
+ case B_PLAY:dream_cmd(MD_PLAY,0,!md_playing());break;case B_ARP:dream_cmd(MD_LOCK,0,!p->locked);app_say(p->locked?"ARP: SEED FREE, VARIES":"ARP: SEED LOCKED, REPEATS","");break;
+ // The printed labels (ENV, LFO, ARP, REC) come from the stock firmware: each press says what it did.
  case B_REC:if(dream_ui.page==GENERATOR){app_say(dream_cmd(MD_CLEAR_PHRASE,dream_ui.track,0)?"MOTIF CLEARED":"BUSY: TRY AGAIN","");motif_at=-1;break;} /* one command: all or nothing */
- dream_cmd((dream_ui.page==SYSTEM||dream_ui.page==MIDI)?MD_PANIC:MD_MUTATE,0,0);break;case B_ENV:dream_cmd(MD_RETURN,0,0);break;
- case B_LFO:dream_cmd(MD_FREEZE,0,!p->freeze);break;
+ {int panic=dream_ui.page==SYSTEM||dream_ui.page==MIDI;dream_cmd(panic?MD_PANIC:MD_MUTATE,0,0);app_say(panic?"PANIC: ALL SILENT":"REC: NEW VARIATION","");}break;
+ case B_ENV:if(md_can_return()){dream_cmd(MD_RETURN,0,0);app_say("ENV: PREVIOUS VARIATION","");}else app_say("ENV: NOTHING TO UNDO YET","");break;
+ case B_LFO:dream_cmd(MD_FREEZE,0,!p->freeze);app_say(p->freeze?"LFO: GRAIN TAPE RUNS":"LFO: GRAIN TAPE FROZEN","");break;
  case B_OCTDN:dream_ui.octave=clamp(dream_ui.octave-1,-2,2);break;case B_OCTUP:dream_ui.octave=clamp(dream_ui.octave+1,-2,2);break;
  case B_SAVE:if(dream_store_hold){app_say("USB BACKUP IN PROGRESS","");break;}if(dream_ui.page==BANKS){bank_action(1);break;}if(md_playing())app_say("STOP BEFORE SAVING","");else if(md_clock_source())app_say("USE INTERNAL CLOCK TO SAVE","");else {md_patch snapshot;uint32_t f=plat_lock();snapshot=*p;plat_unlock(f);int failed=plat_store_save(OBJ_PATCH,&snapshot,sizeof snapshot);if(!failed)failed=plat_store_save(OBJ_PREFS,&dream_prefs,sizeof dream_prefs);app_say(failed?"SAVE FAILED":"BIOME + PREFS SAVED","");}break;
  }

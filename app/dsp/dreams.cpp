@@ -790,6 +790,7 @@ const char *md_lfo_rate_name(int rate){rate=bound(rate,0,MD_LFO_RATES-1);return 
 const char *md_lfo_shape_name(int s){static const char *const n[MD_LFO_SHAPES]={"SINE","TRIANGLE","RAMP UP","RAMP DOWN","SQUARE","SAMPLE & HOLD","SMOOTH RANDOM"};return n[bound(s,0,MD_LFO_SHAPES-1)];}
 const char *md_lfo_target_name(int t){static const char *const n[MD_LFO_TARGETS]={"CUTOFF","RESONANCE","LEVEL","PAN","PITCH","TONE","HARMONICS","SHAPE","ECHO SEND","ROOM SEND","GRAIN SEND","ECHO TIME","GRAIN POS","ATTACK","DECAY","ECHO FEEDBACK","GRAIN SIZE","NOTES IN SCALE","HITS"};return n[bound(t,0,MD_LFO_TARGETS-1)];}
 float md_echo_ms(void){return echo_ms_now();}
+int md_can_return(void){return memcmp(&previous,&patch,sizeof patch)!=0;}
 unsigned md_form_mask(unsigned c,unsigned s){return form_mask(c,s);}
 float md_form_tension(unsigned s){return form_tension_of[s&3];}
 int md_form_bars(void){return (int)form_bar_len[bound(patch.form_bars,0,3)];}
