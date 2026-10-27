@@ -215,5 +215,21 @@ int main(){
   cmd(MD_PLAY,0,0);int changes_off=0,changes_on=0;for(int k=1;k<63;k++)if(notes[k]&&notes[k-1]&&notes[k]!=notes[k-1])(k%4?changes_off:changes_on)++;assert(changes_off==0&&changes_on>3);
   puts("PASS Motion every N steps: held between beats, v9 migrates");
  }
+ {
+  // Review fixes. Leaving the internal clock while playing sends Stop and releases every note out.
+  uint8_t m[3];md_patch q=blank(MD_VA);q.tempo=120;assert(md_load(&q));md_midi_routing r={};r.mode=1;r.clock=1;md_set_midi_routing(&r);
+  cmd(MD_PLAY,0,1);run(200);while(md_midi_take(m));cmd(MD_CLOCK_SOURCE,0,1);bool stop=false;while(md_midi_take(m))stop|=m[0]==0xfc;assert(stop&&!md_playing());
+  cmd(MD_CLOCK_SOURCE,0,0);
+  // CLEAR_PHRASE: all rests, cursor on step 1, in one command.
+  q=blank(MD_VA);q.ext[2].edit_step=9;assert(md_load(&q));cmd(MD_CLEAR_PHRASE,2,0);for(int k=0;k<16;k++)assert(md_state()->ext[2].notes[k]==-1);assert(md_state()->ext[2].edit_step==0);
+  // A new Biome empties the generator registers, even while playing.
+  q=blank(MD_VA);q.gen[0]={MD_GEN_RANDOM,1000,4,12};assert(md_load(&q));cmd(MD_PLAY,0,1);run(400);assert(md_status()->gen_valid[0]);cmd(MD_SCENE,0,3);assert(md_status()->gen_valid[0]==0);cmd(MD_PLAY,0,0);
+  // TRACKS mode: the previous note on the channel is released before the bend changes.
+  {md_patch t=blank(MD_VA);int rast=-1;for(int i=0;i<md_scale_count();i++)if(!strcmp(md_scale_name(i),"RAST"))rast=i;assert(rast>=0);t.scale=rast;t.track[0].note=63;assert(md_load(&t));
+   md_midi_routing rr={};rr.mode=1;md_set_midi_routing(&rr);while(md_midi_take(m));cmd(MD_PLAY,0,1);bool held=false,bad=false;
+   for(int b=0;b<400;b++){md_render(audio,128);while(md_midi_take(m)){if((m[0]&0xf0)==0x90)held=true;else if((m[0]&0xf0)==0x80)held=false;else if((m[0]&0xf0)==0xe0&&held)bad=true;}}
+   cmd(MD_PLAY,0,0);assert(!bad);}
+  puts("PASS review fixes: Stop on clock change, one-command phrase clear, Biome resets generators, bend never retunes a held note");
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

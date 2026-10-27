@@ -19,8 +19,9 @@ static void out_note(unsigned track,float note,float velocity,float gate){
  // Zones may stack notes on a channel: there the nearest note only.
  const int bend=routing.mode==1?bound((int)floorf((note-n)*4096.0f+.5f),-8192,8191):0;
  for(unsigned ch=0;ch<16;ch++){if(!(chans&(1u<<ch)))continue;
-  if(routing.mode==1)out_bend(ch,bend);
-  for(unsigned j=0;j<owed_n;j++)if(owed[j].ch==ch&&owed[j].note==n){out_push(0x80|ch,(uint8_t)n,0);owed[j]=owed[--owed_n];break;} // retrigger
+  // A track is one voice: in TRACKS mode its channel is released before the bend changes, so no tail is retuned.
+  if(routing.mode==1){for(unsigned j=0;j<owed_n;)if(owed[j].ch==ch){out_push(0x80|ch,owed[j].note,0);owed[j]=owed[--owed_n];}else j++;out_bend(ch,bend);}
+  else for(unsigned j=0;j<owed_n;j++)if(owed[j].ch==ch&&owed[j].note==n){out_push(0x80|ch,(uint8_t)n,0);owed[j]=owed[--owed_n];break;} // retrigger
   if(owed_n>=64)continue; // never send a note-on whose note-off cannot be owed
   out_push(0x90|ch,(uint8_t)n,(uint8_t)vel);owed[owed_n++]={gate,(uint8_t)ch,(uint8_t)n};stats.midi_out_notes++;}
 }

@@ -12,7 +12,7 @@ function deviceDraw(m){
  cx.fillStyle='#9db5a8';cx.font='10px sans-serif';cx.fillText('LIVE PARAMETER VIEW',12,37);
  cx.fillStyle='#f7eee4';cx.font='bold 13px sans-serif';cx.fillText(m.help>=0?'HOLD HELP ON THE DEVICE':$('pages')?.querySelector('.active')?.textContent?.trim().slice(0,26)||'LIVE BIOME',12,58);
  for(let i=0;i<6;i++){cx.fillStyle=colors[i];cx.beginPath();cx.arc(24+i*38,86,6+(i===m.track?4:0),0,Math.PI*2);cx.fill();cx.fillStyle=m.muted[i]?'#8d9697':'#ede5db';cx.font='9px sans-serif';cx.fillText(String(i+1),22+i*38,105);}
- defs[m.page].forEach(([label],i)=>{const x=12+(i%2)*118,y=132+Math.floor(i/2)*48;cx.fillStyle='#14262b';cx.fillRect(x-3,y-13,110,38);cx.fillStyle=colors[i];cx.font='9px sans-serif';cx.fillText(label.slice(0,18),x,y);cx.fillStyle='#fff3e4';cx.font='bold 14px sans-serif';cx.fillText(String(knobText(m.page,i,m.knobs[i])).slice(0,14),x,y+18);});
+ pageDefs(m.page).forEach(([label],i)=>{const x=12+(i%2)*118,y=132+Math.floor(i/2)*48;cx.fillStyle='#14262b';cx.fillRect(x-3,y-13,110,38);cx.fillStyle=colors[i];cx.font='9px sans-serif';cx.fillText(label.slice(0,18),x,y);cx.fillStyle='#fff3e4';cx.font='bold 14px sans-serif';cx.fillText(String(knobText(m.page,i,m.knobs[i])).slice(0,14),x,y+18);});
  cx.fillStyle='#b8c6bc';cx.font='10px sans-serif';cx.fillText(`${m.playing?'PLAYING':'STOPPED'}  ·  ${m.tempo} BPM  ·  TRACK ${m.track+1}`,12,225);
 }
 function flushHardwareParams(){

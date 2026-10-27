@@ -11,15 +11,14 @@ static void gen_reset(){for(unsigned i=0;i<6;i++){GenState &g=gens[i];memset(&g,
  stats.gen_valid[i]=stats.gen_gate[i]=0;stats.gen_pos[i]=stats.gen_fresh[i]=0;memset(stats.gen_off[i],0,sizeof stats.gen_off[i]);}}
 static int gen_draw(unsigned i,GenState &g){
  const md_gen &c=patch.gen[i];unsigned r=random_word(g.rng);
+ int seq[16],n=0;for(int k=0;k<16;k++)if(patch.ext[i].notes[k]>=0)seq[n++]=patch.ext[i].notes[k]; // the phrase, rests skipped
  if(c.source==MD_GEN_MARKOV){
   // First-order chain learned from the phrase, read as a loop: follow one of the notes that came after the current one.
-  int seq[16],n=0;for(int k=0;k<16;k++)if(patch.ext[i].notes[k]>=0)seq[n++]=patch.ext[i].notes[k];
   if(n>=2){int next[16],m=0;for(int k=0;k<n;k++)if(seq[k]==g.prev)next[m++]=seq[(k+1)%n];
    return m?next[r%m]:seq[r%n];}
  }
  if(c.source==MD_GEN_MOTIF){
   // The motif in order; with chance spread / 24 a note moves to a neighbour (up to 2 semitones, snapped later).
-  int seq[16],n=0;for(int k=0;k<16;k++)if(patch.ext[i].notes[k]>=0)seq[n++]=patch.ext[i].notes[k];
   if(n){int x=seq[g.count%n];if(r%24<(unsigned)c.spread)x+=((r>>8)&1?1:-1)*(1+(int)((r>>9)&1));return x;}
  }
  int spread=c.spread;return (int)(r%(unsigned)(spread+1))-spread/2;

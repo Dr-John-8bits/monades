@@ -54,6 +54,7 @@ static int md_context_help(void){
 }
 static int dream_cmd(int c,int t,int v){uint32_t f=plat_lock();int r=md_command(c,t,v);plat_unlock(f);return r;}
 static int zone_sel;
+static int motif_at=-1,motif_track;static uint32_t motif_until; /* next motif step while the engine catches up */
 static void dream_apply_midi(void){uint32_t f=plat_lock();md_set_midi_routing(&dream_prefs.midi);plat_unlock(f);}
 static int dream_install(const void *,unsigned);
 #include "banks.c"
@@ -764,7 +765,7 @@ static void md_tap(int b) {
  case B_GLO:dream_ui.page=dream_ui.page==HARMONY?RAGA:dream_ui.page==RAGA?SYSTEM:dream_ui.page==SYSTEM?APPEARANCE:dream_ui.page==APPEARANCE?MIDI:dream_ui.page==MIDI?ZONES:dream_ui.page==ZONES?BANKS:HARMONY;break;
  case B_SEL:dream_cmd(MD_MUTE,dream_ui.track,!p->track[dream_ui.track].mute);break;
  case B_PLAY:dream_cmd(MD_PLAY,0,!md_playing());break;case B_ARP:dream_cmd(MD_LOCK,0,!p->locked);break;
- case B_REC:if(dream_ui.page==GENERATOR){for(int k=15;k>=0;k--){dream_cmd(MD_BASS_STEP,dream_ui.track,k);dream_cmd(MD_BASS_VALUE,dream_ui.track,-1);}app_say("MOTIF CLEARED","");break;} /* cursor ends on step 1 */
+ case B_REC:if(dream_ui.page==GENERATOR){app_say(dream_cmd(MD_CLEAR_PHRASE,dream_ui.track,0)?"MOTIF CLEARED":"BUSY: TRY AGAIN","");motif_at=-1;break;} /* one command: all or nothing */
  dream_cmd((dream_ui.page==SYSTEM||dream_ui.page==MIDI)?MD_PANIC:MD_MUTATE,0,0);break;case B_ENV:dream_cmd(MD_RETURN,0,0);break;
  case B_LFO:dream_cmd(MD_FREEZE,0,!p->freeze);break;
  case B_OCTDN:dream_ui.octave=clamp(dream_ui.octave-1,-2,2);break;case B_OCTUP:dream_ui.octave=clamp(dream_ui.octave+1,-2,2);break;
@@ -833,7 +834,9 @@ void app_input_only(void) {
   if(dream_ui.help<0&&dream_ui.page==HARMONY&&p->scale==md_scale_custom()){int iv=((53+b)%12-p->root+12)%12;if(iv){dream_prefs.custom_scale^=1<<iv;uint32_t f=plat_lock();md_set_custom_scale((unsigned)dream_prefs.custom_scale);plat_unlock(f);}}
   // On GENERATOR, a key also writes its note into the motif (folded into the 0..+24 range above the base) and moves on.
   else if(dream_ui.help<0&&dream_ui.page==GENERATOR){int tr=dream_ui.track,key=53+b+dream_ui.octave*12,off=key-p->track[tr].note;while(off<0)off+=12;while(off>24)off-=12;
-   int at=p->ext[tr].edit_step;dream_cmd(MD_BASS_STEP,tr,at);dream_cmd(MD_BASS_VALUE,tr,off);dream_cmd(MD_BASS_STEP,tr,(at+1)%16);dream_cmd(MD_TRIGGER,tr,key);}
+   // The engine applies queued commands later: keys pressed within one frame continue from the UI's own cursor.
+   int at=(motif_at>=0&&motif_track==tr&&plat_ms()<motif_until)?motif_at:p->ext[tr].edit_step;motif_at=(at+1)%16;motif_track=tr;motif_until=plat_ms()+400;
+   dream_cmd(MD_BASS_STEP,tr,at);dream_cmd(MD_BASS_VALUE,tr,off);dream_cmd(MD_BASS_STEP,tr,(at+1)%16);dream_cmd(MD_TRIGGER,tr,key);}
   else if(dream_ui.help<0)dream_cmd(MD_TRIGGER,dream_ui.track,53+b+dream_ui.octave*12);}
  dream_ui.keys=keys;
  /* The printed SEL key mutes; EDIT cycles sound, envelope, mix, avoiding a hidden modifier. */

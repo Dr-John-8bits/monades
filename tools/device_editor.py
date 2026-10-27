@@ -21,7 +21,8 @@ def unpack(data):
  return bytes(out)
 
 class Editor:
- def __init__(self,port='X0X FM-1'):
+ patch_size=None # set from the device capability reply (cmd 7) before any transfer
+ def __init__(self,port='Monades FM-1'):
   self.i=mido.open_input(port);self.o=mido.open_output(port);self.seq=0;time.sleep(.6)
  def close(self):self.i.close();self.o.close()
  def call(self,c,p=()):
@@ -43,11 +44,11 @@ class Editor:
  def ui(self,c,t,v):
   z=v+8192;return self.call(10,[c,t,z&127,z>>7])
  def snapshot(self):
-  size,crc,token=struct.unpack('<III',self.call(8));assert size==1680
+  size,crc,token=struct.unpack('<III',self.call(8));assert size==self.patch_size
   p=b''.join(self.call(5,[off&127,off>>7,token]) for off in range(0,size,224));assert len(p)==size and zlib.crc32(p)==crc
   return p
  def upload(self,p):
-  assert len(p)==1680
+  assert len(p)==self.patch_size
   token=self.call(11,pack(struct.pack('<II',len(p),zlib.crc32(p))))[0]
   try:
    for off in range(0,len(p),196):self.call(12,[token,off&127,off>>7,*pack(p[off:off+196])])
@@ -61,9 +62,9 @@ class Editor:
   return self.call(15,[kind,slot,track,action,*((b+bytes(24-len(b))) if action>=2 else b'')])
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['info','export','import']);p.add_argument('file',nargs='?');p.add_argument('--port',default='X0X FM-1');a=p.parse_args();d=Editor(a.port)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['info','export','import']);p.add_argument('file',nargs='?');p.add_argument('--port',default='Monades FM-1');a=p.parse_args();d=Editor(a.port)
  try:
-  cap=struct.unpack('<8I',d.call(7));assert cap[:3]==(1,7,1680)
+  cap=struct.unpack('<8I',d.call(7));assert cap[:2]==(1,7) and cap[2]>=1292;d.patch_size=cap[2] # the device states its patch size
   if a.action=='info':print(json.dumps(dict(protocol=cap[0],patch_bytes=cap[2],biomes=cap[4],sounds=cap[5]),indent=2))
   elif a.action=='export':Path(a.file).write_text(json.dumps(dict(format='mutable-dreams-patch',version=1,firmware='1.1',name='FM-1 Live Biome',patch=list(d.snapshot())),indent=2)+'\n')
   else:

@@ -18,7 +18,8 @@
 #include "plaits/dsp/oscillator/sine_oscillator.h"
 #include "stmlib/dsp/filter.h"
 #include "stmlib/utils/random.h"
-#include "rings/dsp/fx/chorus.h"
+// The Rings chorus lives in chorus.cpp: its resources.h redefines Plaits' LUT_* macros.
+extern "C" { void md_chorus_reset(uint16_t *line); void md_chorus_process(float *left,float *right,unsigned n,float amount,float depth); }
 #ifndef PLAT_HOST
 #define POOL __attribute__((section(".pool")))
 #else
@@ -53,12 +54,12 @@ static int16_t room[4][1201];
 static bool fx_active;
 static unsigned echo_head,room_head[4];
 static float echo_lp,room_lp[4],fx_smooth,delay_smooth=8820,fx_highpass_in,fx_highpass_out;
-static stmlib::Svf send_hp_filter[2];
+static stmlib::Svf send_hp_filter[2];static int send_hp_set=-1; // the knob value the coefficients were computed for
 // Monades: Rings chorus on the dry mix (4 KiB line), and Dattorro / Griesinger input diffusion before the room
 // (four allpasses, 1210 samples). Both are skipped entirely at 0.
-static uint16_t chorus_line[2048] POOL;static rings::Chorus chorus;
+static uint16_t chorus_line[2048] POOL;
 static int16_t diffuser[1210];static unsigned diffuser_head[4];static const unsigned diffuser_len[4]={150,214,319,527}; // Monades: 12 dB high-pass on the echo and room sends
-static void reset_fx(){send_hp_filter[0].Init();send_hp_filter[1].Init();memset(chorus_line,0,sizeof chorus_line);chorus.Init(chorus_line);memset(diffuser,0,sizeof diffuser);memset(diffuser_head,0,sizeof diffuser_head);fx_active=false;memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
+static void reset_fx(){send_hp_filter[0].Init();send_hp_filter[1].Init();memset(chorus_line,0,sizeof chorus_line);md_chorus_reset(chorus_line);send_hp_set=-1;memset(diffuser,0,sizeof diffuser);memset(diffuser_head,0,sizeof diffuser_head);fx_active=false;memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
 static void v10_defaults(md_patch &p){p.version=10;p.motion_every=0;}
 static void v9_defaults(md_patch &p){for(int i=0;i<6;i++){p.gamaka[i]=MD_GAMAKA_OFF;p.gamaka_amount[i]=500;}p.vadi=p.samvadi=-1;v10_defaults(p);}
 static void v8_defaults(md_patch &p){for(int i=0;i<6;i++)p.gen[i]={MD_GEN_OFF,500,8,12};p.form=0;p.form_bars=1;p.form_drops=2;v9_defaults(p);}
@@ -151,11 +152,13 @@ static void clear_audio() {
  memset(grains,0,sizeof grains);memset(repeats,0,sizeof repeats);
  memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);feedback_lp=duckenv=0;
 }
+static void gen_reset();
 static void scene(int id) {
  patch=biome_bank[bound(id,0,MD_BIOMES-1)].patch;extension_defaults(patch);
  if(id>=65){patch.fx_level=340;patch.reverb_time=550;for(int i=0;i<6;i++)patch.ext[i].reverb_send=300;}
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
+ gen_reset();memset(motion_held,0,sizeof motion_held); // a new Biome starts with empty generator registers
 }
 static void tone_preset(int track,int id) {
  id=bound(id,0,MD_TONE_PRESETS-1);const TonePreset &a=tone_bank[id];md_track &t=patch.track[track];
@@ -247,7 +250,9 @@ static void apply(Command e) {
  case MD_DELAY_FB:patch.delay_fb=bound(v,0,800);break;
  case MD_REVERB_TIME:patch.reverb_time=bound(v,0,850);break;
  case MD_FX_LEVEL:patch.fx_level=bound(v,0,1000);break;
- case MD_CLOCK_SOURCE:clock_source=bound(v,0,2);playing=0;clock_pulse=0;clock_age=clock_last=0;clock_interval=0;break;
+ case MD_CLOCK_SOURCE: // leaving the internal clock stops the sequence: tell the MPC, release the notes out
+  if(playing&&!clock_source&&routing.clock)out_push(0xfc,0,0);if(playing)out_all_off();
+  clock_source=bound(v,0,2);playing=0;clock_pulse=0;clock_age=clock_last=0;clock_interval=0;break;
  case MD_MIDI_QUANTIZE:midi_quantize=!!v;break;
  case MD_BASS_MODE:patch.ext[i].bass_mode=bound(v,0,2);break;
  case MD_BASS_PATTERN:{static const int motifs[4][16]={{0,-1,0,-1,7,-1,0,-1,0,-1,3,-1,7,-1,10,-1},{0,0,-1,7,0,-1,3,-1,0,0,7,-1,10,-1,7,-1},{0,-1,-1,-1,0,-1,7,-1,3,-1,-1,-1,7,-1,5,-1},{0,-1,12,7,0,3,-1,7,0,-1,10,7,5,-1,3,-1}};patch.ext[i].pattern=bound(v,0,3);memcpy(patch.ext[i].notes,motifs[patch.ext[i].pattern],sizeof motifs[0]);break;}
@@ -278,6 +283,7 @@ static void apply(Command e) {
  case MD_GAMAKA_AMOUNT:patch.gamaka_amount[i]=bound(v,0,1000);break;
  case MD_VADI:patch.vadi=bound(v,-1,11);break;
  case MD_MOTION_EVERY:patch.motion_every=bound(v,0,4);break;
+ case MD_CLEAR_PHRASE:for(int k=0;k<16;k++)patch.ext[i].notes[k]=-1;patch.ext[i].edit_step=0;break;
  case MD_SAMVADI:patch.samvadi=bound(v,-1,11);break;
  case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
  }
@@ -526,10 +532,10 @@ static void quantum(float *lr,unsigned n) {
  const float echo_feedback=lfo_echo_fb?fminf(.8f,clamp01(unit(patch.delay_fb)+lfo_echo_fb*.5f)):unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=fminf(15435.0f,fmaxf(1764.0f,(patch.echo_sync?echo_ms_now():(float)patch.delay_ms)*44.1f*(1+lfo_echo_time*.5f)));
  const float echo_glide=lfo_echo_time?.002f:.00005f,echo_tone=tone_coef(patch.echo_tone,.04f,.25f,.9f),room_tone=tone_coef(patch.room_tone,.05f,.3f,.85f);
  const float diffusion=patch.room_diffusion*.0007f; // up to 0.7, Dattorro uses 0.625-0.75
- const bool send_hp=patch.send_hp>0;if(send_hp){float fc=md_send_hp_hz(patch.send_hp)/(float)MD_RATE;send_hp_filter[0].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);send_hp_filter[1].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);}
+ const bool send_hp=patch.send_hp>0;if(send_hp&&patch.send_hp!=send_hp_set){send_hp_set=patch.send_hp;float fc=md_send_hp_hz(patch.send_hp)/(float)MD_RATE;send_hp_filter[0].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);send_hp_filter[1].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);}
  if(patch.chorus){ // de-interleave in place through the scratch buffers: no extra memory
   for(unsigned k=0;k<n;k++){out[k]=lr[2*k];aux[k]=lr[2*k+1];}
-  chorus.set_amount(patch.chorus*.001f);chorus.set_depth(patch.chorus_depth*.001f);chorus.Process(out,aux,n);
+  md_chorus_process(out,aux,n,patch.chorus*.001f,patch.chorus_depth*.001f);
   for(unsigned k=0;k<n;k++){lr[2*k]=out[k];lr[2*k+1]=aux[k];}
  }
  unsigned maxgrains=patch.quality?4:2;
@@ -715,7 +721,7 @@ int md_validate(const md_patch *p) {
  return 1;
 }
 int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
-unsigned md_memory_bytes(){return sizeof chorus_line+sizeof chorus+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
+unsigned md_memory_bytes(){return sizeof chorus_line+64+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
  if(bytes==sizeof(md_patch)){md_patch p;memcpy(&p,data,sizeof p);if(!md_validate(&p))return 0;*out=p;return 1;}
