@@ -165,7 +165,7 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
 - l'instrument navigateur (build WASI) intégré en un bloc, sans surcharge visuelle ;
 - liens : installation, retour V15, sources GitHub, crédits ;
 - les visualisations suivent le même principe que le firmware : rien de décoratif.
-**Fait** : le site est une vitrine (branche `monades/vitrine`) : le FM-1 jouable sur toute la largeur en haut (simulateur, voir plus bas), puis le mode d'emploi, le MIDI avec la MPC, l'installation (« bientôt »), le reste, la feuille de route repliée.
+**Fait** : le site est une vitrine (branche `monades/vitrine`) : le FM-1 jouable sur toute la largeur en haut (simulateur, voir plus bas), puis le mode d'emploi, le MIDI avec la MPC, l'installation (« bientôt »), le reste, la feuille de route repliée. Sous le simulateur, une section **Nouveautés** compare Mutable Dreams 1.1 et Monades ; le mode d'emploi donne la liste des 91 gammes, générée depuis `app/dsp/scale_table.inc` par `tools/site_scales.py` (branche `monades/nouveautes`).
 **Reste** : la section Installer avec le vrai fichier quand il existera ; le MIDI depuis le simulateur.
 
 ### Après les lots

@@ -44,6 +44,9 @@ h1{font-weight:600;font-size:clamp(48px,9vw,112px);line-height:.88;letter-spacin
 .play{width:100%;aspect-ratio:1000/715;border:0;display:block;background:transparent}
 .play-note{margin:10px 0 0;font-size:14.5px;color:var(--muted)}
 details.roadmap{border-bottom:1px solid var(--rule)}
+details.scales{margin:18px 0 0;border-top:1px solid var(--rule)}
+details.scales>summary{cursor:pointer;padding:12px 0;font-weight:600}
+details.scales p{font-size:14.5px;color:var(--muted)}
 details.roadmap>summary{cursor:pointer;padding:30px 0;font-weight:600;font-size:22px;list-style-position:inside}
 details.roadmap>summary small{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--muted);margin-left:10px;letter-spacing:.04em;text-transform:uppercase}
 @media (max-width:700px){.play{aspect-ratio:auto;height:470px}}
@@ -108,7 +111,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 
 <header class="top mono">
   <div>Monades · 0.1 · Firmware génératif pour M-VAVE FM-1 pour Flash Dog Duke Silver</div>
-  <nav><a href="#jouer">Jouer</a><a href="#mode">Mode d'emploi</a><a href="#mpc">MIDI</a><a href="#installer">Installer</a><a href="#lots">Feuille de route</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
+  <nav><a href="#jouer">Jouer</a><a href="#nouveautes">Nouveautés</a><a href="#mode">Mode d'emploi</a><a href="#mpc">MIDI</a><a href="#installer">Installer</a><a href="#lots">Feuille de route</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
 </header>
 
 <section class="title">
@@ -122,8 +125,30 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   <p class="play-note">Le firmware complet, le même code que sur le FM-1. Rien ne joue avant d'appuyer sur «&nbsp;Allumer&nbsp;». Pas encore testé sur un FM-1. <a href="simulateur/">Plein écran</a>.</p>
 </section>
 
+<section class="prop" id="nouveautes">
+  <div class="num">§1<small>Nouveautés</small></div>
+  <div>
+    <h2>Ce que Monades ajoute à Mutable Dreams</h2>
+    <table class="manual">
+      <tr><th>Domaine</th><th>Mutable Dreams 1.1</th><th>Monades</th></tr>
+      <tr><td>Gammes</td><td>8 gammes, toutes sur 12 notes.</td><td>91 gammes en 15 familles, dont 12 microtonales (maqams à quarts de ton, intonation juste, tempéraments égaux, Bohlen-Pierce, 22 shrutis). Gamme CUSTOM composée au clavier. <a href="#gammes">La liste</a>. Page HARMONY.</td></tr>
+      <tr><td>Ragas</td><td>—</td><td>Montée et descente différentes, notes pivots (vadi, samvadi), ornements&nbsp;: kan, meend, andolan. Page RAGA.</td></tr>
+      <tr><td>Génératif</td><td>Rythmes euclidiens, probabilités, Marbles.</td><td>Trois générateurs de notes par piste&nbsp;: aléatoire, chaîne de Markov apprise sur la phrase, motif saisi au clavier que le générateur fait varier. Curseur déjà-vu, de la boucle figée à l'aléatoire. Page GENERATOR.</td></tr>
+      <tr><td>Forme</td><td>—</td><td>Quatre sections qui se suivent (calme, montée, sommet, détente) sur 2 à 16 mesures, pistes qui se taisent. Motion qui change tous les 1 à 16 pas. Page FORM.</td></tr>
+      <tr><td>LFO</td><td>— (Tides fait bouger le filtre)</td><td>Deux LFO par piste, synchronisés au tempo (8 mesures à 1/32) ou libres (0,02 à 20&nbsp;Hz), 7 formes dont sample &amp; hold, 19 cibles dont la hauteur, les effets et la densité. Pages LFO A et LFO B.</td></tr>
+      <tr><td>Filtres</td><td>LP12, LP24, LPG.</td><td>En plus&nbsp;: HP12, HP24, passe-bande, notch. Page VELVET FILTER.</td></tr>
+      <tr><td>Effets</td><td>Grain, écho, room.</td><td>En plus&nbsp;: chorus, écho synchronisé au tempo, diffusion de la room, couleur de l'écho et de la room, passe-haut sur les envois. Pages SPACE TONE et ECHO SYNC / CHORUS.</td></tr>
+      <tr><td>MIDI</td><td>Entrée seulement.</td><td>Sortie des notes générées par USB, un canal par piste ou jusqu'à 8 zones de notes. Horloge en sortie (clock, start, stop). Vélocité qui suit les accents. Pages MIDI et MIDI OUT ZONES. <a href="#mpc">Avec la MPC</a>.</td></tr>
+      <tr><td>DICE</td><td>—</td><td>REC tire au sort le son, le rythme ou les effets selon la page, sans toucher la gamme ni le tempo. ENV annule.</td></tr>
+      <tr><td>Écrans</td><td>Plusieurs pages décoratives ou en texte seul.</td><td>Chaque page montre ce qu'on règle&nbsp;: bande granulaire, réponse du filtre, enveloppe, échos, piano-roll, cercle des notes. Un message dit ce qu'a fait chaque appui sur ENV, LFO, ARP et REC.</td></tr>
+      <tr><td>Scènes</td><td>Biomes.</td><td>Mondes, affichés avec leur numéro et leur famille.</td></tr>
+    </table>
+  </div>
+  <aside class="side"><p>Le détail, lot par lot&nbsp;: la <a href="#lots">feuille de route</a>.</p></aside>
+</section>
+
 <section class="prop" id="mode">
-  <div class="num">§1<small>Mode d'emploi</small></div>
+  <div class="num">§2<small>Mode d'emploi</small></div>
   <div>
     <h2>Mode d'emploi</h2>
     <p>Cinq boutons ouvrent les pages. Appuyer plusieurs fois sur le même bouton fait défiler ses pages. Sur chaque page, les potards K1 à K4 règlent les quatre cadres du bas de l'écran.</p>
@@ -188,12 +213,35 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>ZONES</td><td>Zone · Note basse · Note haute · Canal</td></tr>
       <tr><td>USER BANKS</td><td>Slot · Mondes ou sons · Charger · Curseur du nom (PRESET change la lettre)</td></tr>
     </table>
+    <!-- gammes: generated by tools/site_scales.py -->
+    <details class="scales" id="gammes"><summary>Les 91 gammes, dans l'ordre de K2 sur HARMONY</summary>
+    <table class="manual">
+      <tr><th>Famille</th><th>Gammes</th></tr>
+      <tr><td>BASIC (3)</td><td>CHROMATIC · MINOR · MAJOR</td></tr>
+      <tr><td>MODES (5)</td><td>DORIAN · PHRYGIAN · LYDIAN · MIXOLYDIAN · LOCRIAN</td></tr>
+      <tr><td>MINOR MAJOR (14)</td><td>HARMONIC MIN · MELODIC MIN* · JAZZ MINOR · HARMONIC MAJ · DOUBLE HARM · HUNGARIAN MIN · NEAPOL MINOR · NEAPOL MAJOR · PHRYG DOM · LYDIAN DOM · LYDIAN AUG · MIXO B6 · HALF DIM · ALTERED</td></tr>
+      <tr><td>PENTA BLUES (5)</td><td>MINOR PENT · MAJOR PENT · BLUES · MAJOR BLUES · EGYPTIAN</td></tr>
+      <tr><td>BEBOP (3)</td><td>BEBOP DOM · BEBOP MAJOR · BEBOP DORIAN</td></tr>
+      <tr><td>SYMMETRIC (6)</td><td>WHOLE TONE · DIM HALF-WH · DIM WH-HALF · AUGMENTED · TRITONE · PROMETHEUS</td></tr>
+      <tr><td>THAAT (10)</td><td>BILAWAL · KALYAN · KHAMAJ THAAT · KAFI · ASAVARI · BHAIRAVI · BHAIRAV · MARWA THAAT · PURVI · TODI</td></tr>
+      <tr><td>RAGA (12)</td><td>YAMAN · BHUPALI · DURGA · MALKAUNS · HINDOL · MEGH · MARWA · DESH* · KHAMAJ* · JAUNPURI* · BHIMPALASI* · BAGESHRI*</td></tr>
+      <tr><td>MAQAM 12-TET (6)</td><td>HIJAZ · HIJAZ KAR · NAHAWAND* · KURD · NIKRIZ · NAWA ATHAR</td></tr>
+      <tr><td>MAQAM 1/4 (3)</td><td>RAST · BAYATI · SABA</td></tr>
+      <tr><td>JAPAN (7)</td><td>HIRAJOSHI · IN · INSEN · IWATO · YO · KUMOI · RYUKYU</td></tr>
+      <tr><td>WORLD (7)</td><td>PELOG ~ · SLENDRO ~ · PERSIAN · ORIENTAL · ENIGMATIC · SPANISH 8 · MAJOR LOCRIAN</td></tr>
+      <tr><td>MICROTONAL (7)</td><td>JUST MAJOR · JUST MINOR · PYTHAGOREAN · 24-TET · 19-TET · SLENDRO 5-TET · THAI 7-TET</td></tr>
+      <tr><td>SCALA (2)</td><td>BOHLEN PIERCE · SHRUTI22</td></tr>
+      <tr><td>CUSTOM (1)</td><td>CUSTOM</td></tr>
+    </table>
+    <p>* Montée et descente différentes. ~ Approchée sur les 12 demi-tons. Les familles MAQAM 1/4, MICROTONAL et SCALA sont microtonales.</p>
+    </details>
+    <!-- /gammes -->
   </div>
   <aside class="side"><p>LOOK, K1 sur STILL&nbsp;: plus aucune animation, les informations restent affichées.</p><p>Hérité de Mutable Dreams&nbsp;: 76 Mondes (les Biomes de Mutable Dreams) et le Blank, 224 sons, 12 moteurs.</p></aside>
 </section>
 
 <section class="prop" id="mpc">
-  <div class="num">§2<small>MIDI</small></div>
+  <div class="num">§3<small>MIDI</small></div>
   <div>
     <h2>MIDI avec la MPC</h2>
     <ol class="steps">
@@ -213,7 +261,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="installer">
-  <div class="num">§3<small>Installer</small></div>
+  <div class="num">§4<small>Installer</small></div>
   <div>
     <h2>Installer, revenir en arrière</h2>
     <div class="status-line"><span class="st">bientôt</span></div>
@@ -225,7 +273,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p1">
-  <div class="num">§4<small>Définition</small></div>
+  <div class="num">§5<small>Définition</small></div>
   <div>
     <h2>Ce qu'est Monades</h2>
     <p>Firmware génératif pour <b>M-VAVE FM-1</b> pour <a href="https://thomasclaissethcl-blip.github.io/FDDS/">Flash Dog Duke Silver</a> (fork de Mutable Dreams). Six pistes jouent chacune selon leur propre logique (rythme euclidien, probabilités, variations), mais partagent une même gamme et un même temps.</p>
@@ -237,7 +285,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p2">
-  <div class="num">§5<small>État présent</small></div>
+  <div class="num">§6<small>État présent</small></div>
   <div>
     <h2>Rien à flasher pour l'instant</h2>
     <div class="status-line"><span>Code des lots, testé sur Mac</span><span class="st done">fait</span></div>
@@ -251,7 +299,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p3">
-  <div class="num">§6<small>Principe</small></div>
+  <div class="num">§7<small>Principe</small></div>
   <div>
     <h2>Tout ce qui bouge à l'écran montre quelque chose</h2>
     <p>Aucune animation purement décorative. Chaque mouvement reflète un réglage ou l'état réel du moteur&nbsp;: un grain, un LFO, un pas, une enveloppe. Tourner un potard doit <span class="hl">se voir</span> immédiatement&nbsp;; sinon on ne comprend plus ce qu'on fait.</p>
@@ -262,7 +310,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 <details class="roadmap" id="lots"><summary>Feuille de route <small>les lots, faits et à venir</small></summary>
 
 <section class="prop" id="p4">
-  <div class="num">§7<small>Lot UI</small></div>
+  <div class="num">§8<small>Lot UI</small></div>
   <div>
     <h2>Lisibilité&nbsp;: chaque écran montre ce qu'on règle</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -292,7 +340,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   </aside>
 </section>
 <section class="prop" id="p5">
-  <div class="num">§8<small>Lot 1</small></div>
+  <div class="num">§9<small>Lot 1</small></div>
   <div>
     <h2>MIDI&nbsp;: les notes générées sortent</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -308,7 +356,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   <aside class="side"><p>La plateforme sait déjà envoyer du MIDI (<code>plat_midi_send</code>)&nbsp;; Mutable Dreams ne s'en servait pas.</p><p>Pas de prise MIDI OUT sur le FM-1&nbsp;: tout passe par l'USB.</p></aside>
 </section>
 <section class="prop" id="p6">
-  <div class="num">§9<small>Lot 2</small></div>
+  <div class="num">§10<small>Lot 2</small></div>
   <div>
     <h2>Harmonie&nbsp;: toutes les gammes</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -322,7 +370,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   <aside class="side"><p>Mutable Dreams&nbsp;: 8 gammes, toutes sur 12 notes. Monades&nbsp;: 91 gammes, dont 12 microtonales.</p></aside>
 </section>
 <section class="prop" id="p7">
-  <div class="num">§10<small>Lot 3</small></div>
+  <div class="num">§11<small>Lot 3</small></div>
   <div>
     <h2>Génératif&nbsp;: au-delà de la boucle</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -336,7 +384,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   <aside class="side"><p>Mondes (ex-Biomes), macros et rythmes euclidiens restent le cadre.</p></aside>
 </section>
 <section class="prop" id="p8">
-  <div class="num">§11<small>Lot 4</small></div>
+  <div class="num">§12<small>Lot 4</small></div>
   <div>
     <h2>Tempo et effets</h2>
     <div class="status-line"><span class="st">en cours</span></div>
@@ -351,13 +399,14 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   <aside class="side"><p>Le lot le plus contraint&nbsp;: le moteur atteint déjà 85&nbsp;% du temps de calcul sur un cœur.</p></aside>
 </section>
 <section class="prop" id="p9">
-  <div class="num">§12<small>Lot Web</small></div>
+  <div class="num">§13<small>Lot Web</small></div>
   <div>
     <h2>Ce site</h2>
     <div class="status-line"><span class="st">en cours</span></div>
     <ol class="items">
       <li>Une page, des propositions numérotées, rien de décoratif. <span class="st done">fait</span></li>
       <li>Le mode d'emploi et le MIDI avec la MPC, sous le FM-1 jouable. <span class="st done">fait</span></li>
+      <li>Les nouveautés par rapport à Mutable Dreams, et la liste des 91 gammes. <span class="st done">fait</span></li>
       <li>La section Installer, avec le fichier du firmware&nbsp;: <span class="st">quand il sera compilé</span></li>
       <li>Le simulateur&nbsp;: le firmware complet dans le navigateur, avec le panneau du FM-1. <a href="simulateur/">Jouer</a> <span class="st done">fait</span></li>
       <li>Le MIDI depuis le simulateur&nbsp;: <span class="st">à venir</span></li>
@@ -366,7 +415,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   <aside class="side"></aside>
 </section>
 <section class="prop" id="p9b">
-  <div class="num">§13<small>Lot Identité</small></div>
+  <div class="num">§14<small>Lot Identité</small></div>
   <div>
     <h2>Une interface à part</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -380,7 +429,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   <aside class="side"><p>Contrastes encore à vérifier sur l'écran du FM-1.</p></aside>
 </section>
 <section class="prop" id="p10">
-  <div class="num">§14<small>Lot 5</small></div>
+  <div class="num">§15<small>Lot 5</small></div>
   <div>
     <h2>Divers</h2>
     <div class="status-line"><span class="st">en cours</span></div>
@@ -398,7 +447,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </details>
 
 <section class="prop" id="ordre">
-  <div class="num">§15<small>Ensuite</small></div>
+  <div class="num">§16<small>Ensuite</small></div>
   <div>
     <h2>Prochaines étapes</h2>
     <ol class="items">
@@ -412,7 +461,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p12">
-  <div class="num">§16<small>Crédits</small></div>
+  <div class="num">§17<small>Crédits</small></div>
   <div>
     <h2>Sur les épaules de</h2>
     <p><b>Kid Bunka / Christoph Link</b> (Mutable Dreams), <b>Émilie Gillet / Mutable Instruments</b> (Plaits, Rings, Elements, stmlib), <b>Charles Vestal</b> (fm1-base), <b>Leo Kuroshita</b> (Felucca, felucca-bsp).</p>
@@ -436,9 +485,10 @@ ol.steps>li{padding:6px 0;max-width:64ch}
     var next=dark?'light':'dark';root.setAttribute('data-theme',next);
     try{localStorage.setItem('monades-theme',next);}catch(e){}
   });
-  var lots=document.getElementById('lots'); // the roadmap link unfolds the roadmap
-  if(location.hash==='#lots')lots.open=true;
-  document.querySelector('nav a[href="#lots"]').addEventListener('click',function(){lots.open=true;});
+  ['lots','gammes'].forEach(function(id){ // links to the roadmap or the scale list unfold it
+    var d=document.getElementById(id);if(location.hash==='#'+id)d.open=true;
+    document.querySelectorAll('a[href="#'+id+'"]').forEach(function(a){a.addEventListener('click',function(){d.open=true;});});
+  });
 })();
 </script>
 </body>
