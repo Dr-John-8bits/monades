@@ -52,7 +52,7 @@ int app_backup_validate(unsigned obj,const void *data,unsigned n){
 void app_backup_restored(void){
  uint32_t f=plat_lock();dream_reloading=1;plat_unlock(f);
  app_init();intro_pending=0;dream_dismiss_intro();bank_armed=-1;dream_store_hold=0;
- bank_kind=bank_slot=bank_char=0;memset(bank_name,0,sizeof bank_name);memcpy(bank_name,"MY BIOME",8);
+ bank_kind=bank_slot=bank_char=0;memset(bank_name,0,sizeof bank_name);memcpy(bank_name,"MY MONDE",8);
  dream_ui.btn=plat_buttons();dream_ui.keys=plat_keys();dream_ui.held=dream_ui.btn;
  f=plat_lock();dream_reloading=0;plat_unlock(f);
 }

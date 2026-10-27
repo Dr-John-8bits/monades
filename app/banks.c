@@ -3,7 +3,7 @@
  * User Biomes: 0x98000..0xB7FFF; packed tones: 0xB8000..0xBFFFF.
  * Each object uses the platform CRC + committed A/B sectors. */
 static int bank_slot,bank_kind,bank_char,bank_armed=-1;
-static char bank_name[24]="MY BIOME";
+static char bank_name[24]="MY MONDE";
 typedef struct { uint32_t magic; char name[24]; md_patch patch; } UserBiome;
 enum { USER_BIOME_1_1=28+1292 }; /* a slot saved by Mutable Dreams 1.1 (patch v6) */
 static UserBiome user_biome_io;

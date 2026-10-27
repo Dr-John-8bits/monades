@@ -196,10 +196,20 @@ static void fire(unsigned i,float note,float velocity) {
  stats.events[i]++;stats.last_note[i]=(int)note;stats.last_pitch[i]=note;
  if((int)i==patch.duck_source&&!patch.track[i].mute)duckenv=1;
 }
+static unsigned dice_rng=0x2545f491u; // its own generator: a dice roll leaves the sequencer's chance untouched
+static int dice_in(int lo,int hi){return lo+(int)(random_word(dice_rng)%(unsigned)(hi-lo+1));}
+static void dice(int i,int scope){
+ previous=patch;patch.edited_mask|=1u;dice_rng^=stats.frames|1u;md_track &t=patch.track[i];
+ if(scope==MD_DICE_SOUND){t.tone=dice_in(0,1000);t.harm=dice_in(0,1000);t.shape=dice_in(0,1000);t.decay=dice_in(150,900);t.attack=dice_in(0,350);
+  t.cutoff=dice_in(400,1000);t.resonance=dice_in(0,650);t.breathe=dice_in(0,600);patch.tone_preset[i]=-1;patch.edited_mask|=2u<<i;} // never closed, never screaming
+ else if(scope==MD_DICE_RHYTHM){t.hits=dice_in(1,t.length*3/4>1?t.length*3/4:1);t.rotate=dice_in(0,t.length-1);t.prob=dice_in(550,1000);t.accent=dice_in(0,800);t.ratchet=dice_in(0,5)?1:2;} // at least one hit, rarely a repeat
+ else{patch.grain_size=dice_in(100,900);patch.grain_pos=dice_in(0,1000);patch.feedback=dice_in(0,600);patch.delay_fb=dice_in(0,600);patch.reverb_time=dice_in(200,800);
+  if(!patch.echo_sync)patch.delay_ms=dice_in(80,350);patch.echo_tone=dice_in(200,800);patch.room_tone=dice_in(200,800);patch.room_diffusion=dice_in(0,1000);patch.chorus=dice_in(0,600);patch.chorus_depth=dice_in(0,1000);} // feedback stays far from runaway
+}
 static void apply(Command e) {
  int i=bound(e.t,0,5),v=e.v;md_track &t=patch.track[i];
  // Playback, preview notes and emergency silence do not change a preset.
- if(e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE)patch.edited_mask|=1u;
+ if(e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_DICE)patch.edited_mask|=1u;
  if(e.c==MD_MODEL||e.c==MD_TONE||e.c==MD_HARM||e.c==MD_DECAY||e.c==MD_ATTACK||(e.c>=MD_SHAPE&&e.c<=MD_BREATHE))patch.edited_mask|=2u<<i;
  if(e.c<=MD_SPEED) {
   int32_t *p=track_field(t,e.c);
@@ -220,6 +230,7 @@ static void apply(Command e) {
  case MD_MUTATE: previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
  case MD_RETURN:patch=previous;seqrng=patch.seed;for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
  case MD_SCENE:scene(v);break;
+ case MD_DICE:dice(i,bound(v,MD_DICE_SOUND,MD_DICE_FX));break;
  case MD_TONE_PRESET:tone_preset(i,v);break;
  case MD_FREEZE:patch.freeze=!!v;break;
  case MD_GRAIN_SIZE:patch.grain_size=bound(v,0,1000);break;
@@ -760,9 +771,9 @@ int md_decode(md_patch *out,const void *data,unsigned bytes){
 int md_import(const void *data,unsigned bytes){
  if(playing)return 0;md_patch decoded;return md_decode(&decoded,data,bytes)&&md_load(&decoded);
 }
-const char *md_biome_name(int id){return id<0?"USER BIOME":biome_bank[bound(id,0,MD_BIOMES-1)].name;}
+const char *md_biome_name(int id){return id<0?"USER MONDE":biome_bank[bound(id,0,MD_BIOMES-1)].name;}
 const char *md_biome_family(int id){return id<0?"CUSTOM":biome_families[biome_bank[bound(id,0,MD_BIOMES-1)].family];}
-const char *md_tone_name(int id){return id<0?"BIOME VOICE":tone_bank[bound(id,0,MD_TONE_PRESETS-1)].name;}
+const char *md_tone_name(int id){return id<0?"MONDE VOICE":tone_bank[bound(id,0,MD_TONE_PRESETS-1)].name;}
 int md_tone_model(int id){return tone_bank[bound(id,0,MD_TONE_PRESETS-1)].model;}
 int md_has_envelope(int model){return model==MD_FM||model==MD_VA||model==MD_HARMONIC||model==MD_CHOIR||model==MD_BASS||model==MD_MELLOW||model==MD_SATIN;}
 int md_cutoff_hz(int value){return (int)cutoff_hz(unit(value));}

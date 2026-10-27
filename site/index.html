@@ -130,7 +130,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
     <h3>Les pages</h3>
     <table class="manual">
       <tr><th>Bouton</th><th>Pages, dans l'ordre</th></tr>
-      <tr><td>HOME</td><td>LIVE BIOME</td></tr>
+      <tr><td>HOME</td><td>LIVE MONDE</td></tr>
       <tr><td>EDIT</td><td>SOUND → VELVET FILTER → ENVELOPE → MIX → GLOBAL MIXER</td></tr>
       <tr><td>SEQ</td><td>RHYTHM → GROOVE → BASS / MOTIFS → PHRASE → GENERATOR → FORM</td></tr>
       <tr><td>FX</td><td>GRANULAR BUS → TAPE → SHARED SPACE → SPACE TONE → ECHO SYNC / CHORUS → MARBLES / TIDES / WARPS → LFO A → LFO B</td></tr>
@@ -142,17 +142,18 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>SELECT</td><td>Choisit la piste 1 à 6.</td></tr>
       <tr><td>SEL</td><td>Coupe ou rétablit la piste choisie.</td></tr>
       <tr><td>ALGO</td><td>Change le moteur sonore de la piste (12 moteurs).</td></tr>
-      <tr><td>PRESET</td><td>Sur les pages d'une piste&nbsp;: un des 224 sons. Ailleurs&nbsp;: un des 76 Biomes, ou le Blank.</td></tr>
+      <tr><td>PRESET</td><td>Sur les pages d'une piste&nbsp;: un des 224 sons. Ailleurs&nbsp;: un des 76 Mondes, ou le Blank. L'écran affiche son numéro et sa famille (MIST, DRONE, RESONANCE, TECHNO, BROKEN, ORGANIC, PERCUSSION, MELODY).</td></tr>
       <tr><td>PLAY</td><td>Lance ou arrête la séquence.</td></tr>
-      <tr><td>REC</td><td>Nouvelle variation. Sur SYSTEM et MIDI&nbsp;: panique. Sur GENERATOR&nbsp;: efface le motif.</td></tr>
-      <tr><td>ENV</td><td>Revient à la variation précédente.</td></tr>
+      <tr><td>REC</td><td>N'enregistre rien. Sur HOME et GLO&nbsp;: nouvelle variation. Sur les pages EDIT&nbsp;: DICE, nouveaux réglages tirés au sort pour le son de la piste choisie. Sur les pages SEQ&nbsp;: DICE pour son rythme. Sur les pages FX&nbsp;: DICE pour les effets. Le DICE ne change jamais la gamme, la note de base, la transposition, le tempo, le niveau, les mutes, le moteur ni le MIDI. Sur SYSTEM et MIDI&nbsp;: panique. Sur GENERATOR&nbsp;: efface le motif.</td></tr>
+      <tr><td>ENV</td><td>Revient à l'état d'avant la dernière variation ou le dernier DICE.</td></tr>
       <tr><td>ARP</td><td>Verrouille la graine&nbsp;: la même variation se répète.</td></tr>
       <tr><td>LFO</td><td>Fige la bande granulaire (Freeze).</td></tr>
       <tr><td>OCT− / OCT+</td><td>Octave du clavier.</td></tr>
-      <tr><td>SAVE</td><td>Sauve le Biome et les préférences, à l'arrêt et sur horloge interne. Sur USER BANKS&nbsp;: sauve dans le slot choisi.</td></tr>
+      <tr><td>SAVE</td><td>Sauve le Monde et les préférences, à l'arrêt et sur horloge interne. Sur USER BANKS&nbsp;: sauve dans le slot choisi.</td></tr>
       <tr><td>Clavier</td><td>Joue la piste choisie. Sur HARMONY avec la gamme CUSTOM&nbsp;: ajoute ou retire des notes. Sur GENERATOR&nbsp;: écrit le motif.</td></tr>
       <tr><td>Maintenir</td><td>Maintenir un bouton affiche son aide.</td></tr>
     </table>
+    <p>Les noms imprimés sur les boutons du FM-1 sont ceux du firmware d'origine. Leur fonction dans Monades est celle de ce tableau. Dans le simulateur, elle est écrite en jaune sous SEL, ENV, LFO, ARP et REC.</p>
     <h3>K1 à K4, page par page</h3>
     <table class="manual">
       <tr><th>Page</th><th>K1 · K2 · K3 · K4</th></tr>
@@ -181,10 +182,10 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <tr><td>LOOK</td><td>Animations · Son de démarrage · Revoir l'intro · Remise à zéro du maximum</td></tr>
       <tr><td>MIDI</td><td>Horloge reçue · Notes reçues dans la gamme · Notes envoyées · Horloge envoyée</td></tr>
       <tr><td>ZONES</td><td>Zone · Note basse · Note haute · Canal</td></tr>
-      <tr><td>USER BANKS</td><td>Slot · Biomes ou sons · Charger · Curseur du nom (PRESET change la lettre)</td></tr>
+      <tr><td>USER BANKS</td><td>Slot · Mondes ou sons · Charger · Curseur du nom (PRESET change la lettre)</td></tr>
     </table>
   </div>
-  <aside class="side"><p>LOOK, K1 sur STILL&nbsp;: plus aucune animation, les informations restent affichées.</p><p>Hérité de Mutable Dreams&nbsp;: 76 Biomes et le Blank, 224 sons, 12 moteurs.</p></aside>
+  <aside class="side"><p>LOOK, K1 sur STILL&nbsp;: plus aucune animation, les informations restent affichées.</p><p>Hérité de Mutable Dreams&nbsp;: 76 Mondes (les Biomes de Mutable Dreams) et le Blank, 224 sons, 12 moteurs.</p></aside>
 </section>
 
 <section class="prop" id="mpc">
@@ -328,7 +329,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <li><b>Boucles de longueurs inégales</b> qui se décalent, à la manière d'Eno. <span class="st done">déjà là</span></li>
     </ol>
   </div>
-  <aside class="side"><p>Biomes, macros et rythmes euclidiens restent le cadre.</p></aside>
+  <aside class="side"><p>Mondes (ex-Biomes), macros et rythmes euclidiens restent le cadre.</p></aside>
 </section>
 <section class="prop" id="p8">
   <div class="num">§11<small>Lot 4</small></div>
@@ -383,6 +384,8 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <li>Sortie audio USB, si le processeur le permet. <span class="st">enregistrement du FM-1 par USB déjà actif&nbsp;; l'autre sens attend le FM-1</span></li>
       <li>Macro Motion liée au tempo. <span class="st done">fait</span></li>
       <li>Découpage progressif du moteur en modules lisibles. <span class="st">en partie</span></li>
+      <li>Les Biomes deviennent des Mondes, numérotés avec leur famille. <span class="st done">fait</span></li>
+      <li>DICE sur REC&nbsp;: son, rythme ou effets selon la page, annulable avec ENV. <span class="st done">fait</span></li>
     </ol>
   </div>
   <aside class="side"></aside>

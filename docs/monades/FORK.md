@@ -171,7 +171,11 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
 ### Après les lots
 - **Revue du code** (tout ce qui a changé depuis Mutable Dreams) : 10 points, tous corrigés (branche `monades/revue`) : Stop MIDI au changement d'horloge, effacement du motif en une commande, notes de motif tapées ensemble, Biome qui vide les générateurs, pitch bend après le relâchement, passe-haut des envois recalculé seulement au changement, chorus isolé dans `chorus.cpp`, taille des patchs lue sur l'appareil.
 - **Simulateur** (branche `monades/simulateur`) : Monades compilé pour le navigateur (WASI SDK 34) dans le panneau dessiné de fm1-base (`app/web/emu/index.html`, `tools/package_emu.py`). Publié sur le site.
-- **Boutons ENV, LFO, ARP, REC** : chaque appui affiche ce qu'il a fait ; le simulateur indique la fonction sous ces boutons (UNDO, FREEZE, LOCK, VARY, MUTE).
+- **Boutons ENV, LFO, ARP, REC** : chaque appui affiche ce qu'il a fait ; le simulateur indique la fonction sous ces boutons (UNDO, FREEZE, LOCK, DICE, MUTE).
+- **Mondes et DICE** (branche `monades/monde-dice`) :
+  - les Biomes s'appellent des **Mondes** à l'écran : « MONDE 12 DRONE », numéro et famille. Les noms viendront plus tard (catalogue `presets/catalog.json`). Le format des patchs ne change pas ;
+  - **DICE sur REC** : sur EDIT, le son de la piste choisie ; sur SEQ, son rythme ; sur FX, les effets. Valeurs tirées dans des plages musicales (filtre jamais fermé, au moins un coup, retours d'écho et de grain loin du larsen). Jamais touchés : gamme, note de base, transposition, tempo, niveau, mutes, moteur, MIDI. ENV annule. Le dé a son propre générateur : la séquence ne change pas. Sur HOME et GLO, REC reste la nouvelle variation ;
+  - l'aide de HARMONY indique 91 gammes au lieu de huit.
 
 ### Lot 5 — Divers
 17. **Sortie audio USB** (aujourd'hui `usb_audio_out = false`, entrée seulement), si le budget CPU le permet.

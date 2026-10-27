@@ -231,5 +231,18 @@ int main(){
    cmd(MD_PLAY,0,0);assert(!bad);}
   puts("PASS review fixes: Stop on clock change, one-command phrase clear, Biome resets generators, bend never retunes a held note");
  }
+ {
+  // Dice: each scope moves its own parameters, within range; scale, root, transpose, tempo, level, mute and engine stay; ENV undoes.
+  md_patch q=blank(MD_VA);q.root=4;q.scale=7;q.transpose=-5;q.tempo=97;q.track[2].level=640;q.track[2].mute=0;q.track[2].length=12;assert(md_load(&q));
+  for(int r=0;r<60;r++){md_patch before=*md_state();cmd(MD_DICE,2,r%3);const md_patch *p=md_state();assert(md_validate(p));
+   assert(p->root==4&&p->scale==7&&p->transpose==-5&&p->tempo==97&&p->track[2].level==640&&p->track[2].mute==0&&p->track[2].model==before.track[2].model&&p->track[2].length==12);
+   assert(r%3!=0||p->track[2].cutoff>=400);assert(r%3!=1||p->track[2].hits>=1);assert(r%3!=2||(p->delay_fb<=600&&p->feedback<=600));
+   for(int i=0;i<6;i++)if(i!=2)assert(!memcmp(&p->track[i],&before.track[i],sizeof(md_track)));
+   if(r%3!=2)assert(p->grain_size==before.grain_size&&p->delay_fb==before.delay_fb);
+   if(r%3==2)assert(!memcmp(&p->track[2],&before.track[2],sizeof(md_track)));
+   assert(memcmp(p,&before,sizeof before));assert(p->seed==before.seed);
+   cmd(MD_RETURN,0,0);assert(!memcmp(md_state(),&before,sizeof before));cmd(MD_DICE,2,r%3);}
+  puts("PASS dice: sound / rhythm / effects in range, protected settings kept, ENV undoes");
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }
