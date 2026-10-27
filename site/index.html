@@ -44,6 +44,8 @@ h1{font-weight:600;font-size:clamp(48px,9vw,112px);line-height:.88;letter-spacin
 .play{width:100%;aspect-ratio:1000/715;border:0;display:block;background:transparent}
 .play-note{margin:10px 0 0;font-size:14.5px;color:var(--muted)}
 details.roadmap{border-bottom:1px solid var(--rule)}
+.manual-link a{display:inline-block;font-weight:600;border:1px solid var(--mark);border-radius:6px;padding:8px 14px;text-decoration:none;margin:4px 0 8px}
+.manual-link a:hover{background:var(--mark);color:#06081a}
 details.scales{margin:18px 0 0;border-top:1px solid var(--rule)}
 details.scales>summary{cursor:pointer;padding:12px 0;font-weight:600}
 details.scales p{font-size:14.5px;color:var(--muted)}
@@ -111,7 +113,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 
 <header class="top mono">
   <div>Monades · 0.1 · Firmware génératif pour M-VAVE FM-1 pour Flash Dog Duke Silver</div>
-  <nav><a href="#jouer">Jouer</a><a href="#nouveautes">Nouveautés</a><a href="#mode">Mode d'emploi</a><a href="#mpc">MIDI</a><a href="#installer">Installer</a><a href="#lots">Feuille de route</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
+  <nav><a href="#jouer">Jouer</a><a href="#nouveautes">Nouveautés</a><a href="manuel/">Mode d'emploi</a><a href="#mpc">MIDI</a><a href="#installer">Installer</a><a href="#lots">Feuille de route</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
 </header>
 
 <section class="title">
@@ -153,6 +155,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   <div class="num">§2<small>Mode d'emploi</small></div>
   <div>
     <h2>Mode d'emploi</h2>
+    <p class="manual-link"><a href="manuel/">Mode d'emploi complet&nbsp;: chaque bouton, chaque page, chaque réglage, avec une recherche →</a></p>
     <p>Cinq boutons ouvrent les pages. Appuyer plusieurs fois sur le même bouton fait défiler ses pages. Sur chaque page, les potards K1 à K4 règlent les quatre cadres du bas de l'écran.</p>
     <h3>Les Mondes</h3>
     <p>Chez Leibniz, un monde est un ensemble complet de choses compatibles entre elles, un parmi une infinité de mondes possibles.</p>
@@ -439,6 +442,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
       <li>Une page, des propositions numérotées, rien de décoratif. <span class="st done">fait</span></li>
       <li>Le mode d'emploi et le MIDI avec la MPC, sous le FM-1 jouable. <span class="st done">fait</span></li>
       <li>Les nouveautés par rapport à Mutable Dreams, et la liste des 91 gammes. <span class="st done">fait</span></li>
+      <li>Une page de mode d'emploi complète, avec recherche. <span class="st done">fait</span></li>
       <li>La section Installer, avec le fichier du firmware&nbsp;: <span class="st">quand il sera compilé</span></li>
       <li>Le simulateur&nbsp;: le firmware complet dans le navigateur, avec le panneau du FM-1. <a href="simulateur/">Jouer</a> <span class="st done">fait</span></li>
       <li>Le MIDI depuis le simulateur&nbsp;: <span class="st">à venir</span></li>

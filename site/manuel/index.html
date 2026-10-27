@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monades · Mode d'emploi</title>
+<meta name="description" content="Mode d'emploi complet de Monades, firmware pour M-VAVE FM-1 : chaque bouton, chaque page, chaque réglage, avec une recherche.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#06081a; --ink:#f2f0ff; --muted:#9aa2c4; --rule:#252a4a; --card:#0d1130; --mark:#ffc668;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+:root[data-theme="light"]{--paper:#f7f7fb;--ink:#12142a;--muted:#5e6382;--rule:#d9dbe8;--card:#ffffff;--mark:#ffc668}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--paper:#f7f7fb;--ink:#12142a;--muted:#5e6382;--rule:#d9dbe8;--card:#ffffff}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:84px}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{text-decoration-color:var(--mark);text-decoration-thickness:3px}
+code,kbd,.k{font-family:var(--mono);font-size:.86em}
+kbd,.k{border:1px solid var(--rule);border-radius:4px;padding:0 5px;white-space:nowrap;background:var(--card)}
+.bar{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
+.bar .in{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.bar a.home{font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.search{flex:1;min-width:200px;display:flex;gap:8px;align-items:center}
+.search input{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:9px 12px}
+.search input:focus{outline:2px solid var(--mark);outline-offset:1px}
+.count{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+.theme{font:inherit;font-size:13px;color:var(--muted);background:none;border:1px solid var(--rule);border-radius:6px;padding:6px 10px;cursor:pointer}
+.layout{max-width:1180px;margin:0 auto;padding:0 16px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px}
+nav.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;padding:22px 0;font-size:14px}
+nav.toc ol{list-style:none;margin:0;padding:0}
+nav.toc li{margin:0}
+nav.toc a{display:block;padding:3px 0;text-decoration:none;color:var(--muted)}
+nav.toc a:hover{color:var(--ink)}
+nav.toc ol ol{padding-left:12px;border-left:1px solid var(--rule);margin:2px 0 8px}
+main{padding:22px 0 80px;min-width:0}
+h1{font-size:34px;line-height:1.15;margin:8px 0 6px;letter-spacing:-.01em}
+.lead{color:var(--muted);margin:0 0 28px;max-width:62ch}
+h2{font-size:24px;margin:52px 0 14px;padding-top:12px;border-top:1px solid var(--ink)}
+h3{font-size:18px;margin:0 0 6px}
+.entry{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px 18px;margin:0 0 14px}
+.entry p{margin:6px 0}
+.entry .path{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.03em}
+table{border-collapse:collapse;width:100%;margin:10px 0 4px;font-size:15.5px}
+th,td{text-align:left;vertical-align:top;padding:7px 10px 7px 0;border-top:1px solid var(--rule)}
+th{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+td:first-child{font-family:var(--mono);font-size:13.5px;white-space:nowrap}
+.tablewrap{overflow-x:auto}
+ol.steps{margin:8px 0;padding-left:22px}
+ol.steps li{margin:3px 0}
+.warn{border-left:3px solid var(--mark);padding:2px 0 2px 12px;margin:10px 0}
+mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
+.hidden{display:none!important}
+.empty{color:var(--muted);font-style:italic}
+@media (max-width:860px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:0}
+  nav.toc{position:static;max-height:none;border-bottom:1px solid var(--rule);padding:14px 0}
+  nav.toc>ol{columns:2;column-gap:20px}
+  nav.toc ol ol{display:none}
+  td:first-child{white-space:normal}
+}
+</style>
+</head>
+<body>
+<div class="bar"><div class="in">
+  <a class="home" href="../">← Monades</a>
+  <label class="search"><input id="q" type="search" placeholder="Chercher : LFO, zones MIDI, sauver, enveloppe…" aria-label="Chercher dans le mode d'emploi" autocomplete="off"><span class="count" id="count"></span></label>
+  <button class="theme" id="theme" type="button">Clair / sombre</button>
+</div></div>
+
+<div class="layout">
+<nav class="toc" aria-label="Sommaire"><ol>
+  <li><a href="#trouver">Où trouver quoi</a></li>
+  <li><a href="#depart">Premiers pas</a></li>
+  <li><a href="#boutons">Les boutons</a></li>
+  <li><a href="#encodeurs">Encodeurs et clavier</a></li>
+  <li><a href="#home">Pages HOME</a><ol><li><a href="#p-live">LIVE</a></li><li><a href="#p-morph">MORPH</a></li><li><a href="#p-derive">DERIVE</a></li></ol></li>
+  <li><a href="#edit">Pages EDIT</a><ol><li><a href="#p-sound">SOUND</a></li><li><a href="#p-filter">FILTER</a></li><li><a href="#p-envelope">ENVELOPE</a></li><li><a href="#p-mix">MIX</a></li><li><a href="#p-mixer">GLOBAL MIXER</a></li></ol></li>
+  <li><a href="#seq">Pages SEQ</a><ol><li><a href="#p-rhythm">RHYTHM</a></li><li><a href="#p-groove">GROOVE</a></li><li><a href="#p-bass">BASS / MOTIFS</a></li><li><a href="#p-phrase">PHRASE</a></li><li><a href="#p-generator">GENERATOR</a></li><li><a href="#p-form">FORM</a></li></ol></li>
+  <li><a href="#fx">Pages FX</a><ol><li><a href="#p-grain">GRANULAR BUS</a></li><li><a href="#p-tape">TAPE</a></li><li><a href="#p-space">SHARED SPACE</a></li><li><a href="#p-spacetone">SPACE TONE</a></li><li><a href="#p-echo">ECHO SYNC / CHORUS</a></li><li><a href="#p-modulation">MARBLES / TIDES / WARPS</a></li><li><a href="#p-lfo">LFO A et LFO B</a></li></ol></li>
+  <li><a href="#glo">Pages GLO</a><ol><li><a href="#p-harmony">HARMONY</a></li><li><a href="#p-raga">RAGA</a></li><li><a href="#p-system">SYSTEM</a></li><li><a href="#p-look">LOOK</a></li><li><a href="#p-midi">MIDI</a></li><li><a href="#p-zones">MIDI OUT ZONES</a></li><li><a href="#p-banks">USER BANKS</a></li></ol></li>
+  <li><a href="#faire">Comment faire</a></li>
+  <li><a href="#midi">MIDI en détail</a></li>
+  <li><a href="#listes">Listes</a></li>
+  <li><a href="#simulateur">Le simulateur</a></li>
+</ol></nav>
+
+<main id="content">
+<h1>Mode d'emploi</h1>
+<p class="lead">Chaque bouton, chaque page, chaque réglage de Monades sur le FM-1, tels qu'ils sont dans le firmware. Le champ de recherche en haut filtre la page.</p>
+
+<h2 id="trouver">Où trouver quoi</h2>
+<div class="entry">
+  <h3>Les noms imprimés sur les boutons ne sont pas ceux de Monades</h3>
+  <p>Les boutons du FM-1 portent les noms du firmware d'origine de M-VAVE. Dans Monades, le bouton <span class="k">LFO</span> ne mène pas aux LFO&nbsp;: il fige la bande granulaire (Freeze). Le bouton <span class="k">ENV</span> ne mène pas aux enveloppes&nbsp;: il annule la dernière variation. Les pages de réglage s'ouvrent avec les cinq boutons de pages&nbsp;: <span class="k">HOME</span>, <span class="k">EDIT</span>, <span class="k">SEQ</span>, <span class="k">FX</span>, <span class="k">GLO</span>. Appuyer plusieurs fois sur le même bouton fait défiler ses pages.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Je cherche</th><th>Appuyer sur</th><th>Page</th></tr>
+    <tr><td>Les LFO</td><td><span class="k">FX</span> 7 fois (LFO A) ou 8 fois (LFO B)</td><td><a href="#p-lfo">LFO A / LFO B</a></td></tr>
+    <tr><td>L'enveloppe (attaque, déclin)</td><td><span class="k">EDIT</span> 3 fois</td><td><a href="#p-envelope">ENVELOPE</a></td></tr>
+    <tr><td>Le filtre</td><td><span class="k">EDIT</span> 2 fois</td><td><a href="#p-filter">FILTER</a></td></tr>
+    <tr><td>Le son d'une piste (timbre)</td><td><span class="k">EDIT</span> 1 fois, ou tourner <span class="k">ALGO</span></td><td><a href="#p-sound">SOUND</a></td></tr>
+    <tr><td>Le volume d'une piste</td><td><span class="k">EDIT</span> 5 fois, puis <span class="k">SELECT</span> pour la piste</td><td><a href="#p-mixer">GLOBAL MIXER</a></td></tr>
+    <tr><td>Le rythme d'une piste (nombre de coups)</td><td><span class="k">SEQ</span> 1 fois</td><td><a href="#p-rhythm">RHYTHM</a></td></tr>
+    <tr><td>Le swing</td><td><span class="k">SEQ</span> 2 fois</td><td><a href="#p-groove">GROOVE</a></td></tr>
+    <tr><td>Les notes d'une phrase</td><td><span class="k">SEQ</span> 3 fois (activer), 4 fois (écrire)</td><td><a href="#p-bass">BASS</a>, <a href="#p-phrase">PHRASE</a></td></tr>
+    <tr><td>Les générateurs de notes</td><td><span class="k">SEQ</span> 5 fois</td><td><a href="#p-generator">GENERATOR</a></td></tr>
+    <tr><td>La forme (sections)</td><td><span class="k">SEQ</span> 6 fois</td><td><a href="#p-form">FORM</a></td></tr>
+    <tr><td>L'écho, la room (réverbe)</td><td><span class="k">FX</span> 3 fois</td><td><a href="#p-space">SHARED SPACE</a></td></tr>
+    <tr><td>Le chorus, l'écho au tempo</td><td><span class="k">FX</span> 5 fois</td><td><a href="#p-echo">ECHO SYNC / CHORUS</a></td></tr>
+    <tr><td>Le grain (granulaire)</td><td><span class="k">FX</span> 1 fois</td><td><a href="#p-grain">GRANULAR BUS</a></td></tr>
+    <tr><td>La gamme, la note de base, le tempo</td><td><span class="k">GLO</span> 1 fois</td><td><a href="#p-harmony">HARMONY</a></td></tr>
+    <tr><td>Les ornements de raga</td><td><span class="k">GLO</span> 2 fois</td><td><a href="#p-raga">RAGA</a></td></tr>
+    <tr><td>Le MIDI (horloge, sortie)</td><td><span class="k">GLO</span> 5 fois</td><td><a href="#p-midi">MIDI</a></td></tr>
+    <tr><td>Les plages de notes MIDI (zones)</td><td><span class="k">GLO</span> 6 fois</td><td><a href="#p-zones">MIDI OUT ZONES</a></td></tr>
+    <tr><td>Mes sauvegardes</td><td><span class="k">GLO</span> 7 fois</td><td><a href="#p-banks">USER BANKS</a></td></tr>
+    <tr><td>Le morphing</td><td><span class="k">HOME</span> 2 fois</td><td><a href="#p-morph">MORPH</a></td></tr>
+    <tr><td>La dérive</td><td><span class="k">HOME</span> 3 fois</td><td><a href="#p-derive">DERIVE</a></td></tr>
+  </table></div>
+  <p>Le compte part d'une autre page&nbsp;: depuis LIVE, <span class="k">FX</span> une fois ouvre GRANULAR BUS. Sur une page FX, <span class="k">FX</span> passe à la page FX suivante.</p>
+</div>
+
+<h2 id="depart">Premiers pas</h2>
+<div class="entry">
+  <h3>Faire jouer un Monde</h3>
+  <ol class="steps">
+    <li>Allumer. Un écran de démarrage s'affiche&nbsp;; n'importe quel bouton le ferme.</li>
+    <li>Sur LIVE (<span class="k">HOME</span>), tourner <span class="k">PRESET</span> pour choisir un Monde. L'écran affiche «&nbsp;MONDE 12 DRONE&nbsp;» (numéro et famille) ou, pour un Monde FDDS, son nom.</li>
+    <li><span class="k">PLAY</span> lance la séquence, un nouvel appui l'arrête.</li>
+    <li>Tourner <span class="k">K1</span> à <span class="k">K4</span>&nbsp;: Density, Motion, Colour, Space.</li>
+    <li><span class="k">SELECT</span> choisit la piste (1 à 6). Le clavier joue la piste choisie.</li>
+  </ol>
+  <p>Maintenir un bouton affiche son aide sur l'écran. Relâcher, puis toucher une touche pour fermer.</p>
+</div>
+<div class="entry">
+  <h3>Ce qu'est un Monde</h3>
+  <p>Un Monde est une scène complète&nbsp;: les six pistes avec leur moteur et leur son, leurs rythmes et leurs notes, les quatre macros, les effets, la gamme et le tempo. Charger un Monde remplace tout, y compris la bande granulaire. ENV ne revient pas en arrière après un changement de Monde. Il y a 76 Mondes venus de Mutable Dreams en huit familles (MIST, DRONE, RESONANCE, TECHNO, BROKEN, ORGANIC, PERCUSSION, MELODY), le Blank (six pistes Choir jouables au clavier, sans séquence) et 14 Mondes FDDS. Mutable Dreams les appelait des Biomes.</p>
+</div>
+
+<h2 id="boutons">Les boutons</h2>
+<div class="entry">
+  <h3>Les quatorze boutons</h3>
+  <div class="tablewrap"><table>
+    <tr><th>Bouton</th><th>Ce qu'il fait dans Monades</th></tr>
+    <tr><td>HOME</td><td>Pages LIVE → MORPH → DERIVE. L'appui qui ferme l'écran de démarrage reste sur LIVE.</td></tr>
+    <tr><td>EDIT</td><td>Pages SOUND → VELVET FILTER → ENVELOPE → MIX → GLOBAL MIXER.</td></tr>
+    <tr><td>SEQ</td><td>Pages RHYTHM → GROOVE → BASS / MOTIFS → PHRASE → GENERATOR → FORM.</td></tr>
+    <tr><td>FX</td><td>Pages GRANULAR BUS → TAPE → SHARED SPACE → SPACE TONE → ECHO SYNC / CHORUS → MARBLES / TIDES / WARPS → LFO A → LFO B.</td></tr>
+    <tr><td>GLO</td><td>Pages HARMONY → RAGA → SYSTEM → LOOK → MIDI → MIDI OUT ZONES → USER BANKS.</td></tr>
+    <tr><td>PLAY</td><td>Lance ou arrête la séquence. L'arrêt laisse le son s'éteindre. Un nouveau départ reprend la séquence au début.</td></tr>
+    <tr><td>SEL</td><td>Coupe ou rétablit la piste choisie (mute).</td></tr>
+    <tr><td>ENV</td><td>Revient à l'état d'avant la dernière variation ou le dernier DICE («&nbsp;ENV: PREVIOUS VARIATION&nbsp;»). Une seule étape est gardée. Sur MORPH&nbsp;: revient au Monde A. Sur DERIVE&nbsp;: revient à la maison.</td></tr>
+    <tr><td>LFO</td><td>Fige ou relance la bande granulaire (Freeze). Les pistes continuent de jouer. Ne règle pas les LFO&nbsp;: voir <a href="#p-lfo">LFO A / LFO B</a>.</td></tr>
+    <tr><td>ARP</td><td>Verrouille la graine&nbsp;: la même variation se répète («&nbsp;SEED LOCKED, REPEATS&nbsp;»). Nouvel appui&nbsp;: la graine varie.</td></tr>
+    <tr><td>REC</td><td>N'enregistre rien. Selon la page&nbsp;: sur LIVE et les pages GLO, nouvelle variation (graine et rythmes)&nbsp;; sur les pages EDIT, DICE du son de la piste choisie&nbsp;; sur les pages SEQ, DICE de son rythme&nbsp;; sur les pages FX, DICE des effets&nbsp;; sur GENERATOR, efface le motif&nbsp;; sur SYSTEM et MIDI, panique (tout se tait)&nbsp;; sur MORPH, garde le mélange&nbsp;; sur DERIVE, l'état actuel devient la maison.</td></tr>
+    <tr><td>SAVE</td><td>Sauve le Monde en cours et les préférences, à l'arrêt et sur horloge interne. Sur USER BANKS&nbsp;: sauve dans l'emplacement choisi.</td></tr>
+    <tr><td>OCT− / OCT+</td><td>Octave du clavier, sans toucher aux notes de la séquence.</td></tr>
+    <tr><td>Maintenir</td><td>Maintenir n'importe quel bouton affiche son aide, sans faire son action. Sur certaines pages, l'aide décrit la page.</td></tr>
+  </table></div>
+  <p>Dans le simulateur, la fonction Monades est écrite en jaune sous SEL (MUTE), ENV (UNDO), LFO (FREEZE), ARP (LOCK) et REC (DICE).</p>
+</div>
+<div class="entry" id="dice">
+  <h3>DICE</h3>
+  <p>REC sur une page EDIT, SEQ ou FX tire au sort de nouveaux réglages dans des plages musicales.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Pages</th><th>Ce qui est tiré au sort</th></tr>
+    <tr><td>EDIT</td><td>Le son de la piste choisie&nbsp;: Tone, Harmonics, Shape, Decay, Attack, Cutoff (jamais fermé), Resonance, Breathe.</td></tr>
+    <tr><td>SEQ (sauf GENERATOR)</td><td>Le rythme de la piste choisie&nbsp;: nombre de coups (au moins un), rotation, Chance, accent, repeats.</td></tr>
+    <tr><td>FX</td><td>Les effets&nbsp;: grain, écho, room, couleurs, diffusion, chorus. Un retour d'effets à 0 remonte&nbsp;; sans aucun envoi, la piste choisie reçoit de l'écho et de la room.</td></tr>
+  </table></div>
+  <p>Ne changent jamais&nbsp;: la gamme, la note de base, la transposition, le tempo, le niveau, les mutes, le moteur, le MIDI. ENV annule le dernier DICE.</p>
+</div>
+
+<h2 id="encodeurs">Encodeurs et clavier</h2>
+<div class="entry">
+  <div class="tablewrap"><table>
+    <tr><th>Commande</th><th>Effet</th></tr>
+    <tr><td>MASTER</td><td>Volume de sortie. Le vumètre M de GLOBAL MIXER le suit.</td></tr>
+    <tr><td>SELECT</td><td>Choisit la piste 1 à 6. Les pages d'une piste règlent celle-ci.</td></tr>
+    <tr><td>ALGO</td><td>Change le moteur de la piste choisie (12 moteurs, <a href="#l-moteurs">liste</a>) et ouvre SOUND.</td></tr>
+    <tr><td>PRESET</td><td>Sur SOUND, FILTER, ENVELOPE, MIX, GLOBAL MIXER, BASS, PHRASE, MARBLES, LFO A, LFO B, GENERATOR&nbsp;: un des 224 sons pour la piste (les notes, le rythme, le mixage, les envois et le mute restent). Sur MORPH&nbsp;: le Monde B. Sur USER BANKS&nbsp;: la lettre du nom. Ailleurs&nbsp;: un Monde (tout le patch est remplacé). Le bas de l'écran indique ce que fait PRESET.</td></tr>
+    <tr><td>K1 à K4</td><td>Les quatre cadres du bas de l'écran. Leur rôle change avec la page.</td></tr>
+    <tr><td>Clavier</td><td>Joue la piste choisie (première touche&nbsp;: F3). Sur HARMONY avec la gamme CUSTOM&nbsp;: ajoute ou retire la note de la gamme. Sur GENERATOR&nbsp;: écrit le motif.</td></tr>
+  </table></div>
+  <p>Les valeurs de 0 à 100 avancent de 2 par cran. Sur les pages d'une piste, l'écran affiche «&nbsp;TRACK n&nbsp;», «&nbsp;Tn&nbsp;» après le titre, ou «&nbsp;n &gt;&nbsp;».</p>
+</div>
+
+<h2 id="home">Pages HOME</h2>
+<div class="entry" id="p-live">
+  <p class="path">HOME</p><h3>LIVE MONDE</h3>
+  <p>La flotte&nbsp;: six vaisseaux, un par piste, dans leur couleur. La taille suit le niveau de la piste, la flamme la densité, un éclat marque chaque note. Le cercle entoure la piste choisie. À droite, les six pistes et leur moteur. En bas&nbsp;: le Monde (numéro et famille, ou nom), <code>*</code> si modifié, LOCK ou RAND (graine), ICE ou REC (bande granulaire figée ou en enregistrement). En haut à droite&nbsp;: ▶ ou ■, le tempo, ↻ quand la graine change.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 DENSITY</td><td>Nombre de coups de toutes les pistes, au-dessus ou en dessous de leur réglage.</td></tr>
+    <tr><td>K2 MOTION</td><td>Mouvement mélodique&nbsp;: part des notes qui dévient de la note de base.</td></tr>
+    <tr><td>K3 COLOUR</td><td>Plus clair ou plus sombre.</td></tr>
+    <tr><td>K4 SPACE</td><td>Niveau du bus granulaire.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-morph">
+  <p class="path">HOME ×2</p><h3>MORPH</h3>
+  <p>Passage progressif du Monde en cours (A) vers un autre Monde (B). Les nombres glissent (tempo, filtres, niveaux, envois, effets, densité, notes de base). Les choix d'une piste (moteur, mode de filtre, formes et cibles de LFO, générateur, gamaka) basculent à son propre moment, une piste après l'autre, entre 17 et 83&nbsp;%&nbsp;; autour de ce moment la piste descend jusqu'au silence puis remonte. Gamme, note de base et graine basculent à 50&nbsp;%.</p>
+  <p>Écran&nbsp;: A à gauche s'éteint, B à droite s'allume, la flotte du son en cours voyage entre les deux. Barre de position avec un trait par piste (moment de sa bascule) et le trait du milieu. Tempo de A, en cours, de B. Les deux gammes (la claire joue). Six carrés&nbsp;: creux avant la bascule, sombres pendant le fondu, pleins après, tiret si rien ne bascule.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 MONDE B</td><td>Le Monde de destination (aussi avec PRESET). Rien ne change tant que K2 est à 0.</td></tr>
+    <tr><td>K2 POSITION</td><td>De A (0) à B (100).</td></tr>
+    <tr><td>K3 AUTO</td><td>BY HAND, ou 4, 8, 16, 32, 64 BARS&nbsp;: la lecture fait le passage.</td></tr>
+    <tr><td>K4 MORPH</td><td>ALL, SOUND, RHYTHM, EFFECTS&nbsp;: ce qui change, le reste reste sur A.</td></tr>
+  </table></div>
+  <p>REC garde le mélange et termine le morphing. ENV revient à A. Charger un Monde ailleurs termine le morphing. Les mutes, le verrou de graine et la qualité ne bougent pas.</p>
+</div>
+<div class="entry" id="p-derive">
+  <p class="path">HOME ×3</p><h3>DERIVE</h3>
+  <p>Le Monde change tout seul pendant la lecture, pendant des minutes ou des heures. Dès que K2 quitte OFF, le Monde en cours devient la maison. Il glisse vers une variante tirée autour de la maison, puis vers la suivante. Glissent&nbsp;: timbres, filtres, enveloppes, panoramique, envois, Chance, accents, nombre de coups, LFO déjà actifs, grain, écho, room, chorus, tempo (±10&nbsp;% de la maison). De temps en temps une piste (jamais la première) se tait un glissement puis revient, et de nouvelles notes arrivent. Ne bougent jamais&nbsp;: gamme, note de base, transposition, mutes.</p>
+  <p>Écran&nbsp;: la maison pâle au centre, la flotte du son en cours en orbite, d'autant plus loin qu'elle s'en est éloignée. Temps écoulé, avancée du glissement, temps avant le suivant («&nbsp;NEXT&nbsp;»), trois derniers changements («&nbsp;T3 DECAY UP&nbsp;», «&nbsp;T5 RESTS&nbsp;», «&nbsp;T5 COMES BACK&nbsp;», «&nbsp;NEW NOTES&nbsp;», «&nbsp;TO …&nbsp;», «&nbsp;HOME AGAIN&nbsp;»).</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 DISTANCE</td><td>NEAR, MIDDLE, FAR&nbsp;: écart permis autour de la maison.</td></tr>
+    <tr><td>K2 GLIDE</td><td>OFF, ou 8, 16, 32, 64, 128, 256 BARS par glissement. OFF arrête la dérive là où elle en est.</td></tr>
+    <tr><td>K3 VOYAGE</td><td>STAY, FAMILY, ANY MONDE&nbsp;: un glissement sur quatre va vers un autre Monde (de la même famille, ou n'importe lequel), le suivant revient. Avec K4 sur ALL seulement.</td></tr>
+    <tr><td>K4 DRIFT</td><td>ALL, SOUND, RHYTHM, EFFECTS&nbsp;: ce qui dérive.</td></tr>
+  </table></div>
+  <p>REC&nbsp;: l'état actuel devient la maison. ENV&nbsp;: retour à la maison. Avec ARP (graine verrouillée), la même dérive refait le même chemin. Charger un Monde ou choisir un Monde B sur MORPH arrête la dérive.</p>
+</div>
+
+<h2 id="edit">Pages EDIT</h2>
+<div class="entry" id="p-sound">
+  <p class="path">EDIT ×1 · une piste</p><h3>SOUND</h3>
+  <p>Mini-oscilloscope de la voix après son filtre. Tone et Harmonics changent la forme d'onde. En haut&nbsp;: TRACK n, le moteur, le nom du son (ou MONDE VOICE si modifié, <code>*</code>).</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 TONE</td><td>Brillance.</td></tr>
+    <tr><td>K2 HARMONICS</td><td>Harmoniques, ou accord selon le moteur.</td></tr>
+    <tr><td>K3 SHAPE / DECAY / EXCITER</td><td>SHAPE pour FM, VA, Harmonic, Choir, Bass, Mellow, Satin&nbsp;; DECAY pour les batteries et Rings&nbsp;; EXCITER pour Elements (MALLET, PLECTRUM, PARTICLES).</td></tr>
+    <tr><td>K4 LEVEL</td><td>Niveau de la piste.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-filter">
+  <p class="path">EDIT ×2 · une piste</p><h3>VELVET FILTER</h3>
+  <p>La vraie réponse du filtre, avec la bosse de résonance&nbsp;; un repère suit la coupure modulée (LFO, Tides). FILTER OFF quand le mode est OFF.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 CUTOFF Hz</td><td>Fréquence de coupure, 60 à 18&nbsp;000&nbsp;Hz.</td></tr>
+    <tr><td>K2 RESONANCE</td><td>Résonance à la coupure.</td></tr>
+    <tr><td>K3 CHARACTER</td><td>Mode&nbsp;: OFF, LP 12 dB, LP 24 dB, LOW PASS GATE, HIGH PASS, BAND PASS, NOTCH, HP 24 dB. Le low pass gate s'assombrit avec le déclin.</td></tr>
+    <tr><td>K4 BREATHE</td><td>Mouvement lent du filtre.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-envelope">
+  <p class="path">EDIT ×3 · une piste</p><h3>ENVELOPE / BLOOM</h3>
+  <p>La courbe exacte de l'enveloppe et un point qui suit chaque note. Le bouton ENV, lui, n'ouvre pas cette page (il annule).</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 ATTACK</td><td>Attaque, jusqu'à 8 secondes. Moteurs mélodiques seulement (FM, VA, Harmonic, Choir…)&nbsp;; ailleurs le cadre affiche MELODIC ONLY.</td></tr>
+    <tr><td>K2 DECAY</td><td>Déclin, jusqu'à 16 secondes. Batteries et Rings&nbsp;: déclin du moteur.</td></tr>
+    <tr><td>K3 LEVEL</td><td>Niveau de la piste.</td></tr>
+    <tr><td>K4 SEND</td><td>Envoi vers le bus granulaire.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-mix">
+  <p class="path">EDIT ×4 · une piste</p><h3>MIX / NOTES</h3>
+  <p>Pan entre L et R, note de base sur un clavier, division d'horloge.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 SEND</td><td>Envoi vers le bus granulaire.</td></tr>
+    <tr><td>K2 MIDI NOTE</td><td>Note de base de la piste, 24 à 96 (C1 à C7).</td></tr>
+    <tr><td>K3 PAN</td><td>Gauche / droite.</td></tr>
+    <tr><td>K4 CLOCK DIV</td><td>Division d'horloge, 1 à 8&nbsp;: la piste avance un pas tous les n pas.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-mixer">
+  <p class="path">EDIT ×5 · une piste</p><h3>GLOBAL MIXER</h3>
+  <p>Pour les six pistes&nbsp;: vumètre, position du niveau sur son rail, barres d'envoi grain / écho / room. À droite&nbsp;: retours G (grain), D (écho), R (room), vumètre M (niveau après MASTER) et LIM (limiteur). K1 à K4 règlent seulement la piste choisie avec SELECT&nbsp;: les cadres affichent T1 à T6.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 LEVEL Tn</td><td>Niveau de la piste n.</td></tr>
+    <tr><td>K2 GRAIN Tn</td><td>Envoi vers le grain.</td></tr>
+    <tr><td>K3 DELAY Tn</td><td>Envoi vers l'écho.</td></tr>
+    <tr><td>K4 REVERB Tn</td><td>Envoi vers la room.</td></tr>
+  </table></div>
+</div>
+
+<h2 id="seq">Pages SEQ</h2>
+<div class="entry" id="p-rhythm">
+  <p class="path">SEQ ×1 · une piste</p><h3>RHYTHM</h3>
+  <p>L'anneau euclidien que le séquenceur utilise vraiment (avec Density). Plein&nbsp;: joué au dernier passage. Anneau rouge&nbsp;: un coup refusé par Chance. Pâle&nbsp;: pas encore atteint (la luminosité dit Chance). Points extérieurs&nbsp;: repeats.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 HITS</td><td>Nombre de coups dans le cycle.</td></tr>
+    <tr><td>K2 LENGTH</td><td>Longueur du cycle, 1 à 32 pas.</td></tr>
+    <tr><td>K3 ROTATION</td><td>Décalage du motif.</td></tr>
+    <tr><td>K4 CHANCE</td><td>Probabilité de chaque coup. Avec la graine verrouillée, les décisions de Chance se répètent à chaque tour.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-groove">
+  <p class="path">SEQ ×2 · une piste</p><h3>GROOVE / REPEATS</h3>
+  <p>Pas décalés par le swing, repeats en sous-barres, accent en hauteur.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 SWING</td><td>Swing global, 0 à 60.</td></tr>
+    <tr><td>K2 REPEATS</td><td>1 à 4 répétitions par coup (le pas est divisé).</td></tr>
+    <tr><td>K3 ACCENT</td><td>Accent du premier pas du cycle.</td></tr>
+    <tr><td>K4 CLOCK DIV</td><td>Division d'horloge de la piste, 1 à 8.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-bass">
+  <p class="path">SEQ ×3 · une piste</p><h3>BASS / MOTIFS</h3>
+  <p>Active la phrase de la piste.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 PHRASE</td><td>OFF, EUCLID (la phrase suit les coups euclidiens), STEP (la phrase joue pas à pas, sans les coups euclidiens).</td></tr>
+    <tr><td>K2 MOTIF</td><td>Un des motifs.</td></tr>
+    <tr><td>K3 GLIDE</td><td>Glissé entre les notes.</td></tr>
+    <tr><td>K4 BASE NOTE</td><td>Note de base de la piste.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-phrase">
+  <p class="path">SEQ ×4 · une piste</p><h3>PHRASE / NOTES</h3>
+  <p>Mini piano-roll de 16 pas avec tête de lecture. PHRASE OFF&nbsp;: activer la phrase sur BASS / MOTIFS.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 STEP</td><td>Pas à modifier, 1 à 16.</td></tr>
+    <tr><td>K2 NOTE / REST</td><td>Demi-tons au-dessus de la note de base (0 à 24) ou silence (−1). La gamme s'applique.</td></tr>
+    <tr><td>K3 ACCENT</td><td>Accent.</td></tr>
+    <tr><td>K4 CHANCE</td><td>Probabilité.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-generator">
+  <p class="path">SEQ ×5 · une piste</p><h3>GENERATOR / DEJA VU</h3>
+  <p>Le registre de boucle&nbsp;: une colonne par case, hauteur = note, creuse = silence décidé par Chance. Le motif en petit au-dessus. Les touches du clavier écrivent le motif, REC l'efface.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 SOURCE</td><td>OFF (Mutable Dreams), RANDOM (au hasard dans l'écart), MARKOV (chaîne apprise sur la phrase), MOTIF (parcourt la phrase dans l'ordre et la fait varier).</td></tr>
+    <tr><td>K2 DEJA VU</td><td>0&nbsp;: toujours nouveau&nbsp;; 100&nbsp;: boucle figée. Notes et décisions de Chance.</td></tr>
+    <tr><td>K3 LOOP</td><td>Longueur de la boucle, 1 à 16 coups.</td></tr>
+    <tr><td>K4 SPREAD</td><td>Écart en demi-tons (0 à 24)&nbsp;; pour MOTIF, la variation.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-form">
+  <p class="path">SEQ ×6</p><h3>FORM</h3>
+  <p>Quatre sections&nbsp;: CALM, BUILD, PEAK, RELEASE (hauteur = tension), un curseur dans la section en cours, sous chacune les pistes qui jouent (sombre = au repos). En haut à droite, une mesure de pas&nbsp;: traits hauts = où Motion peut changer.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 DEPTH</td><td>Profondeur de la forme&nbsp;; 0 = arrêt (FORM OFF).</td></tr>
+    <tr><td>K2 SECTION</td><td>Longueur d'une section&nbsp;: 2, 4, 8 ou 16 mesures.</td></tr>
+    <tr><td>K3 RESTING</td><td>Pistes au repos dans le calme, 0 à 3.</td></tr>
+    <tr><td>K4 MOTION</td><td>La variation de Motion change à chaque pas, ou tous les 2, 4, 8, 16 pas.</td></tr>
+  </table></div>
+</div>
+
+<h2 id="fx">Pages FX</h2>
+<div class="entry" id="p-grain">
+  <p class="path">FX ×1</p><h3>GRANULAR BUS</h3>
+  <p>La bande enregistrée, la tête d'écriture, chaque grain à sa place&nbsp;; Freeze (bouton LFO) fige tout.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 SPACE</td><td>Niveau du bus granulaire (la macro Space).</td></tr>
+    <tr><td>K2 GRAIN SIZE</td><td>Longueur des grains.</td></tr>
+    <tr><td>K3 POSITION</td><td>Position des grains dans la bande.</td></tr>
+    <tr><td>K4 FEEDBACK</td><td>Réinjection.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-tape">
+  <p class="path">FX ×2</p><h3>TAPE / MOTION</h3>
+  <p>Flèche de lecture des grains, réduction du ducking en direct.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 PITCH st</td><td>Hauteur des grains, ±24 demi-tons.</td></tr>
+    <tr><td>K2 DIRECTION</td><td>FORWARD ou REVERSE.</td></tr>
+    <tr><td>K3 DUCK FROM</td><td>Piste source du ducking (OFF ou 1 à 6).</td></tr>
+    <tr><td>K4 DUCK %</td><td>Atténuation des autres pistes quand la source joue. La source ne change pas.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-space">
+  <p class="path">FX ×3</p><h3>SHARED SPACE</h3>
+  <p>Les échos dessinés selon le temps et le feedback, la traîne de la room. RETURN 0: NOTHING HEARD&nbsp;: le retour est à 0. NO TRACK SENDS: SEE MIXER&nbsp;: aucune piste n'envoie.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 ECHO ms</td><td>Temps d'écho, 40 à 350&nbsp;ms. Si l'écho est synchronisé (ECHO SYNC), K1 choisit la division.</td></tr>
+    <tr><td>K2 FEEDBACK</td><td>Réinjection de l'écho.</td></tr>
+    <tr><td>K3 ROOM TAIL</td><td>Longueur de la room.</td></tr>
+    <tr><td>K4 RETURN</td><td>Retour commun des effets.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-spacetone">
+  <p class="path">FX ×4</p><h3>SPACE TONE</h3>
+  <p>Courbes de ce qui atteint les effets&nbsp;; bande&nbsp;: l'attaque de la room, adoucie.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 SEND HIGH-PASS</td><td>Passe-haut sur les envois d'écho et de room (OFF ou fréquence).</td></tr>
+    <tr><td>K2 ECHO TONE</td><td>Couleur de l'écho (50 = Mutable Dreams).</td></tr>
+    <tr><td>K3 ROOM TONE</td><td>Couleur de la room.</td></tr>
+    <tr><td>K4 DIFFUSION</td><td>Attaque de la room plus douce.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-echo">
+  <p class="path">FX ×5</p><h3>ECHO SYNC / CHORUS</h3>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 ECHO SYNC</td><td>OFF (temps en ms sur SHARED SPACE) ou 1/32, 1/16 T, 1/16, 1/8 T, 1/16 ., 1/8, 1/4 T, 1/8 ., 1/4. À tempo lent, la division est divisée par deux jusqu'à tenir dans 350&nbsp;ms.</td></tr>
+    <tr><td>K2 FEEDBACK</td><td>Réinjection de l'écho.</td></tr>
+    <tr><td>K3 CHORUS MIX</td><td>Chorus sur les pistes (son direct).</td></tr>
+    <tr><td>K4 CHORUS DEPTH</td><td>Profondeur du balayage.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-modulation">
+  <p class="path">FX ×6 · une piste</p><h3>MARBLES / TIDES / WARPS</h3>
+  <p>Phase de Tides en direct, pas que Marbles fait varier, profondeur de Warps.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 MARBLES</td><td>Variation retenue des notes hors temps. Agit sur les phrases (BASS en EUCLID ou STEP).</td></tr>
+    <tr><td>K2 TIDES</td><td>Mouvement du filtre. Demande un filtre sur la piste.</td></tr>
+    <tr><td>K3 CYCLE</td><td>Durée du cycle de Tides.</td></tr>
+    <tr><td>K4 WARPS</td><td>Mélange en anneau.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-lfo">
+  <p class="path">FX ×7 (LFO A) · FX ×8 (LFO B) · une piste</p><h3>LFO A et LFO B</h3>
+  <p>Deux LFO par piste. Deux cycles de l'onde, les repères de mesure, NOW et la valeur en cours. DEPTH 0: THIS LFO IS OFF. NEEDS A TRACK FILTER&nbsp;: la cible est le filtre et la piste n'en a pas. Le bouton LFO n'ouvre pas ces pages (il fige le grain).</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 RATE</td><td>Synchronisé&nbsp;: 8 BARS, 4 BARS, 2 BARS, 1 BAR, 1/2, 1/4 ., 1/2 T, 1/4, 1/8 ., 1/4 T, 1/8, 1/8 T, 1/16, 1/16 T, 1/32 (redémarre avec PLAY). Puis libre, 0,02 à 20&nbsp;Hz.</td></tr>
+    <tr><td>K2 SHAPE</td><td>SINE, TRIANGLE, RAMP UP, RAMP DOWN, SQUARE, SAMPLE &amp; HOLD, SMOOTH RANDOM.</td></tr>
+    <tr><td>K3 TARGET</td><td><a href="#l-cibles">19 cibles</a>&nbsp;: filtre, niveau, hauteur, envois, temps d'écho, grain, attaque, déclin, notes dans la gamme, nombre de coups…</td></tr>
+    <tr><td>K4 DEPTH</td><td>Profondeur&nbsp;; négative inverse.</td></tr>
+  </table></div>
+</div>
+
+<h2 id="glo">Pages GLO</h2>
+<div class="entry" id="p-harmony">
+  <p class="path">GLO ×1</p><h3>HARMONY / GLOBAL</h3>
+  <p>Le cercle des 12 notes, la gamme allumée, les notes jouées qui s'éclairent.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 ROOT</td><td>Note de base, C à B.</td></tr>
+    <tr><td>K2 SCALE</td><td>Une des <a href="#l-gammes">91 gammes</a>, rangées par famille.</td></tr>
+    <tr><td>K3 TRANSPOSE</td><td>Transposition, ±24 demi-tons.</td></tr>
+    <tr><td>K4 TEMPO</td><td>Tempo, 30 à 220 BPM.</td></tr>
+  </table></div>
+  <p>Avec la gamme CUSTOM, les touches ajoutent ou retirent leur note (la note de base reste).</p>
+</div>
+<div class="entry" id="p-raga">
+  <p class="path">GLO ×2</p><h3>RAGA / GAMAKA</h3>
+  <p>À gauche, la gamme avec la vadi (anneau épais) et la samvadi (anneau fin). À droite, le gamaka de la piste choisie sur 600&nbsp;ms, et un point quand une de ses notes sonne.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 VADI</td><td>Note pivot principale (une note de la gamme, ou OFF). Les notes générées proches y sont attirées et accentuées.</td></tr>
+    <tr><td>K2 SAMVADI</td><td>Seconde note pivot.</td></tr>
+    <tr><td>K3 GAMAKA</td><td>Ornement de la piste&nbsp;: OFF, KAN (grâce depuis la note du dessus), MEEND (glissé depuis la note précédente), ANDOLAN (oscillation lente vers la note du dessous), MIX.</td></tr>
+    <tr><td>K4 AMOUNT</td><td>Quantité d'ornement.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="p-system">
+  <p class="path">GLO ×3</p><h3>QUALITY / SYSTEM</h3>
+  <p>Version, FLASH DOG DUKE SILVER, mode ECO ou FULL, charge et pic du processeur, décrochages, mémoire.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1</td><td>Tempo.</td></tr>
+    <tr><td>K2</td><td>ECO (2 grains, modes adaptés) ou FULL (24 modes, 4 grains). Un patch trop lourd repasse en ECO.</td></tr>
+    <tr><td>K3</td><td>Retour du ducking.</td></tr>
+    <tr><td>K4</td><td>Remet à zéro le pic processeur mesuré.</td></tr>
+  </table></div>
+  <p>REC sur cette page&nbsp;: panique, efface aussi la bande.</p>
+</div>
+<div class="entry" id="p-look">
+  <p class="path">GLO ×4</p><h3>LOOK / STARTUP</h3>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 MOTION</td><td>LIVING (animations) ou STILL (plus aucune animation, les informations restent).</td></tr>
+    <tr><td>K2 START SOUND</td><td>Son de démarrage ON ou OFF.</td></tr>
+    <tr><td>K3 INTRO</td><td>Rejoue l'animation de démarrage.</td></tr>
+    <tr><td>K4 CPU MAX</td><td>Remet à zéro le pic processeur.</td></tr>
+  </table></div>
+  <p>SAVE à l'arrêt garde ces préférences.</p>
+</div>
+<div class="entry" id="p-midi">
+  <p class="path">GLO ×5</p><h3>MIDI / PERFORMANCE</h3>
+  <p>Les canaux 1 à 6 s'allument avec leur piste à chaque note&nbsp;; pour chaque port (USB, BLE, TRS), IN et OUT s'allument 200&nbsp;ms par message, avec leur compteur.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 CLOCK IN</td><td>INTERNAL, USB ou TRS&nbsp;: d'où vient l'horloge.</td></tr>
+    <tr><td>K2 SCALE SNAP</td><td>ON&nbsp;: les notes reçues sont ramenées dans la gamme.</td></tr>
+    <tr><td>K3 NOTES OUT</td><td>OFF, TRACKS 1-6 (la piste n sort sur le canal n), ZONES (chaque plage de notes sur son canal, <a href="#p-zones">page suivante</a>).</td></tr>
+    <tr><td>K4 CLOCK OUT</td><td>OFF ou ON&nbsp;: horloge MIDI, start et stop avec PLAY, sur horloge interne.</td></tr>
+  </table></div>
+  <p>REC sur cette page&nbsp;: panique. SAVE à l'arrêt garde ces réglages.</p>
+</div>
+<div class="entry" id="p-zones">
+  <p class="path">GLO ×6</p><h3>MIDI OUT ZONES</h3>
+  <p>Huit zones en barres au-dessus d'un clavier C1 à C7&nbsp;; la zone choisie est plus épaisse&nbsp;; les dernières notes des pistes s'y affichent. SET MIDI K3 TO ZONES&nbsp;: la sortie n'est pas en ZONES sur la page MIDI. OVERLAP: SENT ON BOTH&nbsp;: la zone choisie en chevauche une autre.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 ZONE</td><td>La zone à régler, 1 à 8.</td></tr>
+    <tr><td>K2 LOW</td><td>Note la plus basse (C1 à C7). Si elle dépasse la note haute, celle-ci suit.</td></tr>
+    <tr><td>K3 HIGH</td><td>Note la plus haute.</td></tr>
+    <tr><td>K4 CHANNEL</td><td>Canal MIDI 1 à 16, ou OFF (zone coupée).</td></tr>
+  </table></div>
+  <p>Par défaut&nbsp;: zone 1 C1 → B2 canal 1, zone 2 C3 → B4 canal 2, zone 3 C5 → C7 canal 3, les autres coupées. Une note dans deux zones part sur les deux canaux. Voir <a href="#f-zones">Régler les zones</a>.</p>
+</div>
+<div class="entry" id="p-banks">
+  <p class="path">GLO ×7</p><h3>USER BANKS</h3>
+  <p>16 emplacements de Mondes et 64 de sons, sur le FM-1. Les Mondes d'usine restent disponibles. La bande granulaire n'est pas gardée.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 USER SLOT</td><td>Emplacement, 1 à 16 (Mondes) ou 1 à 64 (sons).</td></tr>
+    <tr><td>K2 BANK</td><td>MONDES ou SOUNDS.</td></tr>
+    <tr><td>K3 TURN RIGHT</td><td>Tourner à droite charge l'emplacement (LOAD).</td></tr>
+    <tr><td>K4 NAME CURSOR</td><td>Lettre du nom à modifier (1 à 23)&nbsp;; PRESET change la lettre.</td></tr>
+  </table></div>
+  <p>SAVE sauve dans l'emplacement&nbsp;; un emplacement occupé demande un second SAVE. Arrêter la lecture et être sur horloge interne avant.</p>
+</div>
+
+<h2 id="faire">Comment faire</h2>
+<div class="entry" id="f-sauver"><h3>Sauvegarder mon travail</h3><ol class="steps">
+  <li>Arrêter la lecture (<span class="k">PLAY</span>). Horloge interne (GLO › MIDI, K1 sur INTERNAL).</li>
+  <li><span class="k">SAVE</span>&nbsp;: le Monde en cours et les préférences sont gardés («&nbsp;MONDE + PREFS SAVED&nbsp;»).</li>
+  <li>Pour garder plusieurs Mondes&nbsp;: GLO ×7 (USER BANKS), K2 sur MONDES, K1 l'emplacement, K4 et PRESET pour le nom, <span class="k">SAVE</span>.</li>
+</ol></div>
+<div class="entry" id="f-charger"><h3>Recharger une sauvegarde</h3><ol class="steps">
+  <li>GLO ×7 (USER BANKS), K2 sur MONDES ou SOUNDS, K1 l'emplacement.</li>
+  <li>Tourner K3 vers la droite (LOAD).</li>
+</ol></div>
+<div class="entry" id="f-zones"><h3>Régler les zones MIDI (par exemple C1 à B2 sur le canal 1)</h3><ol class="steps">
+  <li>GLO ×5 (MIDI)&nbsp;: K3 NOTES OUT sur ZONES.</li>
+  <li><span class="k">GLO</span> encore (MIDI OUT ZONES).</li>
+  <li>K1&nbsp;: choisir la zone (1 à 8).</li>
+  <li>K2&nbsp;: note basse (C1). K3&nbsp;: note haute (B2).</li>
+  <li>K4&nbsp;: canal (1). OFF coupe la zone.</li>
+  <li>Recommencer pour les autres zones. Arrêter la lecture et <span class="k">SAVE</span> pour garder.</li>
+</ol></div>
+<div class="entry" id="f-mpc"><h3>Envoyer les notes à la MPC</h3><ol class="steps">
+  <li>Relier le FM-1 en USB. Il apparaît comme «&nbsp;Monades FM-1&nbsp;».</li>
+  <li>GLO ×5 (MIDI)&nbsp;: K3 NOTES OUT sur TRACKS 1-6 (piste n sur le canal n) ou ZONES.</li>
+  <li>Pour que la MPC suive le tempo&nbsp;: K4 CLOCK OUT sur ON.</li>
+  <li>Pour que le FM-1 suive la MPC&nbsp;: K1 CLOCK IN sur USB (l'horloge envoyée se coupe).</li>
+</ol></div>
+<div class="entry" id="f-volume"><h3>Changer le volume d'une piste</h3><p>EDIT ×5 (GLOBAL MIXER), <span class="k">SELECT</span> jusqu'à la piste (T1 à T6 dans les cadres), K1. Aussi SOUND K4 et ENVELOPE K3. Pour la couper d'un coup&nbsp;: <span class="k">SEL</span>.</p></div>
+<div class="entry" id="f-gamme"><h3>Choisir la gamme et la note de base</h3><p>GLO ×1 (HARMONY). K1 la note de base, K2 la gamme. Gamme CUSTOM&nbsp;: les touches du clavier ajoutent ou retirent leurs notes.</p></div>
+<div class="entry" id="f-son"><h3>Changer le son d'une piste</h3><p><span class="k">SELECT</span> la piste. <span class="k">ALGO</span> change le moteur. Sur SOUND, <span class="k">PRESET</span> choisit un des 224 sons. Puis FILTER et ENVELOPE pour l'affiner.</p></div>
+<div class="entry" id="f-lfo"><h3>Faire bouger un réglage avec un LFO</h3><ol class="steps">
+  <li><span class="k">SELECT</span> la piste.</li>
+  <li><span class="k">FX</span> jusqu'à LFO A (7 fois depuis une page hors FX).</li>
+  <li>K3 la cible, K2 la forme, K1 la vitesse.</li>
+  <li>K4 la profondeur (0 = arrêt). Pour la cible CUTOFF, la piste doit avoir un filtre (FILTER, K3).</li>
+</ol></div>
+<div class="entry" id="f-motif"><h3>Écrire un motif que le générateur fait varier</h3><ol class="steps">
+  <li><span class="k">SELECT</span> une piste mélodique, SEQ ×5 (GENERATOR).</li>
+  <li>K1 sur MOTIF. Jouer les notes au clavier&nbsp;: elles s'écrivent dans le motif. REC efface.</li>
+  <li>K4 règle la variation, K2 la répétition.</li>
+</ol></div>
+<div class="entry" id="f-morph"><h3>Passer d'un Monde à l'autre en douceur</h3><p>Choisir le Monde de départ sur LIVE. HOME une deuxième fois (MORPH). PRESET ou K1&nbsp;: le Monde d'arrivée. K2 à la main, ou K3 sur un nombre de mesures puis PLAY. REC garde, ENV revient.</p></div>
+<div class="entry" id="f-derive"><h3>Laisser le Monde vivre tout seul (installation)</h3><p>Choisir le Monde. HOME trois fois (DERIVE). K2 la durée d'un glissement (128 ou 256 mesures pour une pièce lente), K1 la distance, PLAY. ARP pour que la dérive soit reproductible.</p></div>
+<div class="entry" id="f-panique"><h3>Tout faire taire</h3><p>GLO ×3 (SYSTEM) ou GLO ×5 (MIDI), puis <span class="k">REC</span>&nbsp;: panique («&nbsp;PANIC: ALL SILENT&nbsp;»), qui efface aussi la bande et les traînes d'effets.</p></div>
+<div class="entry" id="f-annuler"><h3>Annuler</h3><p><span class="k">ENV</span> revient à l'état d'avant la dernière variation, le dernier DICE ou le début d'un morphing. Une seule étape. Après un changement de Monde, il n'y a rien à annuler.</p></div>
+
+<h2 id="midi">MIDI en détail</h2>
+<div class="entry"><h3>Entrée</h3>
+  <div class="tablewrap"><table><tr><th>Message</th><th>Effet</th></tr>
+    <tr><td>Canaux 1 à 6</td><td>Notes des pistes 1 à 6, avec vélocité et pitch bend.</td></tr>
+    <tr><td>CC 7</td><td>Niveau</td></tr><tr><td>CC 10</td><td>Pan</td></tr><tr><td>CC 74</td><td>Filtre</td></tr><tr><td>CC 71</td><td>Résonance</td></tr>
+    <tr><td>CC 91</td><td>Envoi room</td></tr><tr><td>CC 12</td><td>Envoi écho</td></tr><tr><td>CC 13</td><td>Envoi grain</td></tr>
+    <tr><td>CC 5</td><td>Glide</td></tr><tr><td>CC 11</td><td>Expression</td></tr><tr><td>CC 64</td><td>Sustain</td></tr>
+    <tr><td>Program change</td><td>Choisit le son.</td></tr>
+    <tr><td>Canal 16, CC 16 à 19</td><td>Les quatre macros.</td></tr>
+  </table></div>
+  <p>GLO › MIDI, K2 SCALE SNAP&nbsp;: ramène les notes reçues dans la gamme.</p>
+</div>
+<div class="entry"><h3>Sortie</h3>
+  <p>Seules les notes générées sortent (séquence et repeats)&nbsp;; les notes reçues en MIDI ne sont jamais renvoyées. Le FM-1 n'a pas de prise MIDI OUT&nbsp;: la sortie passe par l'USB. Vélocité selon les accents. Horloge (clock, start, stop) avec K4 CLOCK OUT, sur horloge interne.</p>
+  <p>Gammes microtonales&nbsp;: en TRACKS, chaque note part avec un pitch bend (régler la plage de bend de l'instrument sur ±2 demi-tons)&nbsp;; en ZONES, les notes sont arrondies au demi-ton. Les gamakas ne sont pas envoyés.</p>
+</div>
+
+<h2 id="listes">Listes</h2>
+<div class="entry" id="l-moteurs"><h3>Les 12 moteurs (ALGO)</h3>
+  <p>PLAITS KICK · PLAITS SNARE · PLAITS HAT · PLAITS FM · PLAITS VA · RINGS MODAL · PLAITS HARMONIC · SINE CHOIR · ROUND BASS · ELEMENTS STRIKE · MELLOW DRIFT · SATIN MORPH. Chaque moteur va sur chaque piste.</p>
+</div>
+<div class="entry" id="l-filtres"><h3>Les 8 modes de filtre</h3><p>OFF · LP 12 dB · LP 24 dB · LOW PASS GATE · HIGH PASS · BAND PASS · NOTCH · HP 24 dB.</p></div>
+<div class="entry" id="l-cibles"><h3>Les 19 cibles de LFO</h3><p>CUTOFF · RESONANCE · LEVEL · PAN · PITCH · TONE · HARMONICS · SHAPE · ECHO SEND · ROOM SEND · GRAIN SEND · ECHO TIME · GRAIN POS · ATTACK · DECAY · ECHO FEEDBACK · GRAIN SIZE · NOTES IN SCALE (pas de gamme sur les notes générées) · HITS (densité).</p></div>
+<div class="entry" id="l-formes"><h3>Formes et vitesses de LFO</h3><p>Formes&nbsp;: SINE · TRIANGLE · RAMP UP · RAMP DOWN · SQUARE · SAMPLE &amp; HOLD · SMOOTH RANDOM. Vitesses synchronisées&nbsp;: 8 BARS · 4 BARS · 2 BARS · 1 BAR · 1/2 · 1/4 . · 1/2 T · 1/4 · 1/8 . · 1/4 T · 1/8 · 1/8 T · 1/16 · 1/16 T · 1/32&nbsp;; puis libres de 0,02 à 20&nbsp;Hz.</p></div>
+<div class="entry" id="l-echo"><h3>Divisions d'écho</h3><p>OFF · 1/32 · 1/16 T · 1/16 · 1/8 T · 1/16 . · 1/8 · 1/4 T · 1/8 . · 1/4.</p></div>
+<div class="entry" id="l-gammes"><h3>Les 91 gammes</h3>
+    <!-- gammes: generated by tools/site_scales.py -->
+    <details class="scales" id="gammes"><summary>Les 91 gammes, dans l'ordre de K2 sur HARMONY</summary>
+    <table class="manual">
+      <tr><th>Famille</th><th>Gammes</th></tr>
+      <tr><td>BASIC (3)</td><td>CHROMATIC · MINOR · MAJOR</td></tr>
+      <tr><td>MODES (5)</td><td>DORIAN · PHRYGIAN · LYDIAN · MIXOLYDIAN · LOCRIAN</td></tr>
+      <tr><td>MINOR MAJOR (14)</td><td>HARMONIC MIN · MELODIC MIN* · JAZZ MINOR · HARMONIC MAJ · DOUBLE HARM · HUNGARIAN MIN · NEAPOL MINOR · NEAPOL MAJOR · PHRYG DOM · LYDIAN DOM · LYDIAN AUG · MIXO B6 · HALF DIM · ALTERED</td></tr>
+      <tr><td>PENTA BLUES (5)</td><td>MINOR PENT · MAJOR PENT · BLUES · MAJOR BLUES · EGYPTIAN</td></tr>
+      <tr><td>BEBOP (3)</td><td>BEBOP DOM · BEBOP MAJOR · BEBOP DORIAN</td></tr>
+      <tr><td>SYMMETRIC (6)</td><td>WHOLE TONE · DIM HALF-WH · DIM WH-HALF · AUGMENTED · TRITONE · PROMETHEUS</td></tr>
+      <tr><td>THAAT (10)</td><td>BILAWAL · KALYAN · KHAMAJ THAAT · KAFI · ASAVARI · BHAIRAVI · BHAIRAV · MARWA THAAT · PURVI · TODI</td></tr>
+      <tr><td>RAGA (12)</td><td>YAMAN · BHUPALI · DURGA · MALKAUNS · HINDOL · MEGH · MARWA · DESH* · KHAMAJ* · JAUNPURI* · BHIMPALASI* · BAGESHRI*</td></tr>
+      <tr><td>MAQAM 12-TET (6)</td><td>HIJAZ · HIJAZ KAR · NAHAWAND* · KURD · NIKRIZ · NAWA ATHAR</td></tr>
+      <tr><td>MAQAM 1/4 (3)</td><td>RAST · BAYATI · SABA</td></tr>
+      <tr><td>JAPAN (7)</td><td>HIRAJOSHI · IN · INSEN · IWATO · YO · KUMOI · RYUKYU</td></tr>
+      <tr><td>WORLD (7)</td><td>PELOG ~ · SLENDRO ~ · PERSIAN · ORIENTAL · ENIGMATIC · SPANISH 8 · MAJOR LOCRIAN</td></tr>
+      <tr><td>MICROTONAL (7)</td><td>JUST MAJOR · JUST MINOR · PYTHAGOREAN · 24-TET · 19-TET · SLENDRO 5-TET · THAI 7-TET</td></tr>
+      <tr><td>SCALA (2)</td><td>BOHLEN PIERCE · SHRUTI22</td></tr>
+      <tr><td>CUSTOM (1)</td><td>CUSTOM</td></tr>
+    </table>
+    <p>* Montée et descente différentes. ~ Approchée sur les 12 demi-tons. Les familles MAQAM 1/4, MICROTONAL et SCALA sont microtonales.</p>
+    </details>
+    <!-- /gammes -->
+</div>
+<div class="entry" id="l-fdds"><h3>Les Mondes FDDS</h3>
+    <!-- fdds: generated by tools/fdds_mondes.py -->
+    <table class="manual">
+      <tr><th>Monde</th><th>Gamme · note · tempo</th><th>Ce qu'il fait entendre</th></tr>
+      <tr><td>78 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/machins.html">MACHIN</a></td><td>DIM HALF-WH · C · 124&nbsp;BPM</td><td>LFO A piste 4&nbsp;: TONE, SAMPLE &amp; HOLD, 1/16 · générateur RANDOM piste 4, déjà-vu 100&nbsp;% · générateur RANDOM piste 6, déjà-vu 100&nbsp;% · écho 1/16 · longueurs 7, 12, 16 pas</td></tr>
+      <tr><td>79 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/jacques-homme-dore.html">GADIN</a></td><td>SLENDRO 5-TET · D · 96&nbsp;BPM</td><td>générateur RANDOM piste 2 · générateur RANDOM piste 5 · forme sur 8 mesures par section · longueurs 8, 12, 16 pas</td></tr>
+      <tr><td>80 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/pornstar-martini.html">MARTINI</a></td><td>BEBOP DOM · G · 92&nbsp;BPM</td><td>générateur MOTIF piste 5 · écho 1/8 . · chorus</td></tr>
+      <tr><td>81 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/christele-du-boudoir.html">CHRISTELE</a></td><td>BAGESHRI · D · 62&nbsp;BPM</td><td>générateur MOTIF piste 1 · gamaka MEEND piste 1 · gamaka MEEND piste 3 · gamaka ANDOLAN piste 5 · notes pivots · écho 1/8 . · chorus</td></tr>
+      <tr><td>82 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/napoleon-d-artagnan.html">SARL</a></td><td>HARMONIC MAJ · F · 108&nbsp;BPM</td><td>LFO A piste 6&nbsp;: HITS, SINE, 2 BARS · forme sur 4 mesures par section</td></tr>
+      <tr><td>83 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/cuisine-des-enfers.html">CITRONS</a></td><td>HIJAZ · E · 132&nbsp;BPM</td><td>LFO A piste 2&nbsp;: HITS, SQUARE, 1 BAR · LFO A piste 6&nbsp;: HITS, SAMPLE &amp; HOLD, 2 BARS · générateur RANDOM piste 4 · écho 1/16 T</td></tr>
+      <tr><td>84 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/cargo-synapse.html">CARGO</a></td><td>JUST MINOR · D · 54&nbsp;BPM</td><td>LFO A piste 2&nbsp;: CUTOFF, SINE, FREE · LFO B piste 4&nbsp;: PAN, TRIANGLE, FREE · LFO A piste 5&nbsp;: LEVEL, SINE, FREE · passe-haut sur les envois</td></tr>
+      <tr><td>85 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/vega.html">VEGA</a></td><td>SPANISH 8 · E · 88&nbsp;BPM</td><td>générateur RANDOM piste 5 · forme sur 8 mesures par section · écho 1/8 .</td></tr>
+      <tr><td>86 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/fenouil.html">FENOUIL</a></td><td>MAJOR PENT · G · 84&nbsp;BPM</td><td>générateur MARKOV piste 2 · générateur MARKOV piste 4 · forme sur 8 mesures par section · longueurs 10, 12, 16 pas</td></tr>
+      <tr><td>87 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/intelligence-d-autoguidage-cloudee.html">CLOUDEE</a></td><td>24-TET · C · 100&nbsp;BPM</td><td>LFO A piste 2&nbsp;: PITCH, SAMPLE &amp; HOLD, 1/8 · LFO A piste 3&nbsp;: NOTES IN SCALE, SMOOTH RANDOM, 1 BAR · générateur RANDOM piste 2 · générateur RANDOM piste 3 · écho 1/16 T · longueurs 9, 13, 16 pas</td></tr>
+      <tr><td>88 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/hendiatrique.html">HENDIATRIQUE</a></td><td>IN · A · 90&nbsp;BPM</td><td>LFO A piste 4&nbsp;: CUTOFF, TRIANGLE, 1/4 T · LFO A piste 5&nbsp;: PAN, SINE, 1/8 T · longueurs 3, 6, 9, 12 pas</td></tr>
+      <tr><td>89 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/pornstar-martini.html">ALCHIMISTE</a></td><td>BOHLEN PIERCE · C · 70&nbsp;BPM</td><td>générateur RANDOM piste 3 · chorus · longueurs 11, 13, 16 pas</td></tr>
+      <tr><td>90 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/le-cogito.html">COGITO</a></td><td>SHRUTI22 · C · 66&nbsp;BPM</td><td>générateur MARKOV piste 5 · gamaka ANDOLAN piste 3 · gamaka KAN piste 4 · notes pivots</td></tr>
+      <tr><td>91 <a href="https://thomasclaissethcl-blip.github.io/FDDS/pages/jardiniers.html">JARDINIERS</a></td><td>LYDIAN · F · 98&nbsp;BPM</td><td>générateur MOTIF piste 3 · écho 1/8 · chorus</td></tr>
+    </table>
+    <!-- /fdds -->
+</div>
+
+<h2 id="simulateur">Le simulateur</h2>
+<div class="entry">
+  <p>Le <a href="../simulateur/">simulateur</a> fait tourner le même firmware dans le navigateur. Rien ne joue avant «&nbsp;Allumer&nbsp;».</p>
+  <div class="tablewrap"><table><tr><th>Commande</th><th>Effet</th></tr>
+    <tr><td>Clic</td><td>Boutons et touches. Maintenir pour l'aide.</td></tr>
+    <tr><td>Molettes</td><td>Clic puis glisser vers le haut ou le bas, molette de la souris (un cran = un pas), ou flèches du clavier.</td></tr>
+    <tr><td>Clavier de l'ordinateur</td><td>Touches blanches&nbsp;: rangée du haut puis rangée du milieu. Touches noires&nbsp;: rangée des chiffres. P&nbsp;: PLAY · O&nbsp;: REC · Échap&nbsp;: HOME · W / X en AZERTY (Z / X en QWERTY)&nbsp;: octave · flèches haut / bas&nbsp;: SELECT.</td></tr>
+    <tr><td>SAVE</td><td>Garde le Monde et les banques dans ce navigateur, à part du FM-1. «&nbsp;Réglages d'usine&nbsp;» les efface.</td></tr>
+  </table></div>
+</div>
+<p class="empty hidden" id="none">Rien ne correspond. Essayer un autre mot (par exemple «&nbsp;filtre&nbsp;», «&nbsp;canal&nbsp;», «&nbsp;sauver&nbsp;»).</p>
+</main>
+</div>
+
+<script>
+(function(){
+  // Theme, shared with the main page.
+  var root=document.documentElement,btn=document.getElementById('theme');
+  try{var t=localStorage.getItem('monades-theme');if(t)root.setAttribute('data-theme',t);}catch(e){}
+  btn.addEventListener('click',function(){var dark=getComputedStyle(root).getPropertyValue('--paper').trim()!=='#f7f7fb';var next=dark?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('monades-theme',next);}catch(e){}});
+
+  // Search: keep the entries whose text holds every word (accents and case ignored), mark the words, hide empty headings.
+  var q=document.getElementById('q'),count=document.getElementById('count'),none=document.getElementById('none');
+  var entries=[].slice.call(document.querySelectorAll('.entry')),heads=[].slice.call(document.querySelectorAll('main h2'));
+  var fold=function(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();};
+  entries.forEach(function(e){e._html=e.innerHTML;e._text=fold(e.textContent);});
+  function mark(e,words){
+    var walker=document.createTreeWalker(e,NodeFilter.SHOW_TEXT,null),nodes=[],n;while((n=walker.nextNode()))nodes.push(n);
+    nodes.forEach(function(node){var text=node.nodeValue,f=fold(text),hits=[];
+      words.forEach(function(w){var i=0;while((i=f.indexOf(w,i))>=0){hits.push([i,i+w.length]);i+=w.length;}});
+      if(!hits.length)return;hits.sort(function(a,b){return a[0]-b[0];});
+      var frag=document.createDocumentFragment(),at=0;
+      hits.forEach(function(h){if(h[0]<at)return;frag.appendChild(document.createTextNode(text.slice(at,h[0])));var m=document.createElement('mark');m.textContent=text.slice(h[0],h[1]);frag.appendChild(m);at=h[1];});
+      frag.appendChild(document.createTextNode(text.slice(at)));node.parentNode.replaceChild(frag,node);});
+  }
+  function run(){
+    var words=fold(q.value).split(/\s+/).filter(function(w){return w.length>1;}),shown=0;
+    entries.forEach(function(e){e.innerHTML=e._html;var ok=words.every(function(w){return e._text.indexOf(w)>=0;});e.classList.toggle('hidden',!ok);if(ok){shown++;if(words.length)mark(e,words);}});
+    heads.forEach(function(h){var el=h.nextElementSibling,any=false;while(el&&el.tagName!=='H2'){if(el.classList.contains('entry')&&!el.classList.contains('hidden'))any=true;el=el.nextElementSibling;}h.classList.toggle('hidden',!any);});
+    count.textContent=words.length?shown+(shown>1?' résultats':' résultat'):'';none.classList.toggle('hidden',shown>0);
+  }
+  q.addEventListener('input',run);
+  q.addEventListener('keydown',function(ev){if(ev.key==='Enter'){var first=document.querySelector('.entry:not(.hidden)');if(first)first.scrollIntoView({block:'start'});}if(ev.key==='Escape'){q.value='';run();}});
+  document.addEventListener('keydown',function(ev){if(ev.key==='/'&&document.activeElement!==q){ev.preventDefault();q.focus();}});
+  try{var s=new URLSearchParams(location.search).get('q');if(s){q.value=s;run();}}catch(e){}
+})();
+</script>
+</body>
+</html>

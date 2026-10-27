@@ -187,5 +187,7 @@ def site_block(first_id=77):
   +''.join(rows)+'    </table>\n    <!-- /fdds -->')
 
 if __name__=='__main__':
- site=R/'site/index.html';s=site.read_text();s,n=re.subn(r'<!-- fdds:.*?<!-- /fdds -->',lambda x:site_block(),s,flags=re.S);assert n==1,'markers missing'
- site.write_text(s);print(len(MONDES),'FDDS Mondes in the manual')
+ for page in (R/'site/index.html',R/'site/manuel/index.html'):
+  s=page.read_text();s,n=re.subn(r'<!-- fdds:.*?<!-- /fdds -->',lambda x:site_block(),s,flags=re.S);assert n==1,f'markers missing in {page}'
+  page.write_text(s)
+ print(len(MONDES),'FDDS Mondes in the manuals')
