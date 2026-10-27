@@ -177,6 +177,12 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
   - **DICE sur REC** : sur EDIT, le son de la piste choisie ; sur SEQ, son rythme ; sur FX, les effets. Valeurs tirées dans des plages musicales (filtre jamais fermé, au moins un coup, retours d'écho et de grain loin du larsen). Jamais touchés : gamme, note de base, transposition, tempo, niveau, mutes, moteur, MIDI. ENV annule. Le dé a son propre générateur : la séquence ne change pas. Sur HOME et GLO, REC reste la nouvelle variation ;
   - l'aide de HARMONY indique 91 gammes au lieu de huit.
 - **GLOBAL MIXER** (branche `monades/mixer`) : le vumètre M montre le niveau après MASTER (avant, il ignorait le potard, défaut hérité de Mutable Dreams) ; les cadres K1 à K4 affichent la piste réglée (« K1 LEVEL T6 »).
+- **Écrans et aides** (branche `monades/ecrans`), après une revue des 27 pages :
+  - numéro de la piste réglée après le titre sur BASS / MOTIFS, PHRASE, GENERATOR, MARBLES / TIDES / WARPS ;
+  - messages raccourcis qui sortaient de l'écran ou étaient recouverts (MIDI OUT ZONES, FORM) ;
+  - aides mises à jour : cycles SEQ, FX et GLO complets, titre GLOBAL au lieu de SYSTEM, HARMONY mène à Raga, 8 modes de filtre, aide propre à MIDI OUT ZONES ;
+  - DICE des effets toujours audible : un retour d'effets à 0 remonte, et sans aucun envoi la piste choisie reçoit de l'écho et de la room ;
+  - test `help_library` réparé (il comptait les pages GLO d'avant la page RAGA).
 
 ### Lot 5 — Divers
 17. **Sortie audio USB** (aujourd'hui `usb_audio_out = false`, entrée seulement), si le budget CPU le permet.

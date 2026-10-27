@@ -29,18 +29,18 @@ static const uint16_t dream_colors[6]={RGB(255,140,118),RGB(255,198,104),RGB(124
 #define MD_DIM RGB(172,180,208)
 #define MD_EDGE RGB(60,66,100)
 static const char *dream_pages[]={"LIVE MONDE","SOUND","RHYTHM","GRANULAR BUS","MIX / NOTES","QUALITY / SYSTEM","ENVELOPE / BLOOM","GROOVE / REPEATS","TAPE / MOTION","HARMONY / GLOBAL","VELVET FILTER","LOOK / STARTUP","GLOBAL MIXER","BASS / MOTIFS","SHARED SPACE","MARBLES / TIDES / WARPS","PHRASE / NOTES","MIDI / PERFORMANCE","USER BANKS","MIDI OUT ZONES","LFO A","LFO B","SPACE TONE","ECHO SYNC / CHORUS","GENERATOR / DEJA VU","FORM","RAGA / GAMAKA"};
-static const char *help_title[NB]={"GRANULAR BUS","MUTE A TRACK","RETURN","FREEZE","CHOOSE A VOICE","SYSTEM","LIVE MACROS","SAVE","LOCK THE SEED","GENERATE RHYTHMS","PLAY / STOP","VARY / DICE","LOWER OCTAVE","HIGHER OCTAVE"};
+static const char *help_title[NB]={"GRANULAR BUS","MUTE A TRACK","RETURN","FREEZE","CHOOSE A VOICE","GLOBAL","LIVE MACROS","SAVE","LOCK THE SEED","GENERATE RHYTHMS","PLAY / STOP","VARY / DICE","LOWER OCTAVE","HIGHER OCTAVE"};
 static const char *help_lines[NB][5]={
- {"FX: Grain > Tape > Space > Mod","K1 Mix / K2 Grain length","K3 Position / K4 Feedback","Tape: pitch and direction","Duck: source track and amount"},
+ {"FX: Grain > Tape > Space >","Space Tone > Echo / Chorus >","Marbles / Tides > LFO A > LFO B","Grain: K1 mix / K2 length","REC: dice the effects"},
  {"SEL: mute / unmute this track","SELECT: choose one of six tracks","ALGO: change sound engine","Every engine fits every track.","EDIT + PRESET: sound library"},
  {"ENV: undo the last variation","REC: make a new variation","One previous variation is kept.","Choosing a Monde starts fresh.","SAVE: store the current patch"},
  {"LFO: freeze the granular memory","The cloud keeps playing.","Tracks remain live and playable.","LFO again: resume recording","FX: edit the cloud and tape"},
  {"EDIT: Sound/Filter/Env/Mix/Mixer","PRESET: 224 sound presets","ALGO: twelve sound engines","Rhythm and notes are preserved.","HOME + PRESET: whole Monde"},
- {"GLO: Harmony/System/Look/MIDI/Banks","Harmony: root / scale / offset","System: tempo / quality","Look: motion / startup sound","SAVE stores these preferences."},
+ {"GLO: Harmony > Raga > System >","Look > MIDI > Zones > Banks","Harmony: root / scale / transpose","System: tempo / quality","SAVE stores these preferences."},
  {"K1 DENSITY: number of events","K2 MOTION: melodic movement","K3 COLOUR: brighter / darker","K4 SPACE: granular level","PRESET: 76 Mondes + Blank"},
  {"Stop PLAY; use internal clock.","SAVE stores Monde and preferences.","GLO > BANKS: 16 Mondes / 64 tones","Factory Mondes stay available.","Granular audio is not stored."},
  {"ARP: lock the random seed","The same seed repeats.","REC: create a new variation","ENV: undo the last variation","Unequal lengths keep cycling."},
- {"SEQ: Rhythm > Groove > Bass","Rhythm: hits / length / rotation","K4: event probability","Groove: swing / repeats / accent","K4: individual clock division"},
+ {"SEQ: Rhythm > Groove > Bass >","Phrase > Generator > Form","Rhythm: hits / length / rotation","K4: event probability","REC: dice this track's rhythm"},
  {"PLAY: start / stop","Stop lets the sound decay.","SYSTEM + REC: silence all","Keyboard: play the selected track","Start restarts the sequence."},
  {"HOME: REC varies seed / rhythms","EDIT / SEQ / FX: dice that page","Scale, tempo, level stay put.","ENV: undo / SYSTEM, MIDI: PANIC","Holding opens help only."},
  {"OCT-: keyboard one octave down","Sequence notes stay unchanged.","MIX K2: the track base note","The first hardware key is F3.","HOME: return to live controls"},
@@ -50,7 +50,7 @@ static int md_context_help(void){
  int p=dream_ui.page,b=dream_ui.help;
  return (p==MIXER&&b==B_EDIT)||((p==BASSLINE||p==PHRASE||p==GENERATOR||p==FORM)&&b==B_SEQ)||
         ((p==SPACE||p==MODULATION||p==LFO_A||p==LFO_B||p==SPACE_TONE||p==ECHO_CHORUS)&&b==B_FX)||
-        ((p==MIDI||p==BANKS||p==RAGA)&&b==B_GLO)||(p==BANKS&&b==B_SAVE);
+        ((p==MIDI||p==BANKS||p==RAGA||p==ZONES)&&b==B_GLO)||(p==BANKS&&b==B_SAVE);
 }
 static int dream_cmd(int c,int t,int v){uint32_t f=plat_lock();int r=md_command(c,t,v);plat_unlock(f);return r;}
 static int zone_sel;
@@ -197,7 +197,10 @@ static void md_draw_all(void) {
  // A new variation (REC, or every 32 steps when the seed is not locked): a circular arrow before the tempo for 1.2 s.
  {static uint32_t seed_seen,seed_at;uint32_t sd=p->seed,now=plat_ms();if(sd!=seed_seen){if(seed_seen)seed_at=now;seed_seen=sd;}
   if(seed_at&&now-seed_at<1200){for(int k=0;k<22;k++){float a=.6f+k*.24f;md_soft_point(172+fm_cosf(a)*4.5f,31+fm_sinf(a)*4.5f,MD_INK);}cv_rect(175,25,3,1,MD_INK);cv_rect(177,25,1,3,MD_INK);}}
- md_text(10,25,dream_pages[dream_ui.page],col);md_num(p->tempo,s);md_text(186,25,s,MD_INK);md_text(211,25,"BPM",MD_DIM);
+ md_text(10,25,dream_pages[dream_ui.page],col);
+ // Pages that set the selected track without the TRACK header: its number after the title.
+ if(dream_ui.page==BASSLINE||dream_ui.page==PHRASE||dream_ui.page==GENERATOR||dream_ui.page==MODULATION){char tt[3]={'T',(char)('1'+dream_ui.track),0};md_text(18+text_w(&FONT_XS,dream_pages[dream_ui.page]),25,tt,dream_colors[dream_ui.track]);}
+ md_num(p->tempo,s);md_text(186,25,s,MD_INK);md_text(211,25,"BPM",MD_DIM);
  if(intro_until&&plat_ms()<intro_until&&dream_ui.help<0){
   float progress=(plat_ms()-intro_start)/3200.0f;
   // The fleet arrives from deep space and takes its formation around the star.
@@ -215,8 +218,8 @@ static void md_draw_all(void) {
   static const char *mixhelp[]={"K1: send to granular bus","K2: track base note","K3: pan left / right","K4: clock division, 1 to 8","PRESET: sound / SEL: mute"};
   static const char *lookhelp[]={"K1: animation on / off","K2: startup sound on / off","K3: replay startup animation","K4: reset measured CPU peak","Stop + SAVE: keep preferences"};
   static const char *systemhelp[]={"K1: Tempo / K2: ECO or FULL","K3: ducking recovery","K4: reset measured CPU peak","REC: panic / clear tape","GLO: animation and startup"};
-  static const char *harmonyhelp[]={"K1: root note C to B","K2: scale (91, by family)","K3: transpose +/-24 semitones","K4: tempo for all tracks","GLO: continue to System"};
-  static const char *filterhelp[]={"K1: cutoff, 60 to 18000 Hz","K2: resonance at the cutoff","K3: LP / LPG / HP / BP / NOTCH","K4: slow filter movement","LPG darkens with the decay"};
+  static const char *harmonyhelp[]={"K1: root note C to B","K2: scale (91, by family)","K3: transpose +/-24 semitones","K4: tempo for all tracks","GLO: continue to Raga"};
+  static const char *filterhelp[]={"K1: cutoff, 60 to 18000 Hz","K2: resonance at the cutoff","K3: 8 modes, LP / HP / BP / NOTCH","K4: slow filter movement","LPG darkens with the decay"};
   static const char *envhelp[]={"K1: attack up to 8 seconds","K2: decay up to 16 seconds","FM / VA / Harmonic / Choir","K3: level / K4: grain send","Drums and Rings: engine decay"};
   static const char *groovehelp[]={"K1: global swing (0-60)","K2: 1-4 repeats per hit","K3: accent / K4: clock division","Repeats divide one step.","SEQ: return to hits / length"};
   static const char *tapehelp[]={"K1: grain pitch +/-24","K2: forward / reverse","K3: duck source; 0 means off","K4: attenuate other tracks","The source stays unchanged."};
@@ -237,7 +240,7 @@ static void md_draw_all(void) {
    {"K1 step 1-16 / K2 semitones","-1 is a rest; scale still applies","K3 accent / K4 probability","Bass page: enable this phrase","STEP mode ignores Euclidean gates."},
    {"CH 1-6 in: tracks / vel + bend","K1 clock in / K2 scale snap","K3 out: OFF / TRACKS / ZONES","K4 clock out / GLO: zones","CC7 level / 74 filter / 91 room"},
    {"K1: slot / K2: Monde or Tone","K3 load / K4 name cursor","SAVE: save; repeat to overwrite","Stop first; use internal clock","PRESET: edit name character"},
-   {"","","","",""},
+   {"K1 zone 1-8 / K2 lowest note","K3 highest note / K4 channel","Channel 0: the zone is off.","Overlapping zones send twice.","MIDI page: K3 OUT on ZONES."},
    {"K1 rate: synced 8 bars-1/32, free Hz","K2 shape: sine to sample & hold","K3 target: filter, level, pitch...","K4 depth; negative inverts","Synced LFOs restart with PLAY."},
    {"K1 rate: synced 8 bars-1/32, free Hz","K2 shape: sine to sample & hold","K3 target: filter, level, pitch...","K4 depth; negative inverts","Two LFOs per track: A and B."},
    {"K1 high-pass on echo + room sends","K2 echo tone / K3 room tone","K4 room diffusion: softer onset","Curves: what reaches the effects.","Strip: the room onset, smeared."},
@@ -275,7 +278,7 @@ static void md_draw_all(void) {
     cv_rect(x0+(lo-24)*3,y,(hi-lo)*3+2,zi==zone_sel?5:3,zi==zone_sel?c:md_tint(MD_BG,c,16));
     if(zi!=zone_sel&&r->zone[zone_sel].ch&&lo<=r->zone[zone_sel].hi&&hi>=r->zone[zone_sel].lo)overlap=1;}
    for(int tk=0;tk<6;tk++){int nt=md_status()->last_note[tk];if(nt<24||nt>96||plat_ms()>pulse_until[tk]+200||p->track[tk].mute)continue;md_circle(x0+(nt-24)*3,base-16,2,dream_colors[tk],1);}
-   md_text(100,139,r->mode!=2?"MIDI PAGE: NOTES OUT IS NOT ZONES":overlap?"OVERLAP: SENT ON BOTH":"",r->mode!=2||overlap?MD_HOT:MD_DIM);
+   md_text(100,139,r->mode!=2?"SET MIDI K3 TO ZONES":overlap?"OVERLAP: SENT ON BOTH":"",r->mode!=2||overlap?MD_HOT:MD_DIM);
    {char lab[8];md_num(zone_sel+1,lab);md_value_span(8,158,"K1 ZONE",zone_sel+1,1,8,col);
     const char *nm=md_pitch_names[r->zone[zone_sel].lo%12];int k=0;while(nm[k]){lab[k]=nm[k];k++;}md_num(r->zone[zone_sel].lo/12-1,lab+k);md_named(124,158,"K2 LOW",lab,col);
     nm=md_pitch_names[r->zone[zone_sel].hi%12];k=0;while(nm[k]){lab[k]=nm[k];k++;}md_num(r->zone[zone_sel].hi/12-1,lab+k);md_named(8,194,"K3 HIGH",lab,col);
@@ -402,7 +405,7 @@ static void md_draw_all(void) {
     for(int tk=0;tk<6;tk++){uint16_t c=p->track[tk].mute?MD_CARD:(mask>>tk)&1?MD_EDGE:dream_colors[tk];md_circle(x+5+tk*8,base+24,3,c,1);}
     if(cur){int cx=x+2+(int)(ms->form_pos*(sw-6));cv_rect(cx,base-44,1,46,MD_INK);}} /* cursor: where the song is in this section */
    {char lab[28];md_num(md_form_bars(),lab);char *q=lab;while(*q)q++;const char *a=" BARS EACH";while(*a)*q++=*a++;*q=0;
-    md_text(x0,48,!p->form?"FORM OFF: SONG STAYS FLAT":lab,!p->form?MD_HOT:MD_DIM);}
+    md_text(x0,48,!p->form?"FORM OFF: SONG FLAT":lab,!p->form?MD_HOT:MD_DIM);}
    md_value(8,158,"K1 DEPTH",p->form/10,col);{char b[12];md_num(md_form_bars(),b);char *q=b;while(*q)q++;*q++=' ';*q++='B';*q++='A';*q++='R';*q++='S';*q=0;md_named(124,158,"K2 SECTION",b,col);}
    md_value_span(8,194,"K3 RESTING",p->form_drops,0,3,col);
    // One bar of steps at top right: tall ticks = where Motion may pick a new variation.

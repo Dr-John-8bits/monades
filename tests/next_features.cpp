@@ -242,7 +242,11 @@ int main(){
    if(r%3==2)assert(!memcmp(&p->track[2],&before.track[2],sizeof(md_track)));
    assert(memcmp(p,&before,sizeof before));assert(p->seed==before.seed);
    cmd(MD_RETURN,0,0);assert(!memcmp(md_state(),&before,sizeof before));cmd(MD_DICE,2,r%3);}
-  puts("PASS dice: sound / rhythm / effects in range, protected settings kept, ENV undoes");
+  // An effects roll is heard: a silent return comes up; with no send anywhere, the track gets echo and room.
+  q=blank(MD_VA);q.fx_level=0;for(int i=0;i<6;i++){q.ext[i].delay_send=0;q.ext[i].reverb_send=0;}assert(md_load(&q));
+  cmd(MD_DICE,4,MD_DICE_FX);assert(md_state()->fx_level>=400&&md_state()->ext[4].delay_send>0&&md_state()->ext[4].reverb_send>0&&md_state()->ext[1].delay_send==0);
+  q.ext[1].reverb_send=300;q.fx_level=600;assert(md_load(&q));cmd(MD_DICE,4,MD_DICE_FX);assert(md_state()->fx_level==600&&md_state()->ext[4].delay_send==0);
+  puts("PASS dice: sound / rhythm / effects in range, protected settings kept, ENV undoes, effects always heard");
  }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

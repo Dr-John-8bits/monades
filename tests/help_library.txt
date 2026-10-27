@@ -150,6 +150,7 @@ expect biome 0
 tap GLO
 tap GLO
 tap GLO
+tap GLO
 expect page 11
 spin K1 -1
 spin K2 -1

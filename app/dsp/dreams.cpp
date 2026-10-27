@@ -204,7 +204,11 @@ static void dice(int i,int scope){
   t.cutoff=dice_in(400,1000);t.resonance=dice_in(0,650);t.breathe=dice_in(0,600);patch.tone_preset[i]=-1;patch.edited_mask|=2u<<i;} // never closed, never screaming
  else if(scope==MD_DICE_RHYTHM){t.hits=dice_in(1,t.length*3/4>1?t.length*3/4:1);t.rotate=dice_in(0,t.length-1);t.prob=dice_in(550,1000);t.accent=dice_in(0,800);t.ratchet=dice_in(0,5)?1:2;} // at least one hit, rarely a repeat
  else{patch.grain_size=dice_in(100,900);patch.grain_pos=dice_in(0,1000);patch.feedback=dice_in(0,600);patch.delay_fb=dice_in(0,600);patch.reverb_time=dice_in(200,800);
-  if(!patch.echo_sync)patch.delay_ms=dice_in(80,350);patch.echo_tone=dice_in(200,800);patch.room_tone=dice_in(200,800);patch.room_diffusion=dice_in(0,1000);patch.chorus=dice_in(0,600);patch.chorus_depth=dice_in(0,1000);} // feedback stays far from runaway
+  if(!patch.echo_sync)patch.delay_ms=dice_in(80,350);patch.echo_tone=dice_in(200,800);patch.room_tone=dice_in(200,800);patch.room_diffusion=dice_in(0,1000);patch.chorus=dice_in(0,600);patch.chorus_depth=dice_in(0,1000);
+  // An effects roll must be heard: a silent return comes up, and with no send at all the track gets echo and room.
+  if(patch.fx_level<250)patch.fx_level=dice_in(400,700);
+  int sends=0;for(int j=0;j<6;j++)sends+=patch.ext[j].delay_send+patch.ext[j].reverb_send;
+  if(!sends){patch.ext[i].delay_send=dice_in(200,500);patch.ext[i].reverb_send=dice_in(200,500);}} // feedback stays far from runaway
 }
 static void apply(Command e) {
  int i=bound(e.t,0,5),v=e.v;md_track &t=patch.track[i];
