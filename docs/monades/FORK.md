@@ -27,6 +27,8 @@ Vérifier qu'aucun firmware FM-1 ne porte déjà le nom (The Firmware Hub, aweso
 3. Mode simple : MIDI OUT par piste avec un canal fixe. Option « MIDI seul » (piste muette en interne).
 4. **Horloge MIDI en sortie** (clock + start/stop) pour que la MPC suive.
 5. Vélocité de sortie qui suit les accents.
+   **Fait (branche `monades/midi-out`)** : 1 (USB ; pas de Bluetooth dans cette version, `ble = false`), 2 (8 zones, chevauchements = note sur chaque canal ; page MIDI OUT ZONES), 3 (TRACKS 1-6), 4 (clock 24 ppqn, start / stop), 5 (vélocité des accents). Pitch bend des gammes microtonales en mode TRACKS.
+   **Reste** : transposition et filtre de pistes par zone, option « MIDI seul ».
 
 ### Lot 2 — Harmonie
 6. **Sélecteur de gammes exhaustif** : modes, jazz/bebop, maqams, thaats et ragas, gammes japonaises, gamelan, gammes symétriques… rangés par familles.
@@ -53,7 +55,7 @@ Vérifier qu'aucun firmware FM-1 ne porte déjà le nom (The Firmware Hub, aweso
    - une **forme** globale : calme, montée, sommet, détente, de 2 à 16 mesures chacune. La tension fait varier la densité, et 0 à 3 pistes se reposent dans les sections calmes, d'autres à chaque cycle ;
    - les boucles de longueurs inégales (longueur 1 à 32 et division par piste) existaient déjà ;
    - patch v8 (1620 octets) ; les patchs v7, 1.1 et plus anciens se chargent avec tout cela coupé.
-   **Reste** : Markov d'ordre 2, motif saisi au clavier, tension qui agit aussi sur le registre, le filtre ou les effets.
+   **Reste** : Markov d'ordre 2, tension qui agit aussi sur le registre, le filtre ou les effets. (Le motif saisi au clavier est fait : lot 2, branche `monades/raga`.)
 
 ### Lot 4 — Tempo et effets
 12. **Delay synchronisé au tempo** (1/4, 1/8 pointée, triolets).
@@ -134,6 +136,8 @@ Vérifier qu'aucun firmware FM-1 ne porte déjà le nom (The Firmware Hub, aweso
 
 **Coût** : l'affichage tourne dans la boucle principale (environ 12 images/s), séparé de l'audio. La plupart des données existent déjà (`md_status()`, `track_peak`, `step`, `last_note`). Il faut juste exposer quelques valeurs internes de plus (`env`, `tide_phase`, `duckenv`, position des grains, un bloc de 64 échantillons par voix pour l'oscilloscope). Coût audio quasi nul, quelques Ko de RAM au maximum.
 
+**Fait (lot UI, plusieurs branches)** : 16 pages refaites d'après cet audit (tout le tableau sauf LOOK et USER BANKS, laissées en texte), vumètres en dB partout. Captures avant / après dans `docs/monades/captures/`.
+
 **C'est un lot idéal pour commencer** : il n'ajoute aucune fonction risquée, il améliore tout de suite la compréhension, et il permet d'apprendre le code (UI + moteur) avant les gros chantiers.
 
 ### Lot Identité — Interface spatiale
@@ -161,6 +165,13 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
 - l'instrument navigateur (build WASI) intégré en un bloc, sans surcharge visuelle ;
 - liens : installation, retour V15, sources GitHub, crédits ;
 - les visualisations suivent le même principe que le firmware : rien de décoratif.
+**Fait** : le site est une vitrine (branche `monades/vitrine`) : le FM-1 jouable sur toute la largeur en haut (simulateur, voir plus bas), puis le mode d'emploi, le MIDI avec la MPC, l'installation (« bientôt »), le reste, la feuille de route repliée.
+**Reste** : la section Installer avec le vrai fichier quand il existera ; le MIDI depuis le simulateur.
+
+### Après les lots
+- **Revue du code** (tout ce qui a changé depuis Mutable Dreams) : 10 points, tous corrigés (branche `monades/revue`) : Stop MIDI au changement d'horloge, effacement du motif en une commande, notes de motif tapées ensemble, Biome qui vide les générateurs, pitch bend après le relâchement, passe-haut des envois recalculé seulement au changement, chorus isolé dans `chorus.cpp`, taille des patchs lue sur l'appareil.
+- **Simulateur** (branche `monades/simulateur`) : Monades compilé pour le navigateur (WASI SDK 34) dans le panneau dessiné de fm1-base (`app/web/emu/index.html`, `tools/package_emu.py`). Publié sur le site.
+- **Boutons ENV, LFO, ARP, REC** : chaque appui affiche ce qu'il a fait ; le simulateur indique la fonction sous ces boutons (UNDO, FREEZE, LOCK, VARY, MUTE).
 
 ### Lot 5 — Divers
 17. **Sortie audio USB** (aujourd'hui `usb_audio_out = false`, entrée seulement), si le budget CPU le permet.
@@ -171,7 +182,9 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
    - 18 : **K4 MOTION** sur la page FORM. La variation de Motion change tous les 1, 2, 4, 8 ou 16 pas et tient entre deux. Patch v10 (1680 octets) ;
    - 19 : les parties Monades du moteur sortent de `dreams.cpp` : `midi_out.inc`, `lfo.inc`, `generative.inc`. Même unité de compilation, son identique au bit près. Le cœur Mutable Dreams (voix, séquenceur, effets) reste en place.
 
-## Ordre conseillé
-D'abord **tester** : V15 d'origine → Felucca → Mutable Dreams. Ensuite, côté code :
-**Lot UI** (sans risque, pour apprendre le code) → **Lot 1** (simple, utile tout de suite avec la MPC) → **Lot 2** → **Lot 3** → **Lot 4** (le plus contraint par le CPU).
-Chaque lot se développe d'abord sur le Mac (`tools/build_local.py host`), puis dans le navigateur, puis sur le FM-1.
+## Prochaines étapes
+1. **Essayer dans le simulateur** que les fonctions répondent aux besoins.
+2. **Compiler pour le FM-1** (chaîne JieLi pi32v2 + SDK AC79, voir `BUILDING.md`) : la compilation dira si la mémoire tient.
+3. **Tester sur le FM-1** en suivant `docs/monades/TESTS-FM1.md` (charge du processeur d'abord). Essayer aussi le V15 d'origine, Felucca et Mutable Dreams.
+4. **Publier une version** : la section Installer du site, et peut-être The Firmware Hub (`FIRMWARE-HUB.json` hérité de Mutable Dreams).
+Chaque changement se développe d'abord sur le Mac (`tools/build_local.py host`), puis dans le navigateur, puis sur le FM-1.
