@@ -701,7 +701,7 @@ async function switchOn() {
 $("go").addEventListener("click", switchOn);
 // Monades: only the Allumer button switches it on. Until then the screen shows a still of the Live page rather
 // than black. ?embed=1: the panel alone, for the site.
-{ const im = new Image(); im.onload = () => { if (!node) $("screen").getContext("2d").drawImage(im, 0, 0, 240, 240); }; im.src = "still.png"; }
+{ const im = new Image(); im.onload = () => { if (!node) { lctx.drawImage(im, 0, 0, 240, 240); blitScreen(); } }; im.src = "still.png"; } // into lcd: fitScreen redraws it
 if (new URLSearchParams(location.search).has("embed")) document.documentElement.classList.add("embed");
 $("mute").addEventListener("click", () => {
   const on = $("mute").getAttribute("aria-pressed") !== "true";
