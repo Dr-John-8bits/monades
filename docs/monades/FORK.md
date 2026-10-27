@@ -151,6 +151,7 @@ Se démarquer visuellement de Mutable Dreams : remplacer son univers végétal (
 - démarrage : MONADES, FLASH DOG DUKE SILVER, la flotte qui se met en formation ; FLASH DOG DUKE SILVER aussi sur la page SYSTEM ;
 - site : espace profond par défaut (mode clair au choix), fond étoilé fixe, monades dessinées en vaisseaux colorés, nom Flash Dog Duke Silver au-dessus du titre. Aucun texte nouveau.
 - petits éléments, chacun lié à une information : **fusée** à la place du voyant de lecture (moteur éteint à l'arrêt, flamme qui bat au tempo) ; **étoile filante** sous le titre à chaque changement de graine ; **ondes radio** pour les échos sur SHARED SPACE (rayon = temps, hauteur = feedback) ; **planètes** pour les quatre sections de FORM (taille = tension, anneau au sommet) ; **satellite** sur la page MIDI, qui émet une onde à chaque message envoyé.
+**Tri (branche `monades/ui-sobre`)** : là où un élément porte une fonction, retour aux symboles habituels pour rester lisible à l'usage. ▶ / ■ pour la lecture (point sur chaque temps) à la place de la fusée ; ↻ avant le tempo pour une nouvelle variation à la place de l'étoile filante ; barres d'échos sur SHARED SPACE ; blocs de sections sur FORM ; plus de satellite sur MIDI (les voyants IN / OUT suffisent). On garde la flotte de LIVE, le fond étoilé, la palette et les panneaux.
 **Reste** : valider les contrastes sur l'écran réel du FM-1.
 
 ### Lot Web — Site Monades
