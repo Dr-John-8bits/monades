@@ -175,10 +175,10 @@ static void md_meter(int id,int x,int w,float peak,uint16_t c,int muted){
 
 // Starfield. The stars drift left at the tempo while the sequence plays and stand still when it stops
 // (or with Motion off); a streak crosses a track's lane each time that track plays a note.
-static struct {uint8_t x,y,depth;} stars[90];static int stars_ready;static float star_drift;static uint32_t star_clock;
+static struct {uint8_t x,y,depth;} stars[90];static int stars_ready;static float star_drift /* kept under 60: every star depth repeats its course within 60 units */;static uint32_t star_clock;
 static void md_space(void){
  if(!stars_ready){stars_ready=1;unsigned r=0x2545f491u;for(int k=0;k<90;k++){r^=r<<13;r^=r>>17;r^=r<<5;stars[k].x=(uint8_t)(r%240);stars[k].y=(uint8_t)(41+(r>>8)%180);stars[k].depth=(uint8_t)(1+(r>>16)%3);}}
- uint32_t now=plat_ms();if(md_playing()&&dream_prefs.motion)star_drift+=(now-star_clock)*md_state()->tempo*(1.0f/60000);star_clock=now; // one star-unit per beat
+ uint32_t now=plat_ms();if(md_playing()&&dream_prefs.motion)star_drift+=(now-star_clock)*md_state()->tempo*(1.0f/60000);while(star_drift>=60)star_drift-=60;star_clock=now; // one star-unit per beat
  for(int k=0;k<90;k++){int d=stars[k].depth,x=(int)(stars[k].x-star_drift*d*4)%240;if(x<0)x+=240;int y=stars[k].y;
   if(y+cv_oy<0||y+cv_oy>=40)continue;uint16_t c=d==3?MD_DIM:d==2?MD_EDGE:md_tint(MD_BG,MD_EDGE,18);cv_pset(x,y,c);if(d==3&&k%4==0){cv_pset(x+1,y,MD_EDGE);cv_pset(x,y+1,MD_EDGE);}}
  if(!dream_prefs.motion)return;
@@ -378,9 +378,9 @@ static void md_draw_all(void) {
     uint16_t c=(i==(int)ms->gen_pos[tr]&&ms->gen_fresh[tr])?MD_INK:col;
     if((ms->gen_gate[tr]>>i)&1)cv_rect(x+2,base-h,cw-4>1?cw-4:1,h,c);else{cv_rect(x+2,base-h,cw-4>1?cw-4:1,1,c);cv_rect(x+2,base-h,1,h,c);cv_rect(x+cw-3,base-h,1,h,c);}
     if(i==(int)ms->gen_pos[tr])cv_rect(x+1,base+3,cw-2,2,MD_INK);}
-   {char lab[28];if(!g->source)lab[0]=0;else if(g->dejavu>=1000){const char *a="FROZEN LOOP";int k=0;while((lab[k]=a[k]))k++;}
-    else if(!g->dejavu){const char *a="NEW NOTE EVERY HIT";int k=0;while((lab[k]=a[k]))k++;}
-    else{const char *a="1 NEW IN ";int k=0;while((lab[k]=a[k]))k++;md_num((int)(1000.0f/(1000-g->dejavu)+.5f),lab+k);while(lab[k])k++;a=" HITS";while((lab[k]=*a++))k++;}
+   {char lab[28];const int dv=g->dejavu;if(!g->source)lab[0]=0;else if(dv>=1000){const char *a="FROZEN LOOP";int k=0;while((lab[k]=a[k]))k++;}
+    else if(!dv){const char *a="NEW NOTE EVERY HIT";int k=0;while((lab[k]=a[k]))k++;}
+    else{const char *a="1 NEW IN ";int k=0;while((lab[k]=a[k]))k++;md_num((int)(1000.0f/(1000-dv)+.5f),lab+k);while(lab[k])k++;a=" HITS";while((lab[k]=*a++))k++;}
     md_text(x0,48,lab,MD_DIM);}
    {const char *warn=0,*info=0;int nn=0,mv=0;const int32_t *ph=p->ext[tr].notes;int prev=-1,first=-1;for(int k=0;k<16;k++)if(ph[k]>=0){nn++;if(prev>=0)mv++;else first=k;prev=ph[k];}if(nn>1)mv++;(void)first;
     if(!g->source)info="OFF: MOTION MACRO PLAYS (1.1)";
@@ -434,7 +434,8 @@ static void md_draw_all(void) {
     md_text(x0,139,"600 ms",MD_DIM);}
    {char lab[24];md_num(tr+1,lab);char *q=lab;while(*q)q++;const char *a=" > GAMAKA ";while(*a)*q++=*a++;a=md_gamaka_name(p->gamaka[tr]);while(*a)*q++=*a++;*q=0;md_text(104,48,lab,MD_DIM);}
    md_text(12,48,md_scale_name(p->scale),MD_DIM);
-   md_named(8,158,"K1 VADI",p->vadi<0?"OFF":md_pitch_names[(p->root+p->vadi)%12],col);md_named(124,158,"K2 SAMVADI",p->samvadi<0?"OFF":md_pitch_names[(p->root+p->samvadi)%12],col);
+   {const int vadi=p->vadi,samvadi=p->samvadi,root=p->root; // one read each: tested, then used as an index
+    md_named(8,158,"K1 VADI",vadi<0?"OFF":md_pitch_names[(root+vadi)%12],col);md_named(124,158,"K2 SAMVADI",samvadi<0?"OFF":md_pitch_names[(root+samvadi)%12],col);}
    md_named(8,194,"K3 GAMAKA",md_gamaka_name(p->gamaka[tr]),col);md_value(124,194,"K4 AMOUNT",p->gamaka_amount[tr]/10,col);
   }else if(dream_ui.page==MORPH){
    // Two Mondes and the patch between them: A fades on the left, B lights up on the right, the live fleet travels
@@ -750,13 +751,13 @@ static void md_draw_all(void) {
     int len=36+p->grain_pitch*3/2,dir=p->reverse?-1:1,tip;if(len<3)len=3;tip=cx+dir*len;
     cv_rect(dir>0?cx:tip,ay-1,len,3,col);for(int k=0;k<5;k++)cv_rect(tip-dir*k,ay-k,1,2*k+1,col);
     md_text(24,106,"SLOWER",MD_DIM);md_text(176,106,"FASTER",MD_DIM);
-    md_text(12,124,"DUCK",MD_DIM);
-    if(p->duck_source<0)md_text(52,124,"OFF",MD_EDGE);
-    else{char n[4];md_num(p->duck_source+1,n);md_circle(58,130,7,dream_colors[p->duck_source],1);cv_text(56,124,&FONT_XS,n,MD_BG);
+    md_text(12,124,"DUCK",MD_DIM);const int src=p->duck_source; // one read: tested, then used as an index
+    if(src<0||src>5)md_text(52,124,"OFF",MD_EDGE);
+    else{char n[4];md_num(src+1,n);md_circle(58,130,7,dream_colors[src],1);cv_text(56,124,&FONT_XS,n,MD_BG);
      float gr=1-md_status()->duck_gain;cv_rect(72,128,150,4,MD_CARD);cv_rect(72,128,(int)(gr/.9f*150),4,MD_HOT);}
     md_text(12,139,"GAIN REDUCTION ON OTHER TRACKS",MD_DIM);}
    md_value_span(8,158,"K1 PITCH st",p->grain_pitch,-24,24,col);md_named(124,158,"K2 DIRECTION",p->reverse?"REVERSE":"FORWARD",col);
-   if(p->duck_source<0)md_named(8,194,"K3 DUCK FROM","OFF",col);else md_value_span(8,194,"K3 DUCK TRACK",p->duck_source+1,1,6,col);md_value_span(124,194,"K4 DUCK %",p->duck_amount*90/1000,0,90,col);
+   {const int src=p->duck_source;if(src<0)md_named(8,194,"K3 DUCK FROM","OFF",col);else md_value_span(8,194,"K3 DUCK TRACK",src+1,1,6,col);}md_value_span(124,194,"K4 DUCK %",p->duck_amount*90/1000,0,90,col);
   } else {
    // Pan as a position between L and R, base note on a one-octave keyboard, clock division as pulses on 16 steps.
    {cv_rect(4,84,232,66,MD_BG);uint16_t c=t->mute?MD_EDGE:col;
@@ -798,17 +799,19 @@ void app_init(void) {
 // Generated notes and clock to USB (and Bluetooth when built in). A note-on only goes when the port keeps room for
 // its note-off; real-time and note-offs always try.
 static void dream_send_midi(void){
- uint8_t m[3];
- while(md_midi_take(m)){
+ // The engine's queue (256) keeps what the USB queue (64) has no room for, so a note-off is never thrown away;
+ // a note-on is skipped while fewer than 8 slots are free, keeping room for the note-offs owed.
+ uint8_t m[3];uint32_t room;
+ while((room=plat_midi_out_room(TO_USB|TO_BLE))>0&&md_midi_take(m)){
   uint32_t cin=m[0]>=0xf8?0xfu:(uint32_t)(m[0]>>4);
-  if((m[0]&0xf0)==0x90&&plat_midi_out_room(TO_USB|TO_BLE)<8)continue;
+  if((m[0]&0xf0)==0x90&&room<8)continue;
   plat_midi_send(cin|((uint32_t)m[0]<<8)|((uint32_t)m[1]<<16)|((uint32_t)m[2]<<24),TO_USB|TO_BLE);
  }
 }
 void app_render(int32_t *lr,uint32_t n,uint32_t master) {
  if(dream_reloading){memset(lr,0,n*2*sizeof *lr);return;}
  uint32_t pkt,load=plat_cpu_pct();int port;if(load>cpu_peak)cpu_peak=load;
- uint32_t link=plat_midi_out_link();if(link!=midi_link){midi_link=link;for(unsigned i=0;i<6;i++)md_midi(0xb0+i,123,0,0);}
+ uint32_t link=plat_midi_out_link();if(link!=midi_link){uint8_t old[3];midi_link=link;for(unsigned i=0;i<6;i++)md_midi(0xb0+i,123,0,0);while(md_midi_take(old));} // a new host: no stale messages from before
  for(unsigned m=0;m<16&&plat_midi_in(&pkt,&port);m++)md_midi((pkt>>8)&255,(pkt>>16)&127,(pkt>>24)&127,port);
  while(n){unsigned k,z=n>128?128:n;md_render(md_audio,z);dream_send_midi();if(md_playing())chime_left=0;for(k=0;k<z;k++){md_gain+=((float)master/4096.0f-md_gain)*.004f;float chime=0;
 
@@ -816,7 +819,7 @@ void app_render(int32_t *lr,uint32_t n,uint32_t master) {
  lr[2*k]=(int32_t)((md_audio[2*k]+chime)*md_gain*8380000.0f);lr[2*k+1]=(int32_t)((md_audio[2*k+1]+chime)*md_gain*8380000.0f);}lr+=z*2;n-=z;}
 }
 void app_panic(void) {dream_cmd(MD_PANIC,0,0);}
-void app_overload(void) {overloads++;dream_cmd(MD_QUALITY,0,0);}
+void app_overload(void) {overloads++;dream_cmd(MD_OVERLOAD,0,0);}
 // Lights say what is in use: the button of the page shown, SEL when the selected track is muted, ARP locked,
 // LFO frozen, PLAY playing (green); ENV glows when there is something to undo.
 // The five page buttons and their pages, in the order each press goes through them.

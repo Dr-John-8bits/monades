@@ -13,7 +13,7 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 ## 1. Compiler
 - [ ] Chaîne JieLi pi32v2 et SDK AC79NN V1.2.1 installés (voir `BUILDING.md`, section « FM-1 device build »).
 - [ ] `sh tools/build_device.sh` produit un `.fwsc` sous `app/build/`.
-- [ ] **Noter la mémoire affichée** par la compilation : « RAM .data+.bss … of 98304 » et « pool … of 344064 ». Mutable Dreams 1.1 : 71768 et 334800. Si l'un des deux dépasse, la compilation échoue : me donner les chiffres. Estimation sur le Mac pour Monades : environ 88 000 et 339 000.
+- [ ] **Noter la mémoire affichée** par la compilation : « RAM .data+.bss … of 98304 » et « pool … of 344064 ». Mutable Dreams 1.1 : 71768 et 334800. La compilation échoue si la RAM dépasse 98 304, ou si le pool laisse moins de 8 192 octets libres (donc au-delà de 335 872) : me donner les chiffres. Estimation pour Monades (le chorus est en RAM ordinaire) : RAM environ 80 000 à 88 000, pool environ 334 900.
 
 ## 2. Installer
 - [ ] `python3 base/tools/fm1_install.py --info` voit le FM-1.
@@ -24,10 +24,12 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 ## 3. Charge du processeur (le plus important)
 Lire la page **SYSTEM** (GLO, trois fois) : LOAD / MAX % et XRUNS.
 - [ ] À l'arrêt : LOAD = … %
-- [ ] Biome par défaut en lecture : LOAD = … %, MAX = … %
-- [ ] Biome dense (six pistes, Density haute) : MAX = … %, XRUNS = …
+- [ ] Monde par défaut en lecture : LOAD = … %, MAX = … %
+- [ ] Monde dense (six pistes, Density haute) : MAX = … %, XRUNS = …
 - [ ] Le même avec, en plus, CHORUS MIX 60, DIFFUSION 70, SEND HIGH-PASS sur ON (pages ECHO SYNC / CHORUS et SPACE TONE) : MAX = … %, XRUNS = …
 - [ ] Deux LFO actifs sur chaque piste : MAX = … %
+- [ ] Le Monde 89 ALCHIMISTE (le plus lourd des Mondes FDDS) : MAX = … %, XRUNS = …
+- [ ] En FULL (SYSTEM, K2) : six pistes PLAITS VA, écho, room et chorus. MAX = … % : Monades reste-t-il en FULL, et sous 90 % ? Sinon, abaisser le seuil d'admission (85, `app/dsp/dreams.cpp`).
 - [ ] Le message « ECO: DENSE PATCH » apparaît-il ? Quand ?
 - Attendu : pas de craquement, XRUNS qui ne monte pas en jeu normal. Mutable Dreams montait vers 85 %.
 
@@ -70,7 +72,8 @@ Pour chacun : ça sonne, sans clic ni saturation, et l'écran suit ce qu'on ente
 
 ## 9. Revenir en arrière si besoin
 - [ ] Mutable Dreams : `python3 base/tools/fm1_install.py Mutable-Dreams-1.1.0.fwsc --yes`.
-- [ ] Firmware d'origine : `python3 base/tools/fm1_install.py --force --yes FM-1-V15.fwsc` (le seul cas où `--force` sert). V15 efface les banques utilisateur : garder la sauvegarde `.mddb`.
+- [ ] Firmware d'origine : vérifier le SHA-256 du fichier V15 (`db1642b2b6fa5c2cccb11ffd13878068bb28601678…`, voir `docs/RELEASE-VALIDATION.md`), puis `python3 base/tools/fm1_install.py --yes FM-1-V15.fwsc`, d'abord sans `--force` : l'outil reconnaît le V15 exact à son empreinte. `--force` retire cette vérification. V15 efface les banques utilisateur : garder la sauvegarde `.mddb`.
+- [ ] Réinstaller Monades (par exemple après le mode sans échec) : `python3 base/tools/fm1_install.py Monades-0.1.0.fwsc --yes`. Il n'y a pas encore de page d'installation web pour Monades : l'écran SAFE MODE parle de l'installeur web, mais c'est `fm1_install.py` qui sert.
 
 ## Ce qu'il faut me rapporter
 Les chiffres des sections 1 et 3, les écrans peu lisibles, et tout ce qui coince (son, MIDI, sauvegardes), avec la page et les réglages.

@@ -332,5 +332,25 @@ int main(){
   while(md_status()->step<100)md_render(audio,128);assert(md_state()->seed!=seed0);cmd(MD_PLAY,0,0);cmd(MD_MORPH_BARS,0,0);
   puts("PASS review 2: knobs stay during DERIVE and auto morph, DICE keeps home, OFF after a new Monde, silent tracks stay silent, unlocked seed varies");
  }
+ {
+  // External review: loading a patch ends a morph and a drift; an overload is not an edit and, in ECO, sheds effects;
+  // the same clock source changes nothing; PANIC sends All Notes Off; clock out switched while playing sends Start;
+  // a malformed LFO track and a huge MIDI note are ignored or bounded.
+  md_morph_state ms;md_drift_state ds;cmd(MD_SCENE,0,80);const md_patch P=*md_state();
+  cmd(MD_MORPH_TO,0,77);cmd(MD_DRIFT_SLOW,0,0);assert(md_load(&P));md_morph_view(&ms,0,0);assert(!ms.on);
+  cmd(MD_DRIFT_SLOW,0,2);assert(md_load(&P));md_drift_view(&ds,0);assert(!ds.on&&ds.slow==0);
+  {md_patch q=P;q.quality=1;q.edited_mask=0;assert(md_load(&q));const unsigned before=md_status()->quality_reductions;
+   cmd(MD_OVERLOAD,0,0);assert(md_state()->quality==0&&md_state()->edited_mask==0&&md_status()->quality_reductions==before+1);
+   cmd(MD_OVERLOAD,0,0);assert(md_state()->edited_mask==0&&md_status()->quality_reductions==before+2);
+   cmd(MD_QUALITY,0,1);assert(md_state()->edited_mask==0);cmd(MD_QUALITY,0,0);}
+  uint8_t m[3];md_midi_routing r={};r.mode=1;r.clock=1;md_set_midi_routing(&r);cmd(MD_PLAY,0,1);run(100);while(md_midi_take(m));
+  cmd(MD_CLOCK_SOURCE,0,0);assert(md_playing());
+  cmd(MD_PANIC,0,0);int cc123=0;while(md_midi_take(m))if((m[0]&0xf0)==0xb0&&m[1]==123)cc123|=1<<(m[0]&15);assert(cc123==0x3f);
+  r.clock=0;md_set_midi_routing(&r);cmd(MD_PLAY,0,1);run(50);while(md_midi_take(m));r.clock=1;md_set_midi_routing(&r);
+  bool start=false;while(md_midi_take(m))start|=m[0]==0xfa;assert(start);cmd(MD_PLAY,0,0);r.mode=0;r.clock=0;md_set_midi_routing(&r);
+  const md_patch L=*md_state();cmd(MD_LFO_DEPTH,12,500);cmd(MD_LFO_DEPTH,-1,500);assert(!memcmp(md_state()->lfo,L.lfo,sizeof L.lfo));
+  cmd(MD_TRIGGER,0,2000000000);cmd(MD_TRIGGER,0,-2000000000);run(10);
+  puts("PASS external review: load ends morph and drift, overload not an edit, same clock keeps playing, PANIC CC 123, clock Start, bounds");
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

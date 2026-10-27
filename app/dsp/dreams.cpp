@@ -57,7 +57,7 @@ static float echo_lp,room_lp[4],fx_smooth,delay_smooth=8820,fx_highpass_in,fx_hi
 static stmlib::Svf send_hp_filter[2];static int send_hp_set=-1; // the knob value the coefficients were computed for
 // Monades: Rings chorus on the dry mix (4 KiB line), and Dattorro / Griesinger input diffusion before the room
 // (four allpasses, 1210 samples). Both are skipped entirely at 0.
-static uint16_t chorus_line[2048] POOL;
+static uint16_t chorus_line[2048]; // ordinary RAM: the pool must keep 8 KB spare (base/tools/build.py)
 static int16_t diffuser[1210];static unsigned diffuser_head[4];static const unsigned diffuser_len[4]={150,214,319,527}; // Monades: 12 dB high-pass on the echo and room sends
 static void reset_fx(){send_hp_filter[0].Init();send_hp_filter[1].Init();memset(chorus_line,0,sizeof chorus_line);md_chorus_reset(chorus_line);send_hp_set=-1;memset(diffuser,0,sizeof diffuser);memset(diffuser_head,0,sizeof diffuser_head);fx_active=false;memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
 static void v10_defaults(md_patch &p){p.version=10;p.motion_every=0;}
@@ -75,7 +75,7 @@ static md_stats stats;
 static unsigned writehead,grainclock,tape_valid;
 static uint8_t tape_peak[256];static unsigned tape_peak_col;
 // Display-only scope per voice: 128 points after the filter, stride chosen so about two periods fit 64 points.
-static int16_t scope_buf[6][128];static unsigned scope_pos[6],scope_phase[6]; // display-only overview of the tape, 512 samples a column
+static int16_t scope_buf[6][128];static unsigned scope_pos[6],scope_phase[6],scope_track; // only the track the screen reads is recorded; // display-only overview of the tape, 512 samples a column
 static float feedback_lp,dcx[2],dcy[2],smooth[4];
 static unsigned rng,seqrng,step;
 static float untilstep,duckenv;
@@ -153,7 +153,7 @@ static void clear_audio() {
  memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);feedback_lp=duckenv=0;
 }
 static void gen_reset();
-static int morph_on,drift_on,drift_slow; /* a morph is under way (morph.inc), driven by DERIVE (drift.inc); a new Monde ends both */
+static int morph_on,drift_on,drift_slow,fx_shed; /* a morph is under way (morph.inc), driven by DERIVE (drift.inc); a new Monde ends both */
 // A factory Monde into p, in place: the audio thread has no stack to spare for a 1680-byte copy.
 static void bank_patch(md_patch &p,int id) {
  p=biome_bank[bound(id,0,MD_BIOMES-1)].patch;
@@ -161,7 +161,7 @@ static void bank_patch(md_patch &p,int id) {
  if(p.version!=10){extension_defaults(p);if(id>=65){p.fx_level=340;p.reverb_time=550;for(int i=0;i<6;i++)p.ext[i].reverb_send=300;}}
 }
 static void scene(int id) {
- bank_patch(patch,id);morph_on=0;drift_on=0;drift_slow=0;
+ bank_patch(patch,id);morph_on=0;drift_on=0;drift_slow=0;fx_shed=0;
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
  gen_reset();memset(motion_held,0,sizeof motion_held); // a new Biome starts with empty generator registers
@@ -247,7 +247,7 @@ static void dice(int i,int page){
 static void apply_command(Command e) {
  int i=bound(e.t,0,5),v=e.v;md_track &t=patch.track[i];
  // Playback, preview notes and emergency silence do not change a preset.
- if(e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_DICE&&(e.c<MD_MORPH_TO||e.c>MD_DRIFT_HOME))patch.edited_mask|=1u;
+ if(e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_DICE&&e.c!=MD_QUALITY&&(e.c<MD_MORPH_TO||e.c>MD_OVERLOAD))patch.edited_mask|=1u;
  if(e.c==MD_MODEL||e.c==MD_TONE||e.c==MD_HARM||e.c==MD_DECAY||e.c==MD_ATTACK||(e.c>=MD_SHAPE&&e.c<=MD_BREATHE))patch.edited_mask|=2u<<i;
  if(e.c<=MD_SPEED) {
   int32_t *p=track_field(t,e.c);
@@ -275,7 +275,8 @@ static void apply_command(Command e) {
  case MD_GRAIN_POS:patch.grain_pos=bound(v,0,1000);break;
  case MD_FEEDBACK:patch.feedback=bound(v,0,850);break;
  case MD_QUALITY:if(patch.quality!=bound(v,0,1)){patch.quality=bound(v,0,1);for(unsigned j=0;j<6;j++){voices[j].eco_phase=0;voices[j].eco_previous=voices[j].eco_next=0;voices[j].fade=0;}}break;
- case MD_TRIGGER:fire(i,t.model>=MD_FM?quantize_any((float)(v+patch.transpose),patch.root,patch.scale,0):(float)bound(v,24,96),.8f);break;
+ case MD_OVERLOAD:stats.quality_reductions++;if(patch.quality){patch.quality=0;for(unsigned j=0;j<6;j++){voices[j].eco_phase=0;voices[j].eco_previous=voices[j].eco_next=0;voices[j].fade=0;}}else fx_shed=1;break; // already ECO: the chorus and diffusion go
+ case MD_TRIGGER:v=bound(v,0,127);fire(i,t.model>=MD_FM?quantize_any((float)(v+patch.transpose),patch.root,patch.scale,0):(float)bound(v,24,96),.8f);break;
  case MD_ATTACK:t.attack=bound(v,0,1000);break;
  case MD_RATCHET:t.ratchet=bound(v,1,4);break;
  case MD_SHAPE:t.shape=bound(v,0,1000);break;
@@ -300,6 +301,7 @@ static void apply_command(Command e) {
  case MD_REVERB_TIME:patch.reverb_time=bound(v,0,850);break;
  case MD_FX_LEVEL:patch.fx_level=bound(v,0,1000);break;
  case MD_CLOCK_SOURCE: // leaving the internal clock stops the sequence: tell the MPC, release the notes out
+  if(bound(v,0,2)==clock_source)break; // the same source (a knob at its end): nothing changes, nothing stops
   if(playing&&!clock_source&&routing.clock)out_push(0xfc,0,0);if(playing)out_all_off();
   clock_source=bound(v,0,2);playing=0;clock_pulse=0;clock_age=clock_last=0;clock_interval=0;break;
  case MD_MIDI_QUANTIZE:midi_quantize=!!v;break;
@@ -312,7 +314,7 @@ static void apply_command(Command e) {
  case MD_WARPS:patch.ext[i].warps=bound(v,0,1000);break;
  case MD_BASS_STEP:patch.ext[i].edit_step=bound(v,0,15);break;
  case MD_BASS_VALUE:patch.ext[i].notes[patch.ext[i].edit_step]=bound(v,-1,24);break;
- case MD_LFO_RATE:case MD_LFO_SHAPE:case MD_LFO_TARGET:case MD_LFO_DEPTH:{md_lfo &l=patch.lfo[bound(e.t,0,11)%6][bound(e.t,0,11)/6];
+ case MD_LFO_RATE:case MD_LFO_SHAPE:case MD_LFO_TARGET:case MD_LFO_DEPTH:{if(e.t<0||e.t>11)break; /* a malformed track: ignored, not LFO B of track 6 */md_lfo &l=patch.lfo[e.t%6][e.t/6];
   if(e.c==MD_LFO_RATE)l.rate=bound(v,0,MD_LFO_RATES-1);else if(e.c==MD_LFO_SHAPE)l.shape=bound(v,0,MD_LFO_SHAPES-1);else if(e.c==MD_LFO_TARGET)l.target=bound(v,0,MD_LFO_TARGETS-1);else l.depth=bound(v,-1000,1000);break;}
  case MD_SEND_HP:patch.send_hp=bound(v,0,1000);break;
  case MD_ECHO_TONE:patch.echo_tone=bound(v,0,1000);break;
@@ -344,13 +346,13 @@ static void apply_command(Command e) {
  case MD_DRIFT_HOME:drift_new_home();break;
  case MD_CLEAR_PHRASE:for(int k=0;k<16;k++)patch.ext[i].notes[k]=-1;patch.ext[i].edit_step=0;break;
  case MD_SAMVADI:patch.samvadi=bound(v,-1,11);break;
- case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
+ case MD_PANIC:if(playing&&routing.clock&&!clock_source)out_push(0xfc,0,0);playing=0;out_all_off();out_panic();clear_audio();for(unsigned j=0;j<6;j++)reset_voice(j);break;
  }
 }
 // While a morph runs, what a command changes is pinned into A and B (and home, for a knob during DERIVE).
 static int returnable; // ENV has something to go back to; recomputed after commands and each step, read by the UI
 static void apply(Command e) {
- const bool pin=morph_on&&e.c!=MD_RETURN&&e.c!=MD_SCENE&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&(e.c<MD_MORPH_TO||e.c>MD_DRIFT_HOME);
+ const bool pin=morph_on&&e.c!=MD_RETURN&&e.c!=MD_SCENE&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_QUALITY&&e.c<MD_MORPH_TO;
  if(pin)morph_before=patch;
  apply_command(e);
  if(pin&&morph_on)morph_pin(e.c!=MD_DICE&&e.c!=MD_MUTATE); // REC and DICE last the glide; ENV still goes home
@@ -569,7 +571,7 @@ static void quantum(float *lr,unsigned n) {
   else if(t.filter==5)v.filter1.Process<stmlib::FILTER_MODE_BAND_PASS_NORMALIZED>(out,out,n);
   else if(t.filter==6){v.filter1.Process<stmlib::FILTER_MODE_BAND_PASS_NORMALIZED>(out,tmp,n);for(unsigned k=0;k<n;k++)out[k]-=tmp[k];} // notch = input - band
   else if(t.filter){v.filter1.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);if(t.filter==2)v.filter2.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);}
-  {unsigned stride=(unsigned)(1.0f/(f*32.0f));stride=stride<1?1:stride>32?32:stride;unsigned ph=scope_phase[i],ps=scope_pos[i];
+  if(i==scope_track){unsigned stride=(unsigned)(1.0f/(f*32.0f));stride=stride<1?1:stride>32?32:stride;unsigned ph=scope_phase[i],ps=scope_pos[i];
    for(unsigned k=0;k<n;k++)if(++ph>=stride){ph=0;float y=out[k]*8192.0f;scope_buf[i][ps]=(int16_t)(y>32767?32767:y<-32767?-32767:y);ps=(ps+1)&127;}
    scope_phase[i]=ph;scope_pos[i]=ps;}
   // Local scalars prevent output-buffer aliasing from forcing repeated Voice
@@ -599,9 +601,9 @@ static void quantum(float *lr,unsigned n) {
  }
  const float echo_feedback=lfo_echo_fb?fminf(.8f,clamp01(unit(patch.delay_fb)+lfo_echo_fb*.5f)):unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=fminf(15435.0f,fmaxf(1764.0f,(patch.echo_sync?echo_ms_now():(float)patch.delay_ms)*44.1f*(1+lfo_echo_time*.5f)));
  const float echo_glide=lfo_echo_time?.002f:.00005f,echo_tone=tone_coef(patch.echo_tone,.04f,.25f,.9f),room_tone=tone_coef(patch.room_tone,.05f,.3f,.85f);
- const float diffusion=patch.room_diffusion*.0007f; // up to 0.7, Dattorro uses 0.625-0.75
+ const float diffusion=fx_shed?0:patch.room_diffusion*.0007f; // up to 0.7, Dattorro uses 0.625-0.75
  const bool send_hp=patch.send_hp>0;if(send_hp&&patch.send_hp!=send_hp_set){send_hp_set=patch.send_hp;float fc=md_send_hp_hz(patch.send_hp)/(float)MD_RATE;send_hp_filter[0].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);send_hp_filter[1].set_f_q<stmlib::FREQUENCY_ACCURATE>(fc,.707f);}
- if(patch.chorus){ // de-interleave in place through the scratch buffers: no extra memory
+ if(patch.chorus&&!fx_shed){ // de-interleave in place through the scratch buffers: no extra memory
   for(unsigned k=0;k<n;k++){out[k]=lr[2*k];aux[k]=lr[2*k+1];}
   md_chorus_process(out,aux,n,patch.chorus*.001f,patch.chorus_depth*.001f);
   for(unsigned k=0;k<n;k++){lr[2*k]=out[k];lr[2*k+1]=aux[k];}
@@ -693,13 +695,15 @@ void md_init() {
 }
 void md_set_midi_routing(const md_midi_routing *r){
  // Turning output off (or changing the routing) first releases every note still owed on the old routing.
+ const int was_clock=routing.clock;
  out_all_off();for(unsigned ch=0;ch<16;ch++)out_bend(ch,0);routing=*r;routing.mode=bound(routing.mode,0,2);routing.clock=!!routing.clock;
+ if(playing&&!clock_source&&routing.clock!=was_clock){out_push(routing.clock?0xfa:0xfc,0,0);clock_left=0;} // clock out switched while playing: Start or Stop with it
  for(unsigned z=0;z<8;z++){routing.zone[z].lo=bound(routing.zone[z].lo,0,127);routing.zone[z].hi=bound(routing.zone[z].hi,0,127);routing.zone[z].ch=bound(routing.zone[z].ch,0,16);}
 }
 int md_midi_take(uint8_t m[3]){unsigned r=out_r;if(r==out_w)return 0;fence();const OutMsg &o=outq[r&255];m[0]=o.st;m[1]=o.d1;m[2]=o.d2;fence();out_r=r+1;return 1;}
 unsigned md_scope(int track,float *dst){
  // Oldest first; the caller aligns on a rising zero crossing.
- track=bound(track,0,5);unsigned ps=scope_pos[track];
+ track=bound(track,0,5);scope_track=(unsigned)track;unsigned ps=scope_pos[track];
  for(unsigned k=0;k<128;k++)dst[k]=scope_buf[track][(ps+k)&127]*(1.0f/8192);
  return 128;
 }
@@ -788,7 +792,7 @@ int md_validate(const md_patch *p) {
  for(int i=0;i<6;i++)for(int s=0;s<2;s++){const md_lfo &l=p->lfo[i][s];if(l.rate<0||l.rate>=MD_LFO_RATES||l.shape<0||l.shape>=MD_LFO_SHAPES||l.target<0||l.target>=MD_LFO_TARGETS||l.depth< -1000||l.depth>1000)return 0;}
  return 1;
 }
-int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;returnable=0;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
+int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;returnable=0;morph_on=0;drift_on=0;drift_slow=0;morph_span=0;fx_shed=0;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
 unsigned md_memory_bytes(){return sizeof drift_home+sizeof morph_before+sizeof morph_a+sizeof morph_b+sizeof morph_kind+sizeof chorus_line+64+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;

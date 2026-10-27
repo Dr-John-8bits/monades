@@ -10,6 +10,10 @@ static void out_push(uint8_t st,uint8_t d1,uint8_t d2){unsigned w=out_w;if(w-out
 static int chan_bend[16]; /* pitch bend sent per channel, -8192..8191 (range assumed +/-2 semitones) */
 static void out_bend(unsigned ch,int bend){if(bend==chan_bend[ch])return;chan_bend[ch]=bend;unsigned v=(unsigned)(bend+8192);out_push(0xe0|ch,v&127,(v>>7)&127);}
 static void out_all_off(){for(unsigned j=0;j<owed_n;j++)out_push(0x80|owed[j].ch,owed[j].note,0);owed_n=0;}
+// PANIC: besides the owed note-offs, All Notes Off (CC 123) on every channel the routing sends on.
+static void out_panic(){unsigned chans=routing.mode==1?0x3fu:0;
+ if(routing.mode==2)for(unsigned z=0;z<8;z++)if(routing.zone[z].ch>=1&&routing.zone[z].ch<=16)chans|=1u<<(routing.zone[z].ch-1);
+ for(unsigned ch=0;ch<16;ch++)if(chans&(1u<<ch))out_push(0xb0|ch,123,0);}
 static void out_note(unsigned track,float note,float velocity,float gate){
  if(!routing.mode)return;
  int n=bound((int)(note+.5f),0,127),vel=bound((int)(velocity*127+.5f),1,127);unsigned chans=0;

@@ -528,7 +528,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
   <p>Version, FLASH DOG DUKE SILVER, mode ECO ou FULL, charge et pic du processeur, décrochages, mémoire.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1</td><td>Tempo.</td></tr>
-    <tr><td>K2</td><td>ECO (2 grains, modes adaptés) ou FULL (24 modes, 4 grains). Un patch trop lourd repasse en ECO.</td></tr>
+    <tr><td>K2</td><td>ECO (2 grains, modes adaptés) ou FULL (24 modes, 4 grains). Un patch trop lourd repasse en ECO&nbsp;; s'il est déjà en ECO quand le calcul déborde, le chorus et la diffusion de la room s'arrêtent jusqu'au prochain Monde.</td></tr>
     <tr><td>K3</td><td>Retour du ducking.</td></tr>
     <tr><td>K4</td><td>Remet à zéro le pic processeur mesuré.</td></tr>
   </table></div>
@@ -650,7 +650,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 </ol></div>
 <div class="entry" id="f-morph"><h3>Passer d'un Monde à l'autre en douceur</h3><p>Choisir le Monde de départ sur LIVE. HOME une deuxième fois (MORPH). PRESET ou K1&nbsp;: le Monde d'arrivée. K2 à la main, ou K3 sur un nombre de mesures puis PLAY. REC garde, ENV revient.</p></div>
 <div class="entry" id="f-derive"><h3>Laisser le Monde vivre tout seul (installation)</h3><p>Choisir le Monde. HOME trois fois (DERIVE). K2 la durée d'un glissement (128 ou 256 mesures pour une pièce lente), K1 la distance, PLAY. ARP pour que la dérive soit reproductible.</p></div>
-<div class="entry" id="f-panique"><h3>Tout faire taire</h3><p>GLO ×3 (SYSTEM) ou GLO ×5 (MIDI), puis <span class="k">REC</span>&nbsp;: panique («&nbsp;PANIC: ALL SILENT&nbsp;»), qui efface aussi la bande et les traînes d'effets.</p></div>
+<div class="entry" id="f-panique"><h3>Tout faire taire</h3><p>GLO ×3 (SYSTEM) ou GLO ×5 (MIDI), puis <span class="k">REC</span>&nbsp;: panique («&nbsp;PANIC: ALL SILENT&nbsp;»), qui efface aussi la bande et les traînes d'effets, et envoie «&nbsp;tout éteint&nbsp;» (CC 123) sur les canaux MIDI de la sortie.</p></div>
 <div class="entry" id="f-annuler"><h3>Annuler</h3><p><span class="k">ENV</span> revient à l'état d'avant la dernière variation, le dernier DICE ou le début d'un morphing. Une seule étape. Après un changement de Monde, il n'y a rien à annuler.</p></div>
 
 <h2 id="midi">MIDI en détail</h2>
@@ -666,7 +666,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
   <p>GLO › MIDI, K2 SCALE SNAP&nbsp;: ramène les notes reçues dans la gamme.</p>
 </div>
 <div class="entry"><h3>Sortie</h3>
-  <p>Seules les notes générées sortent (séquence et repeats)&nbsp;; les notes reçues en MIDI ne sont jamais renvoyées. Le FM-1 n'a pas de prise MIDI OUT&nbsp;: la sortie passe par l'USB. Vélocité selon les accents. Horloge (clock, start, stop) avec K4 CLOCK OUT, sur horloge interne.</p>
+  <p>Seules les notes générées sortent (séquence et repeats)&nbsp;; les notes reçues en MIDI ne sont jamais renvoyées. Une piste au niveau 0 continue d'envoyer ses notes (elle peut ne servir qu'au MIDI). Quand la sortie USB est pleine, les messages attendent leur tour&nbsp;: aucune fin de note n'est jetée. Passer K4 CLOCK OUT sur ON pendant la lecture envoie start, sur OFF envoie stop. Le FM-1 n'a pas de prise MIDI OUT&nbsp;: la sortie passe par l'USB. Vélocité selon les accents. Horloge (clock, start, stop) avec K4 CLOCK OUT, sur horloge interne.</p>
   <p>Gammes microtonales&nbsp;: en TRACKS, chaque note part avec un pitch bend (régler la plage de bend de l'instrument sur ±2 demi-tons)&nbsp;; en ZONES, les notes sont arrondies au demi-ton. Les gamakas ne sont pas envoyés.</p>
 </div>
 
