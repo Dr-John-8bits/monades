@@ -77,14 +77,14 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 <nav class="toc" aria-label="Sommaire"><ol>
   <li><a href="#trouver">Où trouver quoi</a></li>
   <li><a href="#depart">Premiers pas</a></li>
-  <li><a href="#boutons">Les boutons</a></li>
-  <li><a href="#encodeurs">Encodeurs et clavier</a></li>
+  <li><a href="#boutons">Les boutons</a><ol><li><a href="#b-home">HOME</a></li><li><a href="#b-edit">EDIT</a></li><li><a href="#b-seq">SEQ</a></li><li><a href="#b-fx">FX</a></li><li><a href="#b-glo">GLO</a></li><li><a href="#b-play">PLAY / STOP</a></li><li><a href="#b-sel">SEL (MUTE)</a></li><li><a href="#b-env">ENV (UNDO)</a></li><li><a href="#b-lfo">LFO (FREEZE)</a></li><li><a href="#b-arp">ARP (LOCK)</a></li><li><a href="#b-rec">REC (DICE)</a></li><li><a href="#b-save">SAVE</a></li><li><a href="#b-oct">OCT− / OCT+</a></li><li><a href="#dice">Le DICE</a></li></ol></li>
+  <li><a href="#encodeurs">Encodeurs et clavier</a><ol><li><a href="#c-master">MASTER</a></li><li><a href="#c-select">SELECT</a></li><li><a href="#c-algo">ALGO</a></li><li><a href="#c-preset">PRESET</a></li><li><a href="#c-k">K1 à K4</a></li><li><a href="#c-clavier">Clavier</a></li></ol></li>
   <li><a href="#home">Pages HOME</a><ol><li><a href="#p-live">LIVE</a></li><li><a href="#p-morph">MORPH</a></li><li><a href="#p-derive">DERIVE</a></li></ol></li>
   <li><a href="#edit">Pages EDIT</a><ol><li><a href="#p-sound">SOUND</a></li><li><a href="#p-filter">FILTER</a></li><li><a href="#p-envelope">ENVELOPE</a></li><li><a href="#p-mix">MIX</a></li><li><a href="#p-mixer">GLOBAL MIXER</a></li></ol></li>
   <li><a href="#seq">Pages SEQ</a><ol><li><a href="#p-rhythm">RHYTHM</a></li><li><a href="#p-groove">GROOVE</a></li><li><a href="#p-bass">BASS / MOTIFS</a></li><li><a href="#p-phrase">PHRASE</a></li><li><a href="#p-generator">GENERATOR</a></li><li><a href="#p-form">FORM</a></li></ol></li>
   <li><a href="#fx">Pages FX</a><ol><li><a href="#p-grain">GRANULAR BUS</a></li><li><a href="#p-tape">TAPE</a></li><li><a href="#p-space">SHARED SPACE</a></li><li><a href="#p-spacetone">SPACE TONE</a></li><li><a href="#p-echo">ECHO SYNC / CHORUS</a></li><li><a href="#p-modulation">MARBLES / TIDES / WARPS</a></li><li><a href="#p-lfo">LFO A et LFO B</a></li></ol></li>
   <li><a href="#glo">Pages GLO</a><ol><li><a href="#p-harmony">HARMONY</a></li><li><a href="#p-raga">RAGA</a></li><li><a href="#p-system">SYSTEM</a></li><li><a href="#p-look">LOOK</a></li><li><a href="#p-midi">MIDI</a></li><li><a href="#p-zones">MIDI OUT ZONES</a></li><li><a href="#p-banks">USER BANKS</a></li></ol></li>
-  <li><a href="#faire">Comment faire</a></li>
+  <li><a href="#faire">Comment faire</a><ol><li><a href="#f-tempo">Changer le tempo</a></li><li><a href="#f-lancer">Lancer et arrêter</a></li><li><a href="#f-piste">Choisir une piste</a></li><li><a href="#f-mute">Couper une piste</a></li><li><a href="#f-clavier">Jouer au clavier</a></li><li><a href="#f-monde">Changer de Monde</a></li><li><a href="#f-figer">Figer le grain</a></li><li><a href="#f-repeter">Faire répéter la même variation</a></li><li><a href="#f-sauver">Sauvegarder mon travail</a></li><li><a href="#f-charger">Recharger une sauvegarde</a></li><li><a href="#f-zones">Régler les zones MIDI (par exemple C1 à B2 sur le canal 1)</a></li><li><a href="#f-mpc">Envoyer les notes à la MPC</a></li><li><a href="#f-volume">Changer le volume d'une piste</a></li><li><a href="#f-gamme">Choisir la gamme et la note de base</a></li><li><a href="#f-son">Changer le son d'une piste</a></li><li><a href="#f-lfo">Faire bouger un réglage avec un LFO</a></li><li><a href="#f-motif">Écrire un motif que le générateur fait varier</a></li><li><a href="#f-morph">Passer d'un Monde à l'autre en douceur</a></li><li><a href="#f-derive">Laisser le Monde vivre tout seul (installation)</a></li><li><a href="#f-panique">Tout faire taire</a></li><li><a href="#f-annuler">Annuler</a></li></ol></li>
   <li><a href="#midi">MIDI en détail</a></li>
   <li><a href="#listes">Listes</a></li>
   <li><a href="#simulateur">Le simulateur</a></li>
@@ -113,7 +113,11 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
     <tr><td>L'écho, la room (réverbe)</td><td><span class="k">FX</span> 3 fois</td><td><a href="#p-space">SHARED SPACE</a></td></tr>
     <tr><td>Le chorus, l'écho au tempo</td><td><span class="k">FX</span> 5 fois</td><td><a href="#p-echo">ECHO SYNC / CHORUS</a></td></tr>
     <tr><td>Le grain (granulaire)</td><td><span class="k">FX</span> 1 fois</td><td><a href="#p-grain">GRANULAR BUS</a></td></tr>
-    <tr><td>La gamme, la note de base, le tempo</td><td><span class="k">GLO</span> 1 fois</td><td><a href="#p-harmony">HARMONY</a></td></tr>
+    <tr><td>Le tempo</td><td><span class="k">GLO</span> 1 fois, puis K4</td><td><a href="#f-tempo">HARMONY</a></td></tr>
+    <tr><td>La gamme, la note de base</td><td><span class="k">GLO</span> 1 fois, K2 et K1</td><td><a href="#p-harmony">HARMONY</a></td></tr>
+    <tr><td>Couper une piste</td><td><span class="k">SEL</span></td><td><a href="#b-sel">SEL</a></td></tr>
+    <tr><td>Figer le grain</td><td><span class="k">LFO</span> (le bouton)</td><td><a href="#b-lfo">LFO</a></td></tr>
+    <tr><td>Annuler</td><td><span class="k">ENV</span></td><td><a href="#b-env">ENV</a></td></tr>
     <tr><td>Les ornements de raga</td><td><span class="k">GLO</span> 2 fois</td><td><a href="#p-raga">RAGA</a></td></tr>
     <tr><td>Le MIDI (horloge, sortie)</td><td><span class="k">GLO</span> 5 fois</td><td><a href="#p-midi">MIDI</a></td></tr>
     <tr><td>Les plages de notes MIDI (zones)</td><td><span class="k">GLO</span> 6 fois</td><td><a href="#p-zones">MIDI OUT ZONES</a></td></tr>
@@ -143,25 +147,71 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 
 <h2 id="boutons">Les boutons</h2>
 <div class="entry">
-  <h3>Les quatorze boutons</h3>
-  <div class="tablewrap"><table>
-    <tr><th>Bouton</th><th>Ce qu'il fait dans Monades</th></tr>
-    <tr><td>HOME</td><td>Pages LIVE → MORPH → DERIVE. L'appui qui ferme l'écran de démarrage reste sur LIVE.</td></tr>
-    <tr><td>EDIT</td><td>Pages SOUND → VELVET FILTER → ENVELOPE → MIX → GLOBAL MIXER.</td></tr>
-    <tr><td>SEQ</td><td>Pages RHYTHM → GROOVE → BASS / MOTIFS → PHRASE → GENERATOR → FORM.</td></tr>
-    <tr><td>FX</td><td>Pages GRANULAR BUS → TAPE → SHARED SPACE → SPACE TONE → ECHO SYNC / CHORUS → MARBLES / TIDES / WARPS → LFO A → LFO B.</td></tr>
-    <tr><td>GLO</td><td>Pages HARMONY → RAGA → SYSTEM → LOOK → MIDI → MIDI OUT ZONES → USER BANKS.</td></tr>
-    <tr><td>PLAY</td><td>Lance ou arrête la séquence. L'arrêt laisse le son s'éteindre. Un nouveau départ reprend la séquence au début.</td></tr>
-    <tr><td>SEL</td><td>Coupe ou rétablit la piste choisie (mute).</td></tr>
-    <tr><td>ENV</td><td>Revient à l'état d'avant la dernière variation ou le dernier DICE («&nbsp;ENV: PREVIOUS VARIATION&nbsp;»). Une seule étape est gardée. Sur MORPH&nbsp;: revient au Monde A. Sur DERIVE&nbsp;: revient à la maison.</td></tr>
-    <tr><td>LFO</td><td>Fige ou relance la bande granulaire (Freeze). Les pistes continuent de jouer. Ne règle pas les LFO&nbsp;: voir <a href="#p-lfo">LFO A / LFO B</a>.</td></tr>
-    <tr><td>ARP</td><td>Verrouille la graine&nbsp;: la même variation se répète («&nbsp;SEED LOCKED, REPEATS&nbsp;»). Nouvel appui&nbsp;: la graine varie.</td></tr>
-    <tr><td>REC</td><td>N'enregistre rien. Selon la page&nbsp;: sur LIVE et les pages GLO, nouvelle variation (graine et rythmes)&nbsp;; sur les pages EDIT, DICE du son de la piste choisie&nbsp;; sur les pages SEQ, DICE de son rythme&nbsp;; sur les pages FX, DICE des effets&nbsp;; sur GENERATOR, efface le motif&nbsp;; sur SYSTEM et MIDI, panique (tout se tait)&nbsp;; sur MORPH, garde le mélange&nbsp;; sur DERIVE, l'état actuel devient la maison.</td></tr>
-    <tr><td>SAVE</td><td>Sauve le Monde en cours et les préférences, à l'arrêt et sur horloge interne. Sur USER BANKS&nbsp;: sauve dans l'emplacement choisi.</td></tr>
-    <tr><td>OCT− / OCT+</td><td>Octave du clavier, sans toucher aux notes de la séquence.</td></tr>
-    <tr><td>Maintenir</td><td>Maintenir n'importe quel bouton affiche son aide, sans faire son action. Sur certaines pages, l'aide décrit la page.</td></tr>
+  <h3>Les noms imprimés et leur fonction</h3>
+  <p>Les boutons portent les noms du firmware d'origine de M-VAVE. Leur fonction dans Monades est celle de chaque fiche ci-dessous. Dans le simulateur, elle est écrite en jaune sous SEL (MUTE), ENV (UNDO), LFO (FREEZE), ARP (LOCK) et REC (DICE). Maintenir n'importe quel bouton affiche son aide, sans faire son action.</p>
+</div>
+<div class="entry" id="b-home">
+  <p class="path">Bouton</p><h3>HOME</h3>
+  <p>Pages LIVE → MORPH → DERIVE&nbsp;: chaque appui passe à la suivante, puis revient à LIVE. Depuis une autre page, HOME ramène à LIVE. L'appui qui ferme l'écran de démarrage reste sur LIVE. Voir <a href="#p-live">LIVE</a>, <a href="#p-morph">MORPH</a>, <a href="#p-derive">DERIVE</a>.</p>
+</div>
+<div class="entry" id="b-edit">
+  <p class="path">Bouton</p><h3>EDIT</h3>
+  <p>Pages SOUND → VELVET FILTER → ENVELOPE → MIX → GLOBAL MIXER, puis retour à SOUND. Depuis une autre page, EDIT ouvre SOUND. Ce sont les pages de la piste choisie. Voir <a href="#edit">Pages EDIT</a>.</p>
+</div>
+<div class="entry" id="b-seq">
+  <p class="path">Bouton</p><h3>SEQ</h3>
+  <p>Pages RHYTHM → GROOVE → BASS / MOTIFS → PHRASE → GENERATOR → FORM, puis retour à RHYTHM. Depuis une autre page, SEQ ouvre RHYTHM. Voir <a href="#seq">Pages SEQ</a>.</p>
+</div>
+<div class="entry" id="b-fx">
+  <p class="path">Bouton</p><h3>FX</h3>
+  <p>Pages GRANULAR BUS → TAPE → SHARED SPACE → SPACE TONE → ECHO SYNC / CHORUS → MARBLES / TIDES / WARPS → LFO A → LFO B, puis retour à GRANULAR BUS. Depuis une autre page, FX ouvre GRANULAR BUS. Les LFO sont ici, pas sous le bouton LFO. Voir <a href="#fx">Pages FX</a>.</p>
+</div>
+<div class="entry" id="b-glo">
+  <p class="path">Bouton</p><h3>GLO</h3>
+  <p>Pages HARMONY → RAGA / GAMAKA → SYSTEM → LOOK → MIDI → MIDI OUT ZONES → USER BANKS, puis retour à HARMONY. Depuis une autre page, GLO ouvre HARMONY. Voir <a href="#glo">Pages GLO</a>.</p>
+</div>
+<div class="entry" id="b-play">
+  <p class="path">Bouton</p><h3>PLAY / STOP</h3>
+  <p>Lance la séquence&nbsp;; un nouvel appui l'arrête. L'arrêt laisse le son s'éteindre. Un nouveau départ reprend la séquence au début. ▶ ou ■ en haut à droite de l'écran. Si l'horloge sortante est active (GLO › MIDI, K4), PLAY envoie aussi start et stop. Le morphing automatique et la dérive avancent seulement pendant la lecture.</p>
+</div>
+<div class="entry" id="b-sel">
+  <p class="path">Bouton · MUTE</p><h3>SEL</h3>
+  <p>Coupe ou rétablit la piste choisie avec SELECT. Une piste coupée est grisée sur LIVE et sur GLOBAL MIXER. Le morphing, la dérive et le DICE ne changent pas les mutes.</p>
+</div>
+<div class="entry" id="b-env">
+  <p class="path">Bouton · UNDO</p><h3>ENV</h3>
+  <p>Revient à l'état d'avant la dernière variation (REC) ou le dernier DICE&nbsp;: «&nbsp;ENV: PREVIOUS VARIATION&nbsp;». Une seule étape est gardée&nbsp;; sans rien à annuler&nbsp;: «&nbsp;ENV: NOTHING TO UNDO YET&nbsp;». Sur MORPH, revient au Monde A&nbsp;; sur DERIVE, revient à la maison. Après un changement de Monde, il n'y a rien à annuler. Ne règle pas les enveloppes&nbsp;: voir <a href="#p-envelope">ENVELOPE</a> (EDIT 3 fois).</p>
+</div>
+<div class="entry" id="b-lfo">
+  <p class="path">Bouton · FREEZE</p><h3>LFO</h3>
+  <p>Fige la bande granulaire («&nbsp;LFO: GRAIN TAPE FROZEN&nbsp;»)&nbsp;: les grains rejouent ce qui est déjà enregistré, les pistes continuent de jouer. Nouvel appui&nbsp;: la bande enregistre de nouveau («&nbsp;LFO: GRAIN TAPE RUNS&nbsp;»). En bas de LIVE&nbsp;: ICE (figée) ou REC (enregistre). Ne règle pas les LFO&nbsp;: voir <a href="#p-lfo">LFO A / LFO B</a> (FX 7 ou 8 fois).</p>
+</div>
+<div class="entry" id="b-arp">
+  <p class="path">Bouton · LOCK</p><h3>ARP</h3>
+  <p>Verrouille la graine aléatoire&nbsp;: la même variation se répète («&nbsp;ARP: SEED LOCKED, REPEATS&nbsp;»), et les décisions de Chance aussi. Nouvel appui&nbsp;: la graine change toutes les 32 pas («&nbsp;ARP: SEED FREE, VARIES&nbsp;»). En bas de LIVE&nbsp;: LOCK ou RAND. Avec la graine verrouillée, la dérive refait le même chemin. Ne lance pas d'arpège.</p>
+</div>
+<div class="entry" id="b-rec">
+  <p class="path">Bouton · DICE</p><h3>REC</h3>
+  <p>N'enregistre rien. Son effet dépend de la page&nbsp;:</p>
+  <div class="tablewrap"><table><tr><th>Page</th><th>REC</th></tr>
+    <tr><td>LIVE, pages GLO</td><td>Nouvelle variation&nbsp;: nouvelle graine et rythmes décalés («&nbsp;REC: NEW VARIATION&nbsp;»).</td></tr>
+    <tr><td>Pages EDIT</td><td><a href="#dice">DICE</a> du son de la piste choisie.</td></tr>
+    <tr><td>Pages SEQ</td><td>DICE du rythme de la piste choisie.</td></tr>
+    <tr><td>GENERATOR</td><td>Efface le motif («&nbsp;MOTIF CLEARED&nbsp;»).</td></tr>
+    <tr><td>Pages FX</td><td>DICE des effets.</td></tr>
+    <tr><td>SYSTEM, MIDI</td><td>Panique&nbsp;: tout se tait, la bande et les traînes d'effets sont effacées («&nbsp;PANIC: ALL SILENT&nbsp;»).</td></tr>
+    <tr><td>MORPH</td><td>Garde le mélange et termine le morphing.</td></tr>
+    <tr><td>DERIVE</td><td>L'état actuel devient la maison.</td></tr>
   </table></div>
-  <p>Dans le simulateur, la fonction Monades est écrite en jaune sous SEL (MUTE), ENV (UNDO), LFO (FREEZE), ARP (LOCK) et REC (DICE).</p>
+  <p>ENV annule une variation ou un DICE.</p>
+</div>
+<div class="entry" id="b-save">
+  <p class="path">Bouton</p><h3>SAVE</h3>
+  <p>Sauve le Monde en cours et les préférences (animations, son de démarrage, MIDI, gamme CUSTOM) sur le FM-1&nbsp;: «&nbsp;MONDE + PREFS SAVED&nbsp;». Il faut être à l'arrêt («&nbsp;STOP BEFORE SAVING&nbsp;») et sur horloge interne («&nbsp;USE INTERNAL CLOCK TO SAVE&nbsp;»). Sur USER BANKS, sauve dans l'emplacement choisi&nbsp;; un emplacement occupé demande un second appui. La bande granulaire n'est pas sauvée. Voir <a href="#f-sauver">Sauvegarder mon travail</a>.</p>
+</div>
+<div class="entry" id="b-oct">
+  <p class="path">Boutons</p><h3>OCT− / OCT+</h3>
+  <p>Octave du clavier, une octave plus bas ou plus haut. Les notes de la séquence ne changent pas&nbsp;; la note de base d'une piste se règle sur MIX, K2.</p>
 </div>
 <div class="entry" id="dice">
   <h3>DICE</h3>
@@ -176,19 +226,30 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 </div>
 
 <h2 id="encodeurs">Encodeurs et clavier</h2>
-<div class="entry">
-  <div class="tablewrap"><table>
-    <tr><th>Commande</th><th>Effet</th></tr>
-    <tr><td>MASTER</td><td>Volume de sortie. Le vumètre M de GLOBAL MIXER le suit.</td></tr>
-    <tr><td>SELECT</td><td>Choisit la piste 1 à 6. Les pages d'une piste règlent celle-ci.</td></tr>
-    <tr><td>ALGO</td><td>Change le moteur de la piste choisie (12 moteurs, <a href="#l-moteurs">liste</a>) et ouvre SOUND.</td></tr>
-    <tr><td>PRESET</td><td>Sur SOUND, FILTER, ENVELOPE, MIX, GLOBAL MIXER, BASS, PHRASE, MARBLES, LFO A, LFO B, GENERATOR&nbsp;: un des 224 sons pour la piste (les notes, le rythme, le mixage, les envois et le mute restent). Sur MORPH&nbsp;: le Monde B. Sur USER BANKS&nbsp;: la lettre du nom. Ailleurs&nbsp;: un Monde (tout le patch est remplacé). Le bas de l'écran indique ce que fait PRESET.</td></tr>
-    <tr><td>K1 à K4</td><td>Les quatre cadres du bas de l'écran. Leur rôle change avec la page.</td></tr>
-    <tr><td>Clavier</td><td>Joue la piste choisie (première touche&nbsp;: F3). Sur HARMONY avec la gamme CUSTOM&nbsp;: ajoute ou retire la note de la gamme. Sur GENERATOR&nbsp;: écrit le motif.</td></tr>
-  </table></div>
-  <p>Les valeurs de 0 à 100 avancent de 2 par cran. Sur les pages d'une piste, l'écran affiche «&nbsp;TRACK n&nbsp;», «&nbsp;Tn&nbsp;» après le titre, ou «&nbsp;n &gt;&nbsp;».</p>
+<div class="entry" id="c-master">
+  <p class="path">Potard</p><h3>MASTER</h3>
+  <p>Volume de sortie (casque et haut-parleur). Le vumètre M de <a href="#p-mixer">GLOBAL MIXER</a> montre le niveau après MASTER.</p>
 </div>
-
+<div class="entry" id="c-select">
+  <p class="path">Encodeur</p><h3>SELECT</h3>
+  <p>Choisit la piste 1 à 6. Les pages d'une piste (SOUND, FILTER, ENVELOPE, MIX, GLOBAL MIXER, RHYTHM, GROOVE, BASS, PHRASE, GENERATOR, MARBLES, LFO, RAGA K3–K4) règlent celle-ci&nbsp;; l'écran affiche TRACK n, Tn ou «&nbsp;n &gt;&nbsp;». Le clavier joue la piste choisie, SEL la coupe.</p>
+</div>
+<div class="entry" id="c-algo">
+  <p class="path">Encodeur</p><h3>ALGO</h3>
+  <p>Change le moteur de la piste choisie (12 moteurs, <a href="#l-moteurs">liste</a>) et ouvre SOUND. Chaque moteur va sur chaque piste.</p>
+</div>
+<div class="entry" id="c-preset">
+  <p class="path">Encodeur</p><h3>PRESET</h3>
+  <p>Sur SOUND, FILTER, ENVELOPE, MIX, GLOBAL MIXER, BASS, PHRASE, MARBLES, LFO A, LFO B, GENERATOR&nbsp;: un des 224 sons pour la piste (les notes, le rythme, le mixage, les envois et le mute restent). Sur MORPH&nbsp;: le Monde B. Sur USER BANKS&nbsp;: la lettre du nom. Ailleurs&nbsp;: un Monde (tout le patch est remplacé). Le bas de l'écran indique ce que fait PRESET.</p>
+</div>
+<div class="entry" id="c-k">
+  <p class="path">Potards</p><h3>K1 à K4</h3>
+  <p>Les quatre cadres du bas de l'écran&nbsp;; leur rôle change avec la page (voir chaque page). Les valeurs de 0 à 100 avancent de 2 par cran.</p>
+</div>
+<div class="entry" id="c-clavier">
+  <p class="path">Touches</p><h3>Clavier</h3>
+  <p>Joue la piste choisie (première touche&nbsp;: F3), avec OCT− / OCT+ pour l'octave. Sur HARMONY avec la gamme CUSTOM&nbsp;: ajoute ou retire la note de la gamme. Sur GENERATOR&nbsp;: écrit le motif. Le premier geste sur un bouton, un encodeur ou une touche ferme l'écran de démarrage.</p>
+</div>
 <h2 id="home">Pages HOME</h2>
 <div class="entry" id="p-live">
   <p class="path">HOME</p><h3>LIVE MONDE</h3>
@@ -488,6 +549,38 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 </div>
 
 <h2 id="faire">Comment faire</h2>
+<div class="entry" id="f-tempo">
+  <p class="path">Comment faire</p><h3>Changer le tempo</h3>
+  <ol class="steps"><li><span class="k">GLO</span> une fois&nbsp;: page HARMONY.</li><li><span class="k">K4 TEMPO</span>&nbsp;: 30 à 220 BPM.</li></ol><p>Aussi sur SYSTEM (GLO 3 fois), K1. Le tempo est affiché en haut à droite de l'écran. Si GLO › MIDI, K1 CLOCK IN est sur USB ou TRS, l'horloge reçue mène (par exemple la MPC). Pendant un morphing ou une dérive, le tempo glisse tout seul.</p>
+</div>
+<div class="entry" id="f-lancer">
+  <p class="path">Comment faire</p><h3>Lancer et arrêter</h3>
+  <p><span class="k">PLAY</span> lance, un nouvel appui arrête. Le son s'éteint doucement. Pour tout couper d'un coup&nbsp;: <a href="#f-panique">panique</a>.</p>
+</div>
+<div class="entry" id="f-piste">
+  <p class="path">Comment faire</p><h3>Choisir une piste</h3>
+  <p>Tourner <span class="k">SELECT</span>&nbsp;: piste 1 à 6. Les pages d'une piste et le clavier suivent.</p>
+</div>
+<div class="entry" id="f-mute">
+  <p class="path">Comment faire</p><h3>Couper une piste</h3>
+  <p><span class="k">SELECT</span> la piste, puis <span class="k">SEL</span>. Nouvel appui pour la rétablir.</p>
+</div>
+<div class="entry" id="f-clavier">
+  <p class="path">Comment faire</p><h3>Jouer au clavier</h3>
+  <p><span class="k">SELECT</span> la piste, puis les touches. <span class="k">OCT−</span> / <span class="k">OCT+</span> changent d'octave. Les notes suivent la gamme de HARMONY pour les moteurs mélodiques.</p>
+</div>
+<div class="entry" id="f-monde">
+  <p class="path">Comment faire</p><h3>Changer de Monde</h3>
+  <p>Sur LIVE (<span class="k">HOME</span>), tourner <span class="k">PRESET</span>. Tout le patch est remplacé&nbsp;: <a href="#f-sauver">sauver</a> avant si besoin. Pour passer en douceur&nbsp;: <a href="#f-morph">morphing</a>.</p>
+</div>
+<div class="entry" id="f-figer">
+  <p class="path">Comment faire</p><h3>Figer le grain</h3>
+  <p>Bouton <span class="k">LFO</span>&nbsp;: la bande granulaire se fige, nouvel appui pour la relancer.</p>
+</div>
+<div class="entry" id="f-repeter">
+  <p class="path">Comment faire</p><h3>Faire répéter la même variation</h3>
+  <p>Bouton <span class="k">ARP</span>&nbsp;: la graine se verrouille et la variation se répète. <span class="k">REC</span> sur LIVE en tire une nouvelle, <span class="k">ENV</span> revient à la précédente.</p>
+</div>
 <div class="entry" id="f-sauver"><h3>Sauvegarder mon travail</h3><ol class="steps">
   <li>Arrêter la lecture (<span class="k">PLAY</span>). Horloge interne (GLO › MIDI, K1 sur INTERNAL).</li>
   <li><span class="k">SAVE</span>&nbsp;: le Monde en cours et les préférences sont gardés («&nbsp;MONDE + PREFS SAVED&nbsp;»).</li>
@@ -647,6 +740,8 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
   q.addEventListener('keydown',function(ev){if(ev.key==='Enter'){var first=document.querySelector('.entry:not(.hidden)');if(first)first.scrollIntoView({block:'start'});}if(ev.key==='Escape'){q.value='';run();}});
   document.addEventListener('keydown',function(ev){if(ev.key==='/'&&document.activeElement!==q){ev.preventDefault();q.focus();}});
   try{var s=new URLSearchParams(location.search).get('q');if(s){q.value=s;run();}}catch(e){}
+  // A link to an entry (#b-lfo): jump again once the web fonts have set the final layout.
+  if(location.hash&&document.fonts)document.fonts.ready.then(function(){var el=document.getElementById(location.hash.slice(1));if(el)el.scrollIntoView({block:'start'});});
 })();
 </script>
 </body>
