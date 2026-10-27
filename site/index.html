@@ -40,9 +40,9 @@ h1{font-weight:600;font-size:clamp(60px,14vw,170px);line-height:.88;letter-spaci
 .crew{margin:0 0 14px;color:var(--mark)}
 .crew a{text-decoration:none}
 .crew a:hover{text-decoration:underline}
-figure.monads{margin:44px 0 0;padding:20px 0 14px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-figure.monads svg{display:block;width:100%;height:auto}
-figure.monads figcaption{margin-top:10px;color:var(--muted);font-size:15px;max-width:62ch}
+.play{position:relative;width:100%;aspect-ratio:1000/790;border:0;display:block;background:transparent}
+.play-wrap{margin:6px 0 0}
+.play-note{margin:8px 0 0;font-size:14.5px;color:var(--muted)}
 .prop{display:grid;grid-template-columns:110px minmax(0,1fr) 230px;gap:0 32px;padding:42px 0;border-bottom:1px solid var(--rule)}
 .num{font-family:var(--sans);font-weight:500;font-size:40px;line-height:1;letter-spacing:-.02em;color:var(--ink)}
 .num small{display:block;margin-top:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
@@ -110,20 +110,15 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 
 <header class="top mono">
   <div>Monades · 0.1 · Firmware génératif pour M-VAVE FM-1 pour Flash Dog Duke Silver</div>
-  <nav><a href="simulateur/">Jouer</a><a href="#ecrans">Écrans</a><a href="#mode">Mode d'emploi</a><a href="#mpc">MIDI</a><a href="#lots">Les lots</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
+  <nav><a href="#jouer">Jouer</a><a href="#ecrans">Écrans</a><a href="#mode">Mode d'emploi</a><a href="#mpc">MIDI</a><a href="#lots">Les lots</a><a href="https://github.com/Dr-John-8bits/monades">Sources</a><a href="https://thomasclaissethcl-blip.github.io/FDDS/">FDDS</a></nav>
 </header>
 
 <section class="title">
   <p class="crew mono"><a href="https://thomasclaissethcl-blip.github.io/FDDS/">Flash Dog Duke Silver</a></p>
   <h1>Monades</h1>
   <p class="lede">La flotte sans fenêtres de la S.A.R.L. Napoléon d'Artagnan qui presse <span class="hl">la limonade de la Galaxie.</span></p>
-  <p><a class="cta" href="simulateur/">Jouer dans le navigateur</a><a class="cta" href="#mode">Mode d'emploi</a><a class="cta" href="#ecrans">Les écrans</a><a class="cta" href="#mpc">MIDI avec la MPC</a><a class="cta" href="https://github.com/Dr-John-8bits/monades">Sources</a></p>
+  <p><a class="cta" href="#jouer">Jouer dans le navigateur</a><a class="cta" href="#mode">Mode d'emploi</a><a class="cta" href="#ecrans">Les écrans</a><a class="cta" href="#mpc">MIDI avec la MPC</a><a class="cta" href="https://github.com/Dr-John-8bits/monades">Sources</a></p>
 </section>
-
-<figure class="monads" aria-labelledby="cap">
-  <svg id="viz" viewBox="0 0 960 250" role="img" aria-label="Six séquences euclidiennes de longueurs différentes, avançant sur une horloge commune"></svg>
-  <figcaption id="cap">Six monades, six séquences euclidiennes de longueurs différentes (16, 12, 10, 9, 7, 5 pas). Elles ne se parlent pas&nbsp;: seule l'horloge commune les accorde. C'est le principe du firmware, en direct.</figcaption>
-</figure>
 
 <section class="prop" id="p1">
   <div class="num">§1<small>Définition</small></div>
@@ -137,8 +132,18 @@ ol.steps>li{padding:6px 0;max-width:64ch}
   </aside>
 </section>
 
+<section class="prop" id="jouer">
+  <div class="num">§2<small>Jouer</small></div>
+  <div>
+    <h2>Le FM-1, ici</h2>
+    <div class="play-wrap"><iframe class="play" src="simulateur/?embed=1" title="Simulateur du FM-1 avec Monades" allow="autoplay" loading="eager"></iframe></div>
+    <p class="play-note">Le firmware complet, le même code que sur le FM-1. Rien ne joue avant d'appuyer sur «&nbsp;Allumer&nbsp;». <a href="simulateur/">Plein écran</a>.</p>
+  </div>
+  <aside class="side"><p>Clavier de l'ordinateur&nbsp;: rangées de lettres pour les touches blanches, chiffres pour les noires, P pour PLAY.</p><p>Les sauvegardes restent dans ce navigateur.</p></aside>
+</section>
+
 <section class="prop" id="p2">
-  <div class="num">§2<small>État présent</small></div>
+  <div class="num">§3<small>État présent</small></div>
   <div>
     <h2>Rien à flasher pour l'instant</h2>
     <div class="status-line"><span>Code des lots, testé sur Mac</span><span class="st done">fait</span></div>
@@ -152,7 +157,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="ecrans">
-  <div class="num">§3<small>Écrans</small></div>
+  <div class="num">§4<small>Écrans</small></div>
   <div>
     <h2>Ce que montre l'écran</h2>
     <div class="screens">
@@ -176,7 +181,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="mode">
-  <div class="num">§4<small>Mode d'emploi</small></div>
+  <div class="num">§5<small>Mode d'emploi</small></div>
   <div>
     <h2>Mode d'emploi</h2>
     <p>Cinq boutons ouvrent les pages. Appuyer plusieurs fois sur le même bouton fait défiler ses pages. Sur chaque page, les potards K1 à K4 règlent les quatre cadres du bas de l'écran.</p>
@@ -241,7 +246,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="mpc">
-  <div class="num">§5<small>MIDI</small></div>
+  <div class="num">§6<small>MIDI</small></div>
   <div>
     <h2>MIDI avec la MPC</h2>
     <ol class="steps">
@@ -261,7 +266,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="installer">
-  <div class="num">§6<small>Installer</small></div>
+  <div class="num">§7<small>Installer</small></div>
   <div>
     <h2>Installer, revenir en arrière</h2>
     <p>Pas encore de version à installer&nbsp;: Monades n'a été ni compilé pour le FM-1, ni testé dessus. Le jour venu&nbsp;:</p>
@@ -272,7 +277,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p3">
-  <div class="num">§7<small>Principe</small></div>
+  <div class="num">§8<small>Principe</small></div>
   <div>
     <h2>Tout ce qui bouge à l'écran montre quelque chose</h2>
     <p>Aucune animation purement décorative. Chaque mouvement reflète un réglage ou l'état réel du moteur&nbsp;: un grain, un LFO, un pas, une enveloppe. Tourner un potard doit <span class="hl">se voir</span> immédiatement&nbsp;; sinon on ne comprend plus ce qu'on fait.</p>
@@ -283,7 +288,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 <div id="lots"></div>
 
 <section class="prop" id="p4">
-  <div class="num">§8<small>Lot UI</small></div>
+  <div class="num">§9<small>Lot UI</small></div>
   <div>
     <h2>Lisibilité&nbsp;: chaque écran montre ce qu'on règle</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -314,7 +319,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p5">
-  <div class="num">§9<small>Lot 1</small></div>
+  <div class="num">§10<small>Lot 1</small></div>
   <div>
     <h2>MIDI&nbsp;: les notes générées sortent</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -331,7 +336,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p6">
-  <div class="num">§10<small>Lot 2</small></div>
+  <div class="num">§11<small>Lot 2</small></div>
   <div>
     <h2>Harmonie&nbsp;: toutes les gammes</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -346,7 +351,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p7">
-  <div class="num">§11<small>Lot 3</small></div>
+  <div class="num">§12<small>Lot 3</small></div>
   <div>
     <h2>Génératif&nbsp;: au-delà de la boucle</h2>
     <div class="status-line"><span class="st">en cours</span></div>
@@ -361,7 +366,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p8">
-  <div class="num">§12<small>Lot 4</small></div>
+  <div class="num">§13<small>Lot 4</small></div>
   <div>
     <h2>Tempo et effets</h2>
     <div class="status-line"><span class="st">en cours</span></div>
@@ -377,7 +382,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p9">
-  <div class="num">§13<small>Lot Web</small></div>
+  <div class="num">§14<small>Lot Web</small></div>
   <div>
     <h2>Ce site</h2>
     <div class="status-line"><span class="st">en cours</span></div>
@@ -392,7 +397,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p9b">
-  <div class="num">§14<small>Lot Identité</small></div>
+  <div class="num">§15<small>Lot Identité</small></div>
   <div>
     <h2>Une interface à part</h2>
     <div class="status-line"><span class="st done">fait</span></div>
@@ -407,7 +412,7 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="p10">
-  <div class="num">§15<small>Lot 5</small></div>
+  <div class="num">§16<small>Lot 5</small></div>
   <div>
     <h2>Divers</h2>
     <div class="status-line"><span class="st">en cours</span></div>
@@ -421,24 +426,24 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 </section>
 
 <section class="prop" id="ordre">
-  <div class="num">§16<small>Ordre</small></div>
+  <div class="num">§17<small>Ordre</small></div>
   <div>
     <h2>Ordre de marche</h2>
     <div class="order">
       <div><span>0</span>Tester le FM-1</div>
-      <div><span>§8</span>Lisibilité</div>
-      <div><span>§9</span>MIDI</div>
-      <div><span>§10</span>Harmonie</div>
-      <div><span>§11</span>Génératif</div>
-      <div><span>§12</span>Tempo, effets</div>
-      <div><span>§15</span>Divers</div>
+      <div><span>§9</span>Lisibilité</div>
+      <div><span>§10</span>MIDI</div>
+      <div><span>§11</span>Harmonie</div>
+      <div><span>§12</span>Génératif</div>
+      <div><span>§13</span>Tempo, effets</div>
+      <div><span>§16</span>Divers</div>
     </div>
   </div>
   <aside class="side"><p>Chaque lot est d'abord développé et testé sur ordinateur, puis dans le navigateur, puis sur le FM-1.</p></aside>
 </section>
 
 <section class="prop" id="p12">
-  <div class="num">§17<small>Crédits</small></div>
+  <div class="num">§18<small>Crédits</small></div>
   <div>
     <h2>Sur les épaules de</h2>
     <p><b>Kid Bunka / Christoph Link</b> (Mutable Dreams), <b>Émilie Gillet / Mutable Instruments</b> (Plaits, Rings, Elements, stmlib), <b>Charles Vestal</b> (fm1-base), <b>Leo Kuroshita</b> (Felucca, felucca-bsp).</p>
@@ -455,57 +460,6 @@ ol.steps>li{padding:6px 0;max-width:64ch}
 
 <script>
 (function(){
-  // Six euclidean voices on one shared clock: the figure is the firmware's own principle.
-  var svg=document.getElementById('viz'),NS='http://www.w3.org/2000/svg';
-  var voices=[[16,5],[12,5],[10,3],[9,4],[7,3],[5,2]],rows=[],step=0;
-  function euclid(n,k){var a=[];for(var i=0;i<n;i++)a.push(((i*k)%n)<k);return a;}
-  var x0,dx,y0=24,dy,narrow;
-  function build(){
-  // Phones get a denser grid with short labels so the figure stays legible.
-  narrow=window.innerWidth<600;rows=[];while(svg.firstChild)svg.removeChild(svg.firstChild);
-  x0=narrow?44:168;dx=narrow?22:49;dy=narrow?34:40;
-  svg.setAttribute('viewBox',narrow?'0 0 400 210':'0 0 960 250');
-  voices.forEach(function(v,r){
-    var pat=euclid(v[0],v[1]),cells=[];
-    var label=document.createElementNS(NS,'text');
-    label.setAttribute('x',0);label.setAttribute('y',y0+r*dy+5);
-    label.setAttribute('style','font:500 13px "IBM Plex Mono",monospace;letter-spacing:.05em;fill:var(--muted)');
-    label.textContent=narrow?(r+1)+'':'MONADE '+(r+1)+' · '+v[1]+'/'+v[0];svg.appendChild(label);
-    for(var i=0;i<16;i++){
-      var c=document.createElementNS(NS,'circle');
-      c.setAttribute('cx',x0+i*dx);c.setAttribute('cy',y0+r*dy);
-      var inside=i<v[0];
-      c.setAttribute('r',pat[i%v[0]]&&inside?(narrow?6:7):2.5);
-      c.setAttribute('style','fill:'+(inside?'var(--off)':'none')+';stroke:'+(inside?'none':'var(--rule)'));c.dataset.v=r;
-      svg.appendChild(c);cells.push({el:c,on:pat[i%v[0]],inside:inside});
-    }
-    // The monad itself: a windowless ship in its voice's colour, as on the FM-1, riding its own sequence.
-    var halo=document.createElementNS(NS,'polygon'),sz=narrow?9:12;
-    halo.setAttribute('points',sz+',0 '+(-sz*.6)+','+(-sz*.6)+' '+(-sz*.6)+','+(sz*.6));
-    halo.setAttribute('style','fill:var(--v'+(r+1)+');opacity:.9');
-    svg.appendChild(halo);halo.cy=y0+r*dy;
-    rows.push({n:v[0],pat:pat,cells:cells,halo:halo});
-  });
-  draw();
-  }
-  function draw(){
-    // Each monad shows its own position: the lengths differ, only the clock is shared.
-    rows.forEach(function(row){
-      var pos=step%row.n;
-      row.halo.setAttribute('transform','translate('+(x0+pos*dx-(narrow?14:18))+','+row.halo.cy+')');
-      row.cells.forEach(function(c,i){
-        if(!c.inside)return;
-        var active=i===pos;
-        c.el.style.fill=c.on?(active?'var(--lit)':'var(--v'+(+c.el.dataset.v+1)+')'):(active?'var(--lit)':'var(--off)');c.el.style.opacity=c.on&&!active?.55:1;
-        c.el.setAttribute('r',c.on?(active?(narrow?8:9):(narrow?6:7)):(active?4:2.5));
-      });
-    });
-  }
-  build();
-  var last=narrow;window.addEventListener('resize',function(){if((window.innerWidth<600)!==last){build();last=narrow;}});
-  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(!reduce)setInterval(function(){step++;draw();},60000/112/4);
-
   var btn=document.getElementById('theme'),root=document.documentElement;
   try{var t=localStorage.getItem('monades-theme');if(t)root.setAttribute('data-theme',t);}catch(e){}
   btn.addEventListener('click',function(){

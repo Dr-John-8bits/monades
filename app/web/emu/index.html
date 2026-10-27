@@ -53,6 +53,9 @@ a { color: var(--accent); }
 .start button { font: 600 1.25rem "Barlow Semi Condensed", "Barlow", sans-serif; letter-spacing: .04em; padding: .7em 1.6em;
                 border-radius: 999px; border: 0; background: #ffc668; color: #06081a; cursor: pointer; }
 .start[hidden] { display: none; }
+.start { background: rgba(6, 8, 26, .3); }
+.embed body > header, .embed .help, .embed #speak, .embed .turn { display: none; }
+.embed body { padding: 0 2px 4px; background: transparent; overflow-y: hidden; }
 .turn { display: none; margin: 0 0 .8rem; color: var(--muted); font-size: .92rem; }
 @media (orientation: portrait) and (max-width: 700px) { .turn { display: block; } }
 .start button:disabled { opacity: .6; cursor: progress; }
@@ -696,6 +699,10 @@ async function switchOn() {
   }
 }
 $("go").addEventListener("click", switchOn);
+// Monades: only the Allumer button switches it on. Until then the screen shows a still of the Live page rather
+// than black. ?embed=1: the panel alone, for the site.
+{ const im = new Image(); im.onload = () => { if (!node) $("screen").getContext("2d").drawImage(im, 0, 0, 240, 240); }; im.src = "still.png"; }
+if (new URLSearchParams(location.search).has("embed")) document.documentElement.classList.add("embed");
 $("mute").addEventListener("click", () => {
   const on = $("mute").getAttribute("aria-pressed") !== "true";
   $("mute").setAttribute("aria-pressed", on ? "true" : "false");

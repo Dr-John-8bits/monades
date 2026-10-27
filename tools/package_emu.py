@@ -10,4 +10,5 @@ page=(A/'web/emu/index.html') if (A/'web/emu/index.html').exists() else R/'base/
 (out/'worklet.js').write_text((R/'web/worklet.js').read_text().replace('import "./app_worklet.js";\n','')) # the page loads app_worklet.js itself
 shutil.copy(R/'web/app_worklet.js',out/'app_worklet.js')
 shutil.copy(A/'build/wasm/dreams.wasm',out/'app.wasm')
+if (R/'site/ecrans/live.png').exists():shutil.copy(R/'site/ecrans/live.png',out/'still.png') # the screen before switching on
 print(out)
