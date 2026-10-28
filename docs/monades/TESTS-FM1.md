@@ -11,9 +11,9 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 - [ ] Un câble USB de données, Chrome ou Edge, Python 3.11 pour l'installeur en ligne de commande.
 
 ## 1. Compiler
-- [ ] Chaîne JieLi pi32v2 et SDK AC79NN V1.2.1 installés (voir `BUILDING.md`, section « FM-1 device build »).
-- [ ] `sh tools/build_device.sh` produit un `.fwsc` sous `app/build/`.
-- [ ] **Noter la mémoire affichée** par la compilation : « RAM .data+.bss … of 98304 » et « pool … of 344064 ». Mutable Dreams 1.1 : 71768 et 334800. La compilation échoue si la RAM dépasse 98 304, ou si le pool laisse moins de 8 192 octets libres (donc au-delà de 335 872) : me donner les chiffres. Estimation pour Monades (le chorus est en RAM ordinaire) : RAM environ 80 000 à 88 000, pool environ 334 900.
+- [x] Chaîne JieLi pi32v2 et SDK AC79NN V1.2.1 installés (voir `BUILDING.md`, section « FM-1 device build »). Fait le 28 octobre 2026 sur le Mac (Apple Silicon), voir `FORK.md`.
+- [x] `sh tools/build_device.sh` produit un `.fwsc` sous `app/build/` : `monades-0.1.0.fwsc`, 610 136 octets, identité `FM-1_714000100`.
+- [ ] **Noter la mémoire affichée** par la compilation : « RAM .data+.bss … of 98304 » et « pool … of 344064 ». Mutable Dreams 1.1 : 71768 et 334800. La compilation échoue si la RAM dépasse 98 304, ou si le pool laisse moins de 8 192 octets libres (donc au-delà de 335 872) : me donner les chiffres. Mesuré pour Monades le 28 octobre 2026 : image 443 556 octets, RAM 80 584 sur 98 304, pool 334 872 sur 344 064 (1 000 octets sous la limite de 335 872). Pas de calcul en double précision, accès aux registres par felucca-bsp seulement.
 
 ## 2. Installer
 - [ ] `python3 base/tools/fm1_install.py --info` voit le FM-1.

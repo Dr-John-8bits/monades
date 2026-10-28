@@ -548,7 +548,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 </div>
 <div class="entry" id="p-midi">
   <p class="path">GLO ×5</p><h3>MIDI / PERFORMANCE</h3>
-  <p>Les pistes 1 à 6 (TRK) s'allument à chaque note&nbsp;; pour chaque port (USB, BLE, TRS), IN et OUT s'allument 200&nbsp;ms par message, avec leur compteur.</p>
+  <p>Les pistes 1 à 6 (TRK) s'allument à chaque note&nbsp;; pour chaque port (USB, BLE, TRS), IN et OUT s'allument 200&nbsp;ms par message, avec leur compteur. BLE reste à zéro&nbsp;: le Bluetooth MIDI n'est pas compris dans ce firmware.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 CLOCK IN</td><td>INTERNAL, USB ou TRS&nbsp;: d'où vient l'horloge.</td></tr>
     <tr><td>K2 SCALE SNAP</td><td>ON&nbsp;: les notes reçues sont ramenées dans la gamme.</td></tr>
@@ -693,7 +693,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
     <tr><td>Canal 16, CC 16 à 19</td><td>Les quatre macros de LIVE&nbsp;: CC 16 Density, CC 17 Motion, CC 18 Colour, CC 19 Space.</td></tr>
     <tr><td>Canal qu'aucune piste n'écoute</td><td>Ignoré (sauf les CC 16 à 19 du canal 16).</td></tr>
   </table></div>
-  <p>Plusieurs pistes sur le même canal d'entrée&nbsp;: chaque note, CC ou pitch bend les joue toutes. Changer le canal d'entrée d'une piste relâche la note qu'elle tenait. Les notes et CC arrivent par USB, Bluetooth (BLE) ou la prise TRS&nbsp;; l'horloge par USB ou TRS (K1 CLOCK IN).</p>
+  <p>Plusieurs pistes sur le même canal d'entrée&nbsp;: chaque note, CC ou pitch bend les joue toutes. Changer le canal d'entrée d'une piste relâche la note qu'elle tenait. Les notes et CC arrivent par USB ou par la prise TRS&nbsp;; l'horloge aussi (K1 CLOCK IN). Le Bluetooth MIDI n'est pas compris dans ce firmware.</p>
   <p>GLO › MIDI, K2 SCALE SNAP&nbsp;: ramène les notes reçues dans la gamme.</p>
 </div>
 <div class="entry"><h3>Sortie</h3>

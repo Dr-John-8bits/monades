@@ -69,8 +69,10 @@ static void dream_apply_midi(void){uint32_t f=plat_lock();md_set_midi_channels(d
 static int dream_install(const void *,unsigned);
 #include "banks.c"
 static void md_num(int v,char *s) {char b[12];int i=0;if(v<0){*s++='-';v=-v;}do{b[i++]='0'+v%10;v/=10;}while(v);while(i)*s++=b[--i];*s=0;}
+// The FM-1 has no C library string functions (strcmp is host-only): compare by hand.
+static int md_same(const char *a,const char *b){while(*a&&*a==*b){a++;b++;}return *a==*b;}
 // A Monde (Mutable Dreams called it a Biome) shows its number and family; an FDDS Monde, its number and name.
-static const char *monde_label(int id) {static char s[32];char *q=s;const char *f;for(f="MONDE ";*f;)*q++=*f++;if(id<0){for(f="USER";*f;)*q++=*f++;*q=0;return s;}md_num(id+1,q);while(*q)q++;*q++=' ';f=md_biome_family(id);if(!strcmp(f,"FDDS"))f=md_biome_name(id);while(*f&&q<s+31)*q++=*f++;*q=0;return s;}
+static const char *monde_label(int id) {static char s[32];char *q=s;const char *f;for(f="MONDE ";*f;)*q++=*f++;if(id<0){for(f="USER";*f;)*q++=*f++;*q=0;return s;}md_num(id+1,q);while(*q)q++;*q++=' ';f=md_biome_family(id);if(md_same(f,"FDDS"))f=md_biome_name(id);while(*f&&q<s+31)*q++=*f++;*q=0;return s;}
 static void md_text(int x,int y,const char *s,uint16_t c) {
  // Quiet backplates keep the organic field away from small essential labels.
  if(y>=40&&y<155){uint16_t bg=dream_ui.help>=0?MD_CARD:(dream_ui.page==LIVE&&x>=94&&y==46+dream_ui.track*17)?MD_CARD:MD_BG;cv_rect(x-1,y-1,text_w(&FONT_XS,s)+2,14,bg);}
