@@ -210,6 +210,7 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
    - 17 : l'enregistrement du FM-1 par USB fonctionne déjà ; la sortie vers le FM-1 reste coupée, documentée dans le README, à essayer sur l'appareil ;
    - 18 : **K4 MOTION** sur la page FORM. La variation de Motion change tous les 1, 2, 4, 8 ou 16 pas et tient entre deux. Patch v10 (1680 octets) ;
    - 19 : les parties Monades du moteur sortent de `dreams.cpp` : `midi_out.inc`, `lfo.inc`, `generative.inc`. Même unité de compilation, son identique au bit près. Le cœur Mutable Dreams (voix, séquenceur, effets) reste en place.
+20. **Gamme par piste** (plus tard). Aujourd'hui la gamme est un réglage du Monde, la même pour les six pistes, et il n'y a qu'une gamme CUSTOM pour toute la machine (12 demi-tons, notes ajoutées ou retirées au clavier sur HARMONY, gardée dans les préférences). À faire : une gamme par piste (et peut-être une gamme CUSTOM par piste). Compléter aussi le mode d'emploi sur CUSTOM : commune à tous les Mondes, 12 demi-tons seulement, les six pistes ; les gammes Scala (`.scl` dans `tools/scala/`) ne s'ajoutent qu'à la compilation.
 
 ## Prochaines étapes
 1. **Essayer dans le simulateur** que les fonctions répondent aux besoins.
