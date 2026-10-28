@@ -681,10 +681,13 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
     <tr><td>CC 5</td><td>Glide</td></tr><tr><td>CC 11</td><td>Expression</td></tr><tr><td>CC 64</td><td>Sustain</td></tr>
     <tr><td>Program change</td><td>Choisit le son.</td></tr>
     <tr><td>Canal 16, CC 16 à 19</td><td>Les quatre macros de LIVE&nbsp;: CC 16 Density, CC 17 Motion, CC 18 Colour, CC 19 Space.</td></tr>
+    <tr><td>Canal qu'aucune piste n'écoute</td><td>Ignoré (sauf les CC 16 à 19 du canal 16).</td></tr>
   </table></div>
+  <p>Plusieurs pistes sur le même canal d'entrée&nbsp;: chaque note, CC ou pitch bend les joue toutes. Changer le canal d'entrée d'une piste relâche la note qu'elle tenait. Les notes et CC arrivent par USB, Bluetooth (BLE) ou la prise TRS&nbsp;; l'horloge par USB ou TRS (K1 CLOCK IN).</p>
   <p>GLO › MIDI, K2 SCALE SNAP&nbsp;: ramène les notes reçues dans la gamme.</p>
 </div>
 <div class="entry"><h3>Sortie</h3>
+  <p>En TRACKS, chaque piste sort sur son canal de sortie (<a href="#p-canaux">MIDI CHANNELS</a>, K3&nbsp;; par défaut la piste n sur le canal n). Une piste sur OFF n'envoie rien. Deux pistes sur le même canal de sortie s'y partagent une seule voix&nbsp;: chaque note arrête la précédente. Changer un canal de sortie relâche les notes en cours. PANIC envoie «&nbsp;tout éteint&nbsp;» (CC 123) sur chaque canal de sortie utilisé.</p>
   <p>Seules les notes générées sortent (séquence et repeats)&nbsp;; les notes reçues en MIDI ne sont jamais renvoyées. Une piste au niveau 0 continue d'envoyer ses notes (elle peut ne servir qu'au MIDI). Quand la sortie USB est pleine, les messages attendent leur tour&nbsp;: aucune fin de note n'est jetée. Passer K4 CLOCK OUT sur ON pendant la lecture envoie start, sur OFF envoie stop. Le FM-1 n'a pas de prise MIDI OUT&nbsp;: la sortie passe par l'USB. Vélocité selon les accents. Horloge (clock, start, stop) avec K4 CLOCK OUT, sur horloge interne.</p>
   <p>Gammes microtonales&nbsp;: en TRACKS, chaque note part avec un pitch bend (régler la plage de bend de l'instrument sur ±2 demi-tons)&nbsp;; en ZONES, les notes sont arrondies au demi-ton. Les gamakas ne sont pas envoyés.</p>
 </div>
