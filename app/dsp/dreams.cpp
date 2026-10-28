@@ -689,7 +689,7 @@ int md_hit(unsigned s,unsigned h,unsigned l,unsigned r) {if(!l||l>32)return 0;h=
 void md_init() {
  voices=reinterpret_cast<Voice*>(voices_raw);memset(voices_raw,0,sizeof voices_raw);memset(tape,0,sizeof tape);memset(grains,0,sizeof grains);
  memset(&stats,0,sizeof stats);memset(smooth,0,sizeof smooth);memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);
- out_r=out_w=owed_n=0;memset(&routing,0,sizeof routing);clock_left=0;memset(chan_bend,0,sizeof chan_bend);
+ out_r=out_w=owed_n=0;memset(&routing,0,sizeof routing);clock_left=0;memset(chan_bend,0,sizeof chan_bend);for(int i=0;i<6;i++)in_chan[i]=out_chan[i]=i+1;
  for(int i=0;i<6;i++)last_generated[i]=60;
  memset(midi_bank,0,sizeof midi_bank);qread=qwrite=writehead=grainclock=tape_valid=0;feedback_lp=0;rng=0x88888;stmlib::Random::Seed(rng);scene(0);playing=0;clock_source=midi_quantize=clock_pulse=0;clock_age=clock_last=0;clock_interval=0;
 }
@@ -699,6 +699,15 @@ void md_set_midi_routing(const md_midi_routing *r){
  out_all_off();for(unsigned ch=0;ch<16;ch++)out_bend(ch,0);routing=*r;routing.mode=bound(routing.mode,0,2);routing.clock=!!routing.clock;
  if(playing&&!clock_source&&routing.clock!=was_clock){out_push(routing.clock?0xfa:0xfc,0,0);clock_left=0;} // clock out switched while playing: Start or Stop with it
  for(unsigned z=0;z<8;z++){routing.zone[z].lo=bound(routing.zone[z].lo,0,127);routing.zone[z].hi=bound(routing.zone[z].hi,0,127);routing.zone[z].ch=bound(routing.zone[z].ch,0,16);}
+}
+void md_set_midi_channels(const int32_t in[6],const int32_t out[6]){
+ // A track that stops listening on a channel lets go of the note held there: its note-off would never come.
+ // Notes owed on the old out channels are released first, as when the routing changes.
+ bool moved=false;for(int i=0;i<6;i++)moved|=bound(out[i],0,16)!=out_chan[i];
+ if(moved){out_all_off();for(unsigned ch=0;ch<16;ch++)out_bend(ch,0);}
+ for(int i=0;i<6;i++){const int c=bound(in[i],0,16);
+  if(c!=in_chan[i]){held[i]=-1;sustain[i]=0;bend[i]=0;if(voices[i].midi_gate>0)voices[i].midi_gate=-1;}
+  in_chan[i]=c;out_chan[i]=bound(out[i],0,16);}
 }
 int md_midi_take(uint8_t m[3]){unsigned r=out_r;if(r==out_w)return 0;fence();const OutMsg &o=outq[r&255];m[0]=o.st;m[1]=o.d1;m[2]=o.d2;fence();out_r=r+1;return 1;}
 unsigned md_scope(int track,float *dst){
@@ -720,6 +729,7 @@ void md_tape_view(md_tape *v){
 }
 int md_clock_source(void){return clock_source;}
 int md_midi_quantize(void){return midi_quantize;}
+static void midi_track(unsigned i,unsigned type,unsigned a,unsigned b);
 void md_midi(unsigned st,unsigned a,unsigned b,int port){
  a&=127;b&=127;
  if(st>=0xf8){
@@ -732,7 +742,11 @@ void md_midi(unsigned st,unsigned a,unsigned b,int port){
    clock_age=0;if(clock_pulse==0){untilstep=0;tick();}clock_pulse=(clock_pulse+1)%6;}
   return;
  }
- unsigned i=st&15;if(i==15&&(st&240)==0xb0&&a>=16&&a<=19){apply({MD_MACRO,(int)a-16,(int)b*1000/127});return;}if(i>=6)return;Voice &v=voices[i];unsigned type=st&240;
+ const int ch=(int)(st&15)+1;if(ch==16&&(st&240)==0xb0&&a>=16&&a<=19){apply({MD_MACRO,(int)a-16,(int)b*1000/127});return;}
+ for(unsigned i=0;i<6;i++)if(in_chan[i]==ch)midi_track(i,st&240,a,b); // every track listening on this channel
+}
+static void midi_track(unsigned i,unsigned type,unsigned a,unsigned b){
+ Voice &v=voices[i];
  if(type==0x90&&b){float note=midi_quantize?quantize_any((float)a,patch.root,patch.scale,0):(float)bound(a,24,96);fire(i,note,b/127.0f);held[i]=a;v.midi_gate=md_has_envelope(v.model)?1:0;}
  else if(type==0x80||(type==0x90&&!b)){if(held[i]==(int)a){held[i]=-1;if(!sustain[i])v.midi_gate=-1;}}
  else if(type==0xc0){unsigned id=midi_bank[i]*128+a;if(id<MD_TONE_PRESETS)tone_preset(i,id);}

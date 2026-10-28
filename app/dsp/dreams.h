@@ -71,15 +71,19 @@ typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; floa
  int32_t gen_off[6][16]; uint32_t gen_valid[6],gen_pos[6],gen_fresh[6]; /* loop register: offsets, written slots, slot of the last hit, 1 if it was drawn anew */
  uint32_t gen_gate[6]; /* Chance decision stored per slot */
  uint32_t form_section,form_cycle,form_drop_mask; float form_pos;
- float gamaka_now[6]; int32_t gamaka_style[6]; float gamaka_age[6]; /* ornament offset in semitones now, its style, ms since the note */ } md_stats;
+ float gamaka_now[6]; int32_t gamaka_style[6]; float gamaka_age[6]; /* ornament offset in semitones now, its style, ms since the note */
+ uint32_t midi_out_track[6]; /* note-ons queued per track (TRACKS and ZONES) */ } md_stats;
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);
 /* Monades MIDI out. Generated notes (sequencer and repeats, never notes received over MIDI) go out by track
- * (mode 1: track n on channel n) or by note zones (mode 2: every zone holding the note, channel 1-16, 0 = zone off;
+ * (mode 1: each track on its out channel, md_set_midi_channels) or by note zones (mode 2: every zone holding the note, channel 1-16, 0 = zone off;
  * overlapping zones send the note on each channel). clock: 24 ppqn with start / stop while the internal clock runs. */
 typedef struct { int32_t mode,clock; struct { int32_t lo,hi,ch; } zone[8]; } md_midi_routing;
 void md_set_midi_routing(const md_midi_routing *routing); /* audio owner (under plat_lock) */
+/* Monades MIDI channels per track, 1-16, 0 = off (default: track n on channel n). in: the channel whose notes, bend
+ * and CCs play the track (several tracks may share one). out: where TRACKS mode sends the track's notes. */
+void md_set_midi_channels(const int32_t in[6],const int32_t out[6]); /* audio owner (under plat_lock) */
 int md_midi_take(uint8_t msg[3]); /* next outgoing message (msg[0] = status), 1 if there was one */
 unsigned md_scope(int track,float *dst); /* 128 points of the voice after its filter, oldest first */
 void md_init(void);

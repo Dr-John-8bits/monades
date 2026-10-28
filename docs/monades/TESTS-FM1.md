@@ -44,7 +44,8 @@ Lire la page **SYSTEM** (GLO, trois fois) : LOAD / MAX % et XRUNS.
 
 ## 5. MIDI avec la MPC
 - [ ] Notes reçues : la MPC joue le FM-1 sur les canaux 1 à 6 (comme Mutable Dreams).
-- [ ] MIDI / PERFORMANCE, K3 NOTES OUT = TRACKS 1-6 : la MPC reçoit chaque piste sur son canal.
+- [ ] MIDI / PERFORMANCE, K3 NOTES OUT = TRACKS : la MPC reçoit chaque piste sur son canal.
+- [ ] GLO > MIDI CHANNELS, K4 ALL FROM = 3 : la MPC joue les pistes 1 à 6 sur les canaux 3 à 8, et les reçoit sur ces canaux ; rien n'arrive sur les canaux 1 et 2 (MS-20, 2600). Une piste mise sur OFF en sortie n'envoie plus rien. Les points IN et OUT de la page s'allument avec les notes.
 - [ ] K3 = ZONES, avec les zones par défaut (C1–B2 canal 1, C3–B4 canal 2, C5–C7 canal 3) : chaque note arrive sur le canal de sa zone ; zones qui se chevauchent = note sur les deux canaux.
 - [ ] K4 CLOCK OUT : la MPC suit le tempo, démarre et s'arrête avec PLAY.
 - [ ] Gamme microtonale (Rast) en TRACKS : la MPC reçoit le pitch bend (régler sa plage sur ±2 demi-tons) ; en ZONES : notes arrondies, pas de bend.
@@ -56,7 +57,7 @@ Lire la page **SYSTEM** (GLO, trois fois) : LOAD / MAX % et XRUNS.
 - [ ] Optionnel, plus tard : compiler avec `usb_audio_out = true` et vérifier que l'ordinateur joue à travers le FM-1, en surveillant la page SYSTEM.
 
 ## 7. Sauvegardes
-- [ ] SAVE à l'arrêt : « BIOME + PREFS SAVED ». Éteindre, rallumer : le biome et les préférences (MIDI out, zones, gamme CUSTOM) reviennent.
+- [ ] SAVE à l'arrêt : « BIOME + PREFS SAVED ». Éteindre, rallumer : le biome et les préférences (MIDI out, canaux des pistes, zones, gamme CUSTOM) reviennent. Après l'installation par-dessus une version de Monades sans les canaux, les réglages MIDI et zones déjà sauvés restent, et les pistes sont sur les canaux 1 à 6.
 - [ ] GLO > USER BANKS : sauver un biome et un son, les recharger.
 - [ ] Si une sauvegarde `.mddb` de Mutable Dreams existe : la restaurer (`python3 tools/dreams_backup.py restore … --port 'Monades FM-1'`, puis SEL sur le FM-1). Les biomes de Mutable Dreams doivent se charger, toutes les nouveautés au neutre.
 

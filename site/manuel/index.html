@@ -83,8 +83,8 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
   <li><a href="#edit">Pages EDIT</a><ol><li><a href="#p-sound">SOUND</a></li><li><a href="#p-filter">FILTER</a></li><li><a href="#p-envelope">ENVELOPE</a></li><li><a href="#p-mix">MIX</a></li><li><a href="#p-mixer">GLOBAL MIXER</a></li></ol></li>
   <li><a href="#seq">Pages SEQ</a><ol><li><a href="#p-rhythm">RHYTHM</a></li><li><a href="#p-groove">GROOVE</a></li><li><a href="#p-bass">BASS / MOTIFS</a></li><li><a href="#p-phrase">PHRASE</a></li><li><a href="#p-generator">GENERATOR</a></li><li><a href="#p-form">FORM</a></li></ol></li>
   <li><a href="#fx">Pages FX</a><ol><li><a href="#p-grain">GRANULAR BUS</a></li><li><a href="#p-tape">TAPE</a></li><li><a href="#p-space">SHARED SPACE</a></li><li><a href="#p-spacetone">SPACE TONE</a></li><li><a href="#p-echo">ECHO SYNC / CHORUS</a></li><li><a href="#p-modulation">MARBLES / TIDES / WARPS</a></li><li><a href="#p-lfo">LFO A et LFO B</a></li></ol></li>
-  <li><a href="#glo">Pages GLO</a><ol><li><a href="#p-harmony">HARMONY</a></li><li><a href="#p-raga">RAGA</a></li><li><a href="#p-system">SYSTEM</a></li><li><a href="#p-look">LOOK</a></li><li><a href="#p-midi">MIDI</a></li><li><a href="#p-zones">MIDI OUT ZONES</a></li><li><a href="#p-banks">USER BANKS</a></li></ol></li>
-  <li><a href="#faire">Comment faire</a><ol><li><a href="#f-tempo">Changer le tempo</a></li><li><a href="#f-lancer">Lancer et arrêter</a></li><li><a href="#f-piste">Choisir une piste</a></li><li><a href="#f-mute">Couper une piste</a></li><li><a href="#f-clavier">Jouer au clavier</a></li><li><a href="#f-monde">Changer de Monde</a></li><li><a href="#f-figer">Figer le grain</a></li><li><a href="#f-repeter">Faire répéter la même variation</a></li><li><a href="#f-sauver">Sauvegarder mon travail</a></li><li><a href="#f-charger">Recharger une sauvegarde</a></li><li><a href="#f-zones">Régler les zones MIDI (par exemple C1 à B2 sur le canal 1)</a></li><li><a href="#f-mpc">Envoyer les notes à la MPC</a></li><li><a href="#f-volume">Changer le volume d'une piste</a></li><li><a href="#f-gamme">Choisir la gamme et la note de base</a></li><li><a href="#f-son">Changer le son d'une piste</a></li><li><a href="#f-lfo">Faire bouger un réglage avec un LFO</a></li><li><a href="#f-motif">Écrire un motif que le générateur fait varier</a></li><li><a href="#f-morph">Passer d'un Monde à l'autre en douceur</a></li><li><a href="#f-derive">Laisser le Monde vivre tout seul (installation)</a></li><li><a href="#f-panique">Tout faire taire</a></li><li><a href="#f-annuler">Annuler</a></li></ol></li>
+  <li><a href="#glo">Pages GLO</a><ol><li><a href="#p-harmony">HARMONY</a></li><li><a href="#p-raga">RAGA</a></li><li><a href="#p-system">SYSTEM</a></li><li><a href="#p-look">LOOK</a></li><li><a href="#p-midi">MIDI</a></li><li><a href="#p-canaux">MIDI CHANNELS</a></li><li><a href="#p-zones">MIDI OUT ZONES</a></li><li><a href="#p-banks">USER BANKS</a></li></ol></li>
+  <li><a href="#faire">Comment faire</a><ol><li><a href="#f-tempo">Changer le tempo</a></li><li><a href="#f-lancer">Lancer et arrêter</a></li><li><a href="#f-piste">Choisir une piste</a></li><li><a href="#f-mute">Couper une piste</a></li><li><a href="#f-clavier">Jouer au clavier</a></li><li><a href="#f-monde">Changer de Monde</a></li><li><a href="#f-figer">Figer le grain</a></li><li><a href="#f-repeter">Faire répéter la même variation</a></li><li><a href="#f-sauver">Sauvegarder mon travail</a></li><li><a href="#f-charger">Recharger une sauvegarde</a></li><li><a href="#f-canaux">Choisir les canaux MIDI des pistes</a></li><li><a href="#f-zones">Régler les zones MIDI (par exemple C1 à B2 sur le canal 1)</a></li><li><a href="#f-mpc">Envoyer les notes à la MPC</a></li><li><a href="#f-volume">Changer le volume d'une piste</a></li><li><a href="#f-gamme">Choisir la gamme et la note de base</a></li><li><a href="#f-son">Changer le son d'une piste</a></li><li><a href="#f-lfo">Faire bouger un réglage avec un LFO</a></li><li><a href="#f-motif">Écrire un motif que le générateur fait varier</a></li><li><a href="#f-morph">Passer d'un Monde à l'autre en douceur</a></li><li><a href="#f-derive">Laisser le Monde vivre tout seul (installation)</a></li><li><a href="#f-panique">Tout faire taire</a></li><li><a href="#f-annuler">Annuler</a></li></ol></li>
   <li><a href="#midi">MIDI en détail</a></li>
   <li><a href="#listes">Listes</a></li>
   <li><a href="#simulateur">Le simulateur</a></li>
@@ -121,8 +121,9 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
     <tr><td>Ce que veulent dire les boutons allumés</td><td>—</td><td><a href="#b-lumieres">Les lumières</a></td></tr>
     <tr><td>Les ornements de raga</td><td><span class="k">GLO</span> 2 fois</td><td><a href="#p-raga">RAGA</a></td></tr>
     <tr><td>Le MIDI (horloge, sortie)</td><td><span class="k">GLO</span> 5 fois</td><td><a href="#p-midi">MIDI</a></td></tr>
-    <tr><td>Les plages de notes MIDI (zones)</td><td><span class="k">GLO</span> 6 fois</td><td><a href="#p-zones">MIDI OUT ZONES</a></td></tr>
-    <tr><td>Mes sauvegardes</td><td><span class="k">GLO</span> 7 fois</td><td><a href="#p-banks">USER BANKS</a></td></tr>
+    <tr><td>Les canaux MIDI des pistes (entrée, sortie)</td><td><span class="k">GLO</span> 6 fois</td><td><a href="#p-canaux">MIDI CHANNELS</a></td></tr>
+    <tr><td>Les plages de notes MIDI (zones)</td><td><span class="k">GLO</span> 7 fois</td><td><a href="#p-zones">MIDI OUT ZONES</a></td></tr>
+    <tr><td>Mes sauvegardes</td><td><span class="k">GLO</span> 8 fois</td><td><a href="#p-banks">USER BANKS</a></td></tr>
     <tr><td>Le morphing</td><td><span class="k">HOME</span> 2 fois</td><td><a href="#p-morph">MORPH</a></td></tr>
     <tr><td>La dérive</td><td><span class="k">HOME</span> 3 fois</td><td><a href="#p-derive">DERIVE</a></td></tr>
   </table></div>
@@ -183,7 +184,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 </div>
 <div class="entry" id="b-glo">
   <p class="path">Bouton</p><h3>GLO</h3>
-  <p>Allumé sur ses pages. Pages HARMONY → RAGA / GAMAKA → SYSTEM → LOOK → MIDI → MIDI OUT ZONES → USER BANKS, puis retour à HARMONY. Depuis une autre page, GLO ouvre HARMONY. Voir <a href="#glo">Pages GLO</a>.</p>
+  <p>Allumé sur ses pages. Pages HARMONY → RAGA / GAMAKA → SYSTEM → LOOK → MIDI → MIDI CHANNELS → MIDI OUT ZONES → USER BANKS, puis retour à HARMONY. Depuis une autre page, GLO ouvre HARMONY. Voir <a href="#glo">Pages GLO</a>.</p>
 </div>
 <div class="entry" id="b-play">
   <p class="path">Bouton</p><h3>PLAY / STOP</h3>
@@ -284,7 +285,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 <div class="entry" id="p-live">
   <p class="path">HOME</p><h3>LIVE MONDE</h3>
   <p>La flotte&nbsp;: six vaisseaux, un par piste, dans leur couleur. La taille suit le niveau de la piste, la flamme la densité, un éclat marque chaque note. Le cercle entoure la piste choisie. À droite, les six pistes et leur moteur. En bas&nbsp;: le Monde (numéro et famille, ou nom), <code>*</code> si modifié, LOCK ou RAND (graine), ICE ou REC (bande granulaire figée ou en enregistrement). En haut à droite&nbsp;: ▶ ou ■, le tempo, ↻ quand la graine change.</p>
-  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+  <div class="tablewrap"><table><tr><th>Cadre (les quatre macros)</th><th>Réglage</th></tr>
     <tr><td>K1 DENSITY</td><td>Nombre de coups de toutes les pistes, au-dessus ou en dessous de leur réglage.</td></tr>
     <tr><td>K2 MOTION</td><td>Mouvement mélodique&nbsp;: part des notes qui dévient de la note de base.</td></tr>
     <tr><td>K3 COLOUR</td><td>Plus clair ou plus sombre.</td></tr>
@@ -546,17 +547,28 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 </div>
 <div class="entry" id="p-midi">
   <p class="path">GLO ×5</p><h3>MIDI / PERFORMANCE</h3>
-  <p>Les canaux 1 à 6 s'allument avec leur piste à chaque note&nbsp;; pour chaque port (USB, BLE, TRS), IN et OUT s'allument 200&nbsp;ms par message, avec leur compteur.</p>
+  <p>Les pistes 1 à 6 (TRK) s'allument à chaque note&nbsp;; pour chaque port (USB, BLE, TRS), IN et OUT s'allument 200&nbsp;ms par message, avec leur compteur.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 CLOCK IN</td><td>INTERNAL, USB ou TRS&nbsp;: d'où vient l'horloge.</td></tr>
     <tr><td>K2 SCALE SNAP</td><td>ON&nbsp;: les notes reçues sont ramenées dans la gamme.</td></tr>
-    <tr><td>K3 NOTES OUT</td><td>OFF, TRACKS 1-6 (la piste n sort sur le canal n), ZONES (chaque plage de notes sur son canal, <a href="#p-zones">page suivante</a>).</td></tr>
+    <tr><td>K3 NOTES OUT</td><td>OFF, TRACKS (chaque piste sort sur son canal, réglé sur <a href="#p-canaux">MIDI CHANNELS</a>&nbsp;; par défaut la piste n sur le canal n), ZONES (chaque plage de notes sur son canal, <a href="#p-zones">MIDI OUT ZONES</a>).</td></tr>
     <tr><td>K4 CLOCK OUT</td><td>OFF ou ON&nbsp;: horloge MIDI, start et stop avec PLAY, sur horloge interne.</td></tr>
   </table></div>
   <p>REC sur cette page&nbsp;: panique. SAVE à l'arrêt garde ces réglages.</p>
 </div>
+<div class="entry" id="p-canaux">
+  <p class="path">GLO ×6</p><h3>MIDI CHANNELS</h3>
+  <p>Une ligne par piste&nbsp;: à gauche le canal qu'elle écoute (IN), à droite le canal sur lequel elle envoie ses notes (OUT). Le point IN s'allume quand une note arrive pour la piste, le point OUT quand la piste envoie une note. Le repère blanc marque la piste choisie. OUT: SET MIDI K3 TO TRACKS&nbsp;: la sortie n'est pas en TRACKS sur la page MIDI (les canaux OUT ne servent qu'en TRACKS). TRACKS 1+3 SHARE IN 3&nbsp;: deux pistes écoutent le même canal.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
+    <tr><td>K1 TRACK</td><td>La piste à régler, 1 à 6 (c'est aussi la piste choisie, comme avec SELECT).</td></tr>
+    <tr><td>K2 CHANNEL IN</td><td>Canal 1 à 16 dont les notes, le pitch bend et les CC jouent la piste, ou OFF (la piste n'écoute plus).</td></tr>
+    <tr><td>K3 CHANNEL OUT</td><td>Canal 1 à 16 sur lequel la piste envoie ses notes en TRACKS, ou OFF (la piste n'envoie plus).</td></tr>
+    <tr><td>K4 ALL FROM</td><td>Met les six pistes à la suite, en entrée et en sortie&nbsp;: sur 3, les pistes 1 à 6 vont sur les canaux 3 à 8. MIXED&nbsp;: les canaux ne se suivent pas&nbsp;; le premier cran les remet à la suite.</td></tr>
+  </table></div>
+  <p>Par défaut&nbsp;: la piste n sur le canal n, en entrée et en sortie. Plusieurs pistes peuvent écouter le même canal&nbsp;: une note les joue toutes. Sur le canal 16, les CC 16 à 19 restent les quatre macros. SAVE à l'arrêt garde ces réglages. Voir <a href="#f-canaux">Choisir les canaux MIDI des pistes</a>.</p>
+</div>
 <div class="entry" id="p-zones">
-  <p class="path">GLO ×6</p><h3>MIDI OUT ZONES</h3>
+  <p class="path">GLO ×7</p><h3>MIDI OUT ZONES</h3>
   <p>Huit zones en barres au-dessus d'un clavier C1 à C7&nbsp;; la zone choisie est plus épaisse&nbsp;; les dernières notes des pistes s'y affichent. SET MIDI K3 TO ZONES&nbsp;: la sortie n'est pas en ZONES sur la page MIDI. OVERLAP: SENT ON BOTH&nbsp;: la zone choisie en chevauche une autre.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 ZONE</td><td>La zone à régler, 1 à 8.</td></tr>
@@ -567,7 +579,7 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
   <p>Par défaut&nbsp;: zone 1 C1 → B2 canal 1, zone 2 C3 → B4 canal 2, zone 3 C5 → C7 canal 3, les autres coupées. Une note dans deux zones part sur les deux canaux. Voir <a href="#f-zones">Régler les zones</a>.</p>
 </div>
 <div class="entry" id="p-banks">
-  <p class="path">GLO ×7</p><h3>USER BANKS</h3>
+  <p class="path">GLO ×8</p><h3>USER BANKS</h3>
   <p>16 emplacements de Mondes et 64 de sons, sur le FM-1. Les Mondes d'usine restent disponibles. La bande granulaire n'est pas gardée.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 USER SLOT</td><td>Emplacement, 1 à 16 (Mondes) ou 1 à 64 (sons).</td></tr>
@@ -614,23 +626,30 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 <div class="entry" id="f-sauver"><h3>Sauvegarder mon travail</h3><ol class="steps">
   <li>Arrêter la lecture (<span class="k">PLAY</span>). Horloge interne (GLO › MIDI, K1 sur INTERNAL).</li>
   <li><span class="k">SAVE</span>&nbsp;: le Monde en cours et les préférences sont gardés («&nbsp;MONDE + PREFS SAVED&nbsp;»).</li>
-  <li>Pour garder plusieurs Mondes&nbsp;: GLO ×7 (USER BANKS), K2 sur MONDES, K1 l'emplacement, K4 et PRESET pour le nom, <span class="k">SAVE</span>.</li>
+  <li>Pour garder plusieurs Mondes&nbsp;: GLO ×8 (USER BANKS), K2 sur MONDES, K1 l'emplacement, K4 et PRESET pour le nom, <span class="k">SAVE</span>.</li>
 </ol></div>
 <div class="entry" id="f-charger"><h3>Recharger une sauvegarde</h3><ol class="steps">
-  <li>GLO ×7 (USER BANKS), K2 sur MONDES ou SOUNDS, K1 l'emplacement.</li>
+  <li>GLO ×8 (USER BANKS), K2 sur MONDES ou SOUNDS, K1 l'emplacement.</li>
   <li>Tourner K3 vers la droite (LOAD).</li>
 </ol></div>
 <div class="entry" id="f-zones"><h3>Régler les zones MIDI (par exemple C1 à B2 sur le canal 1)</h3><ol class="steps">
   <li>GLO ×5 (MIDI)&nbsp;: K3 NOTES OUT sur ZONES.</li>
-  <li><span class="k">GLO</span> encore (MIDI OUT ZONES).</li>
+  <li><span class="k">GLO</span> deux fois de plus (MIDI OUT ZONES).</li>
   <li>K1&nbsp;: choisir la zone (1 à 8).</li>
   <li>K2&nbsp;: note basse (C1). K3&nbsp;: note haute (B2).</li>
   <li>K4&nbsp;: canal (1). OFF coupe la zone.</li>
   <li>Recommencer pour les autres zones. Arrêter la lecture et <span class="k">SAVE</span> pour garder.</li>
 </ol></div>
+<div class="entry" id="f-canaux"><h3>Choisir les canaux MIDI des pistes</h3><ol class="steps">
+  <li>GLO ×6 (MIDI CHANNELS).</li>
+  <li>Pour décaler les six pistes d'un coup&nbsp;: K4 ALL FROM. Par exemple, si les canaux 1 et 2 sont déjà pris par d'autres machines, K4 sur 3&nbsp;: les pistes 1 à 6 écoutent et envoient sur les canaux 3 à 8.</li>
+  <li>Pour une seule piste&nbsp;: K1 la piste, K2 son canal d'entrée, K3 son canal de sortie. OFF coupe l'entrée ou la sortie de cette piste.</li>
+  <li>Pour que les notes sortent sur ces canaux&nbsp;: GLO ×5 (MIDI), K3 NOTES OUT sur TRACKS.</li>
+  <li>Arrêter la lecture et <span class="k">SAVE</span> pour garder.</li>
+</ol></div>
 <div class="entry" id="f-mpc"><h3>Envoyer les notes à la MPC</h3><ol class="steps">
   <li>Relier le FM-1 en USB. Il apparaît comme «&nbsp;Monades FM-1&nbsp;».</li>
-  <li>GLO ×5 (MIDI)&nbsp;: K3 NOTES OUT sur TRACKS 1-6 (piste n sur le canal n) ou ZONES.</li>
+  <li>GLO ×5 (MIDI)&nbsp;: K3 NOTES OUT sur TRACKS (chaque piste sur son canal, voir <a href="#f-canaux">les canaux</a>) ou ZONES.</li>
   <li>Pour que la MPC suive le tempo&nbsp;: K4 CLOCK OUT sur ON.</li>
   <li>Pour que le FM-1 suive la MPC&nbsp;: K1 CLOCK IN sur USB (l'horloge envoyée se coupe).</li>
 </ol></div>
@@ -656,12 +675,12 @@ mark{background:var(--mark);color:#06081a;border-radius:2px;padding:0 1px}
 <h2 id="midi">MIDI en détail</h2>
 <div class="entry"><h3>Entrée</h3>
   <div class="tablewrap"><table><tr><th>Message</th><th>Effet</th></tr>
-    <tr><td>Canaux 1 à 6</td><td>Notes des pistes 1 à 6, avec vélocité et pitch bend.</td></tr>
+    <tr><td>Canal d'entrée de chaque piste</td><td>Notes de la piste, avec vélocité et pitch bend. Par défaut la piste n écoute le canal n&nbsp;; réglage sur <a href="#p-canaux">MIDI CHANNELS</a>. Les CC et le changement de programme ci-dessous agissent sur les pistes qui écoutent ce canal.</td></tr>
     <tr><td>CC 7</td><td>Niveau</td></tr><tr><td>CC 10</td><td>Pan</td></tr><tr><td>CC 74</td><td>Filtre</td></tr><tr><td>CC 71</td><td>Résonance</td></tr>
     <tr><td>CC 91</td><td>Envoi room</td></tr><tr><td>CC 12</td><td>Envoi écho</td></tr><tr><td>CC 13</td><td>Envoi grain</td></tr>
     <tr><td>CC 5</td><td>Glide</td></tr><tr><td>CC 11</td><td>Expression</td></tr><tr><td>CC 64</td><td>Sustain</td></tr>
     <tr><td>Program change</td><td>Choisit le son.</td></tr>
-    <tr><td>Canal 16, CC 16 à 19</td><td>Les quatre macros.</td></tr>
+    <tr><td>Canal 16, CC 16 à 19</td><td>Les quatre macros de LIVE&nbsp;: CC 16 Density, CC 17 Motion, CC 18 Colour, CC 19 Space.</td></tr>
   </table></div>
   <p>GLO › MIDI, K2 SCALE SNAP&nbsp;: ramène les notes reçues dans la gamme.</p>
 </div>

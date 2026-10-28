@@ -23,10 +23,11 @@ int app_backup_validate(unsigned obj,const void *data,unsigned n){
  if(obj==OBJ_PANEL||obj>=OBJ_NOBJ)return 0;
  if(!n)return 1; /* An empty record intentionally clears this saved object. */
  if(obj==OBJ_PREFS){
-  uint32_t p[3];if(n!=sizeof p&&n!=sizeof dream_prefs)return 0;memcpy(p,data,sizeof p);
-  if(p[0]!=0x4d445046||p[1]>1||p[2]>1)return 0;
-  if(n==sizeof dream_prefs){md_midi_routing r;int32_t custom;memcpy(&r,(const uint8_t *)data+sizeof p,sizeof r);memcpy(&custom,(const uint8_t *)data+sizeof p+sizeof r,sizeof custom);return dream_midi_ok(&r)&&custom>=0&&custom<=0xfff;}
-  return 1; /* a 1.1 backup: MIDI out keeps its defaults */
+  DreamPrefs q;if(n!=12&&n!=(unsigned)DREAM_PREFS_OLD&&n!=sizeof q)return 0;memcpy(&q,data,n);
+  if(q.magic!=0x4d445046||(uint32_t)q.motion>1||(uint32_t)q.boot_sound>1)return 0;
+  if(n==12)return 1; /* a 1.1 backup: MIDI out keeps its defaults */
+  if(!dream_midi_ok(&q.midi)||q.custom_scale<0||q.custom_scale>0xfff)return 0;
+  return n!=sizeof q||dream_channels_ok(q.ch_in,q.ch_out); /* a backup from before the channels: tracks on channels 1-6 */
  }
  if(obj==OBJ_PATCH){
   return md_decode(&bank_patch_io,data,n);

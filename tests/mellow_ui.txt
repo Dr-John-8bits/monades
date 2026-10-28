@@ -12,6 +12,8 @@ release GLO
 tap HOME
 expect help -1
 tap GLO
+expect page 29
+tap GLO
 expect page 19
 tap GLO
 expect page 18

@@ -352,5 +352,22 @@ int main(){
   cmd(MD_TRIGGER,0,2000000000);cmd(MD_TRIGGER,0,-2000000000);run(10);
   puts("PASS external review: load ends morph and drift, overload not an edit, same clock keeps playing, PANIC CC 123, clock Start, bounds");
  }
+ {
+  // Channels per track: tracks 1-6 hear channels 3-8 and send on 3, 4, OFF, 6, 7, 8 (an MS-20 on 1, a 2600 on 2).
+  md_patch q=blank(MD_VA);for(int j=0;j<6;j++){q.track[j].mute=0;q.track[j].prob=1000;q.track[j].hits=4;q.track[j].length=16;}assert(md_load(&q));
+  uint8_t m[3];const int32_t in[6]={3,4,5,6,7,8},out[6]={3,4,0,6,7,8};md_set_midi_channels(in,out);
+  unsigned before=md_status()->events[0];md_midi(0x90,60,100,0);md_midi(0x80,60,0,0);run(2);assert(md_status()->events[0]==before); // channel 1 is the MS-20's
+  md_midi(0x92,60,100,0);run(2);assert(md_status()->events[0]==before+1&&md_status()->last_note[0]==60);md_midi(0x82,60,0,0);
+  before=md_status()->events[5];md_midi(0x97,62,100,0);run(2);assert(md_status()->events[5]==before+1);md_midi(0x87,62,0,0);
+  const int32_t shared[6]={3,3,5,6,7,8};md_set_midi_channels(shared,out);unsigned b0=md_status()->events[0],b1=md_status()->events[1];
+  md_midi(0x92,64,100,0);run(2);assert(md_status()->events[0]==b0+1&&md_status()->events[1]==b1+1);md_midi(0x82,64,0,0); // two tracks, one channel
+  md_midi(0xbf,16,127,0);run(1);assert(md_state()->macro[0]==1000); // channel 16, CC 16-19: the macros
+  md_set_midi_channels(in,out);md_midi_routing r={};r.mode=1;md_set_midi_routing(&r);while(md_midi_take(m));
+  int on=0;cmd(MD_PLAY,0,1);for(int b=0;b<600;b++){md_render(audio,128);while(md_midi_take(m))if((m[0]&0xf0)==0x90)on|=1<<(m[0]&15);}
+  assert(on==((1<<2)|(1<<3)|(1<<5)|(1<<6)|(1<<7))); // channels 3, 4, 6, 7, 8; track 3 is OFF; never 1 or 2
+  cmd(MD_PANIC,0,0);int cc123=0;while(md_midi_take(m))if((m[0]&0xf0)==0xb0&&m[1]==123)cc123|=1<<(m[0]&15);assert(cc123==on);
+  cmd(MD_PLAY,0,0);r.mode=0;md_set_midi_routing(&r);const int32_t dflt[6]={1,2,3,4,5,6};md_set_midi_channels(dflt,dflt);
+  puts("PASS MIDI channels per track: in, out, OFF, shared, macros on 16, PANIC on the channels used");
+ }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

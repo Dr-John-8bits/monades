@@ -2613,6 +2613,7 @@ tap GLO
 tap GLO
 tap GLO
 tap GLO
+tap GLO
 expect page 18
 press FX
 wait 900

@@ -1,0 +1,63 @@
+wait 3400
+tap HOME
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+expect page 17
+turn K3 1
+tap GLO
+expect page 29
+expect chin1 1
+expect chout1 1
+expect chin6 6
+expect chout6 6
+turn K4 2
+expect chin1 3
+expect chout1 3
+expect chin6 8
+expect chout6 8
+turn K1 2
+expect track 2
+turn K3 -5
+expect chout3 0
+expect chin3 5
+turn K2 -1
+expect chin3 4
+turn K4 1
+expect chin3 5
+expect chout3 5
+expect chin1 3
+turn K4 1
+expect chin1 4
+expect chout6 9
+turn K4 -1
+tap SAVE
+wait 100
+reboot
+wait 3400
+expect chin1 3
+expect chout6 8
+tap HOME
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+expect page 29
+press GLO
+wait 900
+expect help 5
+expect help_context 1
+release GLO
+tap HOME
+expect help -1
+expect page 29
+tap GLO
+expect page 19
+tap GLO
+expect page 18
+tap GLO
+expect page 9
