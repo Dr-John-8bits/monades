@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-# Writes the scale list of site/index.html and site/manuel/index.html (between the gammes markers) from app/dsp/scale_table.inc,
+# Writes the scale list of site/nouveautes/index.html and site/manuel/index.html (between the gammes markers) from app/dsp/scale_table.inc,
 # in the order and with the names of the FM-1 screen: python3 tools/site_scales.py
 import re
 from pathlib import Path
-R=Path(__file__).resolve().parents[1];T=(R/'app/dsp/scale_table.inc').read_text();site=R/'site/index.html'
+R=Path(__file__).resolve().parents[1];T=(R/'app/dsp/scale_table.inc').read_text();site=R/'site/nouveautes/index.html'
 families=re.search(r'scale_families\[\]=\{([^}]*)\}',T).group(1).replace('"','').split(',')
 twelve=[(n,int(f),up!=down) for n,f,up,down in re.findall(r'\{"([^"]+)",(\d+),(0x[0-9a-f]+),(0x[0-9a-f]+)\}',T)]
 micro=[(n,int(f),False) for n,f in re.findall(r'\{"([^"]+)",(\d+),\d+,[\d.]+f,',T)]

@@ -164,7 +164,7 @@ WIKI={'MACHIN':'machins','GADIN':'jacques-homme-dore','MARTINI':'pornstar-martin
  'CLOUDEE':'intelligence-d-autoguidage-cloudee','HENDIATRIQUE':'hendiatrique','ALCHIMISTE':'pornstar-martini','COGITO':'le-cogito','JARDINIERS':'jardiniers'}
 
 def site_block(first_id=77):
- """The manual's table of FDDS Mondes, read from MONDES: python3 tools/fdds_mondes.py writes it into site/index.html."""
+ """The manual's table of FDDS Mondes, read from MONDES: python3 tools/fdds_mondes.py writes it into site/nouveautes/index.html."""
  rows=[]
  for k,m in enumerate(MONDES):
   what=[]
@@ -187,7 +187,7 @@ def site_block(first_id=77):
   +''.join(rows)+'    </table>\n    <!-- /fdds -->')
 
 if __name__=='__main__':
- for page in (R/'site/index.html',R/'site/manuel/index.html'):
+ for page in (R/'site/nouveautes/index.html',R/'site/manuel/index.html'):
   s=page.read_text();s,n=re.subn(r'<!-- fdds:.*?<!-- /fdds -->',lambda x:site_block(),s,flags=re.S);assert n==1,f'markers missing in {page}'
   page.write_text(s)
  print(len(MONDES),'FDDS Mondes in the manuals')

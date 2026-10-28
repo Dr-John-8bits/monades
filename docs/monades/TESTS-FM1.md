@@ -7,7 +7,7 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 ## 0. Avant de commencer
 - [ ] Le FM-1 démarre sur son firmware d'origine (V15, identité `FM-1_015`). Noter sa version.
 - [ ] Le fichier d'origine `FM-1-V15.fwsc` est récupéré et son empreinte vérifiée (taille 699956 octets, SHA-256 dans `Recovery-1.1.txt`). C'est le retour possible à tout moment.
-- [ ] Optionnel : essayer d'abord Mutable Dreams 1.1, pour avoir un point de comparaison (son, charge processeur). Si des biomes y sont sauvés, faire une sauvegarde `.mddb` avant de passer à Monades (`Recovery-1.1.txt`).
+- [ ] Optionnel : essayer d'abord Mutable Dreams 1.1, pour avoir un point de comparaison (son, charge processeur). Si des Mondes y sont sauvés, faire une sauvegarde `.mddb` avant de passer à Monades (`Recovery-1.1.txt`).
 - [ ] Un câble USB de données, Chrome ou Edge, Python 3.11 pour l'installeur en ligne de commande.
 
 ## 1. Compiler
@@ -57,9 +57,9 @@ Lire la page **SYSTEM** (GLO, trois fois) : LOAD / MAX % et XRUNS.
 - [ ] Optionnel, plus tard : compiler avec `usb_audio_out = true` et vérifier que l'ordinateur joue à travers le FM-1, en surveillant la page SYSTEM.
 
 ## 7. Sauvegardes
-- [ ] SAVE à l'arrêt : « BIOME + PREFS SAVED ». Éteindre, rallumer : le biome et les préférences (MIDI out, canaux des pistes, zones, gamme CUSTOM) reviennent. Après l'installation par-dessus une version de Monades sans les canaux, les réglages MIDI et zones déjà sauvés restent, et les pistes sont sur les canaux 1 à 6.
-- [ ] GLO > USER BANKS : sauver un biome et un son, les recharger.
-- [ ] Si une sauvegarde `.mddb` de Mutable Dreams existe : la restaurer (`python3 tools/dreams_backup.py restore … --port 'Monades FM-1'`, puis SEL sur le FM-1). Les biomes de Mutable Dreams doivent se charger, toutes les nouveautés au neutre.
+- [ ] SAVE à l'arrêt : « MONDE + PREFS SAVED ». Éteindre, rallumer : le Monde et les préférences (MIDI out, canaux des pistes, zones, gamme CUSTOM) reviennent. Après l'installation par-dessus une version de Monades sans les canaux, les réglages MIDI et zones déjà sauvés restent, et les pistes sont sur les canaux 1 à 6.
+- [ ] GLO > USER BANKS : sauver un Monde et un son, les recharger.
+- [ ] Si une sauvegarde `.mddb` de Mutable Dreams existe : la restaurer (`python3 tools/dreams_backup.py restore … --port 'Monades FM-1'`, puis SEL sur le FM-1). Les Mondes de Mutable Dreams doivent se charger, toutes les nouveautés au neutre.
 
 ## 8. Son
 Pour chacun : ça sonne, sans clic ni saturation, et l'écran suit ce qu'on entend.
