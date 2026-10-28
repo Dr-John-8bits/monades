@@ -117,3 +117,4 @@ nav.menu a[aria-current="page"]{color:var(--mark);text-decoration:underline;text
 .links a:hover{background:var(--mark);color:#06081a}
 .credits{color:var(--muted);font-size:15px;max-width:80ch}
 .credits p{margin:0 0 8px}
+.lede-s{font-size:19px;line-height:1.5}
