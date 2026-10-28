@@ -94,7 +94,7 @@ rep('$("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "
 rep('<button type="button" class="lang" id="lang" lang="ja">日本語</button>','<button type="button" class="lang" id="lang" lang="en">English</button>')
 rep('<html lang="en">','<html lang="fr">')
 rep('<title>Install · Monades</title>','<title>Installer Monades</title>')
-rep('<h1>Install Monades</h1>',f'<h1>Installer Monades {version}</h1>\n  <p class="small">Pas encore testé sur un FM-1. Identité après installation&nbsp;: <code>{product}</code>. Avant de changer de firmware, garder une sauvegarde <code>.mddb</code> de son travail.</p>')
+rep('<h1>Install Monades</h1>',f'<h1>Installer Monades {version}</h1>\n  <p class="small">Pas encore testé sur un FM-1. Identité après installation&nbsp;: <code>{product}</code>. Avant de changer de firmware, garder une sauvegarde <code>.mddb</code> de son travail.</p>\n  <p class="small">Partir du firmware d\'origine V15 ou de Mutable Dreams (avec M-VAVE Open, remettre d\'abord le V15). Aucune manipulation sur le FM-1, aucune combinaison de touches&nbsp;: allumé sur son firmware habituel et relié en USB, il passe tout seul en mode mise à jour, puis redémarre.</p>')
 rep(' (or its safe mode, or another firmware with the same update entry)', '')
 rep('What Monades saved may be lost.', 'Returning to V15 erases the User Banks and preferences. Back up .mddb first.')
 assert not re.search(r'\{\{[A-Z_]+\}\}',s) and '日本語' not in s
