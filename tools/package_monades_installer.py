@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """The Monades browser installer: base/web/installer.html (fm1-base / Felucca), in French with English one click away,
 the package embedded and checked against its SHA-256, the identity confirmed after the restart (as Mutable Dreams 1.1).
-   python3 tools/package_monades_installer.py app/build/monades-0.1.0.fwsc site/installer
+   python3 tools/package_monades_installer.py app/build/monades-0.1.1.fwsc site/installer
 writes site/installer/index.html and a copy of the package for the Mac updater (base/tools/fm1_install.py)."""
 from pathlib import Path
 import base64,hashlib,json,re,shutil,sys
@@ -10,9 +10,10 @@ R=Path(__file__).resolve().parents[1]
 if len(sys.argv)!=3:raise SystemExit('Usage: package_monades_installer.py PACKAGE OUTDIR')
 pkg,out=Path(sys.argv[1]),Path(sys.argv[2]);raw=pkg.read_bytes()
 product=''.join(chr((raw[i*48+47]-i-1)&255) for i in range(20) if raw[i*48+47]!=0x7d)
-assert product=='FM-1_714000100',product
+m=re.fullmatch(r'monades-(\d+)\.(\d+)\.(\d+)\.fwsc',pkg.name);assert m,pkg.name
+version='.'.join(m.groups()) # the identity carries the version: FM-1_714 + XXYYZZ
+assert product=='FM-1_714'+''.join(f'{int(x):02d}' for x in m.groups()),product
 assert b'FELUCCA-LOADER-1' in raw,'no Felucca update loader in this package'
-version='0.1.0'
 s=(R/'base/web/installer.html').read_text()
 values={'NAME':'Monades','REPO':'https://github.com/Dr-John-8bits/monades','REPO_SHORT':'github.com/Dr-John-8bits/monades',
         'LICENSE':'GPL-3.0 ; notices MIT et MPL-2.0 conservées','CREDITS':' Fork de Mutable Dreams (Kid Bunka). Plaits, Rings, Elements : Émilie Gillet / Mutable Instruments.'}

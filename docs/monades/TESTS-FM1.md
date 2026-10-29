@@ -15,6 +15,12 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 - [x] `sh tools/build_device.sh` produit un `.fwsc` sous `app/build/` : `monades-0.1.0.fwsc`, 610 136 octets, identité `FM-1_714000100`.
 - [ ] **Noter la mémoire affichée** par la compilation : « RAM .data+.bss … of 98304 » et « pool … of 344064 ». Mutable Dreams 1.1 : 71768 et 334800. La compilation échoue si la RAM dépasse 98 304, ou si le pool laisse moins de 8 192 octets libres (donc au-delà de 335 872) : me donner les chiffres. Mesuré pour Monades le 28 octobre 2026 : image 443 556 octets, RAM 80 584 sur 98 304, pool 334 872 sur 344 064 (1 000 octets sous la limite de 335 872). Pas de calcul en double précision, accès aux registres par felucca-bsp seulement.
 
+## Résultats du 29 octobre 2026 (FM-1 de l'auteur, depuis la V15)
+- Installation 0.1.0 par `fm1_install.py --yes` : identité `FM-1_714000100` et port « Monades FM-1 » après le redémarrage ; il démarre et joue.
+- Charge (SYSTEM, LOAD / MAX) : 89 ALCHIMISTE 76 / 77 %, 87 CLOUDEE 69 / 77 %, en ECO, XRUNS 0.
+- Sortie casque propre. Audio USB : craquements et tremblements dans l'enregistrement sur les Mondes chargés en 0.1.0 (propre sur 65 BLANK joué au clavier) ; propre avec la réserve profonde (`FELUCCA_UAC_DEEP`, version 0.1.1). Reste : un crachotement dans l'enregistrement au changement de Monde avec PRESET.
+- Horloge MIDI reçue par l'USB et par la prise TRS (Roland TR-6S, câble TRS-DIN Boss ; la prise MIDI OUT de la TR-6S) : le FM-1 suit ; le tempo affiché oscille de 109 à 112 pour 110 envoyés.
+
 ## 2. Installer
 - Partir de la V15 (`FM-1_015`), pas de la V16 : des problèmes d'installation ont été signalés par des utilisateurs partis de la V16. Le lien officiel de M-VAVE donne depuis le 21 octobre 2026 un fichier plus récent (718 196 octets) que la V15 (699 956 octets).
 - [ ] `python3 base/tools/fm1_install.py --info` voit le FM-1.

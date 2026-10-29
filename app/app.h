@@ -4,6 +4,9 @@
 #define APP_NAME "MONADES"
 #define APP_SPLASH_RGB RGB(216,160,163)
 #define APP_BLOCK 256u /* 5.80 ms audio half; DSP tiles remain 64 frames. */
+/* USB audio: a render takes 70-80 % of its time (the FM-1 SYSTEM page, 29 October 2026), far over the ~40 % the
+ * default ring outlasts; the deeper ring (felucca-bsp usb.c: 1024 frames, +5.8 ms) keeps the recording whole. */
+#define FELUCCA_UAC_DEEP 1
 #define APP_CANVAS_PX (240u*40u)
 #define APP_HOST_EXPECT
 #define APP_WEB

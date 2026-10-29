@@ -58,7 +58,20 @@
     <div class="status-line"><span>Compilation pour le FM-1</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Installé et lancé sur un FM-1</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Vérifications complètes sur le FM-1</span><span class="st">en cours</span></div>
-    <p>Version 0.1.0, compilée pour le FM-1 le 28 octobre 2026 (paquet <code>monades-0.1.0.fwsc</code>). <b>Installé et lancé sur un FM-1 le 29 octobre 2026, depuis la V15&nbsp;: il démarre et joue.</b> La liste complète des vérifications (charge du processeur, MIDI, sauvegardes, audio USB) est en cours. L'installation passe par le même chemin que Mutable Dreams 1.1&nbsp;: elle n'écrit que la zone de l'application, jamais le chargeur de démarrage.</p>
+    <p>Version 0.1.1, du 29 octobre 2026 (paquet <code>monades-0.1.1.fwsc</code>). <b>Installé et lancé sur un FM-1 le 29 octobre 2026, depuis la V15&nbsp;: il démarre et joue.</b> La 0.1.1 corrige l'audio USB, qui craquait dans l'enregistrement quand le calcul du son était chargé (0.1.0)&nbsp;; la correction a été essayée sur le FM-1 avant d'être numérotée 0.1.1.</p>
+    <h3>Vérifié sur le FM-1 (29 octobre 2026)</h3>
+    <ul>
+      <li>Installation depuis la V15, identité vérifiée après le redémarrage.</li>
+      <li>Charge du processeur, page SYSTEM&nbsp;: ALCHIMISTE 76&nbsp;% (maximum 77), CLOUDEE 69&nbsp;% (maximum 77), en ECO, aucun bloc audio en retard (XRUNS 0).</li>
+      <li>Sortie casque propre. Audio USB propre pendant la lecture (0.1.1).</li>
+      <li>Horloge MIDI reçue par l'USB et par la prise TRS (depuis une Roland TR-6S, câble TRS-DIN Boss).</li>
+    </ul>
+    <h3>Défauts connus</h3>
+    <ul>
+      <li>Au changement de Monde avec PRESET, l'enregistrement USB crachote un instant.</li>
+      <li>Sur horloge MIDI reçue, le tempo affiché oscille de 1 à 2&nbsp;BPM autour de la valeur envoyée (109 à 112 pour 110)&nbsp;; les pas restent calés sur l'horloge.</li>
+    </ul>
+    <p>La liste complète des vérifications (MIDI, sauvegardes, écrans, endurance) est en cours. L'installation passe par le même chemin que Mutable Dreams 1.1&nbsp;: elle n'écrit que la zone de l'application, jamais le chargeur de démarrage.</p>
     <h3>Avant d'installer</h3>
     <ul>
       <li>Aucune manipulation sur le FM-1, aucune combinaison de touches&nbsp;: il suffit qu'il soit allumé, sur son firmware habituel, et relié en USB. L'installeur le fait passer tout seul en mode mise à jour, puis redémarrer.</li>
@@ -71,16 +84,16 @@
     <ol class="steps">
       <li>Ouvrir <a href="installer/">l'installeur de Monades</a>. Le paquet est dans la page, vérifié par son empreinte avant d'écrire. Rien ne s'installe tant qu'on n'appuie pas sur le bouton.</li>
       <li>Relier le FM-1 en USB, appuyer sur <b>Installer</b>, accepter l'accès au MIDI quand le navigateur le demande.</li>
-      <li>Attendre la fin&nbsp;: le FM-1 redémarre et l'installeur vérifie qu'il annonce <code>FM-1_714000100</code>.</li>
+      <li>Attendre la fin&nbsp;: le FM-1 redémarre et l'installeur vérifie qu'il annonce <code>FM-1_714000101</code>.</li>
     </ol>
     <h3>Depuis le Mac (Terminal)</h3>
     <ol class="steps">
-      <li>Télécharger <a href="installer/monades-0.1.0.fwsc" download>monades-0.1.0.fwsc</a> et l'outil d'installation <a href="installer/fm1_install.py" download>fm1_install.py</a> dans le même dossier.</li>
+      <li>Télécharger <a href="installer/monades-0.1.1.fwsc" download>monades-0.1.1.fwsc</a> et l'outil d'installation <a href="installer/fm1_install.py" download>fm1_install.py</a> dans le même dossier.</li>
       <li>Installer ce dont l'outil a besoin, une fois&nbsp;: <pre>python3 -m pip install mido python-rtmidi</pre></li>
       <li>Relier le FM-1, puis, dans ce dossier&nbsp;: <pre>python3 fm1_install.py --info
-python3 fm1_install.py monades-0.1.0.fwsc --yes</pre></li>
+python3 fm1_install.py monades-0.1.1.fwsc --yes</pre></li>
     </ol>
-    <p>Le FM-1 redémarre avec l'identité <code>FM-1_714000100</code> et apparaît en MIDI comme «&nbsp;Monades FM-1&nbsp;».</p>
+    <p>Le FM-1 redémarre avec l'identité <code>FM-1_714000101</code> et apparaît en MIDI comme «&nbsp;Monades FM-1&nbsp;».</p>
     <h3>Revenir en arrière</h3>
     <ul>
       <li><b>Vers Mutable Dreams</b>&nbsp;: installer son paquet de la même façon (<a href="https://github.com/kidbee85-beep/mutable-dreams/releases">Mutable Dreams</a>).</li>

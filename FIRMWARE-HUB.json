@@ -1,6 +1,6 @@
 {
   "name": "Monades",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Dr-John-8bits, for Flash Dog Duke Silver (fork of Mutable Dreams by Kid Bunka / Christoph Link)",
   "device": "M-VAVE FM-1",
   "description": "Generative firmware for the FM-1, forked from Mutable Dreams 1.1. Six voices, 12 engines (Plaits, Rings, Elements), 91 scales including microtonal ones and ragas, note generators (random, Markov, motif), two LFOs per track, chorus and tempo-synced echo, MIDI out of the generated notes with per-track channels and note zones, morphing between Mondes and a self-drifting mode. 91 Mondes (scenes) including 14 by Flash Dog Duke Silver.",
@@ -10,9 +10,9 @@
     "Play in browser"
   ],
   "repository": "https://github.com/Dr-John-8bits/monades",
-  "firmware_url": "https://dr-john-8bits.github.io/monades/installer/monades-0.1.0.fwsc",
-  "firmware_sha256": "3020d296b4d78ab49eeabf1278b8599eb5bba2b49789ac7e361172f72c0014aa",
-  "identity": "FM-1_714000100",
+  "firmware_url": "https://dr-john-8bits.github.io/monades/installer/monades-0.1.1.fwsc",
+  "firmware_sha256": "e7c7eac4cc436e86a746e33ae4edab62ccd1d6af8e3756c0d99369a9ec0099ac",
+  "identity": "FM-1_714000101",
   "license": "GPL-3.0-only (combined distribution); original MIT and MPL-2.0 notices retained",
   "license_notice_url": "https://github.com/Dr-John-8bits/monades/blob/main/LICENSING-GPL.txt",
   "website": "https://dr-john-8bits.github.io/monades/",
@@ -21,11 +21,12 @@
   "documentation": "https://dr-john-8bits.github.io/monades/manuel/",
   "documentation_language": "fr",
   "validation": "https://github.com/Dr-John-8bits/monades/blob/main/docs/monades/TESTS-FM1.md",
-  "device_test": "installed from stock V15 (FM-1_015) on 29 October 2026; identity FM-1_714000100 confirmed after restart; boots and plays. Full checklist in progress.",
+  "device_test": "installed from stock V15 (FM-1_015) on 29 October 2026; boots and plays. CPU (SYSTEM page): ALCHIMISTE 76 % (max 77), CLOUDEE 69 % (max 77), 0 xruns. MIDI clock received over USB and TRS (Roland TR-6S). 0.1.1 fixes USB audio crackle under load (deeper USB audio ring), checked on the device. Known: a short crackle in the USB recording when changing Monde. Full checklist in progress.",
   "image": "https://dr-john-8bits.github.io/monades/ecrans/live.png",
   "source_tree_url": "https://github.com/Dr-John-8bits/monades/tree/main",
   "source_build_instructions": "https://github.com/Dr-John-8bits/monades/blob/main/BUILDING.md",
   "trs_midi": "MIDI in (notes, CC, clock); no MIDI out jack, MIDI out over USB",
   "bluetooth_midi": false,
-  "submission_status": "not yet submitted"
+  "submission_status": "not yet submitted",
+  "starting_firmware": "stock V15 (FM-1_015); not from V16 (installation problems reported)"
 }
