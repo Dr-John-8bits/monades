@@ -16,6 +16,7 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 - [ ] **Noter la mémoire affichée** par la compilation : « RAM .data+.bss … of 98304 » et « pool … of 344064 ». Mutable Dreams 1.1 : 71768 et 334800. La compilation échoue si la RAM dépasse 98 304, ou si le pool laisse moins de 8 192 octets libres (donc au-delà de 335 872) : me donner les chiffres. Mesuré pour Monades le 28 octobre 2026 : image 443 556 octets, RAM 80 584 sur 98 304, pool 334 872 sur 344 064 (1 000 octets sous la limite de 335 872). Pas de calcul en double précision, accès aux registres par felucca-bsp seulement.
 
 ## 2. Installer
+- Partir de la V15 (`FM-1_015`), pas de la V16 : des problèmes d'installation ont été signalés par des utilisateurs partis de la V16. Le lien officiel de M-VAVE donne depuis le 21 octobre 2026 un fichier plus récent (718 196 octets) que la V15 (699 956 octets).
 - [ ] `python3 base/tools/fm1_install.py --info` voit le FM-1.
 - [ ] `python3 base/tools/fm1_install.py Monades-0.1.0.fwsc --yes` (sans `--force` : le paquet porte le marqueur du chargeur). Garder l'USB branché jusqu'à la confirmation.
 - [x] Le FM-1 redémarre avec l'identité **`FM-1_714000100`** et le port MIDI USB **« Monades FM-1 »**. Fait le 29 octobre 2026, depuis la V15 (`FM-1_015`), avec `fm1_install.py --yes` : écriture complète, identité vérifiée après le redémarrage ; il démarre et joue.

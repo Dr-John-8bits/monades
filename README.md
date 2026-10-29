@@ -18,7 +18,7 @@ python3 -m pip install mido python-rtmidi
 python3 base/tools/fm1_install.py monades-0.1.0.fwsc --yes
 ```
 
-Aucune manipulation sur le FM-1 : allumé sur son firmware habituel (V15 ou Mutable Dreams) et relié en USB, il passe tout seul en mode mise à jour. Retour au V15 : `python3 base/tools/fm1_install.py FM-1-V15.fwsc --yes` (reconnu à son empreinte, sans `--force`). Liste des vérifications sur l'appareil : [docs/monades/TESTS-FM1.md](docs/monades/TESTS-FM1.md).
+Aucune manipulation sur le FM-1 : allumé sur la V15 ou sur Mutable Dreams (pas sur la V16 : des problèmes d'installation ont été signalés depuis la V16) et relié en USB, il passe tout seul en mode mise à jour. Retour au V15 : `python3 base/tools/fm1_install.py FM-1-V15.fwsc --yes` (reconnu à son empreinte, sans `--force`). Liste des vérifications sur l'appareil : [docs/monades/TESTS-FM1.md](docs/monades/TESTS-FM1.md).
 
 ## Ce que Monades ajoute à Mutable Dreams
 Le détail est sur la page [Nouveautés](https://dr-john-8bits.github.io/monades/nouveautes/) et dans [docs/monades/FORK.md](docs/monades/FORK.md). En résumé :
