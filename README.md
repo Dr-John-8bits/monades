@@ -8,7 +8,7 @@ Le nom vient de la *Monadologie* de Leibniz (1714). Une monade est une unité qu
 
 **Site** : [dr-john-8bits.github.io/monades](https://dr-john-8bits.github.io/monades/), avec le simulateur dans le navigateur, le [mode d'emploi](https://dr-john-8bits.github.io/monades/manuel/), les [nouveautés](https://dr-john-8bits.github.io/monades/nouveautes/), le [MIDI](https://dr-john-8bits.github.io/monades/midi/) et la [feuille de route](https://dr-john-8bits.github.io/monades/feuille-de-route/).
 
-> ⚠️ Version 0.1.0, compilée pour le FM-1 le 28 octobre 2026, **pas encore testée sur un FM-1**. Pour un instrument éprouvé, utilisez [Mutable Dreams](https://github.com/kidbee85-beep/mutable-dreams).
+> Version 0.1.0, compilée le 28 octobre 2026, **installée et lancée sur un FM-1 le 29 octobre 2026** (depuis la V15) : elle démarre et joue. Les vérifications complètes ([docs/monades/TESTS-FM1.md](docs/monades/TESTS-FM1.md)) sont en cours. Pour un instrument plus éprouvé, utilisez [Mutable Dreams](https://github.com/kidbee85-beep/mutable-dreams).
 
 ## Installer
 Sur le site, section [Installer](https://dr-john-8bits.github.io/monades/#installer) : depuis le navigateur (Chrome ou Edge, [installeur](https://dr-john-8bits.github.io/monades/installer/)) ou depuis le Mac :

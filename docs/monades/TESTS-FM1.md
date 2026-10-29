@@ -18,7 +18,7 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 ## 2. Installer
 - [ ] `python3 base/tools/fm1_install.py --info` voit le FM-1.
 - [ ] `python3 base/tools/fm1_install.py Monades-0.1.0.fwsc --yes` (sans `--force` : le paquet porte le marqueur du chargeur). Garder l'USB branché jusqu'à la confirmation.
-- [ ] Le FM-1 redémarre avec l'identité **`FM-1_714000100`** et le port MIDI USB **« Monades FM-1 »**.
+- [x] Le FM-1 redémarre avec l'identité **`FM-1_714000100`** et le port MIDI USB **« Monades FM-1 »**. Fait le 29 octobre 2026, depuis la V15 (`FM-1_015`), avec `fm1_install.py --yes` : écriture complète, identité vérifiée après le redémarrage ; il démarre et joue.
 - [ ] Écran de démarrage : MONADES, FLASH DOG DUKE SILVER, la flotte qui se met en formation, carillon si START SOUND est sur ON.
 
 ## 3. Charge du processeur (le plus important)

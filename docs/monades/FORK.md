@@ -206,6 +206,7 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
 - **Installeur dans le navigateur** : `tools/package_monades_installer.py` fait `site/installer/` à partir de l'installeur de fm1-base (Felucca), en français avec l'anglais à un clic, le paquet dans la page et vérifié par son SHA-256, l'identité contrôlée après le redémarrage (comme Mutable Dreams 1.1). Il copie aussi `monades-0.1.0.fwsc` et `fm1_install.py` pour l'installation depuis le Mac. Publié avant tout test sur un FM-1, à la demande, avec l'avertissement sur le site et dans l'installeur.
 - **Sauvegarde `.mddb`** : `tools/dreams_backup.py` n'acceptait que l'identité de Mutable Dreams (`FM-1_710`) ; il accepte aussi Monades (`FM-1_714`, mêmes objets) et cherche le port « FM-1 ».
 - **Liste des 91 Mondes** dans le mode d'emploi (`tools/site_mondes.py`, depuis `presets/catalog.json`) : numéro et famille comme à l'écran (nom pour les FDDS), gamme, note, tempo, moteurs des six pistes ; plus « Où garder ses propres Mondes » (SAVE, 16 emplacements de Mondes, 64 de sons, sauvegarde `.mddb`).
+- **Premier essai sur un FM-1** (29 octobre 2026) : installé depuis la V15 (`FM-1_015`) avec `base/tools/fm1_install.py --yes`, identité `FM-1_714000100` et port « Monades FM-1 » après le redémarrage ; il démarre et joue. Le lien officiel de M-VAVE donne depuis le 21 octobre 2026 un fichier de 718 196 octets (pas la V15 de 699 956 octets dont l'empreinte est attendue par l'installeur et `fm1_install.py`) : retour au firmware de M-VAVE par M-UPGRADE dans ce cas.
 
 ### Lot 5 — Divers
 17. **Sortie audio USB** (aujourd'hui `usb_audio_out = false`, entrée seulement), si le budget CPU le permet.
@@ -216,6 +217,8 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
    - 18 : **K4 MOTION** sur la page FORM. La variation de Motion change tous les 1, 2, 4, 8 ou 16 pas et tient entre deux. Patch v10 (1680 octets) ;
    - 19 : les parties Monades du moteur sortent de `dreams.cpp` : `midi_out.inc`, `lfo.inc`, `generative.inc`. Même unité de compilation, son identique au bit près. Le cœur Mutable Dreams (voix, séquenceur, effets) reste en place.
 20. **Gamme par piste** (plus tard). Aujourd'hui la gamme est un réglage du Monde, la même pour les six pistes, et il n'y a qu'une gamme CUSTOM pour toute la machine (12 demi-tons, notes ajoutées ou retirées au clavier sur HARMONY, gardée dans les préférences). À faire : une gamme par piste (et peut-être une gamme CUSTOM par piste). Compléter aussi le mode d'emploi sur CUSTOM : commune à tous les Mondes, 12 demi-tons seulement, les six pistes ; les gammes Scala (`.scl` dans `tools/scala/`) ne s'ajoutent qu'à la compilation.
+
+21. **Clavier** (plus tard) : les fonctions imprimées au-dessus des touches noires (OP1, OP2, OP3, OP4, OP5, OP6, PIT, GLO, MONO, POLY ; dans l'ordre F#, G#, A#, C#, D#, F#, G#, A#, C#, D#) ne sont pas utilisées, ces touches jouent leur note ; les lumières des touches s'allument seulement sous le doigt et pourraient montrer une information (gamme, notes jouées, pas) ; OCT− et OCT+ ne font que décaler l'octave du clavier.
 
 ## Prochaines étapes
 1. **Essayer dans le simulateur** que les fonctions répondent aux besoins.

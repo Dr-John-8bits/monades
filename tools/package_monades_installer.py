@@ -58,7 +58,7 @@ fr='''  fr: {
     back: "Pour revenir au firmware officiel : « Revenir au firmware d'origine » plus bas, ou l'outil de M-VAVE, M-UPGRADE (Downloads → PC Software → M-UPGRADE).",
     stockh: "Revenir au firmware d'origine",
     stockwhy: "Écrit le FM-1 V15 de M-VAVE à la place de Monades (ou de son mode sans échec), par le même câble USB. Le retour au V15 efface les banques utilisateur et les préférences : en garder une sauvegarde .mddb avant.",
-    stock1: "Télécharger le FM-1 V15 de M-VAVE :",
+    stock1: "Télécharger le FM-1 V15 de M-VAVE (depuis le 21 octobre 2026, ce lien donne un fichier plus récent que la V15, que cette page ne reconnaît pas : utiliser alors l'outil M-UPGRADE de M-VAVE) :",
     stock2: "Choisir le fichier téléchargé :",
     stock3: "Relier le FM-1 en USB et appuyer sur le bouton ci-dessous.",
     stockinstall: "Installer le firmware d'origine",
@@ -94,7 +94,7 @@ rep('$("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "
 rep('<button type="button" class="lang" id="lang" lang="ja">日本語</button>','<button type="button" class="lang" id="lang" lang="en">English</button>')
 rep('<html lang="en">','<html lang="fr">')
 rep('<title>Install · Monades</title>','<title>Installer Monades</title>')
-rep('<h1>Install Monades</h1>',f'<h1>Installer Monades {version}</h1>\n  <p class="small">Pas encore testé sur un FM-1. Identité après installation&nbsp;: <code>{product}</code>. Avant de changer de firmware, garder une sauvegarde <code>.mddb</code> de son travail.</p>\n  <p class="small">Partir du firmware d\'origine V15 ou de Mutable Dreams (avec M-VAVE Open, remettre d\'abord le V15). Aucune manipulation sur le FM-1, aucune combinaison de touches&nbsp;: allumé sur son firmware habituel et relié en USB, il passe tout seul en mode mise à jour, puis redémarre.</p>')
+rep('<h1>Install Monades</h1>',f'<h1>Installer Monades {version}</h1>\n  <p class="small">Installé et lancé sur un FM-1 le 29 octobre 2026 (depuis la V15)&nbsp;: il démarre et joue&nbsp;; vérifications complètes en cours. Identité après installation&nbsp;: <code>{product}</code>. Avant de changer de firmware, garder une sauvegarde <code>.mddb</code> de son travail.</p>\n  <p class="small">Partir du firmware d\'origine V15 ou de Mutable Dreams (avec M-VAVE Open, remettre d\'abord le V15). Aucune manipulation sur le FM-1, aucune combinaison de touches&nbsp;: allumé sur son firmware habituel et relié en USB, il passe tout seul en mode mise à jour, puis redémarre.</p>')
 rep(' (or its safe mode, or another firmware with the same update entry)', '')
 rep('What Monades saved may be lost.', 'Returning to V15 erases the User Banks and preferences. Back up .mddb first.')
 assert not re.search(r'\{\{[A-Z_]+\}\}',s) and '日本語' not in s

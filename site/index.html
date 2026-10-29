@@ -45,7 +45,7 @@
 <section class="stage" id="jouer" aria-label="Le FM-1 jouable">
   <h2>Le simulateur</h2>
   <iframe class="play" src="simulateur/?embed=1" title="Simulateur du FM-1 avec Monades" allow="autoplay" loading="eager"></iframe>
-  <p class="play-note">Le firmware complet, le même code que sur le FM-1. Rien ne joue avant d'appuyer sur «&nbsp;Allumer&nbsp;». Pas encore testé sur un FM-1. <a href="simulateur/">Plein écran</a>.</p>
+  <p class="play-note">Le firmware complet, le même code que sur le FM-1. Rien ne joue avant d'appuyer sur «&nbsp;Allumer&nbsp;». Installé et lancé sur un FM-1 le 29 octobre 2026, depuis la V15&nbsp;: il démarre et joue. <a href="simulateur/">Plein écran</a>.</p>
 </section>
 
 
@@ -56,8 +56,9 @@
     <div class="status-line"><span>Code des lots, testé sur Mac</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Simulateur dans le navigateur</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Compilation pour le FM-1</span><span class="st done">fait</span></div>
-    <div class="status-line"><span>Test sur un FM-1</span><span class="st">à venir</span></div>
-    <p>Version 0.1.0, compilée pour le FM-1 le 28 octobre 2026 (paquet <code>monades-0.1.0.fwsc</code>). <b>Aucune version de Monades n'a encore été testée sur un FM-1.</b> L'installation passe par le même chemin que Mutable Dreams 1.1&nbsp;: elle n'écrit que la zone de l'application, jamais le chargeur de démarrage.</p>
+    <div class="status-line"><span>Installé et lancé sur un FM-1</span><span class="st done">fait</span></div>
+    <div class="status-line"><span>Vérifications complètes sur le FM-1</span><span class="st">en cours</span></div>
+    <p>Version 0.1.0, compilée pour le FM-1 le 28 octobre 2026 (paquet <code>monades-0.1.0.fwsc</code>). <b>Installé et lancé sur un FM-1 le 29 octobre 2026, depuis la V15&nbsp;: il démarre et joue.</b> La liste complète des vérifications (charge du processeur, MIDI, sauvegardes, audio USB) est en cours. L'installation passe par le même chemin que Mutable Dreams 1.1&nbsp;: elle n'écrit que la zone de l'application, jamais le chargeur de démarrage.</p>
     <h3>Avant d'installer</h3>
     <ul>
       <li>Aucune manipulation sur le FM-1, aucune combinaison de touches&nbsp;: il suffit qu'il soit allumé, sur son firmware habituel, et relié en USB. L'installeur le fait passer tout seul en mode mise à jour, puis redémarrer.</li>
@@ -83,7 +84,7 @@ python3 fm1_install.py monades-0.1.0.fwsc --yes</pre></li>
     <h3>Revenir en arrière</h3>
     <ul>
       <li><b>Vers Mutable Dreams</b>&nbsp;: installer son paquet de la même façon (<a href="https://github.com/kidbee85-beep/mutable-dreams/releases">Mutable Dreams</a>).</li>
-      <li><b>Vers le firmware d'origine (V15)</b>&nbsp;: la partie «&nbsp;Revenir au firmware d'origine&nbsp;» de <a href="installer/">l'installeur</a>, ou <code>python3 fm1_install.py FM-1-V15.fwsc --yes</code>. Le fichier V15 se télécharge chez <a href="https://www.m-vave.com/download">M-VAVE</a>&nbsp;; l'outil le reconnaît à son empreinte, sans <code>--force</code>. V15 efface les banques utilisateur&nbsp;: en garder une sauvegarde <code>.mddb</code>.</li>
+      <li><b>Vers le firmware d'origine (V15)</b>&nbsp;: la partie «&nbsp;Revenir au firmware d'origine&nbsp;» de <a href="installer/">l'installeur</a>, ou <code>python3 fm1_install.py FM-1-V15.fwsc --yes</code>. Le fichier V15 se télécharge chez <a href="https://www.m-vave.com/download">M-VAVE</a>&nbsp;; l'outil le reconnaît à son empreinte, sans <code>--force</code>. Depuis le 21 octobre 2026, le lien de M-VAVE donne un fichier plus récent que la V15 (718&nbsp;196 octets au lieu de 699&nbsp;956)&nbsp;: l'installeur et l'outil ne le reconnaissent pas&nbsp;; pour revenir au firmware de M-VAVE, utiliser alors leur outil M-UPGRADE. V15 efface les banques utilisateur&nbsp;: en garder une sauvegarde <code>.mddb</code>.</li>
       <li><b>Si le FM-1 ne démarre plus</b>&nbsp;: après deux démarrages ratés, il passe tout seul en mode sans échec. L'écran affiche «&nbsp;MONADES SAFE MODE&nbsp;», pas de son, l'USB reste actif&nbsp;: l'installation peut être refaite (Monades ou le V15), et PLAY réessaie de démarrer. Si le mode sans échec échoue aussi, le FM-1 passe dans le mode de mise à jour de la puce, où l'outil M-UPGRADE de M-VAVE peut remettre le firmware d'origine. En dernier recours&nbsp;: la <a href="https://github.com/hugelton/felucca-bsp/tree/main/tools">récupération par la ROM</a> (Felucca) ou l'outil M-UPGRADE de M-VAVE.</li>
     </ul>
   </div>
