@@ -161,6 +161,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
     <tr><td>Le nom du FM-1 sur l'ordinateur, l'audio USB, les prises</td><td>—</td><td><a href="#usb">USB et prises</a></td></tr>
     <tr><td>Les canaux MIDI des pistes (entrée, sortie)</td><td><span class="k">GLO</span> 6 fois</td><td><a href="#p-canaux">MIDI CHANNELS</a></td></tr>
     <tr><td>Les plages de notes MIDI (zones)</td><td><span class="k">GLO</span> 7 fois</td><td><a href="#p-zones">MIDI OUT ZONES</a></td></tr>
+    <tr><td>Les 12 moteurs de son, Plaits, Rings, Elements</td><td>—</td><td><a href="#l-moteurs">Les 12 moteurs</a></td></tr>
     <tr><td>La liste des 91 Mondes</td><td>—</td><td><a href="#l-mondes">Les 91 Mondes</a></td></tr>
     <tr><td>Où garder ses propres Mondes</td><td>—</td><td><a href="#l-sauver">Où garder ses Mondes</a></td></tr>
     <tr><td>Mes sauvegardes</td><td><span class="k">GLO</span> 8 fois</td><td><a href="#p-banks">USER BANKS</a></td></tr>
@@ -977,7 +978,32 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 
 <h2 id="listes">Listes</h2>
 <div class="entry" id="l-moteurs"><h3>Les 12 moteurs (ALGO)</h3>
-  <p>PLAITS KICK · PLAITS SNARE · PLAITS HAT · PLAITS FM · PLAITS VA · RINGS MODAL · PLAITS HARMONIC · SINE CHOIR · ROUND BASS · ELEMENTS STRIKE · MELLOW DRIFT · SATIN MORPH. Chaque moteur va sur chaque piste.</p>
+  <p>Chaque piste fabrique son son avec un <b>moteur</b>&nbsp;: une méthode de synthèse, calculée en direct. Chaque moteur va sur chaque piste (ALGO le change). Sept moteurs viennent du code publié par Mutable Instruments, cinq ont été écrits pour Mutable Dreams.</p>
+  <h3>D'où ils viennent&nbsp;: Mutable Instruments</h3>
+  <p>Mutable Instruments, la marque d'Émilie Gillet, a fait des modules de synthétiseur modulaire, puis a publié leur code en accès libre (licence MIT). Monades en reprend trois, par Mutable Dreams&nbsp;:</p>
+  <div class="tablewrap"><table><tr><th>Module</th><th>Ce qu'est le module</th><th>Dans Monades</th></tr>
+    <tr><td>Plaits</td><td>Un «&nbsp;macro-oscillateur&nbsp;»&nbsp;: une seule source de son qui sait fabriquer des sons de plusieurs façons (modèles), réglés par trois paramètres communs.</td><td>PLAITS KICK, SNARE, HAT, FM, VA, HARMONIC, et les sinus de SINE CHOIR.</td></tr>
+    <tr><td>Rings</td><td>Un résonateur&nbsp;: il simule ce qui vibre, cordes, plaques, tubes, et on le fait sonner en le «&nbsp;frappant&nbsp;».</td><td>RINGS MODAL.</td></tr>
+    <tr><td>Elements</td><td>Un instrument complet modélisé&nbsp;: un excitateur (on frappe, on pince, on souffle) et un corps qui résonne.</td><td>ELEMENTS STRIKE.</td></tr>
+  </table></div>
+  <p>Trois autres modules ont donné leur nom et leur idée à la page <a href="#p-modulation">MARBLES / TIDES / WARPS</a>&nbsp;: Marbles (hasard qui se souvient), Tides (mouvement lent de marée), Warps (modulation en anneau).</p>
+  <h3>Les moteurs un par un</h3>
+  <p>Sur la page SOUND (EDIT ×1), K1 TONE, K2 HARMONICS et K3 (SHAPE, DECAY ou EXCITER) règlent le moteur de la piste choisie&nbsp;; K4 son niveau. Ce que fait chaque potard dépend du moteur&nbsp;:</p>
+  <div class="tablewrap"><table><tr><th>Moteur</th><th>D'où il vient, ce qu'il fait</th><th>K1 TONE</th><th>K2 HARMONICS</th><th>K3</th></tr>
+    <tr><td>PLAITS KICK</td><td>Plaits. Une grosse caisse analogique simulée (circuit dans l'esprit des boîtes à rythmes analogiques).</td><td>Couleur</td><td>Claquement de l'attaque</td><td>DECAY&nbsp;: longueur</td></tr>
+    <tr><td>PLAITS SNARE</td><td>Plaits. Une caisse claire analogique simulée&nbsp;: une peau qui résonne et un bruit de timbre.</td><td>Couleur</td><td>Part du bruit de timbre</td><td>DECAY&nbsp;: longueur</td></tr>
+    <tr><td>PLAITS HAT</td><td>Plaits. Une cymbale charleston&nbsp;: un son métallique fait de signaux carrés mêlés à du bruit.</td><td>Couleur</td><td>Part du bruit</td><td>DECAY&nbsp;: longueur</td></tr>
+    <tr><td>PLAITS FM</td><td>Plaits. Synthèse FM à deux opérateurs&nbsp;: une onde en fait vibrer une autre, ce qui donne des sons de cloche, de piano électrique, de métal.</td><td>Intensité de la modulation (brillance)</td><td>Rapport entre les deux ondes (le caractère du son)</td><td>SHAPE&nbsp;: réinjection (feedback), vers le grain et le bruit</td></tr>
+    <tr><td>PLAITS VA</td><td>Plaits. «&nbsp;Virtual analog&nbsp;»&nbsp;: deux oscillateurs analogiques simulés, comme sur un synthé classique.</td><td>Forme de l'onde carrée (largeur, jusqu'aux formants)</td><td>Écart d'accord entre les deux oscillateurs</td><td>SHAPE&nbsp;: forme de l'onde en dent de scie</td></tr>
+    <tr><td>PLAITS HARMONIC</td><td>Plaits. Synthèse additive&nbsp;: le son est construit en additionnant des harmoniques, comme les tirettes d'un orgue.</td><td>L'harmonique mise en avant</td><td>Nombre d'harmoniques qui sonnent ensemble</td><td>SHAPE&nbsp;: forme du groupe d'harmoniques, large ou pointue</td></tr>
+    <tr><td>RINGS MODAL</td><td>Rings. Un résonateur «&nbsp;modal&nbsp;»&nbsp;: un objet qui vibre (corde, plaque, cloche), frappé par un petit souffle de bruit à chaque note.</td><td>Brillance</td><td>Structure de l'objet&nbsp;: d'harmonieux (corde) à inharmonique (cloche, métal)</td><td>DECAY&nbsp;: amortissement, du son étouffé au son qui résonne longtemps</td></tr>
+    <tr><td>ELEMENTS STRIKE</td><td>Elements. Un excitateur et un corps résonant&nbsp;: on choisit comment on fait sonner l'objet.</td><td>Brillance</td><td>Géométrie du corps</td><td>EXCITER&nbsp;: MALLET (maillet), PLECTRUM (médiator), PARTICLES (grains qui tombent)</td></tr>
+    <tr><td>SINE CHOIR</td><td>Écrit pour Mutable Dreams, sur les sinus de Plaits. Trois sons purs (sinus) qui chantent un accord, ramené dans la gamme.</td><td>Volume des deux voix du haut</td><td>L'accord&nbsp;: mineur, majeur, suspendu (quarte), ou quinte et octave</td><td>SHAPE&nbsp;: écart d'accord entre les trois voix (un chœur plus large)</td></tr>
+    <tr><td>ROUND BASS</td><td>Écrit pour Mutable Dreams. Une basse ronde faite de sons purs.</td><td>Ajoute l'octave au-dessus</td><td>Ajoute l'octave en dessous (sub)</td><td>SHAPE&nbsp;: sans effet sur ce moteur (la longueur se règle sur ENVELOPE)</td></tr>
+    <tr><td>MELLOW DRIFT</td><td>Écrit pour Mutable Dreams. Deux sons purs qui se désaccordent lentement l'un de l'autre&nbsp;: un son doux qui flotte.</td><td>Ajoute des harmoniques douces (proche d'une onde triangle)</td><td>Ajoute l'octave</td><td>SHAPE&nbsp;: ampleur de la dérive entre les deux sons</td></tr>
+    <tr><td>SATIN MORPH</td><td>Écrit pour Mutable Dreams. Deux oscillateurs qui lisent des formes d'onde arrondies et glissent de l'une à l'autre.</td><td>Du son pur à la forme d'onde choisie</td><td>Passe d'une forme d'onde à la suivante (quatre formes)</td><td>SHAPE&nbsp;: dérive lente entre les deux oscillateurs</td></tr>
+  </table></div>
+  <p>Les moteurs de batterie (KICK, SNARE, HAT) et RINGS règlent leur longueur avec DECAY&nbsp;; les autres ont une enveloppe (page ENVELOPE&nbsp;: attaque et déclin). En ECO (page SYSTEM), FM, VA et HARMONIC sont calculés à mi-cadence pour soulager le processeur. Sur la page SOUND, PRESET choisit un des 224 sons tout faits&nbsp;; DICE (REC) tire au sort les quatre réglages.</p>
 </div>
 <div class="entry" id="l-filtres"><h3>Les 8 modes de filtre</h3><p>OFF · LP 12 dB · LP 24 dB · LOW PASS GATE · HIGH PASS · BAND PASS · NOTCH · HP 24 dB.</p></div>
 <div class="entry" id="l-cibles"><h3>Les 19 cibles de LFO</h3><p>CUTOFF · RESONANCE · LEVEL · PAN · PITCH · TONE · HARMONICS · SHAPE · ECHO SEND · ROOM SEND · GRAIN SEND · ECHO TIME · GRAIN POS · ATTACK · DECAY · ECHO FEEDBACK · GRAIN SIZE · NOTES IN SCALE (pas de gamme sur les notes générées) · HITS (densité).</p></div>
