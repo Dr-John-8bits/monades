@@ -527,13 +527,21 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 </div>
 <div class="entry" id="p-form">
   <p class="path">SEQ ×6</p><h3>FORM</h3>
-  <p>Quatre sections&nbsp;: CALM, BUILD, PEAK, RELEASE (hauteur = tension), un curseur dans la section en cours, sous chacune les pistes qui jouent (sombre = au repos). En haut à droite, une mesure de pas&nbsp;: traits hauts = où Motion peut changer.</p>
+  <p><b>À quoi ça sert</b>&nbsp;: donner au morceau une forme qui monte et redescend, au lieu d'une boucle plate. Le FM-1 enchaîne quatre sections en boucle, <b>CALM → BUILD → PEAK → RELEASE</b> (calme, montée, sommet, détente), puis recommence. Chaque section a sa <b>tension</b>&nbsp;: basse dans le calme, moyenne dans la montée, la plus haute au sommet, plus basse dans la détente.</p>
+  <p><b>Ce que change la tension</b>&nbsp;:</p>
+  <ul>
+    <li><b>Le nombre de coups</b> de chaque piste&nbsp;: moins dans les sections calmes, plus au sommet, autour du réglage de RHYTHM K1. À fond (K1 DEPTH sur 100), une piste de 16 pas perd environ 4 coups dans le calme et en gagne environ 5 au sommet&nbsp;; la montée garde le nombre réglé.</li>
+    <li><b>Les pistes au repos</b> (K3)&nbsp;: dans les sections calmes, certaines pistes se taisent, puis reviennent quand la tension monte. Au sommet, tout le monde joue. Les pistes qui se reposent changent d'un cycle à l'autre, mais une piste au moins joue toujours.</li>
+  </ul>
+  <p><b>L'écran</b>&nbsp;: les quatre blocs, leur hauteur montre la tension&nbsp;; le bloc en clair est la section en cours, le trait vertical montre où en est le morceau dans cette section. Sous chaque section, les six pistes&nbsp;: en couleur, elles jouent&nbsp;; en gris, elles se reposent dans ce cycle&nbsp;; très sombres, elles sont coupées (SEL). En haut à gauche, la durée de chaque section («&nbsp;2 BARS EACH&nbsp;»). En haut à droite, une mesure de 16 pas&nbsp;: les traits hauts marquent les pas où Motion peut tirer une nouvelle variation (K4). Avec K1 sur 0&nbsp;: «&nbsp;FORM OFF: SONG FLAT&nbsp;».</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
-    <tr><td>K1 DEPTH</td><td>Profondeur de la forme&nbsp;; 0 = arrêt (FORM OFF).</td></tr>
-    <tr><td>K2 SECTION</td><td>Longueur d'une section&nbsp;: 2, 4, 8 ou 16 mesures.</td></tr>
-    <tr><td>K3 RESTING</td><td>Pistes au repos dans le calme, 0 à 3.</td></tr>
-    <tr><td>K4 MOTION</td><td>La variation de Motion change à chaque pas, ou tous les 2, 4, 8, 16 pas.</td></tr>
+    <tr><td>K1 DEPTH</td><td>La force de la forme, de 0 (arrêt, FORM OFF) à 100. À faible valeur (autour de 15), l'effet est discret&nbsp;: les sections changent à peine le nombre de coups. Vers 60 à 100, on entend nettement le calme et le sommet.</td></tr>
+    <tr><td>K2 SECTION</td><td>La durée de chaque section&nbsp;: 2, 4, 8 ou 16 mesures. Un cycle complet dure quatre fois plus&nbsp;: de 8 à 64 mesures. Avec 8 ou 16, le morceau respire lentement, sur plusieurs minutes.</td></tr>
+    <tr><td>K3 RESTING</td><td>Combien de pistes peuvent se taire, de 0 à 3. Le repos est le plus fort dans le calme, plus léger dans la montée et la détente, nul au sommet. Par exemple, sur 3&nbsp;: deux pistes se taisent dans le calme, une dans la montée, aucune au sommet, deux dans la détente.</td></tr>
+    <tr><td>K4 MOTION</td><td>Tous les combien de pas la macro Motion (LIVE K2) tire une nouvelle variation de notes&nbsp;: à chaque pas, ou tous les 2, 4, 8 ou 16 pas, et la garde entre deux. Ce réglage agit sur la mélodie, pas sur la forme&nbsp;; il est rangé ici parce qu'il règle lui aussi le déroulé dans le temps.</td></tr>
   </table></div>
+  <p><b>Pour bien l'entendre</b>&nbsp;: K1 vers 80, K2 sur 4 BARS, K3 sur 2, puis PLAY. Le morceau commence calme et dépouillé, se remplit, arrive au sommet, puis redescend, et recommence toutes les 16 mesures.</p>
+  <p>Une piste en mode STEP (BASS / MOTIFS, K1) joue tous ses pas&nbsp;: la tension ne change pas son nombre de coups, mais elle peut se reposer (K3). DICE (REC) sur cette page tire au sort les quatre réglages.</p>
 </div>
 
 <h2 id="effets">Les effets : envois et retours</h2>
