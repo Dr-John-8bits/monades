@@ -73,6 +73,27 @@ nav.menu a:hover{text-decoration:underline}
 nav.menu a[aria-current="page"]{color:var(--mark);text-decoration:underline}
 .menu-btn{display:none;background:none;border:1px solid var(--rule);color:var(--ink);font:inherit;padding:6px 12px;cursor:pointer}
 @media (max-width:860px){nav.menu{width:100%}.menu-btn{display:inline-block}nav.menu ul{display:none;flex-direction:column;gap:0;margin-top:8px}nav.menu.open ul{display:flex}nav.menu li{border-bottom:1px solid var(--rule)}nav.menu a{display:block;padding:12px 0}}
+/* Diagrams: drawn with the page's own colours, so they follow light and dark. */
+figure.schema{margin:14px 0 6px}
+figure.schema{overflow-x:auto}
+figure.schema svg{width:100%;height:auto;display:block;font-family:var(--mono)}
+@media (max-width:700px){figure.schema svg{min-width:660px}} /* readable on a phone: the diagram scrolls sideways */
+figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
+.s-box{fill:var(--card);stroke:var(--ink);stroke-width:1.4}
+.s-fx{stroke-width:2}
+.s-dash{stroke-dasharray:5 4}
+.s-l{stroke:var(--ink);stroke-width:1.6;fill:none}
+.s-send{stroke-width:2.2}
+.s-ret{stroke-width:2.2}
+.s-loop{stroke:var(--muted);stroke-dasharray:4 3}
+.s-fill{fill:var(--ink)}
+.s-knob{fill:var(--mark);stroke:var(--ink);stroke-width:1.4}
+.s-t{fill:var(--ink);font-size:13px;font-weight:500}
+.s-s{fill:var(--muted);font-size:11px}
+.s-hit{stroke:var(--mark);stroke-width:5;stroke-linecap:round}
+.s-curve{stroke:var(--mark);stroke-width:3;fill:none}
+:root[data-theme="light"] .s-hit,:root[data-theme="light"] .s-curve{stroke:#b8800f}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .s-hit,:root:not([data-theme="dark"]) .s-curve{stroke:#b8800f}}
 </style>
 </head>
 <body>
@@ -96,6 +117,7 @@ nav.menu a[aria-current="page"]{color:var(--mark);text-decoration:underline}
   <li><a href="#home">Pages HOME</a><ol><li><a href="#p-live">LIVE</a></li><li><a href="#p-morph">MORPH</a></li><li><a href="#p-derive">DERIVE</a></li></ol></li>
   <li><a href="#edit">Pages EDIT</a><ol><li><a href="#p-sound">SOUND</a></li><li><a href="#p-filter">FILTER</a></li><li><a href="#p-envelope">ENVELOPE</a></li><li><a href="#p-mix">MIX</a></li><li><a href="#p-mixer">GLOBAL MIXER</a></li></ol></li>
   <li><a href="#seq">Pages SEQ</a><ol><li><a href="#p-rhythm">RHYTHM</a></li><li><a href="#p-groove">GROOVE</a></li><li><a href="#p-bass">BASS / MOTIFS</a></li><li><a href="#p-phrase">PHRASE</a></li><li><a href="#p-generator">GENERATOR</a></li><li><a href="#p-form">FORM</a></li></ol></li>
+  <li><a href="#effets">Les effets : envois et retours</a><ol><li><a href="#e-trajet">Le trajet du son</a></li><li><a href="#e-effets">Les effets, un par un</a></li><li><a href="#e-duck">Le ducking</a></li><li><a href="#e-recettes">Recettes</a></li><li><a href="#e-rien">Je n'entends pas l'effet</a></li></ol></li>
   <li><a href="#fx">Pages FX</a><ol><li><a href="#p-grain">GRANULAR BUS</a></li><li><a href="#p-tape">TAPE</a></li><li><a href="#p-space">SHARED SPACE</a></li><li><a href="#p-spacetone">SPACE TONE</a></li><li><a href="#p-echo">ECHO SYNC / CHORUS</a></li><li><a href="#p-modulation">MARBLES / TIDES / WARPS</a></li><li><a href="#p-lfo">LFO A et LFO B</a></li></ol></li>
   <li><a href="#glo">Pages GLO</a><ol><li><a href="#p-harmony">HARMONY</a></li><li><a href="#p-raga">RAGA</a></li><li><a href="#p-system">SYSTEM</a></li><li><a href="#p-look">LOOK</a></li><li><a href="#p-midi">MIDI</a></li><li><a href="#p-canaux">MIDI CHANNELS</a></li><li><a href="#p-zones">MIDI OUT ZONES</a></li><li><a href="#p-banks">USER BANKS</a></li></ol></li>
   <li><a href="#faire">Comment faire</a><ol><li><a href="#f-tempo">Changer le tempo</a></li><li><a href="#f-lancer">Lancer et arrêter</a></li><li><a href="#f-piste">Choisir une piste</a></li><li><a href="#f-mute">Couper une piste</a></li><li><a href="#f-clavier">Jouer au clavier</a></li><li><a href="#f-monde">Changer de Monde</a></li><li><a href="#f-figer">Figer le grain</a></li><li><a href="#f-repeter">Faire répéter la même variation</a></li><li><a href="#f-sauver">Sauvegarder mon travail</a></li><li><a href="#f-charger">Recharger une sauvegarde</a></li><li><a href="#f-canaux">Choisir les canaux MIDI des pistes</a></li><li><a href="#f-zones">Régler les zones MIDI (par exemple C1 à B2 sur le canal 1)</a></li><li><a href="#f-mpc">Envoyer les notes à une autre machine (MPC, synthé, ordinateur)</a></li><li><a href="#f-volume">Changer le volume d'une piste</a></li><li><a href="#f-gamme">Choisir la gamme et la note de base</a></li><li><a href="#f-son">Changer le son d'une piste</a></li><li><a href="#f-lfo">Faire bouger un réglage avec un LFO</a></li><li><a href="#f-pas">Écrire les notes pas à pas</a></li><li><a href="#f-motif">Écrire un motif que le générateur fait varier</a></li><li><a href="#f-morph">Passer d'un Monde à l'autre en douceur</a></li><li><a href="#f-derive">Laisser le Monde vivre tout seul (installation)</a></li><li><a href="#f-panique">Tout faire taire</a></li><li><a href="#f-annuler">Annuler</a></li></ol></li>
@@ -125,6 +147,7 @@ nav.menu a[aria-current="page"]{color:var(--mark);text-decoration:underline}
     <tr><td>Les générateurs de notes</td><td><span class="k">SEQ</span> 5 fois</td><td><a href="#p-generator">GENERATOR</a></td></tr>
     <tr><td>La forme (sections)</td><td><span class="k">SEQ</span> 6 fois</td><td><a href="#p-form">FORM</a></td></tr>
     <tr><td>L'écho, la room (réverbe)</td><td><span class="k">FX</span> 3 fois</td><td><a href="#p-space">SHARED SPACE</a></td></tr>
+    <tr><td>Comprendre les envois, les retours et le ducking</td><td>—</td><td><a href="#effets">Les effets : envois et retours</a></td></tr>
     <tr><td>Le chorus, l'écho au tempo</td><td><span class="k">FX</span> 5 fois</td><td><a href="#p-echo">ECHO SYNC / CHORUS</a></td></tr>
     <tr><td>Le grain (granulaire)</td><td><span class="k">FX</span> 1 fois</td><td><a href="#p-grain">GRANULAR BUS</a></td></tr>
     <tr><td>Le tempo</td><td><span class="k">GLO</span> 1 fois, puis K4</td><td><a href="#f-tempo">HARMONY</a></td></tr>
@@ -512,6 +535,166 @@ nav.menu a[aria-current="page"]{color:var(--mark);text-decoration:underline}
   </table></div>
 </div>
 
+<h2 id="effets">Les effets : envois et retours</h2>
+<div class="entry" id="e-trajet">
+  <h3>Le trajet du son</h3>
+  <p>Chaque piste joue <b>à sec</b> vers la sortie. En plus, elle peut verser une part de ce qu'elle joue dans trois effets communs aux six pistes&nbsp;: le <b>grain</b>, l'<b>écho</b> et la <b>room</b>. Chaque effet renvoie ensuite ce qu'il a fabriqué vers la sortie, à travers son <b>retour</b>.</p>
+  <figure class="schema">
+  <svg viewBox="0 0 760 400" role="img" aria-labelledby="schema-titre schema-desc">
+    <title id="schema-titre">Trajet du son dans Monades</title>
+    <desc id="schema-desc">Chaque piste va à sec vers le chorus, puis le mélange, puis MASTER et la sortie. Sous la piste, trois envois partent vers le grain, l'écho et la room ; l'écho et la room passent d'abord par le passe-haut des envois. Le grain revient au mélange par le réglage SPACE (LIVE K4) ; l'écho et la room reviennent ensemble par RETURN (SHARED SPACE K4).</desc>
+    <defs>
+      <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="s-fill"/></marker>
+    </defs>
+    <!-- à sec -->
+    <rect x="20" y="40" width="150" height="70" rx="8" class="s-box"/>
+    <text x="95" y="66" class="s-t" text-anchor="middle">PISTE ×6</text>
+    <text x="95" y="86" class="s-s" text-anchor="middle">niveau · pan</text>
+    <text x="95" y="101" class="s-s" text-anchor="middle">GLOBAL MIXER K1</text>
+    <line x1="170" y1="75" x2="318" y2="75" class="s-l" marker-end="url(#fl)"/>
+    <text x="244" y="66" class="s-s" text-anchor="middle">à sec</text>
+    <rect x="320" y="52" width="130" height="46" rx="8" class="s-box"/>
+    <text x="385" y="72" class="s-t" text-anchor="middle">CHORUS</text>
+    <text x="385" y="89" class="s-s" text-anchor="middle">FX ×5 · K3 K4</text>
+    <line x1="450" y1="75" x2="542" y2="75" class="s-l" marker-end="url(#fl)"/>
+    <circle cx="560" cy="75" r="17" class="s-box"/>
+    <text x="560" y="81" class="s-t" text-anchor="middle">+</text>
+    <text x="560" y="40" class="s-s" text-anchor="middle">mélange</text>
+    <line x1="577" y1="75" x2="608" y2="75" class="s-l" marker-end="url(#fl)"/>
+    <rect x="610" y="52" width="130" height="46" rx="8" class="s-box"/>
+    <text x="675" y="72" class="s-t" text-anchor="middle">MASTER</text>
+    <text x="675" y="89" class="s-s" text-anchor="middle">potard MASTER</text>
+    <line x1="675" y1="98" x2="675" y2="128" class="s-l" marker-end="url(#fl)"/>
+    <text x="675" y="146" class="s-t" text-anchor="middle">casque · sortie</text>
+    <text x="675" y="163" class="s-t" text-anchor="middle">audio USB</text>
+    <!-- envois -->
+    <line x1="60" y1="110" x2="60" y2="330" class="s-l"/>
+    <text x="68" y="128" class="s-s">envois (après le niveau)</text>
+    <line x1="60" y1="170" x2="298" y2="170" class="s-l s-send" marker-end="url(#fl)"/>
+    <text x="70" y="163" class="s-s">grain · MIXER K2</text>
+    <line x1="60" y1="250" x2="198" y2="250" class="s-l s-send" marker-end="url(#fl)"/>
+    <text x="70" y="243" class="s-s">écho · MIXER K3</text>
+    <line x1="60" y1="330" x2="198" y2="330" class="s-l s-send" marker-end="url(#fl)"/>
+    <text x="70" y="323" class="s-s">room · MIXER K4</text>
+    <!-- passe-haut -->
+    <rect x="200" y="232" width="56" height="116" rx="8" class="s-box s-dash"/>
+    <text x="228" y="286" class="s-t" text-anchor="middle">passe</text>
+    <text x="228" y="302" class="s-t" text-anchor="middle">-haut</text>
+    <text x="228" y="370" class="s-s" text-anchor="middle">SPACE TONE K1</text>
+    <line x1="256" y1="250" x2="298" y2="250" class="s-l" marker-end="url(#fl)"/>
+    <line x1="256" y1="330" x2="298" y2="330" class="s-l" marker-end="url(#fl)"/>
+    <!-- effets -->
+    <rect x="300" y="145" width="166" height="50" rx="8" class="s-box s-fx"/>
+    <text x="383" y="166" class="s-t" text-anchor="middle">GRAIN</text>
+    <text x="383" y="183" class="s-s" text-anchor="middle">bande ~3 s · grains</text>
+    <rect x="300" y="225" width="166" height="50" rx="8" class="s-box s-fx"/>
+    <text x="383" y="246" class="s-t" text-anchor="middle">ÉCHO</text>
+    <text x="383" y="263" class="s-s" text-anchor="middle">temps K1 · feedback K2</text>
+    <rect x="300" y="305" width="166" height="50" rx="8" class="s-box s-fx"/>
+    <text x="383" y="326" class="s-t" text-anchor="middle">ROOM</text>
+    <text x="383" y="343" class="s-s" text-anchor="middle">traîne K3 · diffusion</text>
+    <!-- réinjections -->
+    <path d="M446,145 C446,122 320,122 320,145" class="s-l s-loop" marker-end="url(#fl)"/>
+    <text x="383" y="118" class="s-s" text-anchor="middle">feedback K4</text>
+    <path d="M446,225 C446,206 320,206 320,225" class="s-l s-loop" marker-end="url(#fl)"/>
+    <!-- retours -->
+    <line x1="466" y1="170" x2="494" y2="170" class="s-l"/>
+    <circle cx="510" cy="170" r="16" class="s-knob"/>
+    <text x="510" y="208" class="s-s" text-anchor="middle">SPACE</text>
+    <text x="510" y="222" class="s-s" text-anchor="middle">LIVE K4</text>
+    <polyline points="526,170 552,170 552,94" class="s-l s-ret" marker-end="url(#fl)"/>
+    <polyline points="466,250 478,250 478,290 494,290" class="s-l"/>
+    <polyline points="466,330 478,330 478,290" class="s-l"/>
+    <circle cx="510" cy="290" r="16" class="s-knob"/>
+    <text x="510" y="328" class="s-s" text-anchor="middle">RETURN</text>
+    <text x="510" y="342" class="s-s" text-anchor="middle">SHARED SPACE K4</text>
+    <polyline points="526,290 568,290 568,94" class="s-l s-ret" marker-end="url(#fl)"/>
+    <text x="600" y="230" class="s-s">retours</text>
+  </svg>
+  <figcaption>Les traits pleins à gauche&nbsp;: ce que la piste verse dans les effets (envois). Les ronds jaunes&nbsp;: les retours, le volume de chaque effet dans la sortie. L'écho et la room sont côte à côte&nbsp;: l'un ne passe pas dans l'autre.</figcaption>
+  </figure>
+</div>
+<div class="entry" id="e-envoi">
+  <h3>Un envoi, c'est un robinet&nbsp;; un retour, c'est le volume de l'effet</h3>
+  <ul>
+    <li><b>Envoi</b>&nbsp;: la part du son d'<i>une</i> piste versée dans un effet. Chaque piste a trois envois, réglés sur EDIT ×5 (GLOBAL MIXER), piste choisie avec SELECT&nbsp;: K2 grain, K3 écho, K4 room. L'envoi grain est aussi sur MIX K1 et ENVELOPE K4.</li>
+    <li>Les envois partent <b>après le niveau de la piste</b>&nbsp;: une piste coupée (SEL) ou à 0 n'envoie plus rien. Monter le niveau monte aussi ce qui part vers les effets.</li>
+    <li><b>Retour</b>&nbsp;: le volume de ce que l'effet fabrique, pour les six pistes ensemble. Le grain a le sien&nbsp;: <b>SPACE</b> (LIVE K4, le même réglage que GRANULAR K1). L'écho et la room en partagent un seul&nbsp;: <b>RETURN</b> (SHARED SPACE K4).</li>
+    <li>Pour entendre un effet sur une piste, il faut donc <b>les deux</b>&nbsp;: l'envoi de la piste et le retour de l'effet au-dessus de 0.</li>
+  </ul>
+</div>
+<div class="entry" id="e-effets">
+  <h3>Les effets, un par un</h3>
+  <div class="tablewrap"><table><tr><th>Effet</th><th>Ce qu'il fait</th><th>Ses réglages</th><th>Son retour</th></tr>
+    <tr><td>GRAIN</td><td>Enregistre sans arrêt, sur une bande d'environ 3 secondes, ce que les pistes y envoient, et rejoue de petits morceaux de cette bande (des grains&nbsp;: 2 en ECO, 4 en FULL). Le feedback renvoie les grains dans la bande. FREEZE (bouton LFO) arrête l'enregistrement&nbsp;: les grains rejouent la bande figée.</td><td>GRANULAR&nbsp;: K2 taille des grains, K3 position dans la bande, K4 feedback. TAPE&nbsp;: K1 hauteur des grains (±24 demi-tons), K2 sens (FORWARD ou REVERSE).</td><td>SPACE (LIVE K4 = GRANULAR K1)</td></tr>
+    <tr><td>ÉCHO</td><td>Répète le son après un temps. La réinjection (feedback) fait revenir les répétitions plusieurs fois, en s'éteignant.</td><td>SHARED SPACE&nbsp;: K1 temps (40 à 350&nbsp;ms), K2 feedback. ECHO SYNC / CHORUS&nbsp;: K1 écho calé sur le tempo (division au lieu du temps). SPACE TONE&nbsp;: K2 couleur.</td><td>RETURN (SHARED SPACE K4)</td></tr>
+    <tr><td>ROOM</td><td>Une réverbe&nbsp;: la traîne d'une pièce autour du son.</td><td>SHARED SPACE&nbsp;: K3 longueur de la traîne. SPACE TONE&nbsp;: K3 couleur, K4 diffusion (une attaque plus douce, moins de petits échos distincts).</td><td>RETURN (SHARED SPACE K4)</td></tr>
+    <tr><td>Passe-haut des envois</td><td>Retire les graves de ce qui part vers l'écho et la room, pas du son à sec. Une basse ou une grosse caisse reste nette, les effets ne deviennent pas boueux.</td><td>SPACE TONE K1&nbsp;: OFF ou fréquence.</td><td>—</td></tr>
+    <tr><td>CHORUS</td><td>Épaissit et élargit le son. Pas d'envoi ni de retour&nbsp;: il agit directement sur le mélange à sec des six pistes, pas sur les effets.</td><td>ECHO SYNC / CHORUS&nbsp;: K3 quantité (0 = coupé), K4 profondeur du balancement.</td><td>—</td></tr>
+    <tr><td>Ducking</td><td>Quand la piste source joue une note, les autres pistes baissent un instant, puis remontent. Voir <a href="#e-duck">Le ducking</a>.</td><td>TAPE&nbsp;: K3 piste source, K4 quantité. SYSTEM&nbsp;: K3 remontée.</td><td>—</td></tr>
+  </table></div>
+  <p>Au-dessus de tout&nbsp;: MASTER, le volume final, qui règle aussi ce que l'audio USB enregistre. En ECO, quand le calcul déborde, le FM-1 coupe le chorus et la diffusion jusqu'au prochain Monde.</p>
+</div>
+<div class="entry" id="e-duck">
+  <h3>Le ducking (DUCK TRACK)</h3>
+  <p>Une piste choisie, la <b>source</b>, fait de la place pour elle&nbsp;: à chacune de ses notes, tout le reste baisse d'un coup, puis remonte doucement. C'est l'effet «&nbsp;pompe&nbsp;» des musiques électroniques&nbsp;: une grosse caisse qui creuse les nappes à chaque coup.</p>
+  <figure class="schema">
+  <svg viewBox="0 0 760 250" role="img" aria-labelledby="duck-titre duck-desc">
+    <defs><marker id="fl2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="s-fill"/></marker></defs>
+    <title id="duck-titre">Le ducking dans le temps</title>
+    <desc id="duck-desc">En haut, les notes de la piste source, quatre coups réguliers. En bas, le volume des autres pistes : à chaque coup il tombe de la quantité réglée par TAPE K4, puis remonte pendant la durée réglée par SYSTEM K3.</desc>
+    <text x="20" y="34" class="s-t">piste source</text>
+    <line x1="150" y1="60" x2="740" y2="60" class="s-l s-dash"/>
+    <line x1="190" y1="60" x2="190" y2="24" class="s-hit"/><line x1="340" y1="60" x2="340" y2="24" class="s-hit"/>
+    <line x1="490" y1="60" x2="490" y2="24" class="s-hit"/><line x1="640" y1="60" x2="640" y2="24" class="s-hit"/>
+    <text x="20" y="54" class="s-s">ses notes (TAPE K3)</text>
+    <text x="20" y="120" class="s-t">les autres pistes</text>
+    <text x="20" y="140" class="s-s">et le retour du grain</text>
+    <line x1="150" y1="100" x2="740" y2="100" class="s-l s-dash"/>
+    <text x="740" y="94" class="s-s" text-anchor="end">volume plein</text>
+    <path d="M150,100 L190,100 L190,185 C220,140 270,104 340,101 L340,185 C370,140 420,104 490,101 L490,185 C520,140 570,104 640,101 L640,185 C670,140 720,104 740,102" class="s-curve"/>
+    <line x1="186" y1="104" x2="186" y2="181" class="s-l" marker-start="url(#fl2)" marker-end="url(#fl2)"/>
+    <text x="184" y="150" class="s-s" text-anchor="end">quantité</text>
+    <text x="184" y="164" class="s-s" text-anchor="end">TAPE K4</text>
+    <line x1="342" y1="210" x2="420" y2="210" class="s-l" marker-start="url(#fl2)" marker-end="url(#fl2)"/>
+    <text x="350" y="232" class="s-s">remontée · SYSTEM K3</text>
+  </svg>
+  <figcaption>Chaque note de la source fait tomber le volume des autres pistes, qui remonte ensuite tout seul. Plus la remontée est longue, plus le creux dure.</figcaption>
+  </figure>
+  <div class="tablewrap"><table><tr><th>Réglage</th><th>Ce qu'il fait</th></tr>
+    <tr><td>TAPE (FX ×2) K3 DUCK FROM</td><td>La piste source, 1 à 6, ou OFF (pas de ducking).</td></tr>
+    <tr><td>TAPE K4 DUCK %</td><td>De combien le reste baisse à chaque note de la source, de 0 à 90&nbsp;%.</td></tr>
+    <tr><td>SYSTEM (GLO ×3) K3 DUCK RELEASE</td><td>Le temps de la remontée, d'environ 0,04 à 1,5 seconde.</td></tr>
+  </table></div>
+  <ul>
+    <li><b>Qui baisse</b>&nbsp;: les cinq autres pistes (leur son à sec et ce qu'elles envoient à l'écho, à la room et au grain), et le retour du grain. <b>Qui ne baisse pas</b>&nbsp;: la source elle-même.</li>
+    <li><b>Quand</b>&nbsp;: à chaque note de la source, qu'elle vienne de la séquence, du clavier ou du MIDI. Une source coupée (SEL) ne déclenche rien.</li>
+    <li><b>À l'écran</b>&nbsp;: sur TAPE, la barre rouge DUCK montre de combien le reste est baissé, en direct.</li>
+    <li>Le plus courant&nbsp;: la grosse caisse en source, une quantité moyenne, une remontée courte calée sur le tempo à l'oreille.</li>
+  </ul>
+</div>
+<div class="entry" id="e-recettes">
+  <h3>Recettes</h3>
+  <div class="tablewrap"><table><tr><th>Je veux…</th><th>Je règle</th></tr>
+    <tr><td>De la réverbe sur une seule piste</td><td>EDIT ×5 (GLOBAL MIXER), SELECT la piste, K4 (room) vers le haut, K4 des autres pistes à 0. Puis FX ×3 (SHARED SPACE)&nbsp;: K4 RETURN au-dessus de 0, K3 la longueur.</td></tr>
+    <tr><td>Un écho calé sur le tempo</td><td>GLOBAL MIXER K3 (écho) sur la piste. FX ×5 (ECHO SYNC / CHORUS)&nbsp;: K1 sur une division (1/8, 1/8 pointé, 1/16 T…). SHARED SPACE&nbsp;: K2 le nombre de répétitions, K4 RETURN.</td></tr>
+    <tr><td>Une basse sèche, des effets sur le reste</td><td>FX ×4 (SPACE TONE)&nbsp;: K1 passe-haut vers le haut. Ou&nbsp;: les envois écho et room de la piste de basse à 0.</td></tr>
+    <tr><td>Un nuage granulaire</td><td>GLOBAL MIXER K2 (grain) sur une ou deux pistes. LIVE&nbsp;: K4 SPACE vers le haut. GRANULAR&nbsp;: K2 de grands grains, K4 un peu de feedback. Bouton LFO pour figer le nuage.</td></tr>
+    <tr><td>Que la grosse caisse creuse le reste</td><td>TAPE&nbsp;: K3 la piste de grosse caisse, K4 la quantité. SYSTEM K3&nbsp;: la vitesse de la remontée.</td></tr>
+    <tr><td>Un son plus large</td><td>ECHO SYNC / CHORUS&nbsp;: K3 la quantité de chorus, K4 la profondeur.</td></tr>
+    <tr><td>Couper toutes les traînes d'un coup</td><td>GLO ×3 (SYSTEM) ou GLO ×5 (MIDI), puis REC&nbsp;: panique, qui efface aussi la bande et les traînes.</td></tr>
+  </table></div>
+</div>
+<div class="entry" id="e-rien">
+  <h3>Je n'entends pas l'effet&nbsp;: quoi vérifier</h3>
+  <ol class="steps">
+    <li>La piste joue&nbsp;: pas coupée (SEL), niveau au-dessus de 0 (GLOBAL MIXER K1).</li>
+    <li>Son envoi vers cet effet est au-dessus de 0 (GLOBAL MIXER K2, K3 ou K4). L'écran SHARED SPACE affiche «&nbsp;NO TRACK SENDS: SEE MIXER&nbsp;» si aucune piste n'envoie.</li>
+    <li>Le retour de l'effet est au-dessus de 0&nbsp;: SHARED SPACE K4 pour l'écho et la room («&nbsp;RETURN 0: NOTHING HEARD&nbsp;» sinon), LIVE K4 pour le grain.</li>
+    <li>Pour le grain&nbsp;: la bande se remplit seulement quand des pistes y envoient et que FREEZE est relâché.</li>
+    <li>Pour l'écho, le passe-haut des envois très haut peut ne laisser passer presque rien d'une piste grave.</li>
+  </ol>
+</div>
 <h2 id="fx">Pages FX</h2>
 <div class="entry" id="p-grain">
   <p class="path">FX ×1</p><h3>GRANULAR BUS</h3>
@@ -564,13 +747,14 @@ nav.menu a[aria-current="page"]{color:var(--mark);text-decoration:underline}
 </div>
 <div class="entry" id="p-modulation">
   <p class="path">FX ×6 · une piste</p><h3>MARBLES / TIDES / WARPS</h3>
-  <p>Phase de Tides en direct, pas que Marbles fait varier, profondeur de Warps.</p>
-  <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
-    <tr><td>K1 MARBLES</td><td>Variation retenue des notes hors temps. Agit sur les phrases (BASS en EUCLID ou STEP).</td></tr>
-    <tr><td>K2 TIDES</td><td>Mouvement du filtre. Demande un filtre sur la piste.</td></tr>
-    <tr><td>K3 CYCLE</td><td>Durée du cycle de Tides.</td></tr>
-    <tr><td>K4 WARPS</td><td>Mélange en anneau.</td></tr>
+  <p>Trois façons de faire bouger la piste choisie (SELECT), inspirées de modules de Mutable Instruments. Chacune agit sur sa piste seulement&nbsp;; à 0, elle ne fait rien. À l'écran&nbsp;: le cycle de Tides avec son point qui avance, les pas de la phrase que Marbles peut changer (carrés&nbsp;: fixes, points&nbsp;: variables), la profondeur de Warps.</p>
+  <div class="tablewrap"><table><tr><th>Cadre</th><th>Ce qu'il fait exactement</th></tr>
+    <tr><td>K1 MARBLES</td><td><b>Varie les notes de la phrase.</b> Agit seulement quand la phrase est active (SEQ ×3, BASS / MOTIFS, K1 sur EUCLID ou STEP)&nbsp;; sinon l'écran affiche «&nbsp;MARBLES ACTS ON PHRASES: BASS PAGE&nbsp;». Les pas 1, 5, 9 et 13 (les temps) ne changent jamais. Sur les autres pas, MARBLES est la probabilité qu'une note soit remplacée par la note de base, ou par la note de base plus 3, 5 ou 7 demi-tons (ramenée dans la gamme). Ces choix sont «&nbsp;retenus&nbsp;»&nbsp;: ils dépendent de la graine et du pas, pas du hasard du moment. Avec la graine verrouillée (ARP), la même variation revient à chaque tour&nbsp;; une nouvelle variation (REC sur LIVE) en tire d'autres.</td></tr>
+    <tr><td>K2 TIDES</td><td><b>Fait monter et descendre le filtre de la piste</b>, en triangle&nbsp;: la fréquence du filtre (FILTER K1) va jusqu'à 20&nbsp;% au-dessus et au-dessous de son réglage. TIDES règle l'ampleur. Demande un filtre sur la piste (FILTER K3 pas sur OFF)&nbsp;; sinon l'écran affiche «&nbsp;NEEDS A TRACK FILTER&nbsp;».</td></tr>
+    <tr><td>K3 CYCLE</td><td><b>La durée d'un aller-retour de Tides</b>, de 0,5 à 20 secondes, affichée à l'écran. Libre&nbsp;: elle ne suit pas le tempo (pour un mouvement calé sur le tempo, prendre un LFO synchronisé, LFO A ou B, cible CUTOFF).</td></tr>
+    <tr><td>K4 WARPS</td><td><b>Colore le son en faisant battre son volume à la fréquence de sa propre note</b> (une modulation en anneau)&nbsp;: le son devient plus métallique, plus creux, avec une couleur à l'octave au-dessus. WARPS règle la profondeur&nbsp;: à fond, le volume bat de moitié. Agit sur la sortie de la piste, donc aussi sur ce qu'elle envoie aux effets.</td></tr>
   </table></div>
+  <p>DICE (REC) sur cette page tire au sort les quatre réglages de la piste. Pour plus de mouvement encore&nbsp;: les deux <a href="#p-lfo">LFO</a> de la piste, synchronisés au tempo ou libres, sur 19 cibles.</p>
 </div>
 <div class="entry" id="p-lfo">
   <p class="path">FX ×7 (LFO A) · FX ×8 (LFO B) · une piste</p><h3>LFO A et LFO B</h3>
