@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """The Monades browser installer: base/web/installer.html (fm1-base / Felucca), in French with English one click away,
 the package embedded and checked against its SHA-256, the identity confirmed after the restart (as Mutable Dreams 1.1).
-   python3 tools/package_monades_installer.py app/build/monades-0.1.1.fwsc site/installer
+   python3 tools/package_monades_installer.py app/build/monades-0.1.2.fwsc site/installer
 writes site/installer/index.html and a copy of the package for the Mac updater (base/tools/fm1_install.py)."""
 from pathlib import Path
 import base64,hashlib,json,re,shutil,sys

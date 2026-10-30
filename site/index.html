@@ -58,7 +58,7 @@
     <div class="status-line"><span>Compilation pour le FM-1</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Installé et lancé sur un FM-1</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Vérifications complètes sur le FM-1</span><span class="st">en cours</span></div>
-    <p>Version 0.1.1, du 29 octobre 2026 (paquet <code>monades-0.1.1.fwsc</code>). <b>Installé et lancé sur un FM-1 le 29 octobre 2026, depuis la V15&nbsp;: il démarre et joue.</b> La 0.1.1 corrige l'audio USB, qui craquait dans l'enregistrement quand le calcul du son était chargé (0.1.0)&nbsp;; la correction a été essayée sur le FM-1 avant d'être numérotée 0.1.1.</p>
+    <p>Version 0.1.2, du 30 octobre 2026 (paquet <code>monades-0.1.2.fwsc</code>). <b>Installé et lancé sur un FM-1 le 29 octobre 2026, depuis la V15&nbsp;: il démarre et joue.</b> La 0.1.1 a corrigé l'audio USB, qui craquait dans l'enregistrement quand le calcul du son était chargé (0.1.0). La 0.1.2 ajoute une 20e cible aux LFO, ROTATE&nbsp;: le rythme euclidien d'une piste tourne tout seul (voir le <a href="manuel/#l-cibles">mode d'emploi</a>).</p>
     <h3>Vérifié sur le FM-1 (29 octobre 2026)</h3>
     <ul>
       <li>Installation depuis la V15, identité vérifiée après le redémarrage.</li>
@@ -84,16 +84,16 @@
     <ol class="steps">
       <li>Ouvrir <a href="installer/">l'installeur de Monades</a>. Le paquet est dans la page, vérifié par son empreinte avant d'écrire. Rien ne s'installe tant qu'on n'appuie pas sur le bouton.</li>
       <li>Relier le FM-1 en USB, appuyer sur <b>Installer</b>, accepter l'accès au MIDI quand le navigateur le demande.</li>
-      <li>Attendre la fin&nbsp;: le FM-1 redémarre et l'installeur vérifie qu'il annonce <code>FM-1_714000101</code>.</li>
+      <li>Attendre la fin&nbsp;: le FM-1 redémarre et l'installeur vérifie qu'il annonce <code>FM-1_714000102</code>.</li>
     </ol>
     <h3>Depuis le Mac (Terminal)</h3>
     <ol class="steps">
-      <li>Télécharger <a href="installer/monades-0.1.1.fwsc" download>monades-0.1.1.fwsc</a> et l'outil d'installation <a href="installer/fm1_install.py" download>fm1_install.py</a> dans le même dossier.</li>
+      <li>Télécharger <a href="installer/monades-0.1.2.fwsc" download>monades-0.1.2.fwsc</a> et l'outil d'installation <a href="installer/fm1_install.py" download>fm1_install.py</a> dans le même dossier.</li>
       <li>Installer ce dont l'outil a besoin, une fois&nbsp;: <pre>python3 -m pip install mido python-rtmidi</pre></li>
       <li>Relier le FM-1, puis, dans ce dossier&nbsp;: <pre>python3 fm1_install.py --info
-python3 fm1_install.py monades-0.1.1.fwsc --yes</pre></li>
+python3 fm1_install.py monades-0.1.2.fwsc --yes</pre></li>
     </ol>
-    <p>Le FM-1 redémarre avec l'identité <code>FM-1_714000101</code> et apparaît en MIDI comme «&nbsp;Monades FM-1&nbsp;».</p>
+    <p>Le FM-1 redémarre avec l'identité <code>FM-1_714000102</code> et apparaît en MIDI comme «&nbsp;Monades FM-1&nbsp;».</p>
     <h3>Revenir en arrière</h3>
     <ul>
       <li><b>Vers Mutable Dreams</b>&nbsp;: installer son paquet de la même façon (<a href="https://github.com/kidbee85-beep/mutable-dreams/releases">Mutable Dreams</a>).</li>

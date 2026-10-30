@@ -8,14 +8,14 @@ Le nom vient de la *Monadologie* de Leibniz (1714). Une monade est une unité qu
 
 **Site** : [dr-john-8bits.github.io/monades](https://dr-john-8bits.github.io/monades/), avec le simulateur dans le navigateur, le [mode d'emploi](https://dr-john-8bits.github.io/monades/manuel/), les [nouveautés](https://dr-john-8bits.github.io/monades/nouveautes/), le [MIDI](https://dr-john-8bits.github.io/monades/midi/) et la [feuille de route](https://dr-john-8bits.github.io/monades/feuille-de-route/).
 
-> Version 0.1.1 (29 octobre 2026), **installée et lancée sur un FM-1 le 29 octobre 2026** (depuis la V15) : elle démarre et joue. La 0.1.1 corrige l'audio USB, qui craquait sous la charge. Les vérifications complètes ([docs/monades/TESTS-FM1.md](docs/monades/TESTS-FM1.md)) sont en cours. Pour un instrument plus éprouvé, utilisez [Mutable Dreams](https://github.com/kidbee85-beep/mutable-dreams).
+> Version 0.1.2 (30 octobre 2026). Monades est **installé et lancé sur un FM-1 depuis le 29 octobre 2026** (depuis la V15) : il démarre et joue. La 0.1.1 a corrigé l'audio USB, qui craquait sous la charge ; la 0.1.2 ajoute la cible LFO ROTATE (le rythme euclidien tourne tout seul). Les vérifications complètes ([docs/monades/TESTS-FM1.md](docs/monades/TESTS-FM1.md)) sont en cours. Pour un instrument plus éprouvé, utilisez [Mutable Dreams](https://github.com/kidbee85-beep/mutable-dreams).
 
 ## Installer
 Sur le site, section [Installer](https://dr-john-8bits.github.io/monades/#installer) : depuis le navigateur (Chrome ou Edge, [installeur](https://dr-john-8bits.github.io/monades/installer/)) ou depuis le Mac :
 
 ```sh
 python3 -m pip install mido python-rtmidi
-python3 base/tools/fm1_install.py monades-0.1.1.fwsc --yes
+python3 base/tools/fm1_install.py monades-0.1.2.fwsc --yes
 ```
 
 Aucune manipulation sur le FM-1 : allumé sur la V15 ou sur Mutable Dreams (pas sur la V16 : des problèmes d'installation ont été signalés depuis la V16) et relié en USB, il passe tout seul en mode mise à jour. Retour au V15 : `python3 base/tools/fm1_install.py FM-1-V15.fwsc --yes` (reconnu à son empreinte, sans `--force`). Liste des vérifications sur l'appareil : [docs/monades/TESTS-FM1.md](docs/monades/TESTS-FM1.md).
