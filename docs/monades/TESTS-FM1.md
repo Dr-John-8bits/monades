@@ -21,6 +21,8 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 - Sortie casque propre. Audio USB : craquements et tremblements dans l'enregistrement sur les Mondes chargés en 0.1.0 (propre sur 65 BLANK joué au clavier) ; propre avec la réserve profonde (`FELUCCA_UAC_DEEP`, version 0.1.1). Reste : un crachotement dans l'enregistrement au changement de Monde avec PRESET.
 - Horloge MIDI reçue par l'USB et par la prise TRS (Roland TR-6S, câble TRS-DIN Boss ; la prise MIDI OUT de la TR-6S) : le FM-1 suit ; le tempo affiché oscille de 109 à 112 pour 110 envoyés.
 
+- 30 octobre 2026 : 0.1.2 installée par-dessus la 0.1.1 (`FM-1_714000101` → `FM-1_714000102`) ; la cible LFO ROTATE marche sur l'appareil.
+
 ## 2. Installer
 - Partir de la V15 (`FM-1_015`), pas de la V16 : des problèmes d'installation ont été signalés par des utilisateurs partis de la V16. Le lien officiel de M-VAVE donne depuis le 21 octobre 2026 un fichier plus récent (718 196 octets) que la V15 (699 956 octets).
 - [ ] `python3 base/tools/fm1_install.py --info` voit le FM-1.
