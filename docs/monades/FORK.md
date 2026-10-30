@@ -227,9 +227,11 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
 24. **Mutable Dreams 1.2** (plus tard) : 15 moteurs, 288 sons, 92 Biomes, enchaînements d'accords ; voir ce qui vaut la peine d'être repris dans Monades.
 25. **Deuxième FM-1 : un synthé granulaire** (une piste parmi d'autres, avec le firmware existant pour le rythme et Monades en duo). Grains, réverbe, delay ping-pong, tape, shimmer, égaliseur, compresseur, écrans qui montrent les grains. Sources : audio USB, échantillons du navigateur, oscillateurs internes (pas d'entrée audio sur le FM-1). Mémoire : RAM 98 Ko, zone de 336 Ko, flash de 1 Mo. Deuxième cœur : code présent dans `base/bsp/docs/EXPERIMENTAL.md`, jamais exécuté. Référence d'idées seulement : GrainBrick (TrimUI Brick, code fermé, non repris).
 
+26. **Numéro de version à l'écran** : la page SYSTEM affiche « MONADES 0.1 », écrit en dur dans `app/app.c` ; afficher `APP_VERSION` (passé par `build.py --release`, « DEV » sinon).
+27. **The Firmware Hub** : identité à nous (le préfixe `FM-1_714` est l'identité entière de Matryoshka sur le hub ; un préfixe `FM-1_9NN` libre permet aussi au hub de reprendre une mise à jour interrompue), release GitHub (idéalement signée par le workflow `zvenson/fm1-build`), tests demandés (installer depuis un autre firmware, mise à jour interrompue), `fmhub.json`.
+
 ## Prochaines étapes
-1. **Essayer dans le simulateur** que les fonctions répondent aux besoins.
-2. **Compiler pour le FM-1** (chaîne JieLi pi32v2 + SDK AC79, voir `BUILDING.md`) : la compilation dira si la mémoire tient.
-3. **Tester sur le FM-1** en suivant `docs/monades/TESTS-FM1.md` (charge du processeur d'abord). Essayer aussi le V15 d'origine, Felucca et Mutable Dreams.
-4. **Publier une version** : la section Installer du site, et peut-être The Firmware Hub (`FIRMWARE-HUB.json` hérité de Mutable Dreams).
+1. ~~Compiler pour le FM-1~~ (fait le 28 octobre 2026) ; ~~installer et lancer~~ (29 octobre) ; ~~publier une version~~ (0.1.1 le 29, 0.1.2 le 30 octobre).
+2. **Finir les vérifications sur le FM-1** en suivant `docs/monades/TESTS-FM1.md` : sauvegardes, écrans, endurance, MIDI vers d'autres machines.
+3. **The Firmware Hub** (point 27).
 Chaque changement se développe d'abord sur le Mac (`tools/build_local.py host`), puis dans le navigateur, puis sur le FM-1.
