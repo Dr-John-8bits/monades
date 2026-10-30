@@ -56,6 +56,13 @@ static const char *help_lines[NB][5]={
  {"OCT-: keyboard one octave down","Sequence notes stay unchanged.","MIX K2: the track base note","The first hardware key is F3.","HOME: return to live controls"},
  {"OCT+: keyboard one octave up","Sequence notes stay unchanged.","MIX K2: the track base note","HOME + PRESET: whole Monde","EDIT + PRESET: single sound"}
 };
+/* The hits and rotation a track's ring shows: while playing, what the sequencer last used (Density, FORM and the
+ * LFOs on HITS and ROTATE included); stopped, the knobs with Density. */
+static int dream_ring(int tr,int *rot){
+ const md_track *t=&md_state()->track[tr];const int len=t->length>0?t->length:1;
+ if(md_playing()){const md_stats *ms=md_status();const int h=ms->hits_now[tr],r=ms->rotate_now[tr];*rot=r>=0&&r<len?r:0;return h<0?0:h>len?len:h;}
+ int h=t->hits+(md_state()->macro[0]-500)*len/1500;*rot=t->rotate;return h<0?0:h>len?len:h;
+}
 static int md_context_help(void){
  int p=dream_ui.page,b=dream_ui.help;
  return (p==MIXER&&b==B_EDIT)||((p==BASSLINE||p==PHRASE||p==GENERATOR||p==FORM)&&b==B_SEQ)||
@@ -345,16 +352,17 @@ static void md_draw_all(void) {
     else if((tg==MD_TO_CUTOFF||tg==MD_TO_RESONANCE)&&!t->filter)warn="NEEDS A TRACK FILTER";
     else if((tg==MD_TO_ECHO_SEND||tg==MD_TO_ROOM_SEND||tg==MD_TO_ECHO_TIME||tg==MD_TO_ECHO_FEEDBACK)&&!p->fx_level)warn="RETURN 0: SEE SPACE";
     else if(tg==MD_TO_NOTES&&t->model<MD_FM)warn="DRUM ENGINE: NO NOTES";
+    else if(tg==MD_TO_ROTATE&&p->ext[tr].bass_mode==2)warn="STEP MODE: EVERY STEP PLAYS";
     else if(tg==MD_TO_ATTACK&&!md_has_envelope(t->model))warn="THIS ENGINE HAS NO ATTACK";
     else if(tg==MD_TO_GRAIN_SEND||tg==MD_TO_GRAIN_POS||tg==MD_TO_GRAIN_SIZE){if(!p->macro[3])warn="GRAIN MIX 0: SEE GRANULAR";}
     if(warn)md_text(x0,139,warn,MD_HOT);
     else{char now[24]="NOW ",*q=now+4;float v=ms->lfo_value[tr][sl]*l->depth*.001f;
      if(tg==MD_TO_CUTOFF){md_num((int)ms->cutoff_now[tr],q);while(*q)q++;*q++=' ';*q++='H';*q++='Z';*q=0;}
-     else{int x=(int)(v*(tg==MD_TO_PITCH?120:tg==MD_TO_NOTES?12:tg==MD_TO_LEVEL?100:50)+(v<0?-.5f:.5f)); /* tenths of a semitone, steps, or % of the knob range */
+     else{int x=(int)(v*(tg==MD_TO_PITCH?120:tg==MD_TO_NOTES?12:tg==MD_TO_ROTATE?(t->length>0?t->length:1):tg==MD_TO_LEVEL?100:50)+(v<0?-.5f:.5f)); /* tenths of a semitone, steps, or % of the knob range */
       if(tg==MD_TO_LEVEL)x=(int)(-(l->depth<0?-l->depth:l->depth)*.05f*(1-(l->depth<0?-ms->lfo_value[tr][sl]:ms->lfo_value[tr][sl]))-.5f);
       if(x<0){*q++='-';x=-x;}else *q++='+';
       if(tg==MD_TO_PITCH){md_num(x/10,q);while(*q)q++;*q++='.';*q++='0'+x%10;*q=0;}else md_num(x,q);
-      while(*q)q++;const char *u=tg==MD_TO_PITCH||tg==MD_TO_NOTES?" ST":tg==MD_TO_HITS?" % HITS":" %";while(*u)*q++=*u++;*q=0;}
+      while(*q)q++;const char *u=tg==MD_TO_PITCH||tg==MD_TO_NOTES?" ST":tg==MD_TO_HITS?" % HITS":tg==MD_TO_ROTATE?" STEPS":" %";while(*u)*q++=*u++;*q=0;}
      md_text(x0,139,now,MD_DIM);}}
    md_named(8,158,"K1 RATE",l->rate<MD_LFO_SYNCED?md_lfo_rate_name(l->rate):"FREE",col);md_named(124,158,"K2 SHAPE",md_lfo_shape_name(l->shape),col);
    md_named(8,194,"K3 TARGET",md_lfo_target_name(l->target),col);md_value_span(124,194,"K4 DEPTH",l->depth/10,-100,100,col);
@@ -706,12 +714,12 @@ static void md_draw_all(void) {
   } else if(dream_ui.page==RHYTHM) {
    // The ring the sequencer really uses: hits include the Density macro, the playhead follows the clock division.
    // Solid = played last pass, red ring = a hit Chance refused, pale = not reached yet (brightness = Chance), outer dots = Repeats.
-   {const md_stats *ms=md_status();int tr=dream_ui.track,len=t->length>0?t->length:1;
-    int hits=t->hits+(p->macro[0]-500)*len/1500;hits=hits<0?0:hits>len?len:hits;
+   {const md_stats *ms=md_status();int tr=dream_ui.track,len=t->length>0?t->length:1,rot;
+    int hits=dream_ring(tr,&rot);
     const int cx=120,cy=112,rr=30;
     unsigned mix=(unsigned)(8+t->prob*20/1000);
     for(i=0;i<len;i++){float a=i*6.2831853f/len-1.5707963f;int x=cx+(int)(fm_cosf(a)*rr),y=cy+(int)(fm_sinf(a)*rr);
-     int hit=p->ext[tr].bass_mode==2||md_hit(i,hits,len,t->rotate);uint32_t bit=1u<<i;
+     int hit=p->ext[tr].bass_mode==2||md_hit(i,hits,len,rot);uint32_t bit=1u<<i;
      if(!hit){md_circle(x,y,1,MD_EDGE,1);continue;}
      if(ms->step_played[tr]&bit)md_circle(x,y,4,col,1);
      else if(ms->step_skipped[tr]&bit)md_circle(x,y,4,MD_HOT,0);
@@ -768,11 +776,11 @@ static void md_draw_all(void) {
    {const int x0=16,cw=13,base=130;int len=t->length>16?16:t->length,pos=-1;float sw=p->swing*.001f*.5f;
     cv_rect(4,84,232,66,MD_BG);
     if(md_playing())pos=(int)((md_status()->step/(unsigned)(t->speed>0?t->speed:1))%(unsigned)(t->length>0?t->length:1));
-    unsigned mix=(unsigned)(10+t->prob*22/1000);
+    unsigned mix=(unsigned)(10+t->prob*22/1000);int ring_rot,ring_hits=dream_ring(dream_ui.track,&ring_rot);
     for(i=0;i<len;i++){int gx=x0+i*cw;cv_rect(gx,base+2,1,3,MD_EDGE);
      int x=gx+(i%2?(int)(cw*sw+.5f):0);
      if(i==pos)cv_rect(x,88,cw-2,base-87,md_tint(MD_BG,col,6));
-     if(!md_hit(i,t->hits,t->length,t->rotate)){cv_rect(x+3,base-1,cw-8,1,MD_EDGE);continue;}
+     if(!md_hit(i,ring_hits,t->length,ring_rot)){cv_rect(x+3,base-1,cw-8,1,MD_EDGE);continue;}
      float vel=.8f+t->accent*.001f*(i==0?.2f:-.25f);int h=(int)(40*vel),r=t->ratchet<1?1:t->ratchet,sub=(cw-3)/r;
      for(int k=0;k<r;k++)cv_rect(x+1+k*sub,base-h,sub>2?sub-1:1,h,md_tint(MD_BG,col,mix));}
     char lab[24]="SWING ";md_num(p->swing/10,lab+6);char *e2=lab;while(*e2)e2++;*e2++='%';*e2++=' ';*e2++=' ';*e2++='/';md_num(t->speed,e2);

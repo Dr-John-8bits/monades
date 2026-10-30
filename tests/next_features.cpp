@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cstdint>
 #include <initializer_list>
+#include <vector>
 static float audio[256];
 static double run(int blocks){double e=0;for(int b=0;b<blocks;b++){md_render(audio,128);for(float x:audio){assert(std::isfinite(x)&&fabsf(x)<1);e+=x*x;}}return e;}
 static void cmd(int c,int t,int v){assert(md_command(c,t,v));run(1);}
@@ -368,6 +369,18 @@ int main(){
   cmd(MD_PANIC,0,0);int cc123=0;while(md_midi_take(m))if((m[0]&0xf0)==0xb0&&m[1]==123)cc123|=1<<(m[0]&15);assert(cc123==on);
   cmd(MD_PLAY,0,0);r.mode=0;md_set_midi_routing(&r);const int32_t dflt[6]={1,2,3,4,5,6};md_set_midi_channels(dflt,dflt);
   puts("PASS MIDI channels per track: in, out, OFF, shared, macros on 16, PANIC on the channels used");
+ }
+ {
+  // LFO on ROTATE: S&H synced to the bar turns the kick's pattern to a new place each bar, its hits unchanged.
+  md_patch q=blank(MD_KICK);q.track[0].hits=4;q.track[0].length=16;q.track[0].rotate=0;q.track[0].prob=1000;q.tempo=120;assert(md_load(&q));
+  auto bars=[&](int n){std::vector<int>rot;for(int b=0;b<n;b++){run(689);rot.push_back(md_status()->rotate_now[0]);assert(md_status()->hits_now[0]==4);}return rot;}; // one bar at 120 BPM: 2 s, 689 blocks of 128
+  cmd(MD_PLAY,0,1);for(int r:bars(6))assert(r==0); // no LFO: the knob's rotation
+  cmd(MD_PLAY,0,0);cmd(MD_LFO_RATE,0,3);cmd(MD_LFO_SHAPE,0,MD_LFO_SAMPLE_HOLD);cmd(MD_LFO_TARGET,0,MD_TO_ROTATE);cmd(MD_LFO_DEPTH,0,1000);
+  cmd(MD_PLAY,0,1);auto rot=bars(12);int moved=0;for(size_t k=1;k<rot.size();k++){assert(rot[k]>=0&&rot[k]<16);moved+=rot[k]!=rot[k-1];}
+  assert(moved>=4); // S&H draws a new rotation each bar
+  cmd(MD_LFO_DEPTH,0,0);run(689);assert(md_status()->rotate_now[0]==0);cmd(MD_PLAY,0,0);
+  assert(!strcmp(md_lfo_target_name(MD_TO_ROTATE),"ROTATE"));
+  puts("PASS LFO on ROTATE: S&H to the bar turns the pattern, hits unchanged, depth 0 back to the knob");
  }
  puts("ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim");
 }

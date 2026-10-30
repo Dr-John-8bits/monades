@@ -24,11 +24,11 @@ typedef struct { int32_t delay_send,reverb_send,bass_mode,pattern,glide,marbles,
 /* Monades LFO, two per track. rate: 0..14 synced to the tempo (8 bars .. 1/32), 15..30 free 0.02..20 Hz.
  * depth -1000..1000 (0 = off, negative inverts). Filter modes: 0 off, 1 LP12, 2 LP24, 3 LPG, 4 HP12, 5 BP, 6 notch, 7 HP24.
  * echo_sync: 0 = Echo ms, 1..9 = 1/32 .. 1/4 of the tempo (halved until it fits the 350 ms line). */
-enum { MD_LFO_SYNCED=15, MD_LFO_RATES=31, MD_LFO_SHAPES=7, MD_LFO_TARGETS=19, MD_FILTER_MODES=8, MD_ECHO_SYNCS=10 };
+enum { MD_LFO_SYNCED=15, MD_LFO_RATES=31, MD_LFO_SHAPES=7, MD_LFO_TARGETS=20, MD_FILTER_MODES=8, MD_ECHO_SYNCS=10 };
 enum { MD_LFO_SINE, MD_LFO_TRIANGLE, MD_LFO_RAMP_UP, MD_LFO_RAMP_DOWN, MD_LFO_SQUARE, MD_LFO_SAMPLE_HOLD, MD_LFO_SMOOTH_RANDOM };
 enum { MD_TO_CUTOFF, MD_TO_RESONANCE, MD_TO_LEVEL, MD_TO_PAN, MD_TO_PITCH, MD_TO_TONE, MD_TO_HARMONICS, MD_TO_SHAPE,
  MD_TO_ECHO_SEND, MD_TO_ROOM_SEND, MD_TO_GRAIN_SEND, MD_TO_ECHO_TIME, MD_TO_GRAIN_POS,
- MD_TO_ATTACK, MD_TO_DECAY, MD_TO_ECHO_FEEDBACK, MD_TO_GRAIN_SIZE, MD_TO_NOTES, MD_TO_HITS }; /* NOTES: scale steps on generated notes; HITS: density */
+ MD_TO_ATTACK, MD_TO_DECAY, MD_TO_ECHO_FEEDBACK, MD_TO_GRAIN_SIZE, MD_TO_NOTES, MD_TO_HITS, MD_TO_ROTATE }; /* NOTES: scale steps on generated notes; HITS: density; ROTATE: steps the pattern turns (full depth = a whole turn) */
 typedef struct { int32_t rate,shape,target,depth; } md_lfo;
 /* Monades generator, per track. source: 0 off (Mutable Dreams), 1 random within spread semitones, 2 Markov chain
  * learned from the track's phrase. dejavu 0..1000: chance to replay the loop register instead of drawing anew
@@ -72,7 +72,8 @@ typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; floa
  uint32_t gen_gate[6]; /* Chance decision stored per slot */
  uint32_t form_section,form_cycle,form_drop_mask; float form_pos;
  float gamaka_now[6]; int32_t gamaka_style[6]; float gamaka_age[6]; /* ornament offset in semitones now, its style, ms since the note */
- uint32_t midi_out_track[6]; /* note-ons queued per track (TRACKS and ZONES) */ } md_stats;
+ uint32_t midi_out_track[6]; /* note-ons queued per track (TRACKS and ZONES) */
+ int32_t hits_now[6],rotate_now[6]; /* the hits and rotation the sequencer last used per track (Density, FORM, LFOs included) */ } md_stats;
 /* Monades granular view: tape overview (256 columns, oldest wraps at the write head), grains as samples behind the head. */
 typedef struct { uint8_t peak[256]; uint32_t head,valid,length; int32_t freeze; float zone,zone_len; struct { float behind,len,env; int32_t active; } grain[4]; } md_tape;
 void md_tape_view(md_tape *view);

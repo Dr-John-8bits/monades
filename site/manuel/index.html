@@ -482,7 +482,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 HITS</td><td>Nombre de coups dans le cycle.</td></tr>
     <tr><td>K2 LENGTH</td><td>Longueur du cycle, 1 à 32 pas.</td></tr>
-    <tr><td>K3 ROTATION</td><td>Décalage du motif.</td></tr>
+    <tr><td>K3 ROTATION</td><td>Décalage du motif&nbsp;: il tourne sur son anneau, chaque cran fait arriver les coups un pas plus tôt. Fixe&nbsp;; pour qu'il bouge tout seul, un LFO sur la cible ROTATE (l'anneau montre alors la rotation jouée, K3 reste le point de départ).</td></tr>
     <tr><td>K4 CHANCE</td><td>Probabilité de chaque coup. Avec la graine verrouillée, les décisions de Chance se répètent à chaque tour.</td></tr>
   </table></div>
 </div>
@@ -765,7 +765,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
     <tr><td>K3 CYCLE</td><td><b>La durée d'un aller-retour de Tides</b>, de 0,5 à 20 secondes, affichée à l'écran. Libre&nbsp;: elle ne suit pas le tempo (pour un mouvement calé sur le tempo, prendre un LFO synchronisé, LFO A ou B, cible CUTOFF).</td></tr>
     <tr><td>K4 WARPS</td><td><b>Colore le son en faisant battre son volume à la fréquence de sa propre note</b> (une modulation en anneau)&nbsp;: le son devient plus métallique, plus creux, avec une couleur à l'octave au-dessus. WARPS règle la profondeur&nbsp;: à fond, le volume bat de moitié. Agit sur la sortie de la piste, donc aussi sur ce qu'elle envoie aux effets.</td></tr>
   </table></div>
-  <p>DICE (REC) sur cette page tire au sort les quatre réglages de la piste. Pour plus de mouvement encore&nbsp;: les deux <a href="#p-lfo">LFO</a> de la piste, synchronisés au tempo ou libres, sur 19 cibles.</p>
+  <p>DICE (REC) sur cette page tire au sort les quatre réglages de la piste. Pour plus de mouvement encore&nbsp;: les deux <a href="#p-lfo">LFO</a> de la piste, synchronisés au tempo ou libres, sur 20 cibles.</p>
 </div>
 <div class="entry" id="p-lfo">
   <p class="path">FX ×7 (LFO A) · FX ×8 (LFO B) · une piste</p><h3>LFO A et LFO B</h3>
@@ -773,7 +773,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 RATE</td><td>Synchronisé&nbsp;: 8 BARS, 4 BARS, 2 BARS, 1 BAR, 1/2, 1/4 ., 1/2 T, 1/4, 1/8 ., 1/4 T, 1/8, 1/8 T, 1/16, 1/16 T, 1/32 (redémarre avec PLAY). Puis libre, 0,02 à 20&nbsp;Hz.</td></tr>
     <tr><td>K2 SHAPE</td><td>SINE, TRIANGLE, RAMP UP, RAMP DOWN, SQUARE, SAMPLE &amp; HOLD, SMOOTH RANDOM.</td></tr>
-    <tr><td>K3 TARGET</td><td><a href="#l-cibles">19 cibles</a>&nbsp;: filtre, niveau, hauteur, envois, temps d'écho, grain, attaque, déclin, notes dans la gamme, nombre de coups…</td></tr>
+    <tr><td>K3 TARGET</td><td><a href="#l-cibles">20 cibles</a>&nbsp;: filtre, niveau, hauteur, envois, temps d'écho, grain, attaque, déclin, notes dans la gamme, nombre de coups, rotation du rythme…</td></tr>
     <tr><td>K4 DEPTH</td><td>Profondeur&nbsp;; négative inverse.</td></tr>
   </table></div>
 </div>
@@ -1036,7 +1036,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
   <p>Les moteurs de batterie (KICK, SNARE, HAT) et RINGS règlent leur longueur avec DECAY&nbsp;; les autres ont une enveloppe (page ENVELOPE&nbsp;: attaque et déclin). En ECO (page SYSTEM), FM, VA et HARMONIC sont calculés à mi-cadence pour soulager le processeur. Sur la page SOUND, PRESET choisit un des 224 sons tout faits&nbsp;; DICE (REC) tire au sort les quatre réglages.</p>
 </div>
 <div class="entry" id="l-filtres"><h3>Les 8 modes de filtre</h3><p>OFF · LP 12 dB · LP 24 dB · LOW PASS GATE · HIGH PASS · BAND PASS · NOTCH · HP 24 dB.</p></div>
-<div class="entry" id="l-cibles"><h3>Les 19 cibles de LFO</h3><p>CUTOFF · RESONANCE · LEVEL · PAN · PITCH · TONE · HARMONICS · SHAPE · ECHO SEND · ROOM SEND · GRAIN SEND · ECHO TIME · GRAIN POS · ATTACK · DECAY · ECHO FEEDBACK · GRAIN SIZE · NOTES IN SCALE (pas de gamme sur les notes générées) · HITS (densité).</p></div>
+<div class="entry" id="l-cibles"><h3>Les 20 cibles de LFO</h3><p>CUTOFF · RESONANCE · LEVEL · PAN · PITCH · TONE · HARMONICS · SHAPE · ECHO SEND · ROOM SEND · GRAIN SEND · ECHO TIME · GRAIN POS · ATTACK · DECAY · ECHO FEEDBACK · GRAIN SIZE · NOTES IN SCALE (pas de gamme sur les notes générées) · HITS (densité) · ROTATE (rotation du rythme&nbsp;: le motif tourne sur son anneau, jusqu'à un tour complet à profondeur 100&nbsp;; avec SAMPLE &amp; HOLD synchronisé à la mesure, les coups changent de place à chaque mesure sans changer de nombre).</p></div>
 <div class="entry" id="l-formes"><h3>Formes et vitesses de LFO</h3><p>Formes&nbsp;: SINE · TRIANGLE · RAMP UP · RAMP DOWN · SQUARE · SAMPLE &amp; HOLD · SMOOTH RANDOM. Vitesses synchronisées&nbsp;: 8 BARS · 4 BARS · 2 BARS · 1 BAR · 1/2 · 1/4 . · 1/2 T · 1/4 · 1/8 . · 1/4 T · 1/8 · 1/8 T · 1/16 · 1/16 T · 1/32&nbsp;; puis libres de 0,02 à 20&nbsp;Hz.</p></div>
 <div class="entry" id="l-echo"><h3>Divisions d'écho</h3><p>OFF · 1/32 · 1/16 T · 1/16 · 1/8 T · 1/16 . · 1/8 · 1/4 T · 1/8 . · 1/4.</p></div>
 <div class="entry" id="l-gammes"><h3>Les 91 gammes</h3>

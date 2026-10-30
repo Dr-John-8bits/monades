@@ -370,7 +370,10 @@ static void tick() {
   unsigned local=step/t.speed;
   int hits=bound(t.hits+(patch.macro[0]-500)*t.length/1500+(int)floorf(lfo_mod[i][MD_TO_HITS]*t.length+.5f)+(patch.form?(int)floorf((tension-.6f)*unit(patch.form)*t.length*.8f+.5f):0),0,t.length);
   unsigned roll=random_word(seqrng);
-  const bool hit=patch.ext[i].bass_mode==2||md_hit(local,hits,t.length,t.rotate),rest=(dropped>>i)&1;
+  // LFO on ROTATE: the pattern turns by that many steps (either way), on top of the knob.
+  const int rot=((t.rotate+(int)floorf(lfo_mod[i][MD_TO_ROTATE]*t.length+.5f))%t.length+t.length)%t.length;
+  stats.hits_now[i]=hits;stats.rotate_now[i]=rot;
+  const bool hit=patch.ext[i].bass_mode==2||md_hit(local,hits,t.length,rot),rest=(dropped>>i)&1;
   bool pass=roll%1000<(unsigned)t.prob;int gen_off=0;const bool gen=patch.gen[i].source&&hit&&!t.mute&&!rest;
   if(gen){GenState &g=gens[i];const unsigned len=(unsigned)bound(patch.gen[i].loop,1,16),pos=g.count%len;
    const bool replay=((g.valid>>pos)&1)&&random_word(g.rng)%1000<(unsigned)patch.gen[i].dejavu;
@@ -874,7 +877,7 @@ float md_lfo_sixteenths(int rate){return rate>=0&&rate<MD_LFO_SYNCED?lfo_sync[ra
 float md_lfo_hz(int rate,int tempo){rate=bound(rate,0,MD_LFO_RATES-1);return rate<MD_LFO_SYNCED?tempo/15.0f/lfo_sync[rate]:lfo_free_hz(rate);}
 const char *md_lfo_rate_name(int rate){rate=bound(rate,0,MD_LFO_RATES-1);return rate<MD_LFO_SYNCED?lfo_sync_names[rate]:"FREE";}
 const char *md_lfo_shape_name(int s){static const char *const n[MD_LFO_SHAPES]={"SINE","TRIANGLE","RAMP UP","RAMP DOWN","SQUARE","SAMPLE & HOLD","SMOOTH RANDOM"};return n[bound(s,0,MD_LFO_SHAPES-1)];}
-const char *md_lfo_target_name(int t){static const char *const n[MD_LFO_TARGETS]={"CUTOFF","RESONANCE","LEVEL","PAN","PITCH","TONE","HARMONICS","SHAPE","ECHO SEND","ROOM SEND","GRAIN SEND","ECHO TIME","GRAIN POS","ATTACK","DECAY","ECHO FEEDBACK","GRAIN SIZE","NOTES IN SCALE","HITS"};return n[bound(t,0,MD_LFO_TARGETS-1)];}
+const char *md_lfo_target_name(int t){static const char *const n[MD_LFO_TARGETS]={"CUTOFF","RESONANCE","LEVEL","PAN","PITCH","TONE","HARMONICS","SHAPE","ECHO SEND","ROOM SEND","GRAIN SEND","ECHO TIME","GRAIN POS","ATTACK","DECAY","ECHO FEEDBACK","GRAIN SIZE","NOTES IN SCALE","HITS","ROTATE"};return n[bound(t,0,MD_LFO_TARGETS-1)];}
 float md_echo_ms(void){return echo_ms_now();}
 int md_morph_bars_len(int bars){return morph_len(bars);}
 int md_drift_bars(int slow){return drift_len(slow);}
