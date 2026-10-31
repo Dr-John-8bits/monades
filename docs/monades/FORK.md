@@ -236,9 +236,12 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
    - **installation depuis la V16**, plus tard : leur 1.3 a été installée depuis la V16 (`FM-1_016`) avec le même installeur USB (chargeur Felucca), M-UPGRADE refuse les paquets tiers ; `base/web/fm1ota.js` refuse d'écrire si plusieurs FM-1 ou des sorties MIDI ambiguës sont branchés.
    - Non retenus : la phrase sur 32 pas, les moteurs Velvet Keys, Spectral Bloom et Breath Texture, les kits Lo-Fi, les lumières des boutons.
 30. **Écran de sauvegarde** : montrer les 16 emplacements de Mondes (libres / pris, nom), proposer le premier libre, l'ouvrir depuis SAVE ; aujourd'hui la page USER BANKS affiche le nom en cours d'édition, pas le contenu ni l'état de l'emplacement choisi (seul « SAVE AGAIN: OVERWRITE SLOT » prévient).
+31. **K3 EXCITER lisible** (priorité du prochain firmware) : sur SOUND, pour ELEMENTS STRIKE, le cadre n'affiche que MALLET, PLECTRUM ou PARTICLES. Derrière, `shape` va de 0 à 1000 et chaque cran ajoute 20 : il faut 13 crans pour passer de MALLET à PLECTRUM et 29 pour arriver à PARTICLES (mesuré dans le simulateur sur le Monde 65), sans rien voir bouger entre deux noms. La position dans la zone règle la frappe (`dreams.cpp`, lignes 482 à 488) : MALLET, l'amortissement et la durée du contact ; PLECTRUM, le temps avant que le médiator lâche la corde ; PARTICLES, la durée de la pluie de grains (0,36 à 0,53 s). À faire : garder le nom et ajouter dans le cadre la jauge des autres cadres, avec deux repères aux limites des zones (33 et 67), pour voir où l'on est dans la zone et combien il reste avant la suivante. Le nom de PARTICLES remplit presque le cadre en grande police : vérifier la place sur l'écran. C'est le seul cadre de ce genre (`md_named` sur une valeur continue). Un LFO sur SHAPE fait varier la nuance sans changer de zone : le repère de la jauge pourrait suivre le LFO, comme sur FILTER.
+
 
 ## Prochaines étapes
 1. ~~Compiler pour le FM-1~~ (fait le 28 octobre 2026) ; ~~installer et lancer~~ (29 octobre) ; ~~publier une version~~ (0.1.1 le 29, 0.1.2 le 30 octobre).
-2. **Finir les vérifications sur le FM-1** en suivant `docs/monades/TESTS-FM1.md` : sauvegardes, écrans, endurance, MIDI vers d'autres machines.
-3. **The Firmware Hub** (point 27).
+2. **K3 EXCITER lisible** (point 31), en priorité dans le prochain firmware.
+3. **Finir les vérifications sur le FM-1** en suivant `docs/monades/TESTS-FM1.md` : sauvegardes, écrans, endurance, MIDI vers d'autres machines.
+4. **The Firmware Hub** (point 27).
 Chaque changement se développe d'abord sur le Mac (`tools/build_local.py host`), puis dans le navigateur, puis sur le FM-1.
