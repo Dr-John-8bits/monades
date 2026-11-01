@@ -499,24 +499,25 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 </div>
 <div class="entry" id="p-bass">
   <p class="path">SEQ ×3 · une piste</p><h3>BASS / MOTIFS</h3>
-  <p>Active la phrase de la piste.</p>
+  <p>Active la phrase de la piste. À l'écran, sous le titre&nbsp;: «&nbsp;ROOTED PHRASES / ROUND LOW END&nbsp;», puis les 16 pas de la phrase&nbsp;: un point plein est une note (plus il est haut, plus la note est haute), un point creux est un silence. Malgré son nom, la page marche sur toutes les pistes.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
-    <tr><td>K1 PHRASE</td><td>OFF, EUCLID (chaque coup euclidien joue la note de son pas dans la phrase), STEP (chaque pas joue sa note, sans les coups euclidiens ni Density&nbsp;; un silence (−1) ne joue rien).</td></tr>
-    <tr><td>K2 MOTIF</td><td>Un des motifs.</td></tr>
-    <tr><td>K3 GLIDE</td><td>Glissé entre les notes.</td></tr>
-    <tr><td>K4 BASE NOTE</td><td>Note de base de la piste.</td></tr>
+    <tr><td>K1 PHRASE</td><td>OFF, EUCLID (chaque coup euclidien joue la note de son pas dans la phrase&nbsp;; un coup qui tombe sur un silence (−1) ne joue rien), STEP (chaque pas joue sa note, sans les coups euclidiens ni Density&nbsp;; un silence (−1) ne joue rien).</td></tr>
+    <tr><td>K2 MOTIF</td><td>Un des 4 motifs de 16 pas, écrits en demi-tons au-dessus de la note de base puis ramenés dans la gamme&nbsp;: 1&nbsp;: une note tous les deux pas (0, 0, 7, 0, 0, 3, 7, 10)&nbsp;; 2&nbsp;: plus dense, 11 notes&nbsp;; 3&nbsp;: le plus aéré, 6 notes&nbsp;; 4&nbsp;: 12 notes, avec un saut d'octave. <b>Attention</b>&nbsp;: tourner K2 <b>remplace toute la phrase</b> de la piste, y compris les notes écrites sur PHRASE / NOTES ou au clavier sur GENERATOR.</td></tr>
+    <tr><td>K3 GLIDE</td><td>Glissé d'une note à la suivante, de 0 (aucun) à 100 (environ un tiers de seconde). Il ne s'entend que si la note précédente sonne encore. Il agit sur le son du FM-1 seulement&nbsp;: les notes MIDI envoyées ne glissent pas.</td></tr>
+    <tr><td>K4 BASE NOTE</td><td>Note de base de la piste, de 24 à 96. C'est le même réglage que MIX / NOTES K2.</td></tr>
   </table></div>
+  <p>Quand la phrase est active (EUCLID ou STEP)&nbsp;: le générateur (GENERATOR) et la macro Motion (LIVE K2) ne changent plus les notes. MARBLES (FX ×6, K1) peut remplacer la note d'un pas hors temps par la note de base, ou par la note de base plus 3, 5 ou 7 demi-tons&nbsp;; sur 0, la phrase reste exactement celle écrite.</p>
 </div>
 <div class="entry" id="p-phrase">
   <p class="path">SEQ ×4 · une piste</p><h3>PHRASE / NOTES</h3>
   <p>Mini piano-roll de 16 pas avec tête de lecture. PHRASE OFF&nbsp;: activer la phrase sur BASS / MOTIFS.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 STEP</td><td>Pas à modifier, 1 à 16.</td></tr>
-    <tr><td>K2 NOTE / REST</td><td>Demi-tons au-dessus de la note de base (0 à 24) ou silence (−1). La gamme s'applique.</td></tr>
+    <tr><td>K2 NOTE / REST</td><td>Demi-tons au-dessus de la note de base (0 à 24) ou silence (−1). Ce sont des demi-tons, pas des notes de la gamme&nbsp;: la note est ensuite ramenée dans la gamme, donc deux valeurs voisines peuvent donner la même note. Par exemple, en fa majeur avec la note de base sur fa, 6 (si) n'est pas dans la gamme et devient si♭ ou do.</td></tr>
     <tr><td>K3 ACCENT</td><td>Accent de la piste, le même réglage que GROOVE K3&nbsp;: le premier pas du cycle plus fort, les autres plus doux. Il ne se règle pas pas par pas.</td></tr>
     <tr><td>K4 CHANCE</td><td>Probabilité de la piste, le même réglage que RHYTHM K4&nbsp;: elle vaut pour tous les pas. À 100, chaque pas joue.</td></tr>
   </table></div>
-  <p>En STEP, la phrase boucle sur la longueur de la piste (RHYTHM K2), 16 pas au plus. En EUCLID, elle boucle sur 16 pas. Les notes sont ramenées dans la gamme. La durée d'une note dépend du son de la piste (decay, enveloppe), pas du pas. Sur cette page, le clavier joue la piste sans écrire&nbsp;; pour écrire au clavier, voir <a href="#p-generator">GENERATOR</a>. Voir <a href="#f-pas">Écrire les notes pas à pas</a>.</p>
+  <p>En STEP, la phrase boucle sur la longueur de la piste (RHYTHM K2), 16 pas au plus. En EUCLID, elle boucle sur 16 pas. Les notes sont ramenées dans la gamme. La durée d'une note dépend du son de la piste (decay, enveloppe), pas du pas. Sur cette page, le clavier joue la piste sans écrire&nbsp;; pour écrire au clavier, voir <a href="#p-generator">GENERATOR</a>. REC sur cette page tire au sort de nouvelles notes&nbsp;; ENV annule. Voir <a href="#f-pas">Écrire les notes pas à pas</a>.</p>
 </div>
 <div class="entry" id="p-generator">
   <p class="path">SEQ ×5 · une piste</p><h3>GENERATOR / DEJA VU</h3>
@@ -533,14 +534,14 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
   <p><b>À quoi ça sert</b>&nbsp;: donner au morceau une forme qui monte et redescend, au lieu d'une boucle plate. Le FM-1 enchaîne quatre sections en boucle, <b>CALM → BUILD → PEAK → RELEASE</b> (calme, montée, sommet, détente), puis recommence. Chaque section a sa <b>tension</b>&nbsp;: basse dans le calme, moyenne dans la montée, la plus haute au sommet, plus basse dans la détente.</p>
   <p><b>Ce que change la tension</b>&nbsp;:</p>
   <ul>
-    <li><b>Le nombre de coups</b> de chaque piste&nbsp;: moins dans les sections calmes, plus au sommet, autour du réglage de RHYTHM K1. À fond (K1 DEPTH sur 100), une piste de 16 pas perd environ 4 coups dans le calme et en gagne environ 5 au sommet&nbsp;; la montée garde le nombre réglé.</li>
+    <li><b>Le nombre de coups</b> de chaque piste&nbsp;: moins dans les sections calmes, plus au sommet, autour du réglage de RHYTHM K1. À fond (K1 DEPTH sur 100), une piste de 16 pas perd environ 4 coups dans le calme et en gagne environ 5 au sommet&nbsp;; la montée garde le nombre réglé. FORM s'ajoute à DENSITY (LIVE K1)&nbsp;: une piste qui n'a que 1 ou 2 coups peut se taire complètement dans le calme.</li>
     <li><b>Les pistes au repos</b> (K3)&nbsp;: dans les sections calmes, certaines pistes se taisent, puis reviennent quand la tension monte. Au sommet, tout le monde joue. Les pistes qui se reposent changent d'un cycle à l'autre, mais une piste au moins joue toujours.</li>
   </ul>
   <p><b>L'écran</b>&nbsp;: les quatre blocs, leur hauteur montre la tension&nbsp;; le bloc en clair est la section en cours, le trait vertical montre où en est le morceau dans cette section. Sous chaque section, les six pistes&nbsp;: en couleur, elles jouent&nbsp;; en gris, elles se reposent dans ce cycle&nbsp;; très sombres, elles sont coupées (SEL). En haut à gauche, la durée de chaque section («&nbsp;2 BARS EACH&nbsp;»). En haut à droite, une mesure de 16 pas&nbsp;: les traits hauts marquent les pas où Motion peut tirer une nouvelle variation (K4). Avec K1 sur 0&nbsp;: «&nbsp;FORM OFF: SONG FLAT&nbsp;».</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 DEPTH</td><td>La force de la forme, de 0 (arrêt, FORM OFF) à 100. À faible valeur (autour de 15), l'effet est discret&nbsp;: les sections changent à peine le nombre de coups. Vers 60 à 100, on entend nettement le calme et le sommet.</td></tr>
-    <tr><td>K2 SECTION</td><td>La durée de chaque section&nbsp;: 2, 4, 8 ou 16 mesures. Un cycle complet dure quatre fois plus&nbsp;: de 8 à 64 mesures. Avec 8 ou 16, le morceau respire lentement, sur plusieurs minutes.</td></tr>
-    <tr><td>K3 RESTING</td><td>Combien de pistes peuvent se taire, de 0 à 3. Le repos est le plus fort dans le calme, plus léger dans la montée et la détente, nul au sommet. Par exemple, sur 3&nbsp;: deux pistes se taisent dans le calme, une dans la montée, aucune au sommet, deux dans la détente.</td></tr>
+    <tr><td>K2 SECTION</td><td>La durée de chaque section&nbsp;: 2, 4, 8 ou 16 mesures. Un cycle complet dure quatre fois plus&nbsp;: de 8 à 64 mesures. Avec 8 ou 16, le morceau respire lentement, sur plusieurs minutes. Par exemple, avec 16 mesures&nbsp;: à 120 BPM, une section dure 32 secondes et un cycle 2 min 08&nbsp;; à 70 BPM, une section dure environ 55 secondes et un cycle 3 min 40. Pour une forme plus longue, il faut agir à la main (DENSITY, SEL).</td></tr>
+    <tr><td>K3 RESTING</td><td>Combien de pistes peuvent se taire, de 0 à 3. Le repos est le plus fort dans le calme, plus léger dans la montée et la détente, nul au sommet. Par exemple, sur 3&nbsp;: deux pistes se taisent dans le calme, une dans la montée, aucune au sommet, deux dans la détente. Le repos ne dépend pas de K1&nbsp;: il est le même avec DEPTH sur 5 ou sur 100&nbsp;; seul DEPTH sur 0 l'arrête.</td></tr>
     <tr><td>K4 MOTION</td><td>Tous les combien de pas la macro Motion (LIVE K2) tire une nouvelle variation de notes&nbsp;: à chaque pas, ou tous les 2, 4, 8 ou 16 pas, et la garde entre deux. Ce réglage agit sur la mélodie, pas sur la forme&nbsp;; il est rangé ici parce qu'il règle lui aussi le déroulé dans le temps.</td></tr>
   </table></div>
   <p><b>Pour bien l'entendre</b>&nbsp;: K1 vers 80, K2 sur 4 BARS, K3 sur 2, puis PLAY. Le morceau commence calme et dépouillé, se remplit, arrive au sommet, puis redescend, et recommence toutes les 16 mesures.</p>
