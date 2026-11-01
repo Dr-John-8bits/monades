@@ -396,7 +396,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
     <tr><td>K1 DENSITY</td><td>Nombre de coups de toutes les pistes, au-dessus ou en dessous de leur réglage.</td></tr>
     <tr><td>K2 MOTION</td><td>Mouvement mélodique&nbsp;: part des notes qui dévient de la note de base.</td></tr>
     <tr><td>K3 COLOUR</td><td>Plus clair ou plus sombre.</td></tr>
-    <tr><td>K4 SPACE</td><td>Niveau du bus granulaire.</td></tr>
+    <tr><td>K4 SPACE</td><td>Le volume du nuage de grains dans le mélange, pour les six pistes ensemble. Le bus granulaire enregistre sans arrêt ce que les pistes lui envoient et le rejoue en petits morceaux (voir <a href="#p-grain">GRANULAR BUS</a>)&nbsp;; SPACE règle combien on l'entend. Sur 0, on n'entend plus de grains, mais la bande continue d'enregistrer. SPACE ne fait rien si aucune piste n'envoie au grain&nbsp;: l'envoi de chaque piste se règle sur GLOBAL MIXER K2 GRAIN (le même que MIX / NOTES K1 SEND). SPACE ne règle ni l'écho ni la room (leur retour est RETURN, SHARED SPACE K4). C'est le même réglage que GRANULAR BUS K1. À l'écran, l'anneau de poussière autour de la flotte grandit et s'éclaire avec SPACE.</td></tr>
   </table></div>
 </div>
 <div class="entry" id="p-morph">
@@ -713,7 +713,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
   <p class="path">FX ×1</p><h3>GRANULAR BUS</h3>
   <p>La bande enregistrée, la tête d'écriture, chaque grain à sa place&nbsp;; Freeze (bouton LFO) fige tout.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
-    <tr><td>K1 SPACE</td><td>Niveau du bus granulaire (la macro Space).</td></tr>
+    <tr><td>K1 SPACE</td><td>Le volume du nuage de grains dans le mélange (la macro Space, le même réglage que LIVE K4). Sur 0, on n'entend plus de grains, mais la bande continue d'enregistrer.</td></tr>
     <tr><td>K2 GRAIN SIZE</td><td>Longueur des grains.</td></tr>
     <tr><td>K3 POSITION</td><td>Position des grains dans la bande.</td></tr>
     <tr><td>K4 FEEDBACK</td><td>Réinjection.</td></tr>
