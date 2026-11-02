@@ -22,6 +22,7 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 - Horloge MIDI reçue par l'USB et par la prise TRS (Roland TR-6S, câble TRS-DIN Boss ; la prise MIDI OUT de la TR-6S) : le FM-1 suit ; le tempo affiché oscille de 109 à 112 pour 110 envoyés.
 
 - 30 octobre 2026 : 0.1.2 installée par-dessus la 0.1.1 (`FM-1_714000101` → `FM-1_714000102`) ; la cible LFO ROTATE marche sur l'appareil.
+- 2 novembre 2026 : 0.1.3 installée par-dessus la 0.1.2 (`FM-1_714000102` → `FM-1_714000103`, `fm1_install.py --yes`) ; sauvegarde `.mddb` faite avant (vide : aucun objet sauvé). Mémoire de la compilation : image 446 964 octets, RAM 83 320 sur 98 304, pool 334 872 sur 344 064. Essayée par l'auteur sur l'appareil : jauge K3 EXCITER, carte avant de changer de Monde, écran de sauvegarde, version, lumières du clavier.
 
 ## 2. Installer
 - Partir de la V15 (`FM-1_015`), pas de la V16 : des problèmes d'installation ont été signalés par des utilisateurs partis de la V16. Le lien officiel de M-VAVE donne depuis le 21 octobre 2026 un fichier plus récent (718 196 octets) que la V15 (699 956 octets).
