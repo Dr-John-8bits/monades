@@ -146,6 +146,11 @@ expect model 0
 tap HOME
 spin PRESET -64
 wait 30
+expect asking 0
+expect biome 64
+tap SEL
+wait 30
+expect asking -1
 expect biome 0
 tap GLO
 tap GLO
@@ -157,6 +162,7 @@ spin K2 -1
 expect motion 0
 expect boot_sound 0
 tap SAVE
+expect page 18
 reboot
 wait 3400
 expect motion 0

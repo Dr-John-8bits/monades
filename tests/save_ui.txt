@@ -1,0 +1,127 @@
+wait 3400
+tap HOME
+expect page 0
+expect unsaved 0
+turn PRESET 64
+expect biome 64
+expect asking -1
+expect unsaved 0
+tap GLO
+tap GLO
+tap GLO
+expect page 5
+wait 200
+shot save/00-system.png
+turn SELECT -5
+turn ALGO 2
+expect model 9
+expect unsaved 1
+expect shape 90
+wait 200
+shot save/01-exciter-mallet.png
+turn K3 8
+expect shape 250
+wait 200
+shot save/02-exciter-mallet-late.png
+turn K3 5
+expect shape 350
+wait 200
+shot save/03-exciter-plectrum.png
+turn K3 16
+expect shape 670
+wait 200
+shot save/04-exciter-particles.png
+turn K3 20
+expect shape 1000
+wait 200
+shot save/05-exciter-max.png
+tap HOME
+expect page 0
+turn PRESET 1
+expect asking 65
+expect biome 64
+wait 200
+shot save/06-card.png
+turn PRESET 2
+expect asking 67
+turn K1 5
+expect density 500
+tap PLAY
+expect playing 0
+tap HOME
+expect asking -1
+expect page 0
+expect biome 64
+expect unsaved 1
+turn PRESET -1
+expect asking 63
+tap SEL
+wait 100
+expect asking -1
+expect biome 63
+expect unsaved 0
+tap PLAY
+wait 20000
+expect unsaved 0
+tap PLAY
+wait 100
+turn PRESET 15
+expect asking -1
+expect biome 78
+tap PLAY
+wait 20000
+expect unsaved 0
+tap PLAY
+wait 100
+turn K1 3
+expect unsaved 1
+tap SAVE
+wait 100
+expect page 18
+expect unsaved 0
+expect bank_slot 0
+wait 200
+shot save/07-after-save.png
+tap SAVE
+wait 100
+expect unsaved 0
+wait 1600
+shot save/08-slot1-saved.png
+tap HOME
+expect page 0
+turn K1 2
+expect unsaved 1
+turn PRESET 1
+expect asking 79
+tap SAVE
+wait 100
+expect asking -1
+expect page 18
+expect bank_slot 1
+expect biome 78
+wait 1600
+shot save/09-from-card.png
+turn K1 -1
+expect bank_slot 0
+turn K3 1
+expect asking 100
+wait 200
+shot save/10-card-bank.png
+tap SEL
+wait 100
+expect asking -1
+expect unsaved 0
+turn K2 1
+wait 1600
+shot save/11-sounds.png
+tap HOME
+expect page 0
+tap PLAY
+turn K1 2
+turn PRESET 1
+expect asking 79
+expect playing 1
+wait 200
+shot save/12-card-playing.png
+tap HOME
+tap PLAY

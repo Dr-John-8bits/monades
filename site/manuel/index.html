@@ -328,7 +328,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 </div>
 <div class="entry" id="b-save">
   <p class="path">Bouton</p><h3>SAVE</h3>
-  <p>Sauve le Monde en cours et les préférences (animations, son de démarrage, MIDI, gamme CUSTOM) sur le FM-1&nbsp;: «&nbsp;MONDE + PREFS SAVED&nbsp;». Il faut être à l'arrêt («&nbsp;STOP BEFORE SAVING&nbsp;») et sur horloge interne («&nbsp;USE INTERNAL CLOCK TO SAVE&nbsp;»). Sur USER BANKS, sauve dans l'emplacement choisi&nbsp;; un emplacement occupé demande un second appui. La bande granulaire n'est pas sauvée. Voir <a href="#f-sauver">Sauvegarder mon travail</a>.</p>
+  <p>Sauve le Monde en cours et les préférences (animations, son de démarrage, MIDI, gamme CUSTOM) sur le FM-1&nbsp;: ils reviennent au prochain démarrage. Puis l'écran de sauvegarde s'ouvre (USER BANKS) sur le premier emplacement libre&nbsp;: «&nbsp;SAVED. AGAIN: SLOT 3&nbsp;» (ou «&nbsp;SAVED. ALL 16 SLOTS TAKEN&nbsp;»). Un second appui sur SAVE garde le Monde dans cet emplacement, pour de bon. Il faut être à l'arrêt («&nbsp;STOP BEFORE SAVING&nbsp;») et sur horloge interne («&nbsp;USE INTERNAL CLOCK TO SAVE&nbsp;»). Sur USER BANKS, sauve dans l'emplacement choisi&nbsp;; un emplacement occupé demande un second appui. La bande granulaire n'est pas sauvée. Voir <a href="#f-sauver">Sauvegarder mon travail</a>.</p>
 </div>
 <div class="entry" id="b-oct">
   <p class="path">Boutons</p><h3>OCT− / OCT+</h3>
@@ -378,7 +378,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 </div>
 <div class="entry" id="c-preset">
   <p class="path">Encodeur</p><h3>PRESET</h3>
-  <p>Sur SOUND, FILTER, ENVELOPE, MIX, GLOBAL MIXER, BASS, PHRASE, MARBLES, LFO A, LFO B, GENERATOR&nbsp;: un des 224 sons pour la piste (les notes, le rythme, le mixage, les envois et le mute restent). Sur MORPH&nbsp;: le Monde B. Sur USER BANKS&nbsp;: la lettre du nom. Ailleurs&nbsp;: un Monde (tout le patch est remplacé). Le bas de l'écran indique ce que fait PRESET.</p>
+  <p>Sur SOUND, FILTER, ENVELOPE, MIX, GLOBAL MIXER, BASS, PHRASE, MARBLES, LFO A, LFO B, GENERATOR&nbsp;: un des 224 sons pour la piste (les notes, le rythme, le mixage, les envois et le mute restent). Sur MORPH&nbsp;: le Monde B. Sur USER BANKS&nbsp;: la lettre du nom. Ailleurs&nbsp;: un Monde (tout le patch est remplacé&nbsp;; avec des changements non sauvés, une carte demande d'abord, voir <a href="#f-monde">Changer de Monde</a>). Le bas de l'écran indique ce que fait PRESET.</p>
 </div>
 <div class="entry" id="c-k">
   <p class="path">Potards</p><h3>K1 à K4</h3>
@@ -431,7 +431,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 TONE</td><td>Brillance.</td></tr>
     <tr><td>K2 HARMONICS</td><td>Harmoniques, ou accord selon le moteur.</td></tr>
-    <tr><td>K3 SHAPE / DECAY / EXCITER</td><td>SHAPE pour FM, VA, Harmonic, Choir, Bass, Mellow, Satin&nbsp;; DECAY pour les batteries et Rings&nbsp;; EXCITER pour Elements (MALLET, PLECTRUM, PARTICLES).</td></tr>
+    <tr><td>K3 SHAPE / DECAY / EXCITER</td><td>SHAPE pour FM, VA, Harmonic, Choir, Bass, Mellow, Satin&nbsp;; DECAY pour les batteries et Rings&nbsp;; EXCITER pour Elements (MALLET, PLECTRUM, PARTICLES)&nbsp;: sous le nom, une jauge avec deux repères aux limites des zones (33 et 67). Le nom change en passant un repère&nbsp;; entre deux repères, la position règle la frappe (MALLET&nbsp;: l'amortissement et la durée du contact&nbsp;; PLECTRUM&nbsp;: le temps avant que le médiator lâche la corde&nbsp;; PARTICLES&nbsp;: la durée de la pluie de grains). Chaque cran avance de 2&nbsp;: environ 17 crans par zone.</td></tr>
     <tr><td>K4 LEVEL</td><td>Niveau de la piste.</td></tr>
   </table></div>
 </div>
@@ -804,7 +804,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 </div>
 <div class="entry" id="p-system">
   <p class="path">GLO ×3</p><h3>QUALITY / SYSTEM</h3>
-  <p>Version, FLASH DOG DUKE SILVER, mode ECO ou FULL, charge et pic du processeur, décrochages, mémoire.</p>
+  <p>Version du firmware («&nbsp;MONADES 0.1.3&nbsp;» ; «&nbsp;MONADES DEV&nbsp;» pour une version de développement et dans le simulateur), FLASH DOG DUKE SILVER, mode ECO ou FULL, charge et pic du processeur, décrochages, mémoire.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1</td><td>Tempo.</td></tr>
     <tr><td>K2</td><td>ECO (2 grains, modes adaptés) ou FULL (24 modes, 4 grains). Un patch trop lourd repasse en ECO&nbsp;; s'il est déjà en ECO quand le calcul déborde, le chorus et la diffusion de la room s'arrêtent jusqu'au prochain Monde.</td></tr>
@@ -858,11 +858,11 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 </div>
 <div class="entry" id="p-banks">
   <p class="path">GLO ×8</p><h3>USER BANKS</h3>
-  <p>16 emplacements de Mondes et 64 de sons, sur le FM-1. Les Mondes d'usine restent disponibles. La bande granulaire n'est pas gardée.</p>
+  <p>L'écran de sauvegarde&nbsp;: 16 emplacements de Mondes et 64 de sons, sur le FM-1. En haut, tous les emplacements de la banque&nbsp;: plein = pris, vide = libre, l'emplacement choisi est encadré. Dessous, son état («&nbsp;SLOT 3: FREE&nbsp;», ou le nom du Monde gardé&nbsp;; «&nbsp;TAKEN&nbsp;» pour un son), le nom qui sera donné, et ce que fera SAVE («&nbsp;SAVE: SAVE IN THIS SLOT&nbsp;», ou «&nbsp;SAVE TWICE: OVERWRITE THIS SLOT&nbsp;»). Les emplacements se lisent à l'arrêt&nbsp;: pendant la lecture, «&nbsp;STOP TO READ&nbsp;». SAVE, depuis n'importe quelle page, ouvre cet écran sur le premier emplacement libre. Les Mondes d'usine restent disponibles. La bande granulaire n'est pas gardée.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1 USER SLOT</td><td>Emplacement, 1 à 16 (Mondes) ou 1 à 64 (sons).</td></tr>
     <tr><td>K2 BANK</td><td>MONDES ou SOUNDS.</td></tr>
-    <tr><td>K3 TURN RIGHT</td><td>Tourner à droite charge l'emplacement (LOAD).</td></tr>
+    <tr><td>K3 TURN RIGHT</td><td>Tourner à droite charge l'emplacement (LOAD). Si le Monde en cours a des changements non sauvés, la carte «&nbsp;KEEP YOUR CHANGES?&nbsp;» demande d'abord (voir <a href="#f-monde">Changer de Monde</a>).</td></tr>
     <tr><td>K4 NAME CURSOR</td><td>Lettre du nom à modifier (1 à 23)&nbsp;; PRESET change la lettre.</td></tr>
   </table></div>
   <p>SAVE sauve dans l'emplacement&nbsp;; un emplacement occupé demande un second SAVE. Arrêter la lecture et être sur horloge interne avant.</p>
@@ -911,7 +911,14 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 </div>
 <div class="entry" id="f-monde">
   <p class="path">Comment faire</p><h3>Changer de Monde</h3>
-  <p>Sur LIVE (<span class="k">HOME</span>), tourner <span class="k">PRESET</span>. Tout le patch est remplacé&nbsp;: <a href="#f-sauver">sauver</a> avant si besoin. Pour passer en douceur&nbsp;: <a href="#f-morph">morphing</a>.</p>
+  <p>Sur LIVE (<span class="k">HOME</span>), tourner <span class="k">PRESET</span>. Tout le patch est remplacé. Si le Monde en cours a changé depuis qu'il a été chargé ou sauvé, une carte demande d'abord&nbsp;: «&nbsp;KEEP YOUR CHANGES?&nbsp;», avec le Monde demandé («&nbsp;NEXT: MONDE 66 MIST&nbsp;»)&nbsp;:</p>
+  <ul>
+    <li><span class="k">SEL</span>&nbsp;: abandonner les changements et charger ce Monde&nbsp;;</li>
+    <li><span class="k">SAVE</span>&nbsp;: ouvrir l'écran de sauvegarde (USER BANKS) sur le premier emplacement libre&nbsp;;</li>
+    <li><span class="k">HOME</span>&nbsp;: garder le Monde en cours et continuer&nbsp;;</li>
+    <li><span class="k">PRESET</span>&nbsp;: choisir un autre Monde sur la carte.</li>
+  </ul>
+  <p>Les autres boutons et potards attendent la réponse&nbsp;; la lecture continue et le clavier joue. Ne comptent pas comme des changements&nbsp;: la graine qui change seule, le passage automatique en ECO, le gel de la bande (bouton LFO), le tempo suivi sur une horloge externe. Pour passer en douceur&nbsp;: <a href="#f-morph">morphing</a>.</p>
 </div>
 <div class="entry" id="f-figer">
   <p class="path">Comment faire</p><h3>Figer le grain</h3>
@@ -923,8 +930,8 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 </div>
 <div class="entry" id="f-sauver"><h3>Sauvegarder mon travail</h3><ol class="steps">
   <li>Arrêter la lecture (<span class="k">PLAY</span>). Horloge interne (GLO › MIDI, K1 sur INTERNAL).</li>
-  <li><span class="k">SAVE</span>&nbsp;: le Monde en cours et les préférences sont gardés («&nbsp;MONDE + PREFS SAVED&nbsp;»).</li>
-  <li>Pour garder plusieurs Mondes&nbsp;: GLO ×8 (USER BANKS), K2 sur MONDES, K1 l'emplacement, K4 et PRESET pour le nom, <span class="k">SAVE</span>.</li>
+  <li><span class="k">SAVE</span>&nbsp;: le Monde en cours et les préférences sont gardés pour le prochain démarrage, et l'écran de sauvegarde s'ouvre sur le premier emplacement libre.</li>
+  <li>Pour garder ce Monde pour de bon&nbsp;: K4 et PRESET pour le nom si besoin, puis <span class="k">SAVE</span> une seconde fois. K1 choisit un autre emplacement&nbsp;; un emplacement pris demande deux appuis.</li>
 </ol></div>
 <div class="entry" id="f-charger"><h3>Recharger une sauvegarde</h3><ol class="steps">
   <li>GLO ×8 (USER BANKS), K2 sur MONDES ou SOUNDS, K1 l'emplacement.</li>

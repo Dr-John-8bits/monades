@@ -160,11 +160,29 @@ static void bank_patch(md_patch &p,int id) {
  // Mutable Dreams Mondes are 1.1 patches: Monades additions neutral. FDDS Mondes are complete v10 patches.
  if(p.version!=10){extension_defaults(p);if(id>=65){p.fx_level=340;p.reverb_time=550;for(int i=0;i<6;i++)p.ext[i].reverb_send=300;}}
 }
+// Unsaved work (from Mutable Dreams 1.3): a fingerprint of the patch when it was loaded or saved. What changes by
+// itself (the free seed, the auto ECO drop, the tape freeze, the edit flags, the phrase cursor, and the tempo while it
+// follows a received clock) is left out.
+static uint32_t saved_hash[2];static int32_t saved_tempo; /* the tempo apart: it counts only on the internal clock */
+static void patch_hash(uint32_t out[2]){
+ const uint8_t *b=reinterpret_cast<const uint8_t*>(&patch);uint32_t a=2166136261u,c=5381;
+ const unsigned skip[4]={offsetof(md_patch,seed),offsetof(md_patch,freeze),offsetof(md_patch,quality),offsetof(md_patch,edited_mask)};
+ const unsigned ext=offsetof(md_patch,ext),ext_end=ext+sizeof patch.ext,cursor=offsetof(md_extension,edit_step);
+ for(unsigned j=0;j<sizeof patch;j++){
+  bool out_of=false;for(unsigned k=0;k<4;k++)if(j>=skip[k]&&j<skip[k]+4)out_of=true;
+  if(j>=offsetof(md_patch,tempo)&&j<offsetof(md_patch,tempo)+4)out_of=true;
+  if(j>=ext&&j<ext_end){unsigned o=(j-ext)%sizeof(md_extension);if(o>=cursor&&o<cursor+4)out_of=true;}
+  if(out_of)continue;a=(a^b[j])*16777619u;c=(c*33u)^b[j];
+ }
+ out[0]=a;out[1]=c;
+}
+static void mark_saved(){patch_hash(saved_hash);saved_tempo=patch.tempo;}
 static void scene(int id) {
  bank_patch(patch,id);morph_on=0;drift_on=0;drift_slow=0;fx_shed=0;
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
  gen_reset();memset(motion_held,0,sizeof motion_held); // a new Biome starts with empty generator registers
+ mark_saved();
 }
 static void tone_preset(int track,int id) {
  id=bound(id,0,MD_TONE_PRESETS-1);const TonePreset &a=tone_bank[id];md_track &t=patch.track[track];
@@ -809,7 +827,7 @@ int md_validate(const md_patch *p) {
  for(int i=0;i<6;i++)for(int s=0;s<2;s++){const md_lfo &l=p->lfo[i][s];if(l.rate<0||l.rate>=MD_LFO_RATES||l.shape<0||l.shape>=MD_LFO_SHAPES||l.target<0||l.target>=MD_LFO_TARGETS||l.depth< -1000||l.depth>1000)return 0;}
  return 1;
 }
-int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;returnable=0;morph_on=0;drift_on=0;drift_slow=0;morph_span=0;fx_shed=0;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
+int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;returnable=0;morph_on=0;drift_on=0;drift_slow=0;morph_span=0;fx_shed=0;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);mark_saved();return 1;}
 unsigned md_memory_bytes(){return sizeof drift_home+sizeof morph_before+sizeof morph_a+sizeof morph_b+sizeof morph_kind+sizeof chorus_line+64+sizeof diffuser+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
@@ -892,6 +910,8 @@ void md_morph_view(md_morph_state *s,const md_patch **a,const md_patch **b){
  s->on=morph_on;s->target=morph_target;s->pos=morph_pos;s->bars=morph_bars;s->scope=morph_scope;if(a)*a=&morph_a;if(b)*b=&morph_b;
 }
 int md_can_return(void){return returnable;}
+int md_unsaved(void){uint32_t h[2];patch_hash(h);return h[0]!=saved_hash[0]||h[1]!=saved_hash[1]||(!clock_source&&patch.tempo!=saved_tempo);}
+void md_mark_saved(void){mark_saved();}
 unsigned md_form_mask(unsigned c,unsigned s){return form_mask(c,s);}
 float md_form_tension(unsigned s){return form_tension_of[s&3];}
 int md_form_bars(void){return (int)form_bar_len[bound(patch.form_bars,0,3)];}

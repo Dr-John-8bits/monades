@@ -149,6 +149,8 @@ typedef struct { int32_t on,slow,amount,voyage,scope,pos,distance; float seconds
 void md_drift_view(md_drift_state *s,const md_patch **home);
 int md_drift_bars(int slow); /* 0, 8, 16, 32, 64, 128, 256 */
 int md_can_return(void); /* 1 if ENV (RETURN) has a previous variation to go back to */
+int md_unsaved(void); /* 1 if the patch changed since it was loaded or saved (seed, ECO drop, freeze left out) */
+void md_mark_saved(void); /* the patch as it is now counts as saved (the app calls it under plat_lock) */
 const char *md_echo_sync_name(int sync);
 unsigned md_form_mask(unsigned cycle,unsigned section); /* tracks the form drops in that section */
 float md_form_tension(unsigned section);

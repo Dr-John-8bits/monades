@@ -2,9 +2,16 @@
 #include "dsp/dreams.h"
 #include "fastmath.h"
 #include <stddef.h>
+#ifndef APP_VERSION
+#define APP_VERSION "DEV" /* a release build passes its own (tools/build.py --release X.Y.Z) */
+#endif
 enum { LIVE,SOUND,RHYTHM,GRAIN,MIX,SYSTEM,ENVELOPE,GROOVE,TAPE,HARMONY,FILTER,APPEARANCE,MIXER,BASSLINE,SPACE,MODULATION,PHRASE,MIDI,BANKS,ZONES,LFO_A,LFO_B,SPACE_TONE,ECHO_CHORUS,GENERATOR,FORM,RAGA,MORPH,DRIFT,CHANNELS };
 static struct { int page,track,help,dirty,octave; uint32_t btn,keys,down[NB],held,next; char msg[32]; uint32_t msg_until; } dream_ui;
 static int dream_store_hold;
+// A Monde (PRESET) or a user Monde (USER BANKS K3) asked for while the Monde in play has unsaved edits: a card asks
+// first (SEL loads, SAVE opens the save screen, HOME keeps editing). -1 = nothing waiting.
+static int monde_pending=-1,bank_pending=-1;
+static int dream_asking(void){return monde_pending>=0||bank_pending>=0;}
 static volatile int dream_reloading;
 static float md_audio[256],md_gain;static uint32_t midi_link;
 /* 1.1 saved only the first three words, Monades before the channels up to ch_in (DREAM_PREFS_OLD bytes). */
@@ -48,7 +55,7 @@ static const char *help_lines[NB][5]={
  {"EDIT: Sound/Filter/Env/Mix/Mixer","PRESET: 224 sound presets","ALGO: twelve sound engines","Rhythm and notes are preserved.","HOME + PRESET: whole Monde"},
  {"GLO: Harmony > Raga > System >","Look > MIDI > Channels > Zones >","Banks. Harmony: root / scale","System: tempo / quality","SAVE stores these preferences."},
  {"K1 DENSITY: number of events","K2 MOTION: melodic movement","K3 COLOUR: brighter / darker","K4 SPACE: granular level","PRESET: 90 Mondes + Blank"},
- {"Stop PLAY; use internal clock.","SAVE stores Monde and preferences.","GLO > BANKS: 16 Mondes / 64 tones","Factory Mondes stay available.","Granular audio is not stored."},
+ {"Stop PLAY; use internal clock.","SAVE stores Monde and preferences,","then opens the save screen:","16 Mondes / 64 tones, free slot.","Granular audio is not stored."},
  {"ARP: lock the random seed","The same seed repeats.","REC: create a new variation","ENV: undo the last variation","Unequal lengths keep cycling."},
  {"SEQ: Rhythm > Groove > Bass >","Phrase > Generator > Form","Rhythm: hits / length / rotation","K4: event probability","REC: dice this page"},
  {"PLAY: start / stop","Stop lets the sound decay.","SYSTEM + REC: silence all","Keyboard: play the selected track","Start restarts the sequence."},
@@ -74,6 +81,8 @@ static int zone_sel;
 static int motif_at=-1,motif_track;static uint32_t motif_until; /* next motif step while the engine catches up */
 static void dream_apply_midi(void){uint32_t f=plat_lock();md_set_midi_channels(dream_prefs.ch_in,dream_prefs.ch_out);md_set_midi_routing(&dream_prefs.midi);plat_unlock(f);}
 static int dream_install(const void *,unsigned);
+static int dream_unsaved(void){uint32_t f=plat_lock();int u=md_unsaved();plat_unlock(f);return u;}
+static void dream_mark_saved(void){uint32_t f=plat_lock();md_mark_saved();plat_unlock(f);}
 #include "banks.c"
 static void md_num(int v,char *s) {char b[12];int i=0;if(v<0){*s++='-';v=-v;}do{b[i++]='0'+v%10;v/=10;}while(v);while(i)*s++=b[--i];*s=0;}
 // The FM-1 has no C library string functions (strcmp is host-only): compare by hand.
@@ -82,7 +91,7 @@ static int md_same(const char *a,const char *b){while(*a&&*a==*b){a++;b++;}retur
 static const char *monde_label(int id) {static char s[32];char *q=s;const char *f;for(f="MONDE ";*f;)*q++=*f++;if(id<0){for(f="USER";*f;)*q++=*f++;*q=0;return s;}md_num(id+1,q);while(*q)q++;*q++=' ';f=md_biome_family(id);if(md_same(f,"FDDS"))f=md_biome_name(id);while(*f&&q<s+31)*q++=*f++;*q=0;return s;}
 static void md_text(int x,int y,const char *s,uint16_t c) {
  // Quiet backplates keep the organic field away from small essential labels.
- if(y>=40&&y<155){uint16_t bg=dream_ui.help>=0?MD_CARD:(dream_ui.page==LIVE&&x>=94&&y==46+dream_ui.track*17)?MD_CARD:MD_BG;cv_rect(x-1,y-1,text_w(&FONT_XS,s)+2,14,bg);}
+ if(y>=40&&y<155){uint16_t bg=(dream_ui.help>=0||dream_asking())?MD_CARD:(dream_ui.page==LIVE&&x>=94&&y==46+dream_ui.track*17)?MD_CARD:MD_BG;cv_rect(x-1,y-1,text_w(&FONT_XS,s)+2,14,bg);}
  cv_text(x,y,&FONT_XS,s,c);
 }
 static void md_circle(int x,int y,int r,uint16_t c,int fill) {int a,b;for(b=-r;b<=r;b++)for(a=-r;a<=r;a++){int q=a*a+b*b;if(q<=r*r&&(fill||q>=(r-1)*(r-1)))cv_pset(x+a,y+b,c);}}
@@ -156,6 +165,15 @@ static void md_value_span(int x,int y,const char *label,int value,int lo,int hi,
  md_gauge(x+start,y+23,96-start,value,lo,hi,c);
 }
 static void md_value(int x,int y,const char *label,int value,uint16_t c){md_value_span(x,y,label,value,0,100,c);}
+// A named zone of a continuous value (Elements' exciter): the name, then the gauge with a mark at each zone limit,
+// so the position inside the zone and the distance to the next one are visible.
+static void md_zoned(int x,int y,const char *label,const char *name,int value,int z1,int z2,uint16_t c){
+ md_panel(x,y,c);md_text(x+6,y+2,label,MD_DIM);cv_text(x+7,y+12,&FONT_B,name,MD_BG);cv_text(x+6,y+11,&FONT_B,name,c);
+ const int gx=x+6,gy=y+28,w=90,fill=clamp(value,0,100)*w/100,zs[2]={z1,z2};
+ cv_rect(gx,gy,w+1,1,MD_EDGE);if(fill>0)cv_rect(gx,gy-1,fill,2,c);
+ for(int k=0;k<2;k++)cv_rect(gx+zs[k]*w/100,gy-4,1,7,MD_DIM);
+ cv_rect(gx+fill-1,gy-3,3,6,c);cv_pset(gx+fill,gy-1,MD_INK);cv_pset(gx+fill,gy,MD_INK);
+}
 static void md_named(int x,int y,const char *label,const char *value,uint16_t c){md_panel(x,y,c);md_text(x+6,y+2,label,MD_DIM);cv_text(x+7,y+15,text_w(&FONT_B,value)>96?&FONT_XS:&FONT_B,value,MD_BG);cv_text(x+6,y+14,text_w(&FONT_B,value)>96?&FONT_XS:&FONT_B,value,c);}
 // Segmented 2 dB meters, -48..0 dBFS at the output: what is heard, not the knob position.
 static const float meter_db[24]={0.00398107f,0.00501187f,0.00630957f,0.00794328f,0.01f,0.0125893f,0.0158489f,0.0199526f,0.0251189f,0.0316228f,0.0398107f,0.0501187f,0.0630957f,0.0794328f,0.1f,0.125893f,0.158489f,0.199526f,0.251189f,0.316228f,0.398107f,0.501187f,0.630957f,0.794328f};
@@ -229,6 +247,16 @@ static void md_draw_all(void) {
   cv_text(120-text_w(&FONT_B,"MONADES")/2,158,&FONT_B,"MONADES",MD_INK);md_text(120-text_w(&FONT_XS,"FLASH DOG DUKE SILVER")/2,180,"FLASH DOG DUKE SILVER",col);
   md_text(120-text_w(&FONT_XS,"90 MONDES / 224 TONES")/2,200,"90 MONDES / 224 TONES",MD_DIM);
   cv_rect(32,220,(int)(176*progress),2,col);md_text(48,223,"ANY CONTROL TO BEGIN",MD_DIM);return;
+ }
+ if(dream_asking()&&dream_ui.help<0){
+  cv_rect(6,43,228,178,MD_CARD);cv_text(14,51,&FONT_B,"KEEP YOUR CHANGES?",MD_INK);
+  md_text(14,78,"THIS MONDE HAS UNSAVED EDITS",col);
+  {static char nx[40];const char *a="NEXT: ",*z;int k=0;while(*a)nx[k++]=*a++;
+   if(monde_pending>=0)for(z=monde_label(monde_pending);*z&&k<39;)nx[k++]=*z++;
+   else{for(z="USER SLOT ";*z;)nx[k++]=*z++;md_num(bank_pending+1,nx+k);while(nx[k])k++;}
+   nx[k]=0;md_text(14,100,nx,MD_INK);}
+  md_text(14,126,"SEL: DISCARD AND LOAD",MD_HOT);md_text(14,146,"SAVE: OPEN THE SAVE SCREEN",MD_INK);md_text(14,166,"HOME: KEEP EDITING",MD_INK);
+  if(monde_pending>=0)md_text(14,186,"PRESET: ANOTHER MONDE",MD_DIM);md_text(14,204,"PLAYBACK GOES ON",MD_DIM);return;
  }
  if(dream_ui.help>=0) {
   cv_rect(6,43,228,178,MD_CARD);cv_text(14,51,&FONT_B,md_context_help()?dream_pages[dream_ui.page]:help_title[dream_ui.help],col);
@@ -529,7 +557,19 @@ static void md_draw_all(void) {
     md_named(8,158,"K1 DISTANCE",far[ds.amount],col);md_named(124,158,"K2 GLIDE",n?g:"OFF",col);
     md_named(8,194,"K3 VOYAGE",voyage[ds.voyage],col);md_named(124,194,"K4 DRIFT",scope[ds.scope],col);}
   }else if(dream_ui.page==BANKS){
-   md_text(12,66,"KEEP YOUR OWN SMALL WORLDS",MD_INK);md_text(12,96,bank_name,col);char prefix[24];memcpy(prefix,bank_name,bank_char);prefix[bank_char]=0;cv_rect(12+text_w(&FONT_XS,prefix),113,5,1,col);md_text(12,121,"STOP FIRST / INTERNAL CLOCK",MD_DIM);
+   // The save screen: every slot of the bank, filled = taken, the chosen one framed; then its state and the name.
+   if(!bank_scanned&&!md_playing())bank_scan();
+   const int n=bank_kind?64:16,cols=bank_kind?16:8,cw=bank_kind?12:25,ch=bank_kind?8:16,gx=bank_kind?14:12,gy=bank_kind?50:48;
+   for(i=0;i<n;i++){int x=gx+(i%cols)*(cw+2+(bank_kind?0:2)),y=gy+(i/cols)*(ch+(bank_kind?3:4)),used=bank_scanned&&bank_slot_used(i);
+    cv_rect(x,y,cw,ch,used?md_tint(MD_BG,col,12):MD_BG);
+    uint16_t edge=i==bank_slot?MD_INK:used?col:MD_EDGE;cv_rect(x,y,cw,1,edge);cv_rect(x,y+ch-1,cw,1,edge);cv_rect(x,y,1,ch,edge);cv_rect(x+cw-1,y,1,ch,edge);
+    if(i==bank_slot){cv_rect(x-1,y-1,cw+2,1,MD_INK);cv_rect(x-1,y+ch,cw+2,1,MD_INK);cv_rect(x-1,y-1,1,ch+2,MD_INK);cv_rect(x+cw,y-1,1,ch+2,MD_INK);}
+    if(!bank_kind){md_num(i+1,s);cv_text(x+(cw-text_w(&FONT_XS,s))/2,y+2,&FONT_XS,s,used?MD_INK:MD_DIM);}}
+   {char st[40];int k=0;const char *a="SLOT ";while(*a)st[k++]=*a++;md_num(bank_slot+1,st+k);while(st[k])k++;st[k++]=':';st[k++]=' ';
+    a=!bank_scanned?"STOP TO READ":!bank_slot_used(bank_slot)?"FREE":bank_kind?"TAKEN":bank_names[bank_slot];while(*a&&k<39)st[k++]=*a++;st[k]=0;
+    md_text(12,94,st,!bank_scanned?MD_DIM:bank_slot_used(bank_slot)?col:MD_INK);}
+   md_text(12,114,"NAME",MD_DIM);md_text(46,114,bank_name,col);char prefix[24];memcpy(prefix,bank_name,bank_char);prefix[bank_char]=0;cv_rect(46+text_w(&FONT_XS,prefix),131,5,1,col);
+   md_text(12,136,md_playing()||md_clock_source()?"STOP FIRST / INTERNAL CLOCK":bank_scanned&&bank_slot_used(bank_slot)?"SAVE TWICE: OVERWRITE THIS SLOT":"SAVE: SAVE IN THIS SLOT",MD_DIM);
    md_value_span(8,158,"K1 USER SLOT",bank_slot+1,1,bank_kind?64:16,col);md_named(124,158,"K2 BANK",bank_kind?"SOUNDS":"MONDES",col);md_named(8,194,"K3 TURN RIGHT","LOAD",col);md_value_span(124,194,"K4 NAME CURSOR",bank_char+1,1,23,col);
   }else if(dream_ui.page==MIXER){
    const md_stats *ms=md_status();cv_rect(4,46,232,108,MD_BG); // a quiet plate: meters must read cleanly
@@ -625,7 +665,7 @@ static void md_draw_all(void) {
   md_text(12,141,md_tone_name(p->tone_preset[dream_ui.track]),col);md_text(140,141,md_biome_family(p->biome_id),MD_DIM);
   const char *labels[]={"K1 DENSITY","K2 MOTION","K3 COLOUR","K4 SPACE"};for(i=0;i<4;i++)md_value(8+(i%2)*116,158+(i/2)*36,labels[i],p->macro[i]/10,dream_colors[i]);
  } else if(dream_ui.page==SYSTEM) {
-  md_text(10,48,"MONADES 0.1",MD_INK);md_text(238-text_w(&FONT_XS,"FLASH DOG DUKE SILVER"),48,"FLASH DOG DUKE SILVER",col);md_text(10,69,p->quality?"FULL  24 MODES / 4 GRAINS":"ECO / ADAPTIVE MODES / 2 GRAINS",col);
+  md_text(10,48,"MONADES " APP_VERSION,MD_INK);md_text(238-text_w(&FONT_XS,"FLASH DOG DUKE SILVER"),48,"FLASH DOG DUKE SILVER",col);md_text(10,69,p->quality?"FULL  24 MODES / 4 GRAINS":"ECO / ADAPTIVE MODES / 2 GRAINS",col);
   md_text(10,93,"LOAD / MAX %",MD_DIM);
 #ifdef PLAT_HOST
   md_text(139,93,"HOST ONLY",MD_INK);
@@ -691,7 +731,7 @@ static void md_draw_all(void) {
     for(int px=1;px<200;px++){float pos=start+px*63.0f/199;int k=(int)pos;float fr=pos-k,v=sc[k]+(sc[k+1]-sc[k])*fr;int y=110-(int)(v*g);
      int a=y<py?y:py,z=y<py?py:y;cv_rect(20+px,a,1,z-a+1,col);py=y;}}
    md_text(8,139,"ZOOM FOLLOWS PITCH / AUTO GAIN",MD_DIM);
-   md_value(8,158,"K1 TONE",t->tone/10,col);md_value(124,158,"K2 HARMONICS",t->harm/10,col);if(t->model==MD_ELEMENTS)md_named(8,194,"K3 EXCITER",t->shape<334?"MALLET":t->shape<667?"PLECTRUM":"PARTICLES",col);else md_value(8,194,md_has_envelope(t->model)?"K3 SHAPE":"K3 DECAY",(md_has_envelope(t->model)?t->shape:t->decay)/10,col);md_value(124,194,"K4 LEVEL",t->level/10,col);
+   md_value(8,158,"K1 TONE",t->tone/10,col);md_value(124,158,"K2 HARMONICS",t->harm/10,col);if(t->model==MD_ELEMENTS)md_zoned(8,194,"K3 EXCITER",t->shape<334?"MALLET":t->shape<667?"PLECTRUM":"PARTICLES",t->shape/10,33,67,col);else md_value(8,194,md_has_envelope(t->model)?"K3 SHAPE":"K3 DECAY",(md_has_envelope(t->model)?t->shape:t->decay)/10,col);md_value(124,194,"K4 LEVEL",t->level/10,col);
   } else if(dream_ui.page==FILTER) {
    static const char *modes[]={"OFF","LP 12 dB","LP 24 dB","LOW PASS GATE","HIGH PASS","BAND PASS","NOTCH","HP 24 dB"};
    // Real response, 20 Hz..20 kHz (log) by +18..-36 dB: dim = the knobs, colour = what the voice hears now (LFOs, LPG).
@@ -823,6 +863,7 @@ static void md_draw_all(void) {
   if(dream_ui.page==LIVE){md_text(8,226,monde_label(p->biome_id),MD_INK);if(p->edited_mask&1)md_text(151,226,"*",col);md_text(164,226,p->locked?"LOCK":"RAND",MD_DIM);md_text(203,226,p->freeze?"ICE":"REC",MD_DIM);}
   else if(dream_ui.page==MORPH)md_text(10,226,"PRESET: MONDE B  /  HOLD: HELP",MD_DIM);
   else if(dream_ui.page==DRIFT)md_text(10,226,"REC: NEW HOME  /  ENV: HOME",MD_DIM);
+  else if(dream_ui.page==BANKS)md_text(10,226,"PRESET: LETTER  /  HOLD: HELP",MD_DIM);
   else md_text(10,226,(dream_ui.page==SOUND||dream_ui.page==FILTER||dream_ui.page==ENVELOPE||dream_ui.page==MIX||dream_ui.page==MIXER||dream_ui.page==BASSLINE||dream_ui.page==MODULATION||dream_ui.page==PHRASE||dream_ui.page==LFO_A||dream_ui.page==LFO_B||dream_ui.page==GENERATOR)?"PRESET: TONE  /  HOLD: HELP":"PRESET: MONDE  /  HOLD: HELP",MD_DIM);
  }
 }
@@ -885,6 +926,13 @@ static uint32_t dream_lights(uint32_t *dim){
 static void morph_choose(int d){md_morph_state ms;md_morph_view(&ms,0,0);int id=clamp((ms.on?ms.target:md_state()->biome_id)+d,0,MD_BIOMES-1);
  static char m[40];const char *a="MORPH TO ",*z=monde_label(id)+6;int k=0;while(*a)m[k++]=*a++;while(*z&&k<39)m[k++]=*z++;m[k]=0;app_say(dream_cmd(MD_MORPH_TO,0,id)?m:"BUSY: TRY AGAIN","");}
 static void md_tap(int b) {
+ if(dream_asking()){
+  if(b==B_SEL){if(bank_pending>=0){bank_slot=bank_pending;bank_kind=0;bank_pending=-1;bank_allow_load=1;bank_action(0);bank_allow_load=0;}
+   else{int id=monde_pending;monde_pending=-1;dream_cmd(MD_SCENE,0,id);app_say(monde_label(id),"");}}
+  else if(b==B_SAVE){monde_pending=bank_pending=-1;bank_open_save(0);}
+  else if(b==B_HOME){monde_pending=bank_pending=-1;app_say("KEPT: GO ON EDITING","");}
+  return; // the other buttons wait for an answer
+ }
  const md_patch *p=md_state();switch(b){
  case B_HOME:dream_ui.page=dream_ui.page==LIVE&&plat_ms()-intro_left_at<=1500?LIVE:page_next(B_HOME,dream_ui.page);break; // the tap that ends the intro stays on LIVE
  case B_EDIT:case B_SEQ:case B_FX:case B_GLO:dream_ui.page=page_next(b,dream_ui.page);break;
@@ -910,7 +958,9 @@ static void md_tap(int b) {
  case B_ENV:if(md_can_return()){dream_cmd(MD_RETURN,0,0);app_say("ENV: PREVIOUS VARIATION","");}else app_say("ENV: NOTHING TO UNDO YET","");break;
  case B_LFO:dream_cmd(MD_FREEZE,0,!p->freeze);app_say(p->freeze?"LFO: GRAIN TAPE RUNS":"LFO: GRAIN TAPE FROZEN","");break;
  case B_OCTDN:dream_ui.octave=clamp(dream_ui.octave-1,-2,2);break;case B_OCTUP:dream_ui.octave=clamp(dream_ui.octave+1,-2,2);break;
- case B_SAVE:if(dream_store_hold){app_say("USB BACKUP IN PROGRESS","");break;}if(dream_ui.page==BANKS){bank_action(1);break;}if(md_playing())app_say("STOP BEFORE SAVING","");else if(md_clock_source())app_say("USE INTERNAL CLOCK TO SAVE","");else {md_patch snapshot;uint32_t f=plat_lock();snapshot=*p;plat_unlock(f);int failed=plat_store_save(OBJ_PATCH,&snapshot,sizeof snapshot);if(!failed)failed=plat_store_save(OBJ_PREFS,&dream_prefs,sizeof dream_prefs);app_say(failed?"SAVE FAILED":"MONDE + PREFS SAVED","");}break;
+ case B_SAVE:if(dream_store_hold){app_say("USB BACKUP IN PROGRESS","");break;}if(dream_ui.page==BANKS){bank_action(1);break;}if(md_playing())app_say("STOP BEFORE SAVING","");else if(md_clock_source())app_say("USE INTERNAL CLOCK TO SAVE","");else {md_patch snapshot;uint32_t f=plat_lock();snapshot=*p;plat_unlock(f);int failed=plat_store_save(OBJ_PATCH,&snapshot,sizeof snapshot);if(!failed)failed=plat_store_save(OBJ_PREFS,&dream_prefs,sizeof dream_prefs);if(failed){app_say("SAVE FAILED","");break;}
+  // Kept for the next start; the save screen opens on the first free slot to keep it for good.
+  dream_mark_saved();bank_open_save(1);}break;
  }
 }
 void app_input_only(void) {
@@ -921,6 +971,10 @@ void app_input_only(void) {
   if(!(btn>>b&1)&&(dream_ui.btn>>b&1)){if(!(dream_ui.held>>b&1)){if(dream_ui.help>=0)dream_ui.help=-1;else md_tap(b);}dream_ui.held&=~(1u<<b);}
  }
  dream_ui.btn=btn;
+ if(dream_asking()){ // only PRESET moves while the card asks: to another Monde
+  if((d=plat_enc(EN_PRESET))&&monde_pending>=0)monde_pending=clamp(monde_pending+d,0,MD_BIOMES-1);
+  for(b=EN_SELECT;b<=EN_K4;b++)plat_enc(b);
+ }
  if((d=plat_enc(EN_SELECT))){dream_dismiss_intro();dream_ui.track=clamp(dream_ui.track+d,0,5);}
  if((d=plat_enc(EN_ALGO))){dream_dismiss_intro();dream_cmd(MD_MODEL,dream_ui.track,clamp(p->track[dream_ui.track].model+d,0,MD_MODELS-1));dream_ui.page=SOUND;}
  if((d=plat_enc(EN_PRESET))&&dream_ui.help<0){dream_dismiss_intro();
@@ -928,7 +982,7 @@ void app_input_only(void) {
    int id=p->tone_preset[dream_ui.track];if(id<0)id=p->track[dream_ui.track].model*16-(d>0?1:0);
    id=clamp(id+d,0,MD_TONE_PRESETS-1);dream_cmd(MD_TONE_PRESET,dream_ui.track,id);app_say(md_tone_name(id),"");
   }else if(dream_ui.page==MORPH)morph_choose(d);
-  else{int id=clamp(p->biome_id+d,0,MD_BIOMES-1);dream_cmd(MD_SCENE,0,id);app_say(monde_label(id),"");}
+  else{int id=clamp(p->biome_id+d,0,MD_BIOMES-1);if(dream_unsaved())monde_pending=id;else{dream_cmd(MD_SCENE,0,id);app_say(monde_label(id),"");}}
  }
  for(b=0;b<4;b++)if((d=plat_enc(EN_K1+b))&&dream_ui.help<0) {
   dream_dismiss_intro();const md_track *t=&p->track[dream_ui.track];int c=0,v=0,tr=dream_ui.track;
@@ -1007,6 +1061,10 @@ void app_frame(void) {
 int app_expect(const char *what,int *got) {
  if(!strcmp(what,"help_context")){*got=md_context_help();return 1;}
  if(!strcmp(what,"lights")){*got=(int)(dream_lights(0)&((1u<<NB)-1));return 1;}
+ if(!strcmp(what,"asking")){*got=monde_pending>=0?monde_pending:bank_pending>=0?100+bank_pending:-1;return 1;} /* Monde waiting, 100 + user slot, -1 */
+ if(!strcmp(what,"unsaved")){*got=dream_unsaved();return 1;}
+ if(!strcmp(what,"bank_slot")){*got=bank_slot;return 1;}
+ if(!strcmp(what,"shape")){*got=md_state()->track[dream_ui.track].shape;return 1;}
  if(!strcmp(what,"glow")){uint32_t d;dream_lights(&d);*got=(int)d;return 1;}
  if(!strncmp(what,"drift_",6)){md_drift_state ds;md_drift_view(&ds,0);const char *w=what+6;*got=!strcmp(w,"on")?ds.on:!strcmp(w,"slow")?ds.slow:!strcmp(w,"amount")?ds.amount:!strcmp(w,"voyage")?ds.voyage:ds.scope;return 1;}
  if(!strncmp(what,"morph_",6)){md_morph_state ms;md_morph_view(&ms,0,0);const char *w=what+6;*got=!strcmp(w,"on")?ms.on:!strcmp(w,"target")?ms.target:!strcmp(w,"pos")?ms.pos:!strcmp(w,"bars")?ms.bars:ms.scope;return 1;}
