@@ -1,0 +1,27 @@
+wait 3400
+tap HOME
+turn PRESET 64
+expect biome 64
+wait 300
+expect key_lights 0
+tapkey 7
+wait 50
+expect key_lights 128
+wait 300
+expect key_lights 0
+tap OCT+
+tapkey 7
+wait 50
+expect key_lights 128
+wait 300
+tap OCT-
+tapkey 9
+wait 50
+expect key_lights 512
+wait 300
+turn PRESET -64
+expect biome 0
+tap PLAY
+wait 4000
+expect playing 1
+tap PLAY

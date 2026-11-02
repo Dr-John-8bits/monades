@@ -37,6 +37,11 @@ static void dream_intro(void){intro_start=plat_ms();intro_until=intro_start+3200
 static uint32_t intro_left_at; // the tap that ends the intro only ends it (HOME then stays on LIVE)
 static void dream_dismiss_intro(void){if(intro_until)intro_left_at=plat_ms();intro_until=chime_left=0;}
 static uint32_t overloads,cpu_peak,flower_time,last_events[6],pulse_until[6],quality_notice;
+// Key lights: the keys under the fingers, and for 200 ms the key of each note the selected track plays (the key that
+// would play it at the keyboard's octave; a note outside the 27 keys lights the same note an octave or more away).
+static uint32_t key_until[27];
+static void dream_note_key(int note){int k=note-53-dream_ui.octave*12;while(k<0)k+=12;while(k>26)k-=12;key_until[k]=plat_ms()+200;}
+static uint32_t dream_key_lights(void){uint32_t m=dream_ui.keys,now=plat_ms();for(int k=0;k<27;k++)if((int32_t)(key_until[k]-now)>0)m|=1u<<k;return m;}
 static uint32_t chan_in_until[6],chan_out_until[6],last_out[6]; /* MIDI CHANNELS: a note received / sent for the track */
 // Monades: six stellar colours, one per ship of the fleet.
 static const uint16_t dream_colors[6]={RGB(255,140,118),RGB(255,198,104),RGB(124,222,184),RGB(128,170,255),RGB(204,150,255),RGB(96,220,240)};
@@ -1052,9 +1057,9 @@ void app_input_only(void) {
 }
 void app_ui_init(void) {dream_ui.dirty=1;dream_ui.next=0;if(intro_pending){intro_pending=0;dream_intro();}}
 void app_frame(void) {
- unsigned y;app_input_only();if(md_status()->quality_reductions!=quality_notice){quality_notice=md_status()->quality_reductions;app_say("ECO: DENSE PATCH","");}flower_time=dream_prefs.motion?plat_ms():0;for(int i=0;i<6;i++){if(md_status()->events[i]!=last_events[i]){last_events[i]=md_status()->events[i];pulse_until[i]=plat_ms()+160;}if(md_status()->midi_out_track[i]!=last_out[i]){last_out[i]=md_status()->midi_out_track[i];chan_out_until[i]=plat_ms()+200;}}if(plat_ms()<dream_ui.next&&!dream_ui.dirty)return;dream_ui.next=plat_ms()+80;dream_ui.dirty=0;
+ unsigned y;app_input_only();if(md_status()->quality_reductions!=quality_notice){quality_notice=md_status()->quality_reductions;app_say("ECO: DENSE PATCH","");}flower_time=dream_prefs.motion?plat_ms():0;for(int i=0;i<6;i++){if(md_status()->events[i]!=last_events[i]){last_events[i]=md_status()->events[i];pulse_until[i]=plat_ms()+160;if(i==dream_ui.track)dream_note_key(md_status()->last_note[i]);}if(md_status()->midi_out_track[i]!=last_out[i]){last_out[i]=md_status()->midi_out_track[i];chan_out_until[i]=plat_ms()+200;}}if(plat_ms()<dream_ui.next&&!dream_ui.dirty)return;dream_ui.next=plat_ms()+80;dream_ui.dirty=0;
  for(y=0;y<240;y+=40){cv_begin(240,40,MD_BG);cv_oy=-(int)y;md_draw_all();cv_blit(0,y);}
- {uint32_t dim;const uint32_t lit=dream_lights(&dim);plat_lights(lit,dream_ui.keys,dim,0,1);}
+ {uint32_t dim;const uint32_t lit=dream_lights(&dim);plat_lights(lit,dream_key_lights(),dim,0,1);}
  ann_tick(plat_ms());
 }
 #ifdef PLAT_HOST
@@ -1062,6 +1067,7 @@ int app_expect(const char *what,int *got) {
  if(!strcmp(what,"help_context")){*got=md_context_help();return 1;}
  if(!strcmp(what,"lights")){*got=(int)(dream_lights(0)&((1u<<NB)-1));return 1;}
  if(!strcmp(what,"asking")){*got=monde_pending>=0?monde_pending:bank_pending>=0?100+bank_pending:-1;return 1;} /* Monde waiting, 100 + user slot, -1 */
+ if(!strcmp(what,"key_lights")){*got=(int)dream_key_lights();return 1;}
  if(!strcmp(what,"unsaved")){*got=dream_unsaved();return 1;}
  if(!strcmp(what,"bank_slot")){*got=bank_slot;return 1;}
  if(!strcmp(what,"shape")){*got=md_state()->track[dream_ui.track].shape;return 1;}
