@@ -1,6 +1,6 @@
 {
   "name": "Monades",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Dr-John-8bits, for Flash Dog Duke Silver (fork of Mutable Dreams by Kid Bunka / Christoph Link)",
   "device": "M-VAVE FM-1",
   "description": "Generative firmware for the FM-1, forked from Mutable Dreams 1.1. Six voices, 12 engines (Plaits, Rings, Elements), 91 scales including microtonal ones and ragas, note generators (random, Markov, motif), two LFOs per track (20 targets, the euclidean rotation among them), chorus and tempo-synced echo, MIDI out of the generated notes with per-track channels and note zones, morphing between Mondes and a self-drifting mode. 91 Mondes (scenes) including 14 by Flash Dog Duke Silver.",
@@ -10,9 +10,9 @@
     "Play in browser"
   ],
   "repository": "https://github.com/Dr-John-8bits/monades",
-  "firmware_url": "https://dr-john-8bits.github.io/monades/installer/monades-0.1.2.fwsc",
-  "firmware_sha256": "3841d8092d4f7c9f7378ddcc9033d56c98ac2e0c307f9582a484bb5c40935433",
-  "identity": "FM-1_714000102",
+  "firmware_url": "https://dr-john-8bits.github.io/monades/installer/monades-0.1.3.fwsc",
+  "firmware_sha256": "e0afc67be402a13967d6f1c8269b9fb1ebe41d0576f89c8e22c15db35ddb1f1d",
+  "identity": "FM-1_714000103",
   "license": "GPL-3.0-only (combined distribution); original MIT and MPL-2.0 notices retained",
   "license_notice_url": "https://github.com/Dr-John-8bits/monades/blob/main/LICENSING-GPL.txt",
   "website": "https://dr-john-8bits.github.io/monades/",
