@@ -57,7 +57,7 @@
     <div class="status-line"><span>Simulateur dans le navigateur</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Compilation pour le FM-1</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Installé et lancé sur un FM-1</span><span class="st done">fait</span></div>
-    <div class="status-line"><span>Vérifications complètes sur le FM-1</span><span class="st">en cours</span></div>
+    <div class="status-line"><span>Vérifications complètes sur le FM-1</span><span class="st done">faites, sauf cinq points</span></div>
     <p>Version 0.1.4, du 5 novembre 2026 (paquet <code>monades-0.1.4.fwsc</code>). <b>Installé et lancé sur un FM-1 le 29 octobre 2026, depuis la V15&nbsp;: il démarre et joue.</b> La 0.1.1 a corrigé l'audio USB, qui craquait dans l'enregistrement quand le calcul du son était chargé (0.1.0). La 0.1.2 a ajouté une 20e cible aux LFO, ROTATE&nbsp;: le rythme euclidien d'une piste tourne tout seul (voir le <a href="manuel/#l-cibles">mode d'emploi</a>). La 0.1.3 a ajouté la jauge du K3 EXCITER, un avertissement avant de changer de Monde quand il y a des changements non sauvés, un écran de sauvegarde, le numéro de version sur la page SYSTEM et les touches du clavier qui s'allument sur les notes jouées. La 0.1.4 corrige PRESET sur un son modifié de SATIN MORPH et au-delà du dernier Monde, et ne passe plus en ECO sur un seul bloc audio un peu long, ni au chargement d'un Monde.</p>
     <h3>Vérifié sur le FM-1 (29 octobre 2026)</h3>
     <ul>
@@ -68,13 +68,15 @@
       <li>La 0.1.3 installée par-dessus la 0.1.2 le 2 novembre 2026&nbsp;: identité vérifiée, nouveautés essayées sur l'appareil.</li>
       <li>La 0.1.4 installée par-dessus la 0.1.3 le 5 novembre 2026&nbsp;: identité vérifiée.</li>
       <li>Horloge MIDI reçue par l'USB et par la prise TRS (depuis une Roland TR-6S, câble TRS-DIN Boss).</li>
+      <li>Écrans, son (filtres, LFO, écho, générateurs, FORM, RAGA, gammes), MIDI vers une MPC (notes, canaux, zones) et audio USB&nbsp;: vérifiés par l'auteur, notés le 5 novembre 2026.</li>
+      <li>Installation interrompue (FM-1 éteint pendant l'écriture), essayée le 5 novembre 2026 sur un autre FM-1 avec le même chargeur et le même outil d'installation&nbsp;: rallumé, l'installation a repris et le firmware fonctionne.</li>
     </ul>
     <h3>Défauts connus</h3>
     <ul>
       <li>Au changement de Monde avec PRESET, l'enregistrement USB crachote un instant.</li>
       <li>Sur horloge MIDI reçue, le tempo affiché oscille de 1 à 2&nbsp;BPM autour de la valeur envoyée (109 à 112 pour 110)&nbsp;; les pas restent calés sur l'horloge.</li>
     </ul>
-    <p>La liste complète des vérifications (MIDI, sauvegardes, écrans, endurance) est en cours. L'installation passe par le même chemin que Mutable Dreams 1.1&nbsp;: elle n'écrit que la zone de l'application, jamais le chargeur de démarrage.</p>
+    <p>Restent à vérifier&nbsp;: CLOCK OUT, le pitch bend des gammes microtonales, PANIC, les sauvegardes (SAVE puis redémarrage, USER BANKS) et le retour vers Mutable Dreams ou la V15 (liste complète&nbsp;: <a href="https://github.com/Dr-John-8bits/monades/blob/main/docs/monades/TESTS-FM1.md">TESTS-FM1.md</a>). L'installation passe par le même chemin que Mutable Dreams 1.1&nbsp;: elle n'écrit que la zone de l'application, jamais le chargeur de démarrage.</p>
     <h3>Avant d'installer</h3>
     <ul>
       <li>Aucune manipulation sur le FM-1, aucune combinaison de touches&nbsp;: il suffit qu'il soit allumé, sur son firmware habituel, et relié en USB. L'installeur le fait passer tout seul en mode mise à jour, puis redémarrer.</li>
