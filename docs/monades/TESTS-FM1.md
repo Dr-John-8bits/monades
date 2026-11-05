@@ -23,6 +23,7 @@ Rien de tout cela n'a encore été fait : le code n'a tourné que sur Mac (simul
 
 - 30 octobre 2026 : 0.1.2 installée par-dessus la 0.1.1 (`FM-1_714000101` → `FM-1_714000102`) ; la cible LFO ROTATE marche sur l'appareil.
 - 2 novembre 2026 : 0.1.3 installée par-dessus la 0.1.2 (`FM-1_714000102` → `FM-1_714000103`, `fm1_install.py --yes`) ; sauvegarde `.mddb` faite avant (vide : aucun objet sauvé). Mémoire de la compilation : image 446 964 octets, RAM 83 320 sur 98 304, pool 334 872 sur 344 064. Essayée par l'auteur sur l'appareil : jauge K3 EXCITER, carte avant de changer de Monde, écran de sauvegarde, version, lumières du clavier.
+- 5 novembre 2026 : 0.1.4 installée par-dessus la 0.1.3 (`FM-1_714000103` → `FM-1_714000104`, `fm1_install.py --yes`) ; sauvegarde `.mddb` faite avant (vide). Mémoire de la compilation : image 447 060 octets, RAM 83 336 sur 98 304, pool 334 872 sur 344 064. Corrections reprises de Rhizome (PRESET sur SATIN MORPH, PRESET au-delà du dernier Monde, chargement d'un Monde, garde de surcharge) ; pas de nouvelle mesure des Mondes, qui ne changent pas.
 
 ## 2. Installer
 - Partir de la V15 (`FM-1_015`), pas de la V16 : des problèmes d'installation ont été signalés par des utilisateurs partis de la V16. Le lien officiel de M-VAVE donne depuis le 21 octobre 2026 un fichier plus récent (718 196 octets) que la V15 (699 956 octets).
