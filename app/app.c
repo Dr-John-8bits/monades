@@ -81,7 +81,10 @@ static int md_context_help(void){
         ((p==SPACE||p==MODULATION||p==LFO_A||p==LFO_B||p==SPACE_TONE||p==ECHO_CHORUS)&&b==B_FX)||
         ((p==MIDI||p==BANKS||p==RAGA||p==ZONES||p==CHANNELS)&&b==B_GLO)||((p==MORPH||p==DRIFT)&&b==B_HOME)||(p==BANKS&&b==B_SAVE);
 }
-static int dream_cmd(int c,int t,int v){uint32_t f=plat_lock();int r=md_command(c,t,v);plat_unlock(f);return r;}
+// Loading a Monde clears the grain memory, the tape and the room in one audio block, which can run long once;
+// that block is not a dense patch, so the overload it reports is ignored for half a second.
+static uint32_t load_quiet_until;
+static int dream_cmd(int c,int t,int v){if(c==MD_SCENE)load_quiet_until=plat_ms()+500;uint32_t f=plat_lock();int r=md_command(c,t,v);plat_unlock(f);return r;}
 static int zone_sel;
 static int motif_at=-1,motif_track;static uint32_t motif_until; /* next motif step while the engine catches up */
 static void dream_apply_midi(void){uint32_t f=plat_lock();md_set_midi_channels(dream_prefs.ch_in,dream_prefs.ch_out);md_set_midi_routing(&dream_prefs.midi);plat_unlock(f);}
@@ -911,7 +914,13 @@ void app_render(int32_t *lr,uint32_t n,uint32_t master) {
  lr[2*k]=(int32_t)((md_audio[2*k]+chime)*md_gain*8380000.0f);lr[2*k+1]=(int32_t)((md_audio[2*k+1]+chime)*md_gain*8380000.0f);}lr+=z*2;n-=z;}
 }
 void app_panic(void) {dream_cmd(MD_PANIC,0,0);}
-void app_overload(void) {overloads++;dream_cmd(MD_OVERLOAD,0,0);}
+// A block that took over 95 % of its time (device/main_fm1.c). Each one is counted (the diagnostics read them), but the
+// engine sheds only when they repeat, three within two seconds: an isolated long block no longer turns the chorus and
+// the room's diffusion off for the rest of the Monde; a real overload, a long block every few milliseconds, is still caught.
+static uint32_t overload_at[3];static unsigned overload_n;
+void app_overload(void) {if((int32_t)(plat_ms()-load_quiet_until)<0)return;overloads++;
+ const uint32_t now=plat_ms();overload_at[overload_n++%3]=now;
+ if(overload_n>=3&&now-overload_at[overload_n%3]<=2000){overload_n=0;dream_cmd(MD_OVERLOAD,0,0);}}
 // Lights say what is in use: the button of the page shown, SEL when the selected track is muted, ARP locked,
 // LFO frozen, PLAY playing (green); ENV glows when there is something to undo.
 // The five page buttons and their pages, in the order each press goes through them.
@@ -984,10 +993,11 @@ void app_input_only(void) {
  if((d=plat_enc(EN_ALGO))){dream_dismiss_intro();dream_cmd(MD_MODEL,dream_ui.track,clamp(p->track[dream_ui.track].model+d,0,MD_MODELS-1));dream_ui.page=SOUND;}
  if((d=plat_enc(EN_PRESET))&&dream_ui.help<0){dream_dismiss_intro();
   if(dream_ui.page==BANKS){for(int j=0;j<=bank_char;j++)if(!bank_name[j])bank_name[j]=' ';bank_name[bank_char]=clamp(bank_name[bank_char]+d,32,126);bank_name[23]=0;bank_armed=-1;}else if(dream_ui.page==SOUND||dream_ui.page==FILTER||dream_ui.page==ENVELOPE||dream_ui.page==MIX||dream_ui.page==MIXER||dream_ui.page==BASSLINE||dream_ui.page==MODULATION||dream_ui.page==PHRASE||dream_ui.page==LFO_A||dream_ui.page==LFO_B||dream_ui.page==GENERATOR){
-   int id=p->tone_preset[dream_ui.track];if(id<0)id=p->track[dream_ui.track].model*16-(d>0?1:0);
+   int id=p->tone_preset[dream_ui.track];if(id<0)id=md_tone_first(p->track[dream_ui.track].model)-(d>0?1:0); /* a modified sound: from its engine's first */
    id=clamp(id+d,0,MD_TONE_PRESETS-1);dream_cmd(MD_TONE_PRESET,dream_ui.track,id);app_say(md_tone_name(id),"");
   }else if(dream_ui.page==MORPH)morph_choose(d);
-  else{int id=clamp(p->biome_id+d,0,MD_BIOMES-1);if(dream_unsaved())monde_pending=id;else{dream_cmd(MD_SCENE,0,id);app_say(monde_label(id),"");}}
+  else{int id=clamp(p->biome_id+d,0,MD_BIOMES-1);if(id==p->biome_id)app_say(monde_label(id),""); /* past the first or last Monde: nothing to load */
+   else if(dream_unsaved())monde_pending=id;else{dream_cmd(MD_SCENE,0,id);app_say(monde_label(id),"");}}
  }
  for(b=0;b<4;b++)if((d=plat_enc(EN_K1+b))&&dream_ui.help<0) {
   dream_dismiss_intro();const md_track *t=&p->track[dream_ui.track];int c=0,v=0,tr=dream_ui.track;

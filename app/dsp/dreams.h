@@ -110,6 +110,7 @@ const char *md_biome_name(int id);
 const char *md_biome_family(int id);
 const char *md_tone_name(int id);
 int md_tone_model(int id);
+int md_tone_first(int model); /* the first library sound of an engine */
 const char *md_scale_name(int scale);
 int md_quantize(int note,int root,int scale);
 unsigned md_scale_mask(int scale); /* ascent set; bit k = k semitones above the root */

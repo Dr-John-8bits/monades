@@ -29,7 +29,8 @@ int app_sysex(const uint8_t *p,uint32_t n){
   uint32_t count=(n-5)/4,f=plat_lock();
   for(unsigned k=5;k<n;k+=4)if(p[k]>=MD_COMMAND_COUNT)tx[6]=1;
   if(md_command_space()<count)tx[6]=2;
-  if(!tx[6])for(unsigned k=5;k<n;k+=4)md_command(p[k],p[k+1],(int)(p[k+2]|p[k+3]<<7)-8192);
+  if(!tx[6])for(unsigned k=5;k<n;k+=4){if(p[k]==MD_SCENE)load_quiet_until=plat_ms()+500; /* a Monde loaded over USB: its long first block is not an overload */
+   md_command(p[k],p[k+1],(int)(p[k+2]|p[k+3]<<7)-8192);}
   plat_unlock(f);
  }
  else if(p[3]==3&&n==5){uint32_t f=plat_lock();cpu_peak=0;plat_audio_peak_reset();plat_unlock(f);}

@@ -1,0 +1,30 @@
+# PRESET on SOUND, after the sound was modified, starts from the engine's first library sound (SATIN MORPH: 209, not a Velvet sound of ROUND BASS).
+wait 3400
+tap HOME
+spin ALGO 11
+wait 80
+expect model 11
+expect tone_preset -1
+spin PRESET 1
+wait 80
+expect tone_preset 208
+expect model 11
+spin PRESET -1
+wait 80
+expect tone_preset 207
+expect model 4
+spin ALGO 6
+wait 80
+expect model 10
+expect tone_preset -1
+spin PRESET 1
+wait 80
+expect tone_preset 160
+expect model 10
+spin ALGO -10
+wait 80
+expect model 0
+spin PRESET -1
+wait 80
+expect tone_preset 0
+expect model 0

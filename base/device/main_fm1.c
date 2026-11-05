@@ -77,8 +77,8 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
     us = (fm1_ticks() - t0) / FM1_TICKS_PER_US;
     if(us>audio_peak_us)audio_peak_us=us; /* unsmoothed bench peak, including USB tap */
 #ifdef APP_OVERLOAD
-    if (us > budget * 9u / 10u)
-        app_overload();                             /* over 90 % of its time: the app sheds what it can */
+    if (us > budget * 19u / 20u)
+        app_overload();                             /* over 95 % of its time (90 % flagged blocks that never dropped out) */
 #endif
     fm1b_dbg.cpu_q8 = (fm1b_dbg.cpu_q8 * 15u + (us * 256u) / budget) / 16u;
     audio_cpu_pct = (fm1b_dbg.cpu_q8 * 100u) >> 8;

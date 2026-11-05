@@ -871,6 +871,7 @@ const char *md_biome_name(int id){return id<0?"USER MONDE":biome_bank[bound(id,0
 const char *md_biome_family(int id){return id<0?"CUSTOM":biome_families[biome_bank[bound(id,0,MD_BIOMES-1)].family];}
 const char *md_tone_name(int id){return id<0?"MONDE VOICE":tone_bank[bound(id,0,MD_TONE_PRESETS-1)].name;}
 int md_tone_model(int id){return tone_bank[bound(id,0,MD_TONE_PRESETS-1)].model;}
+int md_tone_first(int model){for(int k=0;k<MD_TONE_PRESETS;k++)if(tone_bank[k].model==model)return k;return 0;} // the library is not in engine order past 176
 int md_has_envelope(int model){return model==MD_FM||model==MD_VA||model==MD_HARMONIC||model==MD_CHOIR||model==MD_BASS||model==MD_MELLOW||model==MD_SATIN;}
 int md_cutoff_hz(int value){return (int)cutoff_hz(unit(value));}
 

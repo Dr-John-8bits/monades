@@ -1,0 +1,19 @@
+# PRESET past the last Monde loads nothing: no reload, and no "keep your changes?" card for the same Monde.
+wait 3400
+tap HOME
+spin PRESET 100
+wait 100
+expect biome 90
+expect asking -1
+turn K1 2
+expect unsaved 1
+spin PRESET 1
+wait 100
+expect asking -1
+expect biome 90
+expect unsaved 1
+spin PRESET -100
+wait 100
+expect asking 0
+tap HOME
+expect asking -1
