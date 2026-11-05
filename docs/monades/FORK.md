@@ -243,7 +243,7 @@ Le site de Mutable Dreams est remplacé par un site **plus simple, inspiré de l
 32. **Tempo stable sur horloge reçue** : aujourd'hui (`dreams.cpp`, `0xf8`) chaque top est daté au début du bloc de son où il arrive (5,8 ms), l'intervalle est lissé (85 % / 15 %) et arrondi au BPM entier, d'où ±1 à 2 BPM affichés et utilisés par l'écho synchronisé et les LFO. Les pas, eux, partent du top lui-même. Peu coûteux : lisser sur un temps entier (24 tops) et ne changer le BPM entier qu'au-delà d'un écart (hystérésis), quelques lignes. Plus coûteux : des pas parfaitement réguliers malgré les blocs (une boucle à verrouillage de phase), une demi-journée et des essais avec la MPC.
 
 ## Prochaines étapes
-1. ~~Compiler pour le FM-1~~ (fait le 28 octobre 2026) ; ~~installer et lancer~~ (29 octobre) ; ~~publier une version~~ (0.1.1 le 29, 0.1.2 le 30 octobre, 0.1.3 le 2 novembre).
+1. ~~Compiler pour le FM-1~~ (fait le 28 octobre 2026) ; ~~installer et lancer~~ (29 octobre) ; ~~publier une version~~ (0.1.1 le 29, 0.1.2 le 30 octobre, 0.1.3 le 2 novembre, 0.1.4 le 5 novembre).
 2. ~~**K3 EXCITER lisible**~~ (point 31), avec l'avertissement, l'écran de sauvegarde, la version et les lumières du clavier : 0.1.3, publiée le 2 novembre 2026. Monades est ensuite mis en pause (travail sur un deuxième FM-1) ; Bluetooth MIDI et tempo stable laissés de côté.
 3. **Finir les vérifications sur le FM-1** en suivant `docs/monades/TESTS-FM1.md` : sauvegardes, écrans, endurance, MIDI vers d'autres machines.
 4. **The Firmware Hub** (point 27).

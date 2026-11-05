@@ -193,7 +193,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
       <tr><td>SELECT</td><td>Choisit la piste 1 à 6.</td></tr>
       <tr><td>SEL</td><td>Coupe ou rétablit la piste choisie.</td></tr>
       <tr><td>ALGO</td><td>Change le moteur sonore de la piste (12 moteurs).</td></tr>
-      <tr><td>PRESET</td><td>Sur les pages d'une piste&nbsp;: un des 224 sons. Ailleurs&nbsp;: un des 90 Mondes, ou le Blank. L'écran affiche son numéro et sa famille (MIST, DRONE, RESONANCE, TECHNO, BROKEN, ORGANIC, PERCUSSION, MELODY), ou son nom pour un Monde FDDS.</td></tr>
+      <tr><td>PRESET</td><td>Sur les pages d'une piste&nbsp;: un des 224 sons. Ailleurs&nbsp;: un des 90 Mondes, ou le Blank&nbsp;; au-delà du premier ou du dernier, rien ne se recharge. L'écran affiche son numéro et sa famille (MIST, DRONE, RESONANCE, TECHNO, BROKEN, ORGANIC, PERCUSSION, MELODY), ou son nom pour un Monde FDDS.</td></tr>
       <tr><td>PLAY</td><td>Lance ou arrête la séquence.</td></tr>
       <tr><td>REC</td><td>N'enregistre rien. Sur les pages EDIT, SEQ, FX et RAGA&nbsp;: DICE, les réglages K1 à K4 de la page affichée sont tirés au sort, sans toucher la gamme, la note de base, la transposition, le tempo, les mutes, les moteurs ni le MIDI. Sur GENERATOR&nbsp;: efface le motif. Sur LIVE et les autres pages GLO&nbsp;: nouvelle variation. Sur SYSTEM et MIDI&nbsp;: panique. Sur MORPH&nbsp;: garde le mélange en cours. Sur DERIVE&nbsp;: l'état actuel devient la maison.</td></tr>
       <tr><td>ENV</td><td>Revient à l'état d'avant la dernière variation ou le dernier DICE.</td></tr>
@@ -805,10 +805,10 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
 </div>
 <div class="entry" id="p-system">
   <p class="path">GLO ×3</p><h3>QUALITY / SYSTEM</h3>
-  <p>Version du firmware («&nbsp;MONADES 0.1.3&nbsp;» ; «&nbsp;MONADES DEV&nbsp;» pour une version de développement et dans le simulateur), FLASH DOG DUKE SILVER, mode ECO ou FULL, charge et pic du processeur, décrochages, mémoire.</p>
+  <p>Version du firmware («&nbsp;MONADES 0.1.4&nbsp;» ; «&nbsp;MONADES DEV&nbsp;» pour une version de développement et dans le simulateur), FLASH DOG DUKE SILVER, mode ECO ou FULL, charge et pic du processeur, décrochages, mémoire.</p>
   <div class="tablewrap"><table><tr><th>Cadre</th><th>Réglage</th></tr>
     <tr><td>K1</td><td>Tempo.</td></tr>
-    <tr><td>K2</td><td>ECO (2 grains, modes adaptés) ou FULL (24 modes, 4 grains). Un patch trop lourd repasse en ECO&nbsp;; s'il est déjà en ECO quand le calcul déborde, le chorus et la diffusion de la room s'arrêtent jusqu'au prochain Monde.</td></tr>
+    <tr><td>K2</td><td>ECO (2 grains, modes adaptés) ou FULL (24 modes, 4 grains). Un patch trop lourd repasse en ECO (trois blocs audio au-delà de 95&nbsp;% de leur temps en deux secondes&nbsp;; le chargement d'un Monde ne compte pas)&nbsp;; s'il est déjà en ECO quand le calcul déborde ainsi, le chorus et la diffusion de la room s'arrêtent jusqu'au prochain Monde.</td></tr>
     <tr><td>K3</td><td>Retour du ducking.</td></tr>
     <tr><td>K4</td><td>Remet à zéro le pic processeur mesuré.</td></tr>
   </table></div>
@@ -1065,7 +1065,7 @@ figure.schema figcaption{font-size:14px;color:var(--muted);margin-top:6px}
   <p>Les moteurs de batterie (KICK, SNARE, HAT) et RINGS règlent leur longueur avec DECAY&nbsp;; les autres ont une enveloppe (page ENVELOPE&nbsp;: attaque et déclin). En ECO (page SYSTEM), FM, VA et HARMONIC sont calculés à mi-cadence pour soulager le processeur. Sur la page SOUND, PRESET choisit un des <a href="#l-sons">224 sons</a> tout faits&nbsp;; DICE (REC) tire au sort les quatre réglages.</p>
 </div>
 <div class="entry" id="l-sons"><h3>Les 224 sons (PRESET)</h3>
-  <p>Sur les pages d'une piste, PRESET choisit un des 224 sons, dans cet ordre. Un son fixe le moteur de la piste et ses réglages de son&nbsp;: TONE, HARMONICS, SHAPE, DECAY, attaque, filtre (mode, coupure, résonance) et BREATHE. Les notes, le rythme, le niveau, les envois et le mute de la piste restent. Tourner PRESET passe d'un son au suivant, et d'un moteur à l'autre. L'écran affiche le nom du son, sans numéro&nbsp;; après une modification, il affiche MONDE VOICE, et PRESET repart du bloc de 16 sons qui commence au numéro du moteur × 16 + 1 (pour SATIN MORPH, ce bloc est celui des Velvet, sur ROUND BASS). Les sons sont rangés par blocs de 16&nbsp;: un bloc par moteur, puis trois blocs de plus pour MELLOW DRIFT, ROUND BASS et PLAITS VA. Certains noms existent deux fois (Warm Wire, Felt Mallet, Felt Keys), sur deux moteurs différents.</p>
+  <p>Sur les pages d'une piste, PRESET choisit un des 224 sons, dans cet ordre. Un son fixe le moteur de la piste et ses réglages de son&nbsp;: TONE, HARMONICS, SHAPE, DECAY, attaque, filtre (mode, coupure, résonance) et BREATHE. Les notes, le rythme, le niveau, les envois et le mute de la piste restent. Tourner PRESET passe d'un son au suivant, et d'un moteur à l'autre. L'écran affiche le nom du son, sans numéro&nbsp;; après une modification, il affiche MONDE VOICE, et PRESET repart du premier son du moteur de la piste (vers le haut) ou du dernier son qui le précède (vers le bas). Les sons sont rangés par blocs de 16&nbsp;: un bloc par moteur, puis trois blocs de plus pour MELLOW DRIFT, ROUND BASS et PLAITS VA. Certains noms existent deux fois (Warm Wire, Felt Mallet, Felt Keys), sur deux moteurs différents.</p>
   <p>En MIDI, un program change choisit le son de la piste sur son canal&nbsp;: les sons 1 à 128 sont les programmes 0 à 127 de la banque 0 (CC 0 à 0), les sons 129 à 224 les programmes 0 à 95 de la banque 1 (CC 0 à 1).</p>
   <div class="tablewrap"><table><tr><th>Numéros</th><th>Moteur</th><th>Sons</th></tr>
     <tr><td>1 à 16</td><td>PLAITS KICK</td><td>Felt Foot · Deep Pillow · Round Sub · Moss Kick · Soft Knock · Dub Heart · Clay Drum · Warm Pulse · Low Pebble · Thud Room · Rubber Step · Satin Kick · Stone Floor · Dust Punch · Long Earth · Tight Seed</td></tr>

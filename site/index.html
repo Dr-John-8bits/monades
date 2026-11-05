@@ -58,7 +58,7 @@
     <div class="status-line"><span>Compilation pour le FM-1</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Installé et lancé sur un FM-1</span><span class="st done">fait</span></div>
     <div class="status-line"><span>Vérifications complètes sur le FM-1</span><span class="st">en cours</span></div>
-    <p>Version 0.1.3, du 2 novembre 2026 (paquet <code>monades-0.1.3.fwsc</code>). <b>Installé et lancé sur un FM-1 le 29 octobre 2026, depuis la V15&nbsp;: il démarre et joue.</b> La 0.1.1 a corrigé l'audio USB, qui craquait dans l'enregistrement quand le calcul du son était chargé (0.1.0). La 0.1.2 a ajouté une 20e cible aux LFO, ROTATE&nbsp;: le rythme euclidien d'une piste tourne tout seul (voir le <a href="manuel/#l-cibles">mode d'emploi</a>). La 0.1.3 ajoute la jauge du K3 EXCITER, un avertissement avant de changer de Monde quand il y a des changements non sauvés, un écran de sauvegarde, le numéro de version sur la page SYSTEM et les touches du clavier qui s'allument sur les notes jouées.</p>
+    <p>Version 0.1.4, du 5 novembre 2026 (paquet <code>monades-0.1.4.fwsc</code>). <b>Installé et lancé sur un FM-1 le 29 octobre 2026, depuis la V15&nbsp;: il démarre et joue.</b> La 0.1.1 a corrigé l'audio USB, qui craquait dans l'enregistrement quand le calcul du son était chargé (0.1.0). La 0.1.2 a ajouté une 20e cible aux LFO, ROTATE&nbsp;: le rythme euclidien d'une piste tourne tout seul (voir le <a href="manuel/#l-cibles">mode d'emploi</a>). La 0.1.3 a ajouté la jauge du K3 EXCITER, un avertissement avant de changer de Monde quand il y a des changements non sauvés, un écran de sauvegarde, le numéro de version sur la page SYSTEM et les touches du clavier qui s'allument sur les notes jouées. La 0.1.4 corrige PRESET sur un son modifié de SATIN MORPH et au-delà du dernier Monde, et ne passe plus en ECO sur un seul bloc audio un peu long, ni au chargement d'un Monde.</p>
     <h3>Vérifié sur le FM-1 (29 octobre 2026)</h3>
     <ul>
       <li>Installation depuis la V15, identité vérifiée après le redémarrage.</li>
@@ -66,6 +66,7 @@
       <li>Sortie casque propre. Audio USB propre pendant la lecture (0.1.1).</li>
       <li>La 0.1.2 installée par-dessus la 0.1.1 le 30 octobre 2026&nbsp;: identité vérifiée, la cible LFO ROTATE fait tourner le rythme.</li>
       <li>La 0.1.3 installée par-dessus la 0.1.2 le 2 novembre 2026&nbsp;: identité vérifiée, nouveautés essayées sur l'appareil.</li>
+      <li>La 0.1.4 installée par-dessus la 0.1.3 le 5 novembre 2026&nbsp;: identité vérifiée.</li>
       <li>Horloge MIDI reçue par l'USB et par la prise TRS (depuis une Roland TR-6S, câble TRS-DIN Boss).</li>
     </ul>
     <h3>Défauts connus</h3>
@@ -86,16 +87,16 @@
     <ol class="steps">
       <li>Ouvrir <a href="installer/">l'installeur de Monades</a>. Le paquet est dans la page, vérifié par son empreinte avant d'écrire. Rien ne s'installe tant qu'on n'appuie pas sur le bouton.</li>
       <li>Relier le FM-1 en USB, appuyer sur <b>Installer</b>, accepter l'accès au MIDI quand le navigateur le demande.</li>
-      <li>Attendre la fin&nbsp;: le FM-1 redémarre et l'installeur vérifie qu'il annonce <code>FM-1_714000103</code>.</li>
+      <li>Attendre la fin&nbsp;: le FM-1 redémarre et l'installeur vérifie qu'il annonce <code>FM-1_714000104</code>.</li>
     </ol>
     <h3>Depuis le Mac (Terminal)</h3>
     <ol class="steps">
-      <li>Télécharger <a href="installer/monades-0.1.3.fwsc" download>monades-0.1.3.fwsc</a> et l'outil d'installation <a href="installer/fm1_install.py" download>fm1_install.py</a> dans le même dossier.</li>
+      <li>Télécharger <a href="installer/monades-0.1.4.fwsc" download>monades-0.1.4.fwsc</a> et l'outil d'installation <a href="installer/fm1_install.py" download>fm1_install.py</a> dans le même dossier.</li>
       <li>Installer ce dont l'outil a besoin, une fois&nbsp;: <pre>python3 -m pip install mido python-rtmidi</pre></li>
       <li>Relier le FM-1, puis, dans ce dossier&nbsp;: <pre>python3 fm1_install.py --info
-python3 fm1_install.py monades-0.1.3.fwsc --yes</pre></li>
+python3 fm1_install.py monades-0.1.4.fwsc --yes</pre></li>
     </ol>
-    <p>Le FM-1 redémarre avec l'identité <code>FM-1_714000103</code> et apparaît en MIDI comme «&nbsp;Monades FM-1&nbsp;».</p>
+    <p>Le FM-1 redémarre avec l'identité <code>FM-1_714000104</code> et apparaît en MIDI comme «&nbsp;Monades FM-1&nbsp;».</p>
     <h3>Revenir en arrière</h3>
     <ul>
       <li><b>Vers Mutable Dreams</b>&nbsp;: installer son paquet de la même façon (<a href="https://github.com/kidbee85-beep/mutable-dreams/releases">Mutable Dreams</a>).</li>
